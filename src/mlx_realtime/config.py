@@ -56,7 +56,87 @@ class LimitsConfig(_Section):
 
 
 class OutputConfig(_Section):
-    max_delta_ms: int = Field(default=100, gt=0)
+    """Output audio: deltas of at most ``max_delta_ms``, sent as soon as they are synthesized but
+    never more than ``max_lead_ms`` ahead of real time, counted from a response's first delta
+    (D6). A delta stays under 1 s, so paced deltas never leave a 2 s gap (AICC's watchdog)."""
+
+    max_delta_ms: int = Field(default=100, gt=0, le=1000)
+    max_lead_ms: int = Field(default=10_000, gt=0)
+
+    @model_validator(mode="after")
+    def _lead_holds_a_delta(self) -> Self:
+        if self.max_lead_ms < self.max_delta_ms:
+            raise ValueError("max_lead_ms must be at least max_delta_ms")
+        return self
+
+
+DEFAULT_VERBATIM_PREFIXES = (
+    "Say exactly this, word for word, and add nothing else:\n",
+    "请一字不差地说出下面这句话，不要添加任何其它内容：\n",
+)
+"""AICC's line directions (``SayExactly``), in English and Chinese."""
+
+
+class LinesConfig(_Section):
+    """Verbatim lines (D16): a response whose own ``instructions`` start with one of these
+    prefixes skips the LLM and speaks the rest as written. An empty list turns lines off."""
+
+    verbatim_prefixes: list[str] = Field(default_factory=lambda: list(DEFAULT_VERBATIM_PREFIXES))
+
+    @field_validator("verbatim_prefixes")
+    @classmethod
+    def _no_empty_prefix(cls, value: list[str]) -> list[str]:
+        if any(not prefix for prefix in value):
+            raise ValueError("a prefix must not be empty")
+        return value
+
+
+type SegmentLang = Literal["zh", "en"]
+"""A segment's language tag (mixed text is ``zh``); the TTS models map it to their lang_code."""
+
+
+class VoiceConfig(_Section):
+    """How the TTS models speak one session voice name (``audio.output.voice``, D19)."""
+
+    speaker: str = Field(min_length=1)  # the primary model's speaker
+    # "segment": each segment's language tag through the primary model's lang_codes. Any
+    # other value is sent as the lang_code itself ("auto", "chinese", "english", ...).
+    lang: str = Field(default="segment", min_length=1)
+    # The fallback model's voice for each segment language (Kokoro voices are per language).
+    fallback: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
+
+
+def _builtin_voices() -> dict[str, VoiceConfig]:
+    """Qwen3-TTS-12Hz-0.6B-CustomVoice's Mandarin and English speakers, each with Kokoro voices
+    of the same gender. ``dylan`` and ``eric`` are left out: with chinese or auto they turn
+    into Beijing and Sichuan dialect."""
+
+    def voice(speaker: str, zh: str, en: str) -> VoiceConfig:
+        return VoiceConfig(speaker=speaker, fallback={"zh": zh, "en": en})
+
+    return {
+        "vivian": voice("vivian", "zf_xiaobei", "af_heart"),
+        "serena": voice("serena", "zf_xiaoxiao", "af_bella"),
+        "uncle_fu": voice("uncle_fu", "zm_yunjian", "am_adam"),
+        "ryan": voice("ryan", "zm_yunxi", "am_michael"),
+        "aiden": voice("aiden", "zm_yunyang", "am_puck"),
+    }
+
+
+class VoicesConfig(_Section):
+    """The session voice names this service offers (D19). Any other name a client sends is
+    accepted, mapped to ``default`` with a warning, and the effective name is echoed."""
+
+    default: str = "vivian"
+    map: dict[str, VoiceConfig] = Field(default_factory=_builtin_voices)
+
+    @model_validator(mode="after")
+    def _default_is_mapped(self) -> Self:
+        if not self.map:
+            raise ValueError("voices.map must name at least one voice")
+        if self.default not in self.map:
+            raise ValueError(f"the default voice '{self.default}' is not in voices.map")
+        return self
 
 
 class VadConfig(_Section):
@@ -93,8 +173,24 @@ class SegmenterConfig(_Section):
     max_chars: int = Field(default=80, ge=2)
 
 
+class NormalizerConfig(_Section):
+    """TTS input normalization by category (ARCHITECTURE §7); transcripts keep the original
+    text. Phone numbers and IDs are on, the rest off, until the S9 probe decides (G5)."""
+
+    enabled: bool = True
+    numbers: bool = False  # cardinal, decimal, percent; read in Chinese or English by context
+    money: bool = False
+    dates: bool = False  # dates and times
+    phones: bool = True  # mobile, landline, 400/800: digit by digit, in groups
+    ids: bool = True  # order and tracking IDs: character by character
+    units: bool = False
+    spacing: bool = False  # zh/en spacing
+    phone_one_as_yao: bool = True  # read 1 as 幺 in Chinese phone numbers
+
+
 class TextConfig(_Section):
     segmenter: SegmenterConfig = SegmenterConfig()
+    normalizer: NormalizerConfig = NormalizerConfig()
 
 
 class MockLLMConfig(_Section):
@@ -160,7 +256,78 @@ class MlxAudioAsrConfig(_Section):
     timeouts: HttpTimeouts = HttpTimeouts(first_item_ms=5000, idle_ms=2000, total_ms=10_000)
 
 
-_PROVIDER_TAGS = frozenset({"mock", "mlx_lm_chat", "mlx_audio_transcription"})
+type TtsFamily = Literal["qwen3_tts", "kokoro"]
+"""How a TTS model is asked: Qwen3-TTS takes a speaker name, Kokoro a voice-pack file."""
+
+_TTS_TIMEOUTS = HttpTimeouts(first_item_ms=1500, idle_ms=1000, total_ms=60_000, warmup_ms=300_000)
+
+
+class TtsModelConfig(_Section):
+    """One model of the TTS backend, and the fields its requests carry (ARCHITECTURE §5.3).
+
+    ``streaming_interval``: seconds of audio per streamed chunk (Qwen3-TTS streams
+    ``max(1, int(interval × 12.5))`` codec frames of 80 ms; at 0.32 the first chunk arrived
+    about 110 ms after the request in M0). The sampling fields are sent only when set; unset,
+    the model's own generation_config.json applies.
+    """
+
+    model: str = Field(min_length=1)  # the name sent in requests
+    family: TtsFamily = "qwen3_tts"
+    lang_codes: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
+    streaming_interval: float = Field(default=0.32, gt=0)
+    voices_dir: str | None = None  # Kokoro voice packs; None: voices/ of the pinned snapshot
+    temperature: float | None = Field(default=None, ge=0)
+    top_p: float | None = Field(default=None, gt=0, le=1)
+    top_k: int | None = Field(default=None, ge=1)
+    repetition_penalty: float | None = Field(default=None, gt=0)
+    max_tokens: int | None = Field(default=None, ge=1)  # None: the server's 1200 codec frames
+    timeouts: HttpTimeouts = _TTS_TIMEOUTS
+
+
+class TtsFallbackConfig(TtsModelConfig):
+    """The model a segment is retried on when the primary fails before its first chunk (D13).
+    After ``breaker_failures`` consecutive primary failures every segment goes straight to the
+    fallback for ``cooldown_s``."""
+
+    enabled: bool = True
+    breaker_failures: int = Field(default=3, ge=1)
+    cooldown_s: float = Field(default=30.0, gt=0)
+
+
+class MlxAudioSpeechConfig(_Section):
+    """``mlx_audio.server``'s streaming speech route, one model per request (primary, fallback).
+    The server runs one stream at a time, so requests queue in the gateway, at most
+    ``queue_timeout_ms`` (then ``backend_busy``)."""
+
+    type: Literal["mlx_audio_speech"]
+    base_url: str = "http://127.0.0.1:8103"
+    sample_rate: int = Field(default=24_000, gt=0)  # the PCM the server streams
+    max_in_flight: int = Field(default=1, ge=1)
+    queue_timeout_ms: int = Field(default=2000, ge=0)
+    warmup_texts: dict[SegmentLang, str] = Field(
+        default_factory=lambda: {
+            "zh": "您好，请问有什么可以帮您？",
+            "en": "Hello, how can I help you?",
+        }
+    )
+    primary: TtsModelConfig = TtsModelConfig(
+        model="mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit", family="qwen3_tts"
+    )
+    fallback: TtsFallbackConfig = TtsFallbackConfig(
+        model="mlx-community/Kokoro-82M-bf16",
+        family="kokoro",
+        timeouts=HttpTimeouts(first_item_ms=2000, idle_ms=2000, total_ms=60_000, warmup_ms=300_000),
+    )
+
+    @field_validator("warmup_texts")
+    @classmethod
+    def _both_languages(cls, value: dict[SegmentLang, str]) -> dict[SegmentLang, str]:
+        if set(value) != {"zh", "en"} or not all(text.strip() for text in value.values()):
+            raise ValueError("needs a non-empty zh and en sentence")
+        return value
+
+
+_PROVIDER_TAGS = frozenset({"mock", "mlx_lm_chat", "mlx_audio_transcription", "mlx_audio_speech"})
 
 
 def _provider_type(value: object) -> str:
@@ -179,12 +346,17 @@ type ASRConfig = Annotated[
     | Annotated[MlxAudioAsrConfig, Tag("mlx_audio_transcription")],
     Discriminator(_provider_type),
 ]
+type TTSConfig = Annotated[
+    Annotated[MockTTSConfig, Tag("mock")]
+    | Annotated[MlxAudioSpeechConfig, Tag("mlx_audio_speech")],
+    Discriminator(_provider_type),
+]
 
 
 class ProvidersConfig(_Section):
     llm: LLMConfig = MockLLMConfig()
     asr: ASRConfig = MockASRConfig()
-    tts: MockTTSConfig = MockTTSConfig()
+    tts: TTSConfig = MockTTSConfig()
 
 
 class HfRepo(_Section):
@@ -217,6 +389,15 @@ class BackendsConfig(_Section):
         named = {"llm": self.llm, "asr": self.asr, "tts": self.tts}
         return {name: backend for name, backend in named.items() if backend is not None}
 
+    def pins(self) -> dict[str, str]:
+        """Every pinned model repository (served or fetched by name) and its revision."""
+        pinned: dict[str, str] = {}
+        for backend in self.processes().values():
+            served = [] if backend.model is None else [backend.model]
+            for pin in [*backend.fetch, *served]:
+                pinned[pin.repo] = pin.revision
+        return pinned
+
 
 class ObservabilityConfig(_Section):
     log_level: Literal["debug", "info", "warning", "error"] = "info"
@@ -226,12 +407,31 @@ class Config(_Section):
     gateway: GatewayConfig = GatewayConfig()
     limits: LimitsConfig = LimitsConfig()
     output: OutputConfig = OutputConfig()
+    lines: LinesConfig = LinesConfig()
+    voices: VoicesConfig = VoicesConfig()
     session_defaults: dict[str, object] = Field(default_factory=dict[str, object])
     turn: TurnConfig = TurnConfig()
     text: TextConfig = TextConfig()
     providers: ProvidersConfig = ProvidersConfig()
     backends: BackendsConfig = BackendsConfig()
     observability: ObservabilityConfig = ObservabilityConfig()
+
+    @model_validator(mode="after")
+    def _voices_have_fallback_voices(self) -> Self:
+        tts = self.providers.tts
+        if not isinstance(tts, MlxAudioSpeechConfig):
+            return self
+        fallback = tts.fallback
+        if not fallback.enabled or fallback.family != "kokoro":
+            return self
+        for name, voice in self.voices.map.items():
+            missing = sorted({"zh", "en"} - set(voice.fallback))
+            if missing:
+                raise ValueError(
+                    f"voices.map.{name}.fallback needs a Kokoro voice for {', '.join(missing)} "
+                    "while providers.tts.fallback is enabled"
+                )
+        return self
 
     @model_validator(mode="after")
     def _llm_model_is_exact_or_omitted(self) -> Self:

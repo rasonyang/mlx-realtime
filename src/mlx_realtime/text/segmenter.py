@@ -12,7 +12,9 @@ Rules:
   between two CJK characters.
 - Length counts CJK characters and Latin words.
 - ASCII punctuation counts only when followed by whitespace or CJK text, so a segment never
-  ends inside a number, decimal, URL, e-mail address or ID.
+  ends inside a number, decimal, URL, e-mail address or ID; whitespace between two digit groups
+  ("138 0013 8000") is never a cut either, so a spaced phone number reaches the normalizer
+  whole.
 
 Segments are slices of the input: joined, they reproduce it exactly.
 """
@@ -155,7 +157,11 @@ def _cuts(text: str, final: bool) -> list[_Cut]:
             kind = _Kind.HARD if char in _HARD_ASCII else _Kind.SOFT
             cuts.append(_Cut(_extend(text, after), kind))
         elif char.isspace():
-            if index > 0 and not text[index - 1].isspace():
+            if (
+                index > 0
+                and not text[index - 1].isspace()
+                and not _between_digit_groups(text, index, final)
+            ):
                 cuts.append(_Cut(_extend(text, index), _Kind.SPACE))
         elif index > 0 and is_cjk(char) and is_cjk(text[index - 1]):
             cuts.append(_Cut(index, _Kind.CJK_PAIR))
@@ -169,6 +175,17 @@ def _ends_clause(text: str, index: int, final: bool) -> bool:
         return final
     char = text[index]
     return char.isspace() or is_cjk(char) or char in _HARD_CJK or char in _SOFT_CJK
+
+
+def _between_digit_groups(text: str, space: int, final: bool) -> bool:
+    """Whether the whitespace at ``space`` separates digit groups ("138 0013 8000"): after a
+    digit it counts as one until the next character shows otherwise."""
+    if not text[space - 1].isdigit():
+        return False
+    after = space
+    while after < len(text) and text[after].isspace():
+        after += 1
+    return not final if after == len(text) else text[after].isdigit()
 
 
 def _skip_closers(text: str, index: int) -> int:

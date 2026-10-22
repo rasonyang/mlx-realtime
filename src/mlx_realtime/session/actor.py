@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Awaitable, Callable, Coroutine
-from dataclasses import dataclass
+from collections.abc import Awaitable, Callable, Coroutine, Sequence
+from dataclasses import dataclass, replace
 from typing import Protocol
 
 from mlx_realtime import logs
@@ -25,6 +25,8 @@ from mlx_realtime.providers.base import (
     ToolCall,
     TTSProvider,
 )
+from mlx_realtime.providers.voices import VoiceBook
+from mlx_realtime.session.clock import Clock
 from mlx_realtime.session.commands import (
     AppendAudio,
     CancelResponse,
@@ -87,6 +89,7 @@ from mlx_realtime.session.signals import (
     LlmText,
     LlmToolCall,
     PipelineFailed,
+    PipelineMark,
     PipelineSignal,
     SegmentAudio,
     SegmentStarted,
@@ -108,6 +111,7 @@ from mlx_realtime.session.turn import (
     TurnStart,
     TurnState,
 )
+from mlx_realtime.text.normalize import NormalizerOptions
 from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
@@ -120,6 +124,8 @@ _BACKEND_CODES: dict[ProviderErrorKind, str] = {
     "bad_response": "provider_error",
     "internal": "provider_error",
 }
+
+_VOICE_LOCKED = "Cannot update a conversation's voice if assistant audio is present."
 
 
 class IdSource(Protocol):
@@ -144,7 +150,12 @@ class SessionDeps:
     limits: LimitsConfig
     turn: TurnConfig
     segmenter: SegmenterConfig
+    normalizer: NormalizerOptions
     max_delta_ms: int
+    max_lead_ms: int
+    voices: VoiceBook  # D19: unknown names resolve to the default voice
+    verbatim_prefixes: Sequence[str]  # D16
+    clock: Clock
 
 
 class SessionActor:
@@ -170,6 +181,7 @@ class SessionActor:
         self._inbox = inbox
         self._ledger = ledger
         self._emit = emit
+        self._clock = deps.clock
         self._conversation = Conversation()
         self._input = InputBuffer(deps.limits.input_audio_buffer_max_ms)
         # Audio the detector has not seen is never trimmed from the input buffer, so the
@@ -187,15 +199,19 @@ class SessionActor:
         self._timelines: dict[str, TurnTimeline] = {}  # by user audio item, until logged
         self._response: Response | None = None
         self._generation = 0
+        self._voice_locked = False  # GA: no voice change once the session has spoken
         self._tasks: asyncio.TaskGroup | None = None
         self._pipeline_context = PipelineContext(
             llm=deps.llm,
             tts=deps.tts,
             segmenter=deps.segmenter,
+            normalizer=deps.normalizer,
             max_delta_ms=deps.max_delta_ms,
+            max_lead_ms=deps.max_lead_ms,
+            max_audio_ms=deps.limits.max_response_audio_ms,
             post=inbox.put_signal,
             wait_for_room=wait_for_room,
-            clock_ms=lambda: asyncio.get_running_loop().time() * 1000,
+            clock=deps.clock,
         )
 
     async def run(self) -> None:
@@ -342,7 +358,7 @@ class SessionActor:
         with logs.bound(turn=timeline.turn_id, item=item_id):
             self._spawn(self._transcribe(item_id, audio.pcm, language))
         if create_response and self._response is None:
-            self._start_response(ResponseParams(), turn_item_id=item_id)
+            self._start_response(ResponseParams(), turn_item_id=item_id, voice=self._settings.voice)
 
     def _clear_buffer(self) -> None:
         self._input.clear()
@@ -447,8 +463,16 @@ class SessionActor:
     # Session and conversation
 
     def _update_session(self, command: UpdateSession) -> None:
+        patch = command.patch
+        if patch.voice is not UNSET:
+            voice = self._effective_voice(patch.voice)
+            if self._voice_locked and voice != self._settings.voice:
+                param = "session.audio.output.voice"
+                self._reject("cannot_update_voice", _VOICE_LOCKED, command.event_id, param)
+                return
+            patch = replace(patch, voice=voice)
         previous_vad = self._settings.turn_detection
-        self._settings = self._settings.apply(command.patch, self._defaults)
+        self._settings = self._settings.apply(patch, self._defaults)
         if self._settings.turn_detection != previous_vad:
             self._turns = self._new_turn_manager()
             self._restart_turn_detection()
@@ -527,9 +551,16 @@ class SessionActor:
             )
             self._reject("conversation_already_has_active_response", message, command.event_id)
             return
+        voice = self._settings.voice
+        if command.params.voice is not None:
+            voice = self._effective_voice(command.params.voice)
+            if self._voice_locked and voice != self._settings.voice:
+                param = "response.audio.output.voice"
+                self._reject("cannot_update_voice", _VOICE_LOCKED, command.event_id, param)
+                return
         last = self._conversation.last()
         turn_item_id = last.id if isinstance(last, AudioMessage) else None
-        self._start_response(command.params, turn_item_id=turn_item_id)
+        self._start_response(command.params, turn_item_id=turn_item_id, voice=voice)
 
     def _cancel_response(self, command: CancelResponse) -> None:
         response = self._response
@@ -540,16 +571,27 @@ class SessionActor:
             return
         self._stop_response(response, StatusDetails("cancelled", "client_cancelled"))
 
-    def _start_response(self, params: ResponseParams, *, turn_item_id: str | None) -> None:
+    def _start_response(
+        self, params: ResponseParams, *, turn_item_id: str | None, voice: str
+    ) -> None:
         settings = self._settings
         self._generation += 1
         modality = params.output_modality or settings.output_modality
+        verbatim = self._verbatim_line(params.instructions)
+        if verbatim is not None:
+            turn_item_id = None  # a line answers no turn: no transcript to wait for (D16)
+        timeline = None if turn_item_id is None else self._timelines.get(turn_item_id)
+        if timeline is None:
+            timeline = TurnTimeline(self._ids.turn(), None)
+        timeline.mark("response_created", self._now())
+        if verbatim is not None:
+            timeline.note("verbatim", True)
         response = Response(
             id=self._ids.response(),
             generation=self._generation,
             conversation_id=self._conversation_id,
             modality=modality,
-            voice=params.voice or settings.voice,
+            voice=voice,
             instructions=settings.instructions
             if params.instructions is None
             else params.instructions,
@@ -561,33 +603,55 @@ class SessionActor:
             tool_choice=params.tool_choice or settings.tool_choice,
             metadata=params.metadata,
             turn_item_id=turn_item_id,
+            verbatim=verbatim,
+            timeline=timeline,
             tts_done=modality == "text",
         )
         self._response = response
         self._emit(ResponseStarted(response))
         self._advance(response)
 
+    def _verbatim_line(self, instructions: str | None) -> str | None:
+        """The line to say as written, when the response's own instructions start with a
+        configured direction (D16)."""
+        if instructions is None:
+            return None
+        for prefix in self._deps.verbatim_prefixes:
+            if instructions.startswith(prefix):
+                return instructions[len(prefix) :].strip()
+        return None
+
     def _advance(self, response: Response) -> None:
-        """Start the pipeline once every transcript is final (or finish a noise turn, D7)."""
+        """Start the pipeline once every transcript is final (or finish a noise turn, D7). A
+        verbatim line starts at once: it needs neither the conversation nor the LLM."""
         if response.task is not None:
             return
-        response.awaiting_transcript = self._conversation.pending_transcripts()
-        if response.awaiting_transcript:
-            return
-        turn = (
-            None if response.turn_item_id is None else self._conversation.get(response.turn_item_id)
+        if response.verbatim is None:
+            response.awaiting_transcript = self._conversation.pending_transcripts()
+            if response.awaiting_transcript:
+                return
+            turn = (
+                None
+                if response.turn_item_id is None
+                else self._conversation.get(response.turn_item_id)
+            )
+            if isinstance(turn, AudioMessage) and not (turn.transcript or "").strip():
+                self._close_response(response, "completed", None)
+                return
+        messages = (
+            []
+            if response.verbatim is not None
+            else build_messages(self._conversation, response.instructions)
         )
-        if isinstance(turn, AudioMessage) and not (turn.transcript or "").strip():
-            self._close_response(response, "completed", None)
-            return
         request = PipelineRequest(
             generation=response.generation,
-            messages=build_messages(self._conversation, response.instructions),
+            messages=messages,
             tools=self._settings.tools,
             tool_choice=response.tool_choice,
             max_output_tokens=response.max_output_tokens,
             modality=response.modality,
             voice=response.voice,
+            verbatim=response.verbatim,
         )
         with logs.bound(response=response.id):
             response.task = self._spawn(run_pipeline(request, self._pipeline_context))
@@ -595,13 +659,14 @@ class SessionActor:
     def _pipeline_signal(self, response: Response, signal: PipelineSignal) -> None:
         match signal:
             case LlmText(text=text):
-                self._mark(response.turn_item_id, "llm_first_token")
+                if response.verbatim is None:
+                    self._mark_response(response, "llm_first_token")
                 message = response.message or self._open_message(response)
                 if response.modality == "text":
                     message.text += text
                     self._emit(OutputTextDelta(response, message, text))
             case LlmToolCall(call=call):
-                self._mark(response.turn_item_id, "llm_first_token")
+                self._mark_response(response, "llm_first_token")
                 self._deliver_call(response, call)
             case LlmFinished(done=done):
                 response.llm_done = True
@@ -618,6 +683,11 @@ class SessionActor:
             case PipelineFailed(stage=stage, error=error):
                 info = _backend_error(stage, error)
                 self._stop_response(response, StatusDetails("failed", error=info), info)
+            case PipelineMark(name=name, at_s=at_s, values=values):
+                if response.timeline is not None:
+                    response.timeline.mark(name, at_s)
+                    for key, value in values:
+                        response.timeline.note(key, value)
 
     def _open_message(self, response: Response) -> AssistantMessage:
         message = AssistantMessage(self._ids.item(), response.modality)
@@ -652,6 +722,10 @@ class SessionActor:
         message.segments[signal.index].audio_bytes += len(signal.pcm)
         delivery = Delivery(response.generation, message.id, signal.index, "audio", len(signal.pcm))
         self._emit(OutputAudioDelta(response, message, signal.pcm, delivery))
+        if not response.audio_started:
+            response.audio_started = True
+            self._voice_locked = True
+            self._mark_response(response, "first_audio_sent")
         if message.audio_ms > self._deps.limits.max_response_audio_ms:
             self._stop_response(response, StatusDetails("incomplete", "max_output_tokens"))
 
@@ -705,7 +779,10 @@ class SessionActor:
         response.status_details = details
         self._response = None
         self._emit(ResponseFinished(response))
-        self._log_timeline(response.turn_item_id)
+        if response.turn_item_id is not None:
+            self._timelines.pop(response.turn_item_id, None)
+        if response.timeline is not None:
+            response.timeline.log(response_id=response.id)
 
     # Helpers
 
@@ -714,9 +791,21 @@ class SessionActor:
             raise RuntimeError("the session actor is not running")
         return self._tasks.create_task(coroutine)
 
-    @staticmethod
-    def _now() -> float:
-        return asyncio.get_running_loop().time()
+    def _now(self) -> float:
+        return self._clock.now()
+
+    def _mark_response(self, response: Response, name: str) -> None:
+        if response.timeline is not None:
+            response.timeline.mark(name, self._now())
+
+    def _effective_voice(self, name: str) -> str:
+        """D19: a voice that is not configured is accepted and spoken by the default voice."""
+        voice = self._deps.voices.effective(name)
+        if voice != name:
+            logger.warning(
+                "unknown voice; the default voice speaks", extra={"voice": name, "effective": voice}
+            )
+        return voice
 
     def _last_item_id(self) -> str | None:
         last = self._conversation.last()

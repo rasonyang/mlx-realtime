@@ -5,17 +5,20 @@ from pathlib import Path
 import pytest
 
 from mlx_realtime.config import (
+    DEFAULT_VERBATIM_PREFIXES,
     ConfigError,
     MlxAudioAsrConfig,
+    MlxAudioSpeechConfig,
     MlxLmChatConfig,
     MockASRConfig,
     MockLLMConfig,
     load_config,
     validate_config,
 )
+from mlx_realtime.providers.fallback import FallbackTTS
 from mlx_realtime.providers.mlx_audio_asr import MlxAudioASR
 from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
-from mlx_realtime.providers.mock import EchoLLM
+from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.providers.registry import build_providers
 from mlx_realtime.server.gateway import Gateway
 from tests.speech import needs_models
@@ -54,14 +57,29 @@ def test_repository_config_points_at_the_real_backends() -> None:
     asr = config.backends.asr
     assert asr is not None
     assert [pin.repo for pin in asr.fetch] == [config.providers.asr.model]
+    # M3: the TTS backend, Qwen3-TTS with Kokoro behind it (D13), both pinned for the tts process.
+    assert isinstance(gateway.providers.tts, FallbackTTS)
+    tts = config.providers.tts
+    assert isinstance(tts, MlxAudioSpeechConfig)
+    assert (tts.primary.family, tts.fallback.family) == ("qwen3_tts", "kokoro")
+    assert tts.max_in_flight == 1  # the server runs one stream at a time
+    backend = config.backends.tts
+    assert backend is not None
+    assert [pin.repo for pin in backend.fetch] == [tts.primary.model, tts.fallback.model]
+    assert gateway.defaults.voice == config.voices.default == "vivian"
+    assert config.output.max_lead_ms == 10_000  # D6
+    assert tuple(config.lines.verbatim_prefixes) == DEFAULT_VERBATIM_PREFIXES  # D16
+    assert (config.text.normalizer.phones, config.text.normalizer.numbers) == (True, False)
 
 
 def test_mock_config_is_the_m1_setup() -> None:
     config = load_config(MOCK_CONFIG, {})
     gateway = Gateway(config)
     assert isinstance(gateway.providers.llm, EchoLLM)
+    assert isinstance(gateway.providers.tts, SineTTS)
     assert config.backends.processes() == {}
     assert config.turn.vad.type == "mock"
+    assert gateway.defaults.voice == "vivian"
 
 
 def test_empty_file_takes_every_default(tmp_path: Path) -> None:
@@ -171,3 +189,39 @@ def test_the_llm_model_name_is_omitted_when_the_backend_serves_a_snapshot(tmp_pa
     )
     with pytest.raises(ConfigError, match=r"providers\.llm\.model must be omitted"):
         load_config(write(tmp_path, text), {})
+
+
+@pytest.mark.parametrize(
+    ("raw", "path"),
+    [
+        ({"output": {"max_lead_ms": 50}}, "output"),  # below one delta
+        ({"output": {"max_delta_ms": 2000}}, "output.max_delta_ms"),  # a 2 s gap at the cap
+        ({"lines": {"verbatim_prefixes": [""]}}, "lines.verbatim_prefixes"),
+        (
+            {"providers": {"tts": {"type": "mlx_audio_speech", "max_in_flight": 0}}},
+            "providers.tts.max_in_flight",
+        ),
+        (
+            {
+                "providers": {
+                    "tts": {"type": "mlx_audio_speech", "primary": {"model": "m", "family": "x"}}
+                }
+            },
+            "providers.tts.primary.family",
+        ),
+        (
+            {"providers": {"tts": {"type": "mlx_audio_speech", "warmup_texts": {"zh": "你好"}}}},
+            "warmup_texts",
+        ),
+        ({"text": {"normalizer": {"currency": True}}}, "text.normalizer.currency"),
+    ],
+)
+def test_m3_settings_are_validated(raw: dict[str, object], path: str) -> None:
+    with pytest.raises(ConfigError, match=path.replace(".", r"\.")):
+        validate_config(raw)
+
+
+def test_session_defaults_must_name_a_configured_voice() -> None:
+    config = validate_config({"session_defaults": {"audio": {"output": {"voice": "marin"}}}})
+    with pytest.raises(ConfigError, match=r"session_defaults\.audio\.output\.voice: 'marin'"):
+        Gateway(config, build_providers(config.providers))

@@ -68,6 +68,18 @@ class PCMChunk:
     sample_rate: int
 
 
+@dataclass(slots=True)
+class SpeechTiming:
+    """What a TTS provider reports about one stream while it runs (the turn timeline).
+
+    The caller passes a fresh instance to ``TTSProvider.stream``; the provider fills it in.
+    """
+
+    queued_s: float = 0.0  # time spent waiting for a backend slot, over every attempt
+    model: str = ""  # the model that produced the audio
+    fallback: bool = False  # the stream was served by the fallback model
+
+
 @dataclass(frozen=True, slots=True)
 class Message:
     """One chat message; providers adapt the list to what their backend accepts."""
@@ -120,8 +132,17 @@ class LLMProvider(Protocol):
 
 
 class TTSProvider(Protocol):
+    """``voice`` is a session voice name (``audio.output.voice``, D19); the provider maps it to
+    what each model takes. ``lang`` is the segment's language tag."""
+
     def stream(
-        self, text: str, voice: str, lang: Lang, *, speed: float = 1.0
+        self,
+        text: str,
+        voice: str,
+        lang: Lang,
+        *,
+        speed: float = 1.0,
+        timing: SpeechTiming | None = None,
     ) -> AsyncGenerator[PCMChunk]: ...
 
 
@@ -129,3 +150,12 @@ class Backend(Protocol):  # every provider also implements this
     async def warmup(self) -> None: ...
     async def ready(self) -> Readiness: ...
     async def aclose(self) -> None: ...
+
+
+class LLMBackend(LLMProvider, Backend, Protocol): ...
+
+
+class ASRBackend(ASRProvider, Backend, Protocol): ...
+
+
+class TTSBackend(TTSProvider, Backend, Protocol): ...

@@ -7,19 +7,24 @@ from __future__ import annotations
 import asyncio
 import hmac
 import logging
-from collections.abc import Callable
+import os
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Protocol
 
-from mlx_realtime.config import Config, ConfigError, TurnConfig
+from mlx_realtime.config import BackendsConfig, Config, ConfigError, NormalizerConfig, TurnConfig
+from mlx_realtime.hub import hub_cache, snapshot_dir
 from mlx_realtime.protocol.fields import ProtocolError
 from mlx_realtime.protocol.ids import IdFactory
 from mlx_realtime.protocol.session import decode_session_defaults
 from mlx_realtime.providers.base import Backend, Readiness
 from mlx_realtime.providers.registry import Providers, build_providers
+from mlx_realtime.providers.voices import VoiceBook
 from mlx_realtime.server.readiness import ReadinessMonitor
 from mlx_realtime.session.actor import SessionDeps
+from mlx_realtime.session.clock import LoopClock
 from mlx_realtime.session.settings import SessionSettings
+from mlx_realtime.text.normalize import NormalizerOptions
 from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.executors import VadRuntime
 from mlx_realtime.vad.scripted import ScriptedSpeech, ScriptedTurnEnd
@@ -82,14 +87,16 @@ class Gateway:
         *,
         speech_detector: Callable[[], SpeechDetector] | None = None,
         turn_end_detector: Callable[[], TurnEndDetector | None] | None = None,
+        environ: Mapping[str, str] = os.environ,
     ) -> None:
-        try:
-            self.defaults: SessionSettings = decode_session_defaults(config.session_defaults)
-        except ProtocolError as error:
-            raise ConfigError(f"invalid configuration:\n  {error.param}: {error.message}") from None
+        self.voices = VoiceBook(config.voices)
+        self.defaults: SessionSettings = _session_defaults(config, self.voices)
         self.config = config
         self.providers = providers or build_providers(
-            config.providers, warmup_instructions=self.defaults.instructions
+            config.providers,
+            warmup_instructions=self.defaults.instructions,
+            voices=config.voices,
+            snapshots=pinned_snapshots(config.backends, hub_cache(environ)),
         )
         self.ids = IdFactory()
         self.admission = Admission(config.gateway.max_sessions)
@@ -117,6 +124,7 @@ class Gateway:
         return authorization is not None and hmac.compare_digest(authorization.encode(), expected)
 
     def session_deps(self) -> SessionDeps:
+        config = self.config
         return SessionDeps(
             llm=self.providers.llm,
             asr=self.providers.asr,
@@ -124,15 +132,52 @@ class Gateway:
             speech=self._speech_detector(),
             turn_end=self._turn_end_detector(),
             ids=self.ids,
-            limits=self.config.limits,
-            turn=self.config.turn,
-            segmenter=self.config.text.segmenter,
-            max_delta_ms=self.config.output.max_delta_ms,
+            limits=config.limits,
+            turn=config.turn,
+            segmenter=config.text.segmenter,
+            normalizer=normalizer_options(config.text.normalizer),
+            max_delta_ms=config.output.max_delta_ms,
+            max_lead_ms=config.output.max_lead_ms,
+            voices=self.voices,
+            verbatim_prefixes=tuple(config.lines.verbatim_prefixes),
+            clock=LoopClock(),
         )
 
     async def aclose(self) -> None:
         for backend in self._backends.values():
             await backend.aclose()
+
+
+def _session_defaults(config: Config, voices: VoiceBook) -> SessionSettings:
+    """``session_defaults``, validated like a ``session.update``. Without a voice they take the
+    voice map's default; a voice they name must be in the map."""
+    try:
+        defaults = decode_session_defaults(
+            config.session_defaults, base=SessionSettings(voice=voices.default)
+        )
+    except ProtocolError as error:
+        raise ConfigError(f"invalid configuration:\n  {error.param}: {error.message}") from None
+    if defaults.voice not in voices:
+        known = ", ".join(voices.names())
+        raise ConfigError(
+            "invalid configuration:\n  session_defaults.audio.output.voice: "
+            f"'{defaults.voice}' is not in voices.map ({known})"
+        )
+    return defaults
+
+
+def pinned_snapshots(backends: BackendsConfig, cache: Path) -> Callable[[str], Path | None]:
+    """A model repository's local snapshot at the revision ``backends`` pins (else ``main``)."""
+    pins = backends.pins()
+
+    def find(repo: str) -> Path | None:
+        return snapshot_dir(cache, repo, pins.get(repo, "main"))
+
+    return find
+
+
+def normalizer_options(config: NormalizerConfig) -> NormalizerOptions:
+    return NormalizerOptions(**config.model_dump())
 
 
 def vad_runtime(turn: TurnConfig) -> VadRuntime:

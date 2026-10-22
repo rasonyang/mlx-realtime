@@ -106,9 +106,12 @@ def decode_session(value: object, path: str, *, require_type: bool = True) -> Se
     )
 
 
-def decode_session_defaults(raw: Mapping[str, object]) -> SessionSettings:
-    """The configured ``session_defaults``, validated exactly like a ``session.update``."""
-    builtin = SessionSettings()
+def decode_session_defaults(
+    raw: Mapping[str, object], *, base: SessionSettings | None = None
+) -> SessionSettings:
+    """The configured ``session_defaults``, validated exactly like a ``session.update``, over
+    ``base`` (the built-in settings by default)."""
+    builtin = base or SessionSettings()
     return builtin.apply(decode_session(dict(raw), "session_defaults", require_type=False), builtin)
 
 

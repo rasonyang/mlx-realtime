@@ -24,6 +24,7 @@ from mlx_realtime.providers.base import (
     PCMChunk,
     ProviderError,
     Readiness,
+    SpeechTiming,
     TextDelta,
     ToolChoice,
     ToolDef,
@@ -248,9 +249,17 @@ class SineTTS(_MockBackend):
         return characters * self._ms_per_char * self.sample_rate // 1000
 
     async def stream(
-        self, text: str, voice: str, lang: Lang, *, speed: float = 1.0
+        self,
+        text: str,
+        voice: str,
+        lang: Lang,
+        *,
+        speed: float = 1.0,
+        timing: SpeechTiming | None = None,
     ) -> AsyncGenerator[PCMChunk]:
         self.requests.append(SpeechRequest(text, voice, lang))
+        if timing is not None:
+            timing.model = "sine"
         total = self.samples_for(text)
         self.streams.open()
         try:

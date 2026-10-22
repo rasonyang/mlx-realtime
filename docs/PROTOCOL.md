@@ -1,9 +1,10 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M2 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> **Status: M3 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
-> (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. Audio
-> output is still a sine tone until M3.
+> (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
+> the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
+> of real time (D6), with configured voices (D19) and verbatim lines (D16).
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -96,7 +97,7 @@ the configured session defaults, so its absent fields take their configured valu
 | `audio.input.turn_detection` (`RealtimeAudioInputTurnDetection`) | **Supported** | `null` (manual turns), or `ServerVad`: Silero VAD v6.2.3 plus Smart Turn v3.2 (D4, §11.9). `threshold` [0, 1] (speech enters at it, leaves below it − 0.15), `prefix_padding_ms` ≥ 0, `silence_duration_ms` ≥ 0 (the silence before an end-of-turn evaluation; session default 200), `create_response`, `interrupt_response`; `idle_timeout_ms` only `null`. `SemanticVad`: **Unsupported** | every field filled, `idle_timeout_ms: null`; or `null` | `…turn_detection.type` (`semantic_vad`), `….idle_timeout_ms` (non-null), `….<field>` |
 | `audio.input.noise_reduction` (`NoiseReduction`) | **Unsupported** | `null` only (echo cancellation is internal, M4) | `null` | `session.audio.input.noise_reduction` |
 | `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | as input | `session.audio.output.format.type` / `.rate` |
-| `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19). M1 echoes it as given; M3 maps an unknown name to the default voice, logs a warning and echoes the effective voice. `VoiceID` objects: Unsupported | effective string | `session.audio.output.voice` (object) |
+| `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19): a name in `voices.map` is that voice, any other name is spoken by `voices.default` and logged as a warning (§11.10). Locked once the session has produced audio, as in GA: a different voice then gets `cannot_update_voice`; the same voice, or no voice field, passes. `VoiceID` objects: Unsupported | the effective voice (default `vivian`) | `session.audio.output.voice` (object; or `cannot_update_voice`) |
 | `audio.output.speed` | **Partial** | `1.0` only (D14: the TTS has no speed control) | `1.0` | `session.audio.output.speed` |
 | `tools` (`RealtimeToolsConfig`) | **Supported** | `RealtimeFunctionTool`: `type: "function"` and `name` required, `description`, `parameters` (an object, passed through). Duplicate names rejected. `Mcp`: Unsupported | effective list; `[]` when unset | `session.tools[i].type` / `.name` / `.parameters` / `.<key>` |
 | `tool_choice` (`RealtimeToolChoiceConfig`) | **Partial** | `"auto"`, `"none"`. `"required"`, `ToolChoiceFunction`, `ToolChoiceMcp`: **Unsupported (M5)** | effective; `"auto"` by default | `session.tool_choice` |
@@ -120,11 +121,11 @@ this response only. `response: null` or absent means the session's settings.
 
 | Field | Status | Notes | Rejection `param` |
 |---|---|---|---|
-| `instructions` | **Supported** | replaces the session instructions for this response (GA). Verbatim lines (D16) arrive in M3: until then a "Say exactly this…" line goes through the LLM | `response.instructions` |
+| `instructions` | **Supported** | replaces the session instructions for this response (GA). Server extension, invisible on the wire: instructions that start with a configured direction are a verbatim line, spoken as written without the LLM (D16, §11.11) | `response.instructions` |
 | `output_modalities` | **Supported** | `["audio"]` or `["text"]` | `response.output_modalities` |
 | `max_output_tokens` | **Supported** | `"inf"` or 1–4096; reaching it ends the response `incomplete` (`max_output_tokens`) | `response.max_output_tokens` |
 | `tool_choice` | **Partial** | `"auto"`, `"none"`; the rest **Unsupported (M5)** | `response.tool_choice` |
-| `audio.output.voice` (`OutputVoice`) | **Partial** | as the session voice (D19); `OutputVoiceID`: Unsupported | `response.audio.output.voice` |
+| `audio.output.voice` (`OutputVoice`) | **Partial** | this response's voice, resolved as the session's (D19); once the session has produced audio only the session voice is accepted, any other draws `cannot_update_voice` and no response. `OutputVoiceID`: Unsupported | `response.audio.output.voice` |
 | `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | `response.audio.output.format.type` |
 | `metadata` | **Supported** | at most 16 pairs; keys ≤ 64 characters, values strings ≤ 512; echoed on the response | `response.metadata` / `response.metadata.<key>` |
 | `conversation` | **Partial** | `"auto"` (or `null`) only; out-of-band responses (`"none"`) Unsupported | `response.conversation` |
@@ -190,7 +191,7 @@ session).
 | `response.created` | `ResponseCreatedEvent` | **Supported** | at once on `response.create`, or at a VAD commit with `create_response` (D7) |
 | `response.output_item.added` / `.done` | `ResponseOutputItemAddedEvent` / `ResponseOutputItemDoneEvent` | **Supported** | per output item; the message item is created lazily, on the first text delta |
 | `response.content_part.added` / `.done` | `ResponseContentPartAddedEvent` / `ResponseContentPartDoneEvent` | **Supported** | `part: {type: "audio", transcript}` or `{type: "text", text}` |
-| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 `audio/pcm` 24 kHz, whole samples, at most `output.max_delta_ms` (100 ms) per delta. M1 audio is a sine tone |
+| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 `audio/pcm` 24 kHz, whole samples, at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (Kokoro when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
 | `response.output_audio_transcript.delta` / `.done` | `ResponseAudioTranscriptDeltaEvent` / `ResponseAudioTranscriptDoneEvent` | **Supported** | one delta per synthesized segment, sent just before the segment's first audio; `.done` carries the text whose deltas reached the client |
 | `response.output_text.delta` / `.done` | `ResponseTextDeltaEvent` / `ResponseTextDoneEvent` | **Supported** | text modality (D12): one delta per LLM delta; TTS is never opened |
 | `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Partial** | complete calls only, the arguments in one delta (§11.5). Calls the LLM server parsed are delivered since M2 (the provider passes the session tools when `tool_choice` is `auto`); real tool calling, with history replay checked, is M5 |
@@ -224,7 +225,8 @@ session).
 
 - `output`: every item the response produced, without audio; a message ended early is `incomplete`.
 - `usage` (`RealtimeResponseUsage`): LLM text tokens; `audio_tokens` are always 0; `null` when the LLM
-  reported none (a cancelled or empty response).
+  reported none (a cancelled or empty response, or a verbatim line, which asks no LLM).
+- `audio.output.voice`: the effective voice that spoke the response (D19).
 
 ## 8. Golden event orders
 
@@ -244,8 +246,8 @@ response.created → response.output_item.added → conversation.item.added → 
 → response.content_part.done → response.output_item.done → conversation.item.done → response.done
 ```
 
-**Audio response** (`audio_turn.jsonl`); per segment, its transcript delta immediately precedes its
-first audio delta:
+**Audio response** (`audio_turn.jsonl`; a verbatim line, `verbatim_line.jsonl`, has exactly these
+events); per segment, its transcript delta immediately precedes its first audio delta:
 ```
 response.created → response.output_item.added → conversation.item.added → response.content_part.added
 → { response.output_audio_transcript.delta → response.output_audio.delta × k } per segment
@@ -334,6 +336,7 @@ it has in flight.
 | `conversation_already_has_active_response` | `response.create` while a response is active (D18) | `null` |
 | `response_cancel_not_active` | `response.cancel` with no active response, or naming another one (D18) | `null`, or `"response_id"` |
 | `item_not_found` | `conversation.item.delete` or `.truncate` of an unknown item (D18) | `"item_id"` |
+| `cannot_update_voice` | a different voice once the session has produced audio (GA's voice lock; the one voice error, D19) | `session.audio.output.voice` or `response.audio.output.voice` |
 
 **Server errors** (`type: "server_error"`):
 
@@ -384,9 +387,14 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
 7. **Input timeline.** `audio_start_ms` and `audio_end_ms` count milliseconds of audio since the
    session's first append (GA). Audio is held at 16 kHz internally; the resampler's tail is flushed at
    a manual commit, so no trailing audio is lost.
-8. **Output flow control.** Audio is produced as fast as the backends allow, while the writer keeps
-   up: producers wait whenever half of `outbound_queue_events` are queued. The real-time lead cap
-   (D6) arrives in M3.
+8. **Output pacing (D6).** Audio is synthesized as fast as the TTS allows (one request per segment,
+   the next as soon as the previous has finished generating) and sent as soon as it is ready, but
+   never more than `output.max_lead_ms` (10 s) ahead of real time, counted from the response's first
+   audio delta. At the cap the deltas go out at the playback rate, one per `max_delta_ms`, so no gap
+   between deltas comes near 2 s while audio is waiting. Audio held back by the cap stays in the
+   gateway: a barge-in or `response.cancel` discards it unsent (§11.2). `response.done` follows the
+   last delta. The writer's backpressure still applies: producers wait whenever half of
+   `outbound_queue_events` are queued.
 9. **Turn detection (`server_vad`, D4).** Speech detection runs off the session's event loop, on
    CPU executors; positions are on the input timeline, so the same audio always yields the same
    turns.
@@ -404,34 +412,63 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
      turn in progress.
    - Input may arrive faster than real time, but at most `limits.inbox_max_ms` (2 s) of it may wait
      unread in the session's queue (§9, `input_queue_overflow`).
+10. **Voices (D19).** `voices.map` in `config.yaml` names the voices a session can ask for (default:
+    the Qwen3-TTS speakers `vivian`, `serena`, `uncle_fu`, `ryan`, `aiden`; `vivian` is the
+    default). Each name says which Qwen3-TTS speaker speaks it, how its lang_code is chosen (each
+    segment's zh/en tag, or a fixed code), and which Kokoro voice speaks it per language when the
+    fallback takes a segment. Any other name is accepted, spoken by the default voice, logged as a
+    warning, and `session.updated` and the response echo the effective name, never the one asked
+    for. Once the session has produced audio its voice is locked (GA); clients that set the voice
+    in their first `session.update` only, as AICC does, never meet the lock.
+11. **Verbatim lines (D16), a server extension invisible on the wire.** A `response.create` whose
+    own `instructions` start with a configured direction (`lines.verbatim_prefixes`; by default
+    AICC's "Say exactly this, word for word, and add nothing else:\n" and
+    "请一字不差地说出下面这句话，不要添加任何其它内容：\n") skips the LLM: the rest of the instructions,
+    trimmed, is segmented, normalized for the TTS and spoken, and becomes the assistant message (its
+    transcript, and what later LLM requests see). The events are exactly those of any audio response
+    (text modality: one `output_text` delta); `usage` is `null`. A line needs no conversation: it
+    works on an empty one, mid-call, and while a function call is unanswered, and it neither waits
+    for pending transcripts nor makes a tool call. Any other `instructions` override replaces the
+    session instructions as GA specifies. A client that does not send these exact prefixes never
+    sees a difference.
+12. **What the TTS hears.** Each segment is normalized for the TTS only (transcripts keep the
+    original text): phone numbers are read digit by digit in groups (1 as 幺 in Chinese) and order or
+    tracking IDs character by character; numbers, money, dates, units and spacing are configurable
+    (`text.normalizer`, off by default until M0's S9 probe decides). A segment is tagged zh (any CJK,
+    mixed text included) or en, which picks each model's lang_code. A segment the primary TTS fails
+    before its first audio is spoken by the fallback (Kokoro); a failure after audio started fails
+    the response (`provider_error` / `backend_*`), so the voice never switches mid-sentence.
 
 ## 12. AICC compatibility
 
 ai-native-callcenter attaches through its existing `gateway` profile with no change (D11). Its five
-client traces in `spikes/aicc/traces/` are replayed in `tests/integration/test_aicc_replay.py`: every
-frame is sent as captured, AICC's fake-server ids are swapped for this server's ids, and no frame draws an
-`error`. AICC's requirements (ARCHITECTURE §2) at M2:
+client traces in `spikes/aicc/traces/` are replayed in `tests/integration/test_aicc_replay.py`, on the
+real TTS path (the TTS provider and its fallback against a fake `mlx_audio.server` paced as M0
+measured): every frame is sent as captured, AICC's fake-server ids are swapped for this server's ids,
+no frame draws an `error`, and every response meets AICC's deadlines. AICC's own client harness
+(`probe`, `measureResponseCreated`, and a lines check) runs against the gateway with
+`tests/aicc/probe.py` (`make aicc-probe`). AICC's requirements (ARCHITECTURE §2) at M3:
 
-| Area | M2 |
+| Area | M3 |
 |---|---|
 | Handshake | `session.updated` answers the first `session.update` at once; every AICC `session.update` (tools, `server_vad` with only `silence_duration_ms: 500`, flow voice) is accepted. |
-| Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted and echoed (D19; mapping in M3); instructions-only updates merge. |
+| Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted, spoken by the default voice when not configured, and the effective voice echoed (D19); instructions-only updates merge and never meet the voice lock. |
 | Turn-taking | `server_vad` is Silero VAD + Smart Turn (§11.9): AICC's `silence_duration_ms: 500` is the silence before Smart Turn decides. One response per commit, at the commit (D7); an empty transcript completes it empty. |
-| Deadlines | `response.created` is immediate. The ASR and LLM are real since M2; the first audio delta is still the mock TTS's, so the real budget (ASR + LLM first token + first segment + TTS first chunk ≤ 3 s, G4) is measured from M3. |
+| Deadlines | `response.created` is immediate. First audio: ASR + LLM first token + first segment + TTS first chunk (~110 ms warm in M0); checked on every replayed response and by AICC's own watchdog in its harness. Gaps between deltas: one TTS request per segment, back to back, and paced deltas at the playback rate (D6). The real budget on the real backends is pending (G4). |
 | One response at a time | `conversation_already_has_active_response`, not queued. |
-| Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`; the reply follows `speech_stopped`. Echo cancellation (D17) is M4. |
+| Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`; the reply follows `speech_stopped`; audio held back by pacing is discarded. Echo cancellation (D17) is M4. |
 | Client edits | `response.cancel` without an id, truncate with played milliseconds (clamped, D18), delete of unheard answers and of calls, user `input_text` notes, `function_call_output` with a `hint`: all replayed. |
-| Lines | `response.create` with "Say exactly this…" instructions, also on an empty conversation, is accepted; until M3 the line goes through the LLM, verbatim playback (D16) is M3. |
+| Lines | "Say exactly this…" lines are spoken verbatim, without the LLM (D16): on an empty conversation, mid-call, and as the wait line while a call is unanswered; their latency is the TTS's first chunk. |
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
-| Errors | only the codes of §9, and only where required (D18). |
-| Audio | 20 ms appends at any time, also while the bot speaks; output deltas of whole samples, at most 100 ms, faster than real time. The 10 s lead cap (D6) arrives in M3. |
+| Errors | only the codes of §9, and only where required (D18); AICC never meets `cannot_update_voice`. |
+| Audio | 20 ms appends at any time, also while the bot speaks; output deltas of whole samples, at most 100 ms, at most 10 s ahead of real time (D6; AICC queues at most 30 s). |
 
 Trace by trace (what each replay checks beyond "no error"):
 
 | Trace | Checked |
 |---|---|
-| `call_gateway` | tools and `server_vad` accepted; a bare opening `response.create` on an empty conversation completes; caller silence creates no turn; truncate of the greeting; instructions-only update; keypress note; a scripted tool call answered by `function_call_output` (the LLM history replays it with the provider's call id); the closing line |
-| `opening_gateway_with_voice` | the flow voice echoed and used by TTS; the per-response instructions reach the LLM as its system message |
-| `waitline_gateway` | a wait line whose turn made a second call; the first call answered; the second call's item deleted; the owed `response.create` completes |
+| `call_gateway` | tools and `server_vad` accepted; a bare opening `response.create` on an empty conversation completes; caller silence creates no turn; truncate of the greeting; instructions-only update; keypress note; a scripted tool call answered by `function_call_output` (the LLM history replays it with the provider's call id); the closing line spoken verbatim, without the LLM |
+| `opening_gateway_with_voice` | the flow voice accepted and the effective voice (`vivian`) echoed and sent to the TTS; the opening line spoken verbatim (no LLM request) |
+| `waitline_gateway` | the wait line, asked for while the first call is unanswered, spoken verbatim: its turn makes no second call, so the trace's delete of one is not sent (AICC deletes only calls a line's turn made); the first call answered; the owed `response.create` completes and sees the line in its history |
 | `unheard_keypress_gateway` | an unheard answer deleted; a system note; the keypress `response.cancel` of a reply in progress (started by the test: the trace's reply came from caller speech); the truncate clamped to the audio sent; the keypress note and the owed response |
-| `dropped_line_retry_gateway` | the line, the direction re-sent as a user item, and the retry all complete |
+| `dropped_line_retry_gateway` | the line, the direction re-sent as a user item, and the retry all complete; both lines spoken verbatim |

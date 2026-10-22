@@ -22,6 +22,15 @@ limits:
 
 output:
   max_delta_ms: 100
+  max_lead_ms: 10000       # D6
+
+lines:                     # D16: verbatim lines skip the LLM
+  verbatim_prefixes:
+    - "Say exactly this, word for word, and add nothing else:\n"
+    - "请一字不差地说出下面这句话，不要添加任何其它内容：\n"
+
+voices:                    # D19: the built-in voice map (config.yaml lists it in full)
+  default: vivian
 
 # GA-shaped; echoed in session.created and validated exactly like a session.update.
 session_defaults:
@@ -36,7 +45,7 @@ session_defaults:
                        silence_duration_ms: 200, create_response: true, interrupt_response: true}
     output:
       format: {type: audio/pcm, rate: 24000}
-      voice: default
+      voice: vivian
       speed: 1.0
 
 turn:
@@ -45,6 +54,7 @@ turn:
 
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
+  normalizer: {enabled: true, phones: true, ids: true}
 
 providers:
   llm: {type: mock, first_token_delay_ms: 50, token_delay_ms: 20, greeting: "你好，有什么可以帮您？"}

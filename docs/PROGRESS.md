@@ -294,3 +294,288 @@ Speech fixtures: two FLEURS sentences (CC-BY-4.0), trimmed, 16 kHz; provenance i
   omit `model`; the configuration shape of deviation 6; `config.mock.yaml`.
 - DECISIONS: whether to keep pipecat's Silero state reset on by default, given S7.4 (deviation 9);
   how to pin the audio models (deviation 5).
+
+## M3 — Streaming TTS: one full spoken turn (2026-10-23)
+
+**Goal.** Streaming TTS audio, completing one full spoken conversation turn: speech in → Silero VAD
+and Smart Turn → Qwen3-ASR → the LLM → Qwen3-TTS audio out. Landed with it: D6 (pacing, 10 s lead
+cap), D13 (the TTS fallback, Kokoro, pending B2's evidence), D16 (verbatim lines), D19 (the voice
+map), and AICC acceptance part 1 (connectivity).
+
+**Not yet run on the real backends.** M0's B2 spike held the GPU throughout M3, so the TTS provider
+was developed against a fake `mlx_audio.server` that copies the real one's speech route (M0 A1 and
+S3), and the real-backend tests (marker `backend`) are written but not run (see "Pending").
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `providers/mlx_audio_tts.py` | `MlxAudioTTS`, registry type `mlx_audio_speech`: one model and role (primary, fallback) of the TTS backend; `SpeechServer`, the HTTP client and in-flight slots the models share |
+| `providers/fallback.py` | `FallbackTTS` and its circuit breaker (§5.2) |
+| `providers/voices.py`, `voices` in config | the voice map (D19): session voice name → Qwen3-TTS speaker, lang policy, Kokoro voice per language |
+| `session/pipeline.py` | LLM or verbatim line → segmenter → normalizer → TTS (drains every stream) → paced sender; timeline marks |
+| `session/pacing.py`, `session/clock.py` | D6 pacing on an injectable clock |
+| `session/actor.py` | voice resolution and lock, verbatim lines, a timeline per response, the first-audio mark |
+| `text/normalize/` | the TTS normalizer: numbers, money, dates and times, phones, IDs, units, zh/en spacing, each toggleable |
+| `text/segmenter.py` | never cuts between spaced digit groups |
+| `session/timeline.py` | marks `response_created`, `first_sentence_ready`, `tts_first_chunk`, `first_audio_sent`; values `tts_queue_ms`, `tts_model`, `tts_fallback`, `verbatim` |
+| `config.py`, `config*.yaml` | `output.max_lead_ms`, `lines.verbatim_prefixes`, `voices`, `text.normalizer`, `providers.tts` (`mlx_audio_speech`) |
+| `tests/fakes/mlx_audio.py` | the fake server's `POST /v1/audio/speech` |
+| `tests/aicc/` | `probe.py` and `zz_mlx_live_test.go`: AICC's own client harness against a gateway; `make aicc-probe`, `make aicc-probe-mock` |
+
+**The TTS provider** (`mlx_audio_speech`, ARCHITECTURE §5.2–§5.3):
+
+- One streamed `POST /v1/audio/speech` per segment: `model`, `input`, `voice`, `lang_code`,
+  `response_format: "pcm"`, `stream: true`, `streaming_interval` (0.32), and the sampling fields only
+  when configured (unset: the model's `generation_config.json`). The chunked s16le body is passed on
+  as it arrives, in whole samples (`PCMChunk(…, 24000)`).
+- Per model: Qwen3-TTS gets the voice's speaker and `chinese`/`english` from the segment's language
+  tag; Kokoro gets the path of `voices/<name>.safetensors` inside the pinned snapshot (resolved from
+  `backends.tts.fetch` in the local HF cache, or `voices_dir`; checked to exist before the request)
+  and `z`/`a`.
+- Deadlines: `connect`, `first_item` (the first chunk; 1.5 s Qwen3-TTS, 2 s Kokoro), `idle` between
+  chunks, `total`; a warmup waits longer, for the model load.
+- Errors: 404 (unknown model) and 4xx → `bad_response`; 500 → `internal`; 503 → `unavailable`; a body
+  cut after the 200 status (the server failing inside generation, as M0 A1 saw with a Kokoro voice
+  name), no audio at all, or an odd byte at the end → `bad_response`; connection failures →
+  `unavailable`; a full queue → `overloaded`.
+- Cancellation at every await point: closing the response is the cancel; the provider closes it in
+  `finally` and yields nothing after.
+- The server runs one stream at a time, so `max_in_flight` is 1 and requests queue in the gateway
+  (`queue_timeout_ms` 2 s, then `backend_busy`). The wait is measured (`SpeechTiming.queued_s`) and
+  logged with the turn (`tts_queue_ms`).
+- Readiness: both models listed by `GET /v1/models`. Warmup: one Chinese and one English sentence per
+  configured voice on the primary, and per distinct Kokoro voice on the fallback (20 requests with the
+  built-in map); a voice that fails keeps the gateway not ready.
+
+**`FallbackTTS`** (D13): a primary failure before its first chunk sends that segment to the fallback,
+which maps the session voice to its own voice for the segment's language; a failure after audio
+started fails the segment (the response ends `failed`); `overloaded` is not retried (both models share
+the backend's queue) and does not count. After `breaker_failures` (3) consecutive primary failures
+every segment goes to the fallback for `cooldown_s` (30 s); the first segment after that tries the
+primary again, and one more failure reopens the circuit. `fallback.enabled: false` builds the primary
+alone.
+
+**Voices (D19).** `voices.map` names the session voices; the built-in map has Qwen3-TTS-0.6B's
+Mandarin and English speakers (`vivian`, `serena`, `uncle_fu`, `ryan`, `aiden`; not `dylan` and `eric`,
+which turn into dialects with `chinese`/`auto`), each with a Kokoro voice of the same gender per
+language. Any other name is accepted, spoken by `voices.default` (`vivian`), logged as a warning, and
+the effective name is echoed in `session.updated` and in the response. `session_defaults` must name a
+mapped voice (or none: the default). Once the session has produced audio the voice is locked, as in
+GA: a different voice in `session.update` or `response.create` gets `cannot_update_voice`; AICC sets
+its voice only in its first update and never meets it.
+
+**Verbatim lines (D16).** A `response.create` whose own `instructions` start with one of
+`lines.verbatim_prefixes` (AICC's two `SayExactly` directions by default) skips the LLM: the rest,
+trimmed, goes through segmenter → normalizer → TTS and becomes the assistant message. It answers no
+user turn, so it neither waits for a pending transcript nor makes a tool call: it works on an empty
+conversation, mid-call, and while a function call is unanswered (AICC's wait line). Its events are
+those of any audio response (golden trace `verbatim_line.jsonl`); `usage` is `null`. PROTOCOL.md
+§11.11 documents it as a server extension that is invisible on the wire.
+
+**Pacing (D6) and the pipeline.** The TTS stage makes one request per segment, the next as soon as the
+previous finished generating, and reads each stream as fast as the backend produces it, into the
+response's audio queue (synthesis stops once it passes `limits.max_response_audio_ms`, and the actor
+ends the response `incomplete`). A sender task posts that audio at once but never more than
+`output.max_lead_ms` (10 s) ahead of real time, counted from the response's first delta; at the cap it
+releases one `max_delta_ms` delta per `max_delta_ms`, so no gap nears AICC's 2 s watchdog while audio
+waits. A segment's transcript delta goes out just before its first audio. A barge-in or
+`response.cancel` cancels the response scope, so audio held back by the cap is never sent, and the
+ledger discards what was queued (M1). The clock is injectable (`session/clock.py`).
+
+**Segmenter and normalizer (§7).** The M1 segmenter already ends the first segment early (a soft
+boundary at `first_min_chars`, or the best boundary after `first_max_wait_ms`) and never splits inside
+numbers, URLs, e-mail addresses or IDs; M3 adds that whitespace between digit groups ("138 0013 8000")
+is never a cut, even before the next group arrives. Each segment is tagged zh (any CJK, mixed
+included) or en from its original text; the tag picks each model's lang_code and is the normalizer's
+fallback context.
+
+The normalizer (`text/normalize/`, TTS input only; transcripts keep the original text) recognizes
+spans in priority order (URLs and e-mail addresses, always left as written; phones; IDs; money; dates
+and times; units; free-standing numbers), and a span one category claims is never re-read by a later
+one, even when its own category is off. Each span is read in Chinese or English by its
+neighbourhood: the nearest letter on either side, CJK winning; the segment's tag decides only when
+there is none. Categories (`text.normalizer`):
+
+- `phones` (on): mobiles (`1[3-9]` + 9 digits, optionally `+86`), landlines (area code + 7–8 digits),
+  400/800 numbers, and 95xxx/96xxx hotlines after a phone keyword; digit by digit, in groups joined by
+  "，" / ", ", 1 read as 幺 in Chinese (`phone_one_as_yao`).
+- `ids` (on): alphanumeric tokens with at least 6 characters, 4 digits and a letter (not words, version
+  numbers or quantities: `Qwen3`, `iPhone15`, `Qwen2.5-72B`, `1920x1080` stay as written), and digit
+  runs of 6 or more after an ID keyword (订单号, 运单号, order number, …); letters as spaced capitals,
+  digits one by one (1 as 一), runs over 4 split in fours, each separator a pause.
+- `numbers`, `money`, `dates`, `units`, `spacing` (off until S9): cardinals with 万/亿 and 两, decimals,
+  percents, ranges, ordinals, negatives; ¥/元/$ amounts (元角分, dollars and cents); dates, years and
+  times (上午/下午, "fourteen thirty"); units after a number; one space between CJK and Latin text.
+
+`enabled: false` returns the text unchanged, and text with none of these patterns always comes back
+byte for byte.
+
+**AICC acceptance, part 1 (connectivity).**
+
+- The five AICC traces are replayed on the real TTS path (the provider and its fallback against the
+  fake backend at M0's pace: first chunk after 110 ms, a 320 ms chunk every 90 ms), and every response
+  is checked against AICC's deadlines (`tests/integration/deadlines.py`): `response.created` within
+  3 s of its `response.create`, the first audio within 3 s of `response.created`, no gap of 2 s between
+  deltas, a tool-only response done within 3 s.
+- `tests/integration/test_tts_turns.py`: an AICC-shaped `server_vad` session with real Silero speech
+  in gets exactly one reply per speech turn, spoken, within the deadlines.
+- AICC's own harness: `tests/aicc/probe.py` runs AICC's `internal/provider` tests with our
+  `zz_mlx_live_test.go` added through `go test -overlay` (the AICC checkout is never modified):
+  `TestMLXGreeting` (`probe`: handshake, the opening spoken turn on an empty conversation, 24 kHz
+  audio), `TestMLXResponseCreatedLatency` (`measureResponseCreated`, 8 samples) and `TestMLXLines` (a
+  flow voice, the opening line and a `SpeakText` wait line, both checked word for word). It fails the
+  run on any `response.created` sample of 3 s or more, an unanswered request, or AICC's watchdog
+  giving up on a turn (`response abandoned`: the first audio later than 3 s after `response.created`,
+  or a 2 s gap).
+
+### How to run and verify
+
+```sh
+uv run --locked pytest                     # everything but the backend tests
+make lint typecheck
+make aicc-probe-mock AICC_REPO=<an AICC checkout>   # AICC's client against mock providers
+# The real stack (pending the GPU):
+make dev                                   # backends and gateway (config.yaml)
+uv run --locked pytest -m backend          # in another terminal; AICC_REPO=… adds AICC's harness
+make aicc-probe AICC_REPO=<an AICC checkout> AICC_URL=ws://127.0.0.1:8000/v1/realtime
+```
+
+The exact harness command, without make:
+
+```sh
+uv run --locked python tests/aicc/probe.py --aicc-repo <AICC checkout> \
+    --url ws://127.0.0.1:8000/v1/realtime            # or --serve config.mock.yaml
+```
+
+It needs Go and AICC's module dependencies (`go mod download` in the checkout). The API key goes to
+AICC as `REALTIME_API_KEY` (`--api-key`; the wrapper sends `local` when it is unset).
+
+**Mock run, 2026-10-23** (`--serve config.mock.yaml`, against AICC commit 8fabadc's scratch copy):
+all three pass. The greeting's first audio came 321 ms after the session started; 8 of 8
+`response.created` within 2 ms; the opening line and the wait line came back word for word ("Good
+morning, NovaNet support.", "One moment, let me check that.") with 77 760 and 72 000 bytes of audio.
+
+### Test results
+
+All green on 2026-10-23: **1162 passed, 11 skipped** (the `backend` tests and the AICC run that needs
+`AICC_REPO`) in about 70 s (`uv run --locked pytest`). `ruff check`, `ruff format --check` and `pyright`
+(strict on `src/`) report nothing.
+
+| Suite | Tests | New in M3 |
+|---|---|---|
+| unit | 1058 | the normalizer (426: every category on and off, zh, en and mixed, the protection and context rules, the untouched list under 8 option combinations); the TTS provider against the fake server (30: request shape per model and voice, Kokoro voice-pack paths, whole samples across reads, six error shapes, every deadline, cancellation awaiting headers, before the first chunk, between chunks and while the consumer holds a chunk, the queue and its measured wait, a full queue, a cancelled wait, warmup of every voice, readiness); `FallbackTTS` (11: before and after the first chunk, `overloaded`, the breaker and its cooldown, cancellation on either model); pacing on a fake clock (5); the pipeline (10: transcript before audio, the TTS draining while the sender waits at the cap, lines in both modalities, normalized text, unspeakable segments, marks, the audio cap, a TTS failure); the voice map (7); the segmenter (1: spaced digit groups); the configuration (8); the import graph (32, the new modules) |
+| integration | 83 | the AICC replay on the real TTS path with every deadline checked (6, one new: a reply of several segments); `test_tts_turns.py` (5: a spoken Chinese `server_vad` turn answered in speech through every real provider on fakes, with the timeline; the fallback; two sessions queueing for the TTS; pacing on the wire; a barge-in flushing paced audio); `test_voices_and_lines.py` (7: D19 echo and warning, the voice lock, lines on an empty conversation, mid-call, during an unanswered call, in text modality, and prefixes switched off); golden `verbatim_line.jsonl` (1) |
+| e2e (`-m e2e`) | 4 | the SDK test expects the effective voice |
+| tests/aicc | 18 | the runner's parsing of AICC's output and its deadline verdicts (17); AICC's client against `config.mock.yaml` (1, needs `AICC_REPO`; ran: passed) |
+| backend (`-m backend`) | 10 | six written, not run: see below |
+
+### Pending the GPU runs
+
+- `uv run --locked pytest -m backend` with `make dev` running, M3's six:
+  - `test_tts_streams_with_a_fast_first_chunk_and_faster_than_real_time`: Qwen3-TTS zh and en through
+    the provider, first chunk < 500 ms warm, RTF < 1;
+  - `test_tts_output_is_heard_right_by_the_asr`: TTS → Qwen3-ASR round trip;
+  - `test_the_fallback_speaks_when_the_primary_fails`: a speaker Qwen3-TTS lacks → Kokoro speaks;
+  - `test_kokoro_speaks_chinese_and_english_from_voice_pack_paths`;
+  - `test_sdk_full_chinese_spoken_turn_with_audio`: the official SDK, only `base_url` changed, streams
+    the Chinese fixture in real time; transcript → LLM → TTS audio, first audio ≤ 3 s after
+    `response.created`, no 2 s gap;
+  - `test_aicc_harness_against_the_real_stack` (needs `AICC_REPO`): `probe.py --url` against `make dev`.
+- M2's four backend tests (unchanged).
+- Defaults waiting on B2 (`spikes/results/s3s4s9_report.md`), all config values:
+  `providers.tts.primary.streaming_interval` (0.32), the sampling fields (unset), the default voice
+  and the zh/en speakers (`voices`), the first-chunk deadlines (1.5 s / 2 s), whether Kokoro stays the
+  fallback (D13, G6: `providers.tts.fallback`), and which normalizer categories are on (G5,
+  `text.normalizer`).
+- G4: the real first-audio budget (ASR + LLM first token + first segment + TTS first chunk) under the
+  3 s deadline, measured by the backend SDK test and AICC's harness.
+
+### Known gaps, by milestone
+
+| Milestone | What M3 leaves for it |
+|---|---|
+| M4 | echo cancellation (D17); barge-in against the real TTS; the D5 truncation fallback |
+| M6 | timeline marks as metrics; `/metrics`, `/debug/turns` |
+| M7 | G.711 output (the encoder still emits 24 kHz PCM16 only) |
+| open | under load from several sessions, a segment can wait for the TTS behind other sessions' segments; if a session has sent all its synthesized audio meanwhile, the gap between its deltas grows by the wait, and at 2 s AICC abandons the turn. The wait is logged (`tts_queue_ms`) and bounded (`queue_timeout_ms`), not avoided |
+
+### Deviations from ARCHITECTURE, with reasons
+
+1. **Pacing lives in the pipeline, not in the encoder or the writer.** A sender task between the TTS
+   stage and the actor admits each delta (`session/pacing.py`); audio not yet admitted belongs to the
+   response scope and dies with it. `response.done` still follows the last delta, so the `audio_sent`
+   flag of §6.3 stays unnecessary (M1 deviation 9).
+2. **The TTS stage drains every stream into the response's queue**, bounded by
+   `limits.max_response_audio_ms`, instead of streaming through to the client: pacing or a slow
+   client must never hold the backend's single stream slot that every session shares (§4.2,
+   "drains backend streams promptly").
+3. **`TTSProvider.stream` takes `timing: SpeechTiming | None`** (keyword-only, like `speed`): the
+   provider reports its queue wait, the model and whether the fallback spoke, for the timeline.
+   `LLMBackend`, `ASRBackend` and `TTSBackend` moved from the registry to `providers/base.py`.
+4. **`FallbackTTS` does not retry `overloaded`** and does not count it: both models share the
+   backend's queue. The breaker is half-open after the cooldown (one failure reopens it at once).
+5. **A body cut after the 200 status is `bad_response`** (`provider_error` on the wire), not
+   `unavailable`: on mlx_audio.server it is the generation failing, as M0 A1 saw with a Kokoro voice
+   name. A stream without audio, or ending inside a sample, is `bad_response` too.
+6. **The voice map is a top-level `voices` section** (name → speaker, lang policy, Kokoro voice per
+   language) instead of `output.default_voice`. `session_defaults` must name a mapped voice (startup
+   fails with the dotted path otherwise), and without one the session voice is `voices.default`. The
+   session voice therefore echoes `vivian` where M1/M2 echoed the placeholder `default`.
+7. **The voice lock also covers `response.create`'s `audio.output.voice`**: after the first audio, a
+   per-response voice other than the session's draws `cannot_update_voice`
+   (`param: "response.audio.output.voice"`) and creates no response. GA states the lock for the
+   session voice; the per-response field would otherwise bypass it.
+8. **A verbatim line answers no user turn**: it does not wait for pending transcripts, the D7 empty
+   transcript rule does not apply, and it gets a timeline of its own. The line is the instructions
+   after the prefix, trimmed. In text modality it is one `output_text` delta.
+9. **Every response has a timeline**: one that answers a user audio turn extends that turn's;
+   any other (a client `response.create` after text items, a line) gets its own, from
+   `response_created`. The marks M2 left for M6 (`first_sentence_ready`, `tts_first_chunk`,
+   `first_audio_sent`) and `response_created` landed now, with `tts_queue_ms`, `tts_model`,
+   `tts_fallback` and `verbatim`.
+10. **Segments with nothing to say** (no letter, digit or CJK character) are not sent to the TTS;
+    their transcript still goes out, in order.
+11. **A segment's language tag comes from its original text**, not the normalized text.
+12. **The TTS warmup speaks every configured voice in both languages on both models**, and a
+    fallback that cannot warm keeps the gateway not ready (`/readyz` names it). Switch the fallback
+    off with `providers.tts.fallback.enabled: false` rather than run without knowing it is broken.
+13. **Kokoro's voice packs are resolved from the gateway's own HF cache** (the backend runs on the
+    same machine), at the revision `backends.tts.fetch` pins, and checked to exist before a request.
+14. **`output.max_delta_ms` is at most 1000 and `max_lead_ms` at least `max_delta_ms`** (validated):
+    at the cap a delta waits as long as it plays, so a delta of 2 s would itself be a 2 s gap.
+15. **AICC's harness wrapper ships in this repository** (`tests/aicc/zz_mlx_live_test.go`) and is
+    added to AICC's package with `go test -overlay`, so any AICC checkout works unmodified. It adds
+    `TestMLXLines` to the scratch wrapper's two tests.
+16. **M2 tests changed on purpose**: the speech-turn timeline lists `response_created`; the SDK test
+    expects `marin` echoed as `vivian`; the AICC replay runs on the real TTS path, expects lines
+    spoken verbatim without the LLM, and no longer sends the waitline trace's delete of a call the
+    line's turn made (a verbatim line makes none, and AICC deletes only calls it saw); the repository
+    config test checks the TTS. Golden traces: only the echoed voice changed (`default` → `vivian`,
+    32 lines in 9 files); `verbatim_line.jsonl` is new.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §5.1: `TTSProvider.stream(..., timing: SpeechTiming | None = None)`; the combined
+  `LLMBackend`/`ASRBackend`/`TTSBackend` protocols are in `providers/base.py`.
+- §5.2 TTS fallback: `overloaded` is raised, not retried; the breaker's half-open rule; a cut body is
+  `bad_response`.
+- §5.3 TTS row: the model preflight before the 200; a failure inside generation cuts the chunked body;
+  `streaming_interval` defaults to 2.0 s server-side when not sent; Kokoro voices as snapshot paths;
+  one stream at a time (`max_in_flight` 1, gateway-side queue).
+- §7 Pacing: the sender task and the drain-promptly TTS stage (deviations 1–2); at the cap one delta
+  per `max_delta_ms`.
+- §7 Voices / D19: the voice map shape (deviation 6); the lock, including per-response voices,
+  with `cannot_update_voice` (deviation 7).
+- §7 Verbatim lines / D16: a line answers no turn, `usage` null, text modality (deviation 8).
+- §8 / D18: add `cannot_update_voice` (invalid_request_error) to the error list.
+- §9 timeline: the marks and values of deviation 9; one timeline per response.
+- §10 sketch: `output.max_lead_ms`; `lines`; `voices`; `text.normalizer` categories; the
+  `providers.tts` shape (`primary`, `fallback` with `enabled`, `breaker_failures`, `cooldown_s`,
+  `voices_dir`, per-model `timeouts`, `max_in_flight`, `queue_timeout_ms`, `warmup_texts`).
+- §11 AICC acceptance: the overlay wrapper and `TestMLXLines` (deviation 15).
+- §2 or §7: the multi-session TTS queue can open a gap in a session's audio (Known gaps, "open");
+  possible mitigations for the owner: a per-session lead floor that holds back a little audio for the
+  next segment, a second TTS process, or prioritizing a segment whose session is about to run dry.
+- DECISIONS: record that verbatim lines answer no turn, and the voice lock's extension to
+  per-response voices.

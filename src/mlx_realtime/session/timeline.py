@@ -1,10 +1,14 @@
 """The turn timeline (ARCHITECTURE §9): monotonic marks per user turn, logged in one line.
 
     speech_end (acoustic, from the audio timeline) · speech_stopped (the VAD fired)
-    → turn_confirmed → asr_done → llm_first_token
+    → turn_confirmed → response_created → asr_done → llm_first_token
+    → first_sentence_ready → tts_first_chunk → first_audio_sent
 
-Under manual commit, ``committed`` stands in for speech_stopped and turn_confirmed. M6 adds the
-TTS marks and turns the stages into metrics.
+Under manual commit, ``committed`` stands in for speech_stopped and turn_confirmed. A response
+that answers no user audio turn (a client ``response.create`` after text items, a verbatim
+line) gets a timeline of its own, from ``response_created``. Values logged next to the marks:
+``tts_queue_ms`` (the first segment's wait for a TTS slot), ``tts_model``, ``tts_fallback``,
+``verbatim``. M6 turns the stages into metrics.
 """
 
 from __future__ import annotations
@@ -21,22 +25,31 @@ MARKS = (
     "speech_stopped",
     "turn_confirmed",
     "committed",
+    "response_created",
     "asr_done",
     "llm_first_token",
+    "first_sentence_ready",
+    "tts_first_chunk",
+    "first_audio_sent",
 )
 
 _ARRIVALS_KEPT_MS = 120_000
 
 
 class TurnTimeline:
-    def __init__(self, turn_id: str, item_id: str) -> None:
+    def __init__(self, turn_id: str, item_id: str | None) -> None:
         self.turn_id = turn_id
-        self.item_id = item_id
+        self.item_id = item_id  # the user audio item, or None for a response's own timeline
         self._marks: dict[str, float] = {}
+        self._values: dict[str, object] = {}
 
     def mark(self, name: str, at_s: float) -> None:
         """Record ``name`` at loop time ``at_s``; the first mark of a name wins."""
         self._marks.setdefault(name, at_s)
+
+    def note(self, name: str, value: object) -> None:
+        """A value logged next to the marks; the first one of a name wins."""
+        self._values.setdefault(name, value)
 
     def offsets_ms(self) -> dict[str, int]:
         """Every mark taken, in milliseconds after the earliest one."""
@@ -49,9 +62,9 @@ class TurnTimeline:
             if name in self._marks
         }
 
-    def log(self) -> None:
-        with logs.bound(turn=self.turn_id, item=self.item_id):
-            logger.info("turn timeline", extra={"marks_ms": self.offsets_ms()})
+    def log(self, *, response_id: str | None = None) -> None:
+        with logs.bound(turn=self.turn_id, item=self.item_id, response=response_id):
+            logger.info("turn timeline", extra={"marks_ms": self.offsets_ms(), **self._values})
 
 
 class AudioArrivals:

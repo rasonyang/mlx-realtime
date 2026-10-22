@@ -159,3 +159,18 @@ def test_timer_without_any_boundary_waits_for_more_text() -> None:
 
 def test_text_units_count_cjk_characters_and_latin_words() -> None:
     assert text_units("你好 world, it's 3.5 元") == 3 + 4
+
+
+def test_spaced_digit_groups_are_never_cut() -> None:
+    # The first segment's timer and the max_chars fallback cut at spaces, but never between the
+    # groups of a spaced phone or card number, even before the next group has arrived.
+    segmenter = Segmenter(**PARAMS)
+    assert segmenter.push("请拨打 138 ", 0) == []
+    assert segmenter.poll(400) == ["请拨打 "]
+    assert segmenter.push("0013 8000 联系我们。", 450) == []  # 7 units: below min_chars
+    assert segmenter.flush() == ["138 0013 8000 联系我们。"]
+    english = Segmenter(**PARAMS)
+    assert english.push("Call 400 820 8820 or", 0) == []
+    assert english.poll(400) == ["Call 400 820 8820 "]
+    pieces = segment("卡号 6222 0212 3456 7890 123 请核对。" * 3, max_chars=12)
+    assert all("6222 0212 3456 7890 123" in piece for piece in pieces if "6222" in piece)

@@ -492,3 +492,59 @@ inputs, so do not port that one.
   model.
 - Silero: per-stream calls on a single-thread executor. Telephone audio is upsampled to 16 kHz.
 - Resampling: soxr HQ, streaming in float32. For M7, consider LQ for 8k→16k to halve the VAD lag.
+
+### S11 part 2 — Echo-cancellation simulation (B4, 2026-10-23)
+
+Report: `spikes/results/s11_report.md`. Raw: `spikes/results/s11_{core,timeline,slices,dt,cpu}.json`.
+
+**Setup.** 3020 engine runs, each in a child process, with 0 crashes. The chain followed A3's recipe:
+AICC's playout state machine → downsample ×3 → G.711 → G.168 m1–m8 echo paths → near-end and noise →
+AICC's linear upsample ×3 → soxr → 16 kHz → the gateway's Silero.
+
+**Without a canceller**, Silero fires on 75% of echo-only windows: 1005 false `speech_started`
+events in 96 calls.
+
+**Core grid** (96 calls per variant; "C1 calls" = calls with Silero ≤ 1% on echo-only audio after
+the first 1 s and no false start, at `min_speech` 150 / 400 ms):
+
+| Variant | ERLE steady state p50 | ≥ 20 dB within 1 s (start / after path change) | C1 calls | CPU ms per audio s | 8 threads vs 1 |
+|---|---|---|---|---|---|
+| AEC3 via pywebrtc-audio, tick phase learned | 31.0 dB | 72% / 51% | 65 / 82 | 7.8 | 6.6× |
+| AEC3 via pywebrtc-audio, tick phase known | 31.7 dB | 69% / 50% | 84 / 89 | 7.8 | 6.6× |
+| AEC3 via livekit, tick phase known | 32.2 dB | 72% / 41% | 70 / 79 | 9.0 | 1.8× |
+| SpeexDSP, linear, oracle delay | 26.4 dB | 3% / 0% | 0 / 0 | 4.4 | 1.1× |
+| numpy PBFDAF baseline, oracle delay | 13.2 dB | 0% / 0% | 0 / 0 | 9.2 | 0.9× |
+
+**Timeline error.** With |ε| = 200 ms, engine-only AEC3 passes 6 of 12 calls. With the GCC-PHAT guard
+it passes 10 of 12, for 1.4 ms CPU per audio second.
+
+**Double talk.** AEC3's suppressor removes part of the near-end speech: spectral SDR is 6.1 dB, against
+4.2 dB with no canceller and 20 dB for Speex linear. ΔCER is pending the GPU, after B2.
+
+**G7 decision (2026-10-23, orchestrator under the M0–M7 goal; flagged for owner review).**
+
+- No engine passes all four criteria. C1 and C3 fall short for every candidate; C2 is pending; C4
+  passes.
+- **Engine:** WebRTC AEC3 via `pywebrtc-audio` 0.2.0:
+  - `EchoCanceller(sample_rate=16000, num_channels=1, stream_delay_ms=0)`, one instance per session;
+  - AEC only, with no 3.8 kHz pre-filter;
+  - `livekit` 1.1.21 as a configurable fallback engine.
+- **Alignment:**
+  - the AICC playout model, with a 60 ms reference lead;
+  - the 20 ms tick phase, learned from GCC-PHAT echo-onset estimates;
+  - a GCC-PHAT guard that re-aligns when the residual delay leaves [5, 400] ms, with
+    `max_residual_delay_ms` 450.
+- **Second line of defence:**
+  - `barge_in.echo_guard_ms` 2000 (AEC3 start-up p90 is 1.7 s);
+  - `min_speech_ms_while_playing` 400;
+  - echo-turn suppression on.
+
+  With the tick phase known, these leave 1 false start in 96 simulated calls; with it learned, 3.
+- **Hazards for M4:**
+  - livekit aborts the process on frames that are not a whole 10 ms;
+  - pywebrtc silently zero-pads partial frames;
+  - AEC3 delays capture by a fixed 8 ms, forces a high-pass filter, adds comfort noise, and suppresses
+    near-end speech during double talk.
+- **Pending:** ΔCER decides whether ASR should get the AEC output (the default) or a less-processed
+  signal.
+- **Not simulated:** clock drift between AICC's ticker and the uplink clock.

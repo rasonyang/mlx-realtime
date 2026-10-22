@@ -54,6 +54,23 @@ async def test_audio_turn_with_manual_commit(golden: GoldenCheck) -> None:
     ]
 
 
+async def test_verbatim_line(golden: GoldenCheck) -> None:
+    """D16: a line is spoken as written, with the events of any audio response, and no LLM."""
+    gateway, mocks = build_gateway()
+    direction = "请一字不差地说出下面这句话，不要添加任何其它内容：\n"
+    async with running(gateway) as address, Client.connect(address) as client:
+        await client.start(MANUAL)
+        line = {"instructions": direction + "您好，欢迎致电诺瓦网络。请问有什么可以帮您？"}
+        await client.send({"type": "response.create", "response": line})
+        await client.until("response.done")
+    golden("verbatim_line", client.trace)
+    assert mocks.llm.requests == []
+    assert [request.text for request in mocks.tts.requests] == [
+        "您好，欢迎致电诺瓦网络。",
+        "请问有什么可以帮您？",
+    ]
+
+
 async def test_response_create_while_a_response_is_active(golden: GoldenCheck) -> None:
     gateway, mocks = build_gateway()
     mocks.llm.first_token.hold()

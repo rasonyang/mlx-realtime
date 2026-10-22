@@ -6,10 +6,10 @@ WebSocket at `/v1/realtime`. Inside, it is a cascade: VAD → turn detection →
 Chinese, English and code-switched speech. The official `openai` Python SDK connects by changing only
 `base_url`.
 
-**Status: milestone M2.** Speech turns are detected with Silero VAD and Smart Turn, transcribed by
-Qwen3-ASR (`mlx_audio.server`) and answered by the LLM (`mlx_lm.server`); the TTS is still a
-sine-wave mock until M3, so use `output_modalities: ["text"]` for real answers. See
-[`docs/PROGRESS.md`](docs/PROGRESS.md).
+**Status: milestone M3.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
+transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by Qwen3-TTS, streamed per
+sentence with Kokoro as the fallback (`mlx_audio.server`). Audio goes out paced, at most 10 s ahead
+of real time. See [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 | Document | What it holds |
 |---|---|
@@ -72,7 +72,11 @@ asyncio.run(main())
 ```
 
 Leave out `output_modalities` to get audio: `response.output_audio.delta` events carry base64 PCM16 at
-24 kHz (a sine tone until M3) alongside `response.output_audio_transcript.delta`.
+24 kHz alongside `response.output_audio_transcript.delta`, one transcript delta per spoken sentence.
+`audio.output.voice` takes a name from `voices` in `config.yaml` (`vivian`, `serena`, `uncle_fu`,
+`ryan`, `aiden`); any other name is spoken by the default voice and echoed as such. A
+`response.create` whose `instructions` start with "Say exactly this, word for word, and add nothing
+else:\n" (or the Chinese direction in `config.yaml`) speaks the rest as written, without the LLM.
 
 Speak to it: append `audio/pcm` at 24 kHz with `input_audio_buffer.append` (20 ms per event is what
 telephony clients send). With the default `server_vad`, the gateway detects the turn, commits it,
@@ -101,7 +105,13 @@ make typecheck   # pyright (strict on src/)
 make test        # unit and integration tests (fake backends, the real VAD models)
 make test-e2e    # the official SDK against the gateway (marker e2e)
 make test-backend  # the real backends (marker backend): run `make dev` first
+make aicc-probe AICC_REPO=~/src/ai-native-callcenter   # AICC's own client against `make dev`
+make aicc-probe-mock AICC_REPO=~/src/ai-native-callcenter  # the same against mock providers
 ```
+
+The AICC targets run AICC's Realtime client harness (`go test` in its `internal/provider`, with
+`tests/aicc/zz_mlx_live_test.go` added through `-overlay`, so the checkout is not modified) and check
+its deadlines; see `tests/aicc/probe.py`.
 
 `uv run --locked pytest` runs everything except the `backend` tests, which are skipped unless
 selected with `-m backend`. Golden traces live in `tests/golden/`; after an intended
@@ -115,11 +125,12 @@ src/mlx_realtime/
   server/      Starlette app, WebSocket transport (reader, single writer), admission, readiness
   protocol/    GA wire layer: client events → commands, facts → server events, ids, errors
   session/     the session actor: conversation, input buffer, turn manager, responses, pipeline
-  providers/   ASR, LLM and TTS interfaces, registry, the mlx_lm and mlx_audio HTTP providers, mocks
+  providers/   ASR, LLM and TTS interfaces, registry, the mlx_lm and mlx_audio HTTP providers,
+               the TTS fallback, the voice map, mocks
   audio/       resampling and wire formats      text/  segmenter, normalizer, language tag
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256
-tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes
+tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes · tests/aicc
 ```

@@ -1,5 +1,5 @@
 # Every target runs in the locked uv environment: a stale uv.lock fails loudly (CLAUDE.md).
-.PHONY: fmt lint typecheck test test-e2e test-backend models models-mlx dev dev-mock
+.PHONY: fmt lint typecheck test test-e2e test-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock
 
 fmt:
 	uv sync --locked
@@ -46,3 +46,16 @@ dev: models
 dev-mock:
 	uv sync --locked
 	uv run --locked mlxrt --config config.mock.yaml dev
+
+# AICC's own Realtime client harness (probe, measureResponseCreated, and the lines check in
+# tests/aicc/zz_mlx_live_test.go, added with go test -overlay) against a running gateway:
+#   make aicc-probe AICC_REPO=~/src/ai-native-callcenter [AICC_URL=ws://127.0.0.1:8000/v1/realtime]
+AICC_URL ?= ws://127.0.0.1:8000/v1/realtime
+aicc-probe:
+	uv sync --locked
+	uv run --locked python tests/aicc/probe.py --aicc-repo "$(AICC_REPO)" --url "$(AICC_URL)"
+
+# The same against a gateway of its own with mock providers (config.mock.yaml, no backends).
+aicc-probe-mock:
+	uv sync --locked
+	uv run --locked python tests/aicc/probe.py --aicc-repo "$(AICC_REPO)" --serve config.mock.yaml

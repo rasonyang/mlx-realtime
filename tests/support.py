@@ -114,11 +114,13 @@ async def running(gateway: Gateway, *, wait_ready: bool = True) -> AsyncIterator
 
 
 class Client:
-    """A raw Realtime client that records both directions of the conversation."""
+    """A raw Realtime client that records both directions of the conversation, and when each
+    event was sent or received (``timeline``, loop time in seconds)."""
 
     def __init__(self, ws: ClientConnection) -> None:
         self.ws = ws
         self.trace: list[tuple[str, Event]] = []
+        self.timeline: list[tuple[float, str, Event]] = []
 
     @classmethod
     @asynccontextmanager
@@ -140,6 +142,7 @@ class Client:
 
     async def send(self, event: Event) -> None:
         self.trace.append(("client", event))
+        self.timeline.append((asyncio.get_running_loop().time(), "client", event))
         await self.ws.send(json.dumps(event))
 
     async def send_raw(self, frame: str | bytes) -> None:
@@ -153,6 +156,7 @@ class Client:
         async with asyncio.timeout(wait_s):
             event: Event = json.loads(await self.ws.recv())
         self.trace.append(("server", event))
+        self.timeline.append((asyncio.get_running_loop().time(), "server", event))
         sdk_parse(event)
         return event
 

@@ -11,6 +11,7 @@ from mlx_realtime.providers.base import FinishReason, ToolChoice, Usage
 from mlx_realtime.session.conversation import AssistantMessage, FunctionCall
 from mlx_realtime.session.errors import ErrorInfo
 from mlx_realtime.session.settings import Modality
+from mlx_realtime.session.timeline import TurnTimeline
 
 type ResponseStatus = Literal["in_progress", "completed", "cancelled", "incomplete", "failed"]
 type StatusReason = Literal[
@@ -37,6 +38,8 @@ class Response:
     tool_choice: ToolChoice
     metadata: Mapping[str, str] | None
     turn_item_id: str | None  # the user audio item this response answers (D7)
+    verbatim: str | None = None  # a line said as written, without the LLM (D16)
+    timeline: TurnTimeline | None = None  # its turn's, or its own when it answers no audio turn
     status: ResponseStatus = "in_progress"
     status_details: StatusDetails | None = None
     output: list[AssistantMessage | FunctionCall] = field(
@@ -48,6 +51,7 @@ class Response:
     awaiting_transcript: bool = False
     llm_done: bool = False
     tts_done: bool = False
+    audio_started: bool = False  # its first audio delta was emitted
     task: asyncio.Task[None] | None = None  # the response scope, once the pipeline runs
 
     def output_index(self, item: AssistantMessage | FunctionCall) -> int:

@@ -79,7 +79,8 @@ async def test_spoken_reply_to_a_chinese_message() -> None:
         assert isinstance(updated.session, RealtimeSessionCreateRequest)
         assert updated.session.audio is not None
         assert updated.session.audio.output is not None
-        assert updated.session.audio.output.voice == "marin"
+        # "marin" is not a configured voice: accepted, spoken by the default and echoed (D19).
+        assert updated.session.audio.output.voice == "vivian"
         await ask(connection, QUESTION)
         await connection.response.create()
         events = await until(connection, "response.done")

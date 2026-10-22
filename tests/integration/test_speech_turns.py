@@ -127,8 +127,13 @@ async def test_a_server_vad_turn_from_24k_audio(caplog: pytest.LogCaptureFixture
     (timeline,) = [r for r in caplog.records if r.getMessage() == "turn timeline"]
     marks: dict[str, int] = timeline.__dict__["marks_ms"]
     assert list(marks) == [
-        "speech_end", "speech_stopped", "turn_confirmed", "asr_done", "llm_first_token",
-    ]  # fmt: skip
+        "speech_end",
+        "speech_stopped",
+        "turn_confirmed",
+        "response_created",
+        "asr_done",
+        "llm_first_token",
+    ]  # fmt: skip (text modality: no TTS marks)
 
 
 async def test_an_incomplete_verdict_holds_the_turn_until_speech_resumes() -> None:

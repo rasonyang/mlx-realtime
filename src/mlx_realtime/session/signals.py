@@ -92,6 +92,17 @@ class PipelineFailed:
     error: ProviderError
 
 
+@dataclass(frozen=True, slots=True)
+class PipelineMark:
+    """A turn-timeline mark the pipeline took (``first_sentence_ready``, ``tts_first_chunk``),
+    with values logged next to the marks (``tts_queue_ms``, ``tts_model``)."""
+
+    generation: int
+    name: str
+    at_s: float
+    values: tuple[tuple[str, object], ...] = ()
+
+
 type PipelineSignal = (
     LlmText
     | LlmToolCall
@@ -100,5 +111,6 @@ type PipelineSignal = (
     | SegmentAudio
     | SpeechFinished
     | PipelineFailed
+    | PipelineMark
 )
 type Signal = VadUpdate | TurnVerdict | TranscriptReady | TranscriptFailed | PipelineSignal

@@ -1,5 +1,6 @@
-# mlx-realtime configuration (ARCHITECTURE §10). M2: Silero VAD and Smart Turn on CPU, the ASR and
-# LLM backends; the TTS is still a mock until M3. config.mock.yaml runs every provider as a mock.
+# mlx-realtime configuration (ARCHITECTURE §10). M3: Silero VAD and Smart Turn on CPU, the ASR, LLM
+# and TTS backends (Qwen3-TTS, with Kokoro as the fallback). config.mock.yaml runs every provider as
+# a mock.
 # Any key can be overridden with MLXRT__<SECTION>__<KEY>=<YAML value>, for example
 # MLXRT__GATEWAY__PORT=9000 or MLXRT__PROVIDERS__LLM__TEMPERATURE=0.6.
 # An unknown key or a bad value stops startup and names the dotted path.
@@ -22,7 +23,29 @@ limits:
   max_response_audio_ms: 120000
 
 output:
-  max_delta_ms: 100
+  max_delta_ms: 100        # audio per response.output_audio.delta
+  max_lead_ms: 10000       # D6: audio goes out at once, at most this far ahead of real time
+
+# D16: a response whose own instructions start with one of these is spoken as written, without
+# the LLM (AICC's greetings, announces, wait and closing lines). [] turns lines off.
+lines:
+  verbatim_prefixes:
+    - "Say exactly this, word for word, and add nothing else:\n"
+    - "请一字不差地说出下面这句话，不要添加任何其它内容：\n"
+
+# D19: the session voice names (audio.output.voice). Any other name is accepted, spoken by
+# `default`, logged as a warning and echoed as the effective voice. speaker: the Qwen3-TTS
+# speaker; lang: "segment" (each segment's zh/en tag) or a fixed lang_code; fallback: the Kokoro
+# voice for zh and for en segments. Not offered: dylan and eric (dialects with chinese/auto).
+# Pending B2 (S3): the default speaker for zh and en.
+voices:
+  default: vivian
+  map:
+    vivian:   {speaker: vivian,   lang: segment, fallback: {zh: zf_xiaobei,  en: af_heart}}
+    serena:   {speaker: serena,   lang: segment, fallback: {zh: zf_xiaoxiao, en: af_bella}}
+    uncle_fu: {speaker: uncle_fu, lang: segment, fallback: {zh: zm_yunjian,  en: am_adam}}
+    ryan:     {speaker: ryan,     lang: segment, fallback: {zh: zm_yunxi,    en: am_michael}}
+    aiden:    {speaker: aiden,    lang: segment, fallback: {zh: zm_yunyang,  en: am_puck}}
 
 # GA-shaped; echoed in session.created and validated exactly like a session.update.
 session_defaults:
@@ -37,7 +60,7 @@ session_defaults:
                        silence_duration_ms: 200, create_response: true, interrupt_response: true}
     output:
       format: {type: audio/pcm, rate: 24000}
-      voice: default
+      voice: vivian                                   # a name from voices.map
       speed: 1.0
 
 turn:
@@ -48,6 +71,10 @@ turn:
 
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
+  # TTS input only; transcripts keep the original text. Pending S9 (G5): which categories the TTS
+  # reads wrongly by itself. Until then phone numbers and IDs only.
+  normalizer: {enabled: true, numbers: false, money: false, dates: false, phones: true, ids: true,
+               units: false, spacing: false, phone_one_as_yao: true}
 
 providers:
   llm:
@@ -71,8 +98,32 @@ providers:
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 2000, total_ms: 10000,
                warmup_ms: 300000}
-  tts: {type: mock, first_chunk_delay_ms: 50, chunk_delay_ms: 0, chunk_ms: 80, ms_per_char: 60,
-        frequency_hz: 440.0}   # M3: mlx_audio_speech on the tts backend
+  tts:
+    type: mlx_audio_speech
+    base_url: http://127.0.0.1:8103
+    sample_rate: 24000
+    max_in_flight: 1             # the server runs one stream at a time; the rest queue here
+    queue_timeout_ms: 2000       # then backend_busy
+    warmup_texts: {zh: "您好，请问有什么可以帮您？", en: "Hello, how can I help you?"}
+    primary:
+      model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit
+      family: qwen3_tts
+      lang_codes: {zh: chinese, en: english}
+      streaming_interval: 0.32   # pending B2 (S3): 4 codec frames, first chunk ~110 ms in M0
+      # Sampling: unset, the model's generation_config.json applies (temperature 0.9, top_k 50,
+      # top_p 1.0, repetition_penalty 1.05). Pending B2 (S3 quality guardrail).
+      timeouts: {connect_ms: 500, first_item_ms: 1500, idle_ms: 1000, total_ms: 60000,
+                 warmup_ms: 300000}
+    fallback:                    # D13: pending B2 (S3.6, G6) evidence on Kokoro's zh and mixed text
+      enabled: true
+      model: mlx-community/Kokoro-82M-bf16
+      family: kokoro             # voice packs from the pinned snapshot's voices/ (offline-safe)
+      lang_codes: {zh: z, en: a}
+      streaming_interval: 0.32
+      breaker_failures: 3        # consecutive primary failures that send every segment here
+      cooldown_s: 30
+      timeouts: {connect_ms: 500, first_item_ms: 2000, idle_ms: 2000, total_ms: 60000,
+                 warmup_ms: 300000}
 
 # The model processes `make dev` starts: uv run --locked --project <project> <command>
 # --host <host> --port <port> [--model <local snapshot of model>] <args>.
