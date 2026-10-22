@@ -42,3 +42,8 @@ lockfile then fails loudly instead of being re-resolved.
 - `requirements.txt`;
 - `uv run --with` or `uvx` for anything the project depends on. Every dependency belongs in a
   lockfile.
+
+## Tooling
+
+- ruff (0.17+) also formats Markdown by default. `pyproject.toml` limits it to Python files; keep it that
+  way, because the docs are formatted by hand.

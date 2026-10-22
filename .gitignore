@@ -12,3 +12,6 @@ spikes/data/
 *.wav
 
 .DS_Store
+
+# ITU-T G.168 echo-path coefficients (© ITU, all rights reserved): never commit
+**/g168*.json

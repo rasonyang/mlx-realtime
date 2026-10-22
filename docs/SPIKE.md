@@ -372,3 +372,69 @@ M0 only selects the engine and its defaults; the canceller is implemented in M4.
 - every gate is decided;
 - the LLM repo id and revision are pinned;
 - nothing unknown blocks M1–M3.
+
+## 6. Findings (filled in as spikes complete)
+
+### S0 — Test audio (A2, 2026-10-22)
+
+126 utterances (42 zh, 42 en, 42 code-switched), 781.5 s in total, all with a license, a telephone copy
+and an 8 kHz G.711 stream (84 μ-law, 42 A-law). Rebuilding reproduces the files and the manifest byte
+for byte. Scripts and the versioned manifest: `spikes/datasets/` (`MANIFEST.md`, `manifest.jsonl`).
+Audio: `spikes/data/` (git-ignored, 132 MB).
+
+| Set | Source (license, revision) | Count | Duration min / median / max | With numbers |
+|---|---|---|---|---|
+| zh | FLEURS `cmn_hans_cn` test (CC-BY-4.0, `70bb2e84`) | 42 | 4.74 / 7.53 / 9.72 s | 10 |
+| en | FLEURS `en_us` test (CC-BY-4.0, `70bb2e84`) | 42 | 4.32 / 6.81 / 9.90 s | 13 |
+| mix | ASCEND test, `language=mixed` (CC-BY-SA-4.0, `737e9800`) | 42 | 1.65 / 3.80 / 8.62 s | 2 |
+
+**Processing.**
+
+- Every utterance is levelled to −26 dBov (ITU-T P.56 measure, peak-limited at −1 dBFS) before either
+  copy is made. Source levels differed by about 50 dB, and leaving them would have clipped ASCEND and
+  buried quiet English material in G.711's noise floor. The gain is recorded per row, and the
+  originals are kept.
+- Telephone chain: 16 kHz → 8 kHz (soxr HQ) → G.711 round trip (stdlib `audioop` on 3.12) → 16 kHz
+  (soxr HQ). No extra 300–3400 Hz filter.
+
+**Caveats.**
+
+- FLEURS has no clip under 3.6 s, so the short utterances all come from ASCEND.
+- ASCEND's test split has only 2 speakers.
+- `text_norm` does not expand numbers. FLEURS writes "1990 年" for spoken 一九九零年, so rows with
+  `has_number` are scored separately in S4.
+- ASCEND is share-alike: the derived copies may only be redistributed under CC-BY-SA-4.0.
+
+**Echo material.**
+
+- ITU-T G.168 (04/2015, Annex D, Tables D.2–D.9): 8 hybrid echo-path models at 8 kHz, 64–128 taps
+  (8–16 ms). The extraction was checked against the published scaling factors and the 2022
+  corrigendum. The coefficients are © ITU and stay in git-ignored `spikes/data/echo/`.
+- A 20-example Microsoft AEC Challenge subset: synthetic, 10 linear and 10 nonlinear examples, 16 kHz.
+  It is acoustic echo, for internal evaluation only.
+
+### S11 part 1 — Echo-canceller desk research (A3, 2026-10-23)
+
+Full report: `spikes/results/a3_aec_research.md`. Install checks: `spikes/results/a3_aec_install_check.json`.
+
+| Candidate | Delay handling | Alters audio | Notes |
+|---|---|---|---|
+| WebRTC AEC3 via `livekit` 1.1.21 (Apache-2.0; WebRTC M150) | own estimator, ~0–509 ms | suppressor and comfort noise always on; high-pass filter forced on | **Primary.** Aborts the process (SIGABRT) on any frame that is not a whole multiple of 10 ms, so the size is checked before every call. One protobuf build per call |
+| WebRTC AEC3 via `pywebrtc-audio` 0.2.0 | same engine | same, with no settings | Alternative wrapper for the same engine |
+| SpeexDSP 1.2.1 (BSD-3) via ctypes | none: needs a gateway-side GCC-PHAT pre-aligner | only with the optional preprocessor | Linear-only output, which is best for ASR. Its Homebrew library is outside the lockfile, so it serves only as a spike comparison; M4 would vendor the C sources |
+| numpy PBFDAF + Geigel double-talk detector (ours) | none: needs GCC-PHAT | no | G.168-style reference point |
+
+**Alignment design, carried into S11 part 2.**
+
+- Replay AICC's playout state machine on our own send log, with one unknown offset θ:
+  - playback starts once 3 frames are queued or after 60 ms;
+  - it runs on a 20 ms tick;
+  - it re-buffers after more than 2 empty ticks.
+- Feed the engine in lock step with the uplink sample count.
+- Lead the reference by 60 ms, so it always arrives before its echo.
+- Re-anchor θ on every truncate.
+- Low-pass both signals at 3.8 kHz, because AICC's linear-interpolation upsampling folds images into
+  4–8 kHz.
+
+**G.168 facts used.** Hybrid dispersion is at most 12 ms. The worst-case ERL is 6 dB; the typical mean
+is about 14–15 dB. Convergence requires at least 20 dB within 1 s, and 25–30 dB at steady state.

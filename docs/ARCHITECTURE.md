@@ -256,8 +256,10 @@ These rules are enforced by an import-graph test and by ruff's banned-imports ru
 
 **The actor is the only code that mutates session state.**
 
-- Its inbox carries Commands (from the protocol layer) and Facts (from the VAD feeder, the executors
-  and pipeline tasks).
+- Its inbox carries Commands (from the protocol layer) and Signals (results posted back by the VAD
+  feeder, the executors and pipeline tasks). It emits Facts, which the protocol layer turns into GA
+  events.
+- A fourth per-session task ends the session on shutdown or at `max_session_s`.
 - Handlers are synchronous; there is no `await` inside a handler. Every command or fact is therefore
   applied atomically within one event-loop step, which is what makes barge-in deterministic (§6.5).
 - Pipeline facts carry their response's generation number. The actor drops facts from an older
@@ -337,7 +339,7 @@ model inputs, so wideband and telephony input share one code path.
 | InputBuffer | `input_audio_buffer_max_ms` (60 s); idle audio trimmed in VAD modes (§6.2) | fatal `input_audio_buffer_overflow` |
 | LLM stream | drained immediately; text bounded by `max_output_tokens` | — |
 | TTS audio per response | `max_response_audio_ms` (120 s) | response ends `incomplete` |
-| outbound events per session | 256 events | writer blocks; a write stalled longer than `client_write_timeout` (5 s) closes the session |
+| outbound events per session | 256 events | Pipeline producers wait once half the queue is full; the actor never waits. A backlog over the limit, or a write stalled longer than `client_write_timeout` (5 s), closes the session (1008, `slow_client`) |
 | backend in-flight requests | per-backend semaphore + `queue_timeout` | response `failed`, `error` code `backend_busy` |
 
 ## 5. Provider interfaces
@@ -671,7 +673,9 @@ step:
 **Echo [D17].** Echo cancellation is this service's job.
 
 - AICC streams caller audio continuously, including while the bot speaks.
-- Neither AICC nor FreeSWITCH cancels echo (confirmed 2026-10-22).
+- Neither AICC nor FreeSWITCH cancels echo on these calls. FreeSWITCH has a Speex-based canceller in its
+  `preprocess` application, but it is off by default and not enabled; the owner decided on 2026-10-22
+  that the service handles echo.
 - A self-cancelling server would therefore interrupt itself on its own echo, and AICC's 800 ms barge
   guard cannot prevent that.
 
@@ -890,7 +894,12 @@ that code is used:
 
 - `conversation_already_has_active_response`: a `response.create` while a response is active.
 - `response_cancel_not_active`: a `response.cancel` with nothing to cancel.
-- `param: "item_id"` (code `item_not_found`): an unknown item on `conversation.item.delete`.
+- `param: "item_id"` (code `item_not_found`): an unknown item on `conversation.item.delete` or
+  `conversation.item.truncate`.
+
+When a backend fails during a response, the `error` event goes out before `response.done{failed}`, so
+AICC ties it to that response. Session-ending codes: `slow_client` (close 1008) and `internal_error`
+(close 1011).
 
 Protocol validation otherwise uses `invalid_request_error` with `invalid_event` / `invalid_value` and a
 dotted `param`.
@@ -1077,7 +1086,7 @@ so the service does it. Further dated entries go to `docs/DECISIONS.md`.
 | D14 | `audio.output.speed` | Qwen3-TTS has no speed control, so only 1.0 is accepted; other values get an `error`. |
 | D15 | Transcription events by default | On (the session default sets `audio.input.transcription`). AICC's gateway-style profile sends no transcription field, and it needs the caller's words in its call transcript. |
 | D16 | Verbatim lines | When instructions start with a configured direction prefix (AICC's two by default), skip the LLM and speak the text as written. Lines become exact, and their latency drops to the TTS first chunk. |
-| D17 | Echo (neither AICC nor FreeSWITCH cancels it) | The service cancels echo: a per-session echo canceller on the input, referenced to our own output on a modelled client playout timeline (§6.5). M0 (G7) picks the engine on simulated telephone echo. The onset guard and echo-turn suppression stay as a second line. Live echo measurement is deferred. |
+| D17 | Echo (neither AICC nor FreeSWITCH cancels it on these calls; FreeSWITCH's own canceller is off by default) | The service cancels echo: a per-session echo canceller on the input, referenced to our own output on a modelled client playout timeline (§6.5). M0 (G7) picks the engine on simulated telephone echo. The onset guard and echo-turn suppression stay as a second line. Live echo measurement is deferred. |
 | D18 | Error policy | Use OpenAI's live codes where AICC matches them (`conversation_already_has_active_response`, `response_cancel_not_active`). Clamp a truncate that overshoots the sent audio instead of erroring. Send no unsolicited errors, because AICC pins an `error` on whatever request it has in flight. |
 | D19 | Unknown `audio.output.voice` | Accept it, map it to the default voice, log a warning, and echo the effective voice. Never reject it. |
 

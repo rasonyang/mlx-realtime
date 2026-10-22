@@ -1,0 +1,1 @@
+["server", {"error": {"code": "session_limit_reached", "event_id": null, "message": "Too many sessions; try again later.", "param": null, "type": "server_error"}, "type": "error"}]
