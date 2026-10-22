@@ -438,3 +438,57 @@ Full report: `spikes/results/a3_aec_research.md`. Install checks: `spikes/result
 
 **G.168 facts used.** Hybrid dispersion is at most 12 ms. The worst-case ERL is 6 dB; the typical mean
 is about 14–15 dB. Convergence requires at least 20 dB within 1 s, and 25–30 dB at steady state.
+
+### S7 — CPU audio models and libraries (A4, 2026-10-23)
+
+Report: `spikes/results/s7_report.md`. Raw numbers: `spikes/results/s7_*.json`. All runs started at a
+1-minute load ≤ 4 unless flagged in the report.
+
+**Smart Turn model time** (p50 / p95 ms, spinning off; feature extraction adds ≈ 2 ms):
+
+| File | 1 thread | 2 threads | 4 threads |
+|---|---|---|---|
+| int8 (`-cpu`) | 51.8 / 53.6 | 28.1 / 29.6 | 17.0 / 18.0 |
+| fp32 (`-gpu`, runs on CPU) | 107.9 / 110.6 | 57.1 / 59.2 | 31.8 / 33.2 |
+
+**Smart Turn accuracy, Chinese** (929 clips, threshold 0.5; the test set is TTS speech):
+
+| File | Audio | Accuracy | False-negative rate | False-positive rate |
+|---|---|---|---|---|
+| int8 | clean | 86.3% | 17.3% | 9.9% |
+| int8 | telephone | 87.3% | 9.5% | 16.0% |
+| fp32 | clean | 90.5% | 8.3% | 10.8% |
+| fp32 | telephone | 89.9% | 6.6% | 13.8% |
+
+Telephone audio pushes the model towards "complete": false-positive rates rise by 3–6 points.
+
+**Feature parity.** The numpy features match transformers to 1.2e-7. The fp32 model output differs by
+at most 2.5e-6.
+
+**Silero.** 0.13 ms per 32 ms window. On long telephone streams, native 8 kHz mode drifts: 40% of
+onsets come late (p95 +672 ms). Upsampled to 16 kHz there is no drift (onset p95 +64 ms).
+
+**Concurrency, 64 streams.**
+
+- Per-stream Silero on a single-thread executor: event-loop lag p99 ≤ 0.5 ms.
+- Smart Turn with fp32 and 2 threads per worker, K=2: total p99 260 ms at 8 evaluations/s (bursts of 8),
+  and 301 ms at 16/s. With K=4: 141 / 171 ms. K=1 falls behind.
+
+**soxr.** float32 streaming is bit-identical to one-shot; int16 dithers by up to 2 LSB. Lag with HQ:
+24k→16k 21 / 37 ms (mean / max); 8k→16k 64 / 115 ms; LQ halves the 8k lag.
+
+**G.711.** Lookup tables built from `audioop.c`'s algorithm: 0 mismatches over all 65 536 + 256
+inputs, for μ-law and A-law. Sun's later `g711.c` disagrees on 381 μ-law and 896 A-law negative
+inputs, so do not port that one.
+
+**G3 decision (2026-10-23).**
+
+- Smart Turn **fp32** (`smart-turn-v3.2-gpu.onnx` on CPU), `intra_op_num_threads=2`, spinning off,
+  one session per worker. The executor uses **K=2** by default; config allows K=4 for bursty loads. Do
+  not batch evaluations.
+- Rationale: fp32 costs about 30 ms more per evaluation than int8. But int8 wrongly says "incomplete"
+  twice as often (17.3% vs 8.3% on clean Chinese), and each such miss holds the turn until
+  `max_silence_ms`. fp32 therefore gives the lower expected latency, and it is also the more accurate
+  model.
+- Silero: per-stream calls on a single-thread executor. Telephone audio is upsampled to 16 kHz.
+- Resampling: soxr HQ, streaming in float32. For M7, consider LQ for 8k→16k to halve the VAD lag.

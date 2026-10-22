@@ -1,7 +1,9 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M1 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
-> field by field, and in which milestone each unsupported part arrives.
+> **Status: M2 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
+> (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. Audio
+> output is still a sine tone until M3.
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -38,7 +40,7 @@ Contents: [1 Transport](#1-transport) · [2 Client events](#2-client-events) ·
 | First events | `session.created`, then `conversation.created`, before any client event is processed. |
 | Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions`: `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
 | `/healthz` | 200 while the event loop answers. No backend calls. |
-| `/readyz` | 200 once every backend has been warmed and reports ready, else 503; per-backend detail in the body. |
+| `/readyz` | 200 once every backend has been warmed and reports ready, else 503; per-backend detail in the body: `llm`, `asr`, `tts`, and `vad` (the CPU detectors) when Silero runs. |
 
 **Close codes.**
 
@@ -90,8 +92,8 @@ the configured session defaults, so its absent fields take their configured valu
 | `instructions` | **Supported** | any string (`""` clears) | effective | `session.instructions` |
 | `output_modalities` | **Supported** | `["audio"]` or `["text"]` (D12) | effective | `session.output_modalities` |
 | `audio.input.format` (`RealtimeAudioFormats`) | **Partial** | `{type: "audio/pcm", rate: 24000}`; both keys optional. `audio/pcmu`, `audio/pcma`: **Unsupported (M7)** | `{type: "audio/pcm", rate: 24000}` | `session.audio.input.format.type` / `.rate` |
-| `audio.input.transcription` (`AudioTranscription`) | **Partial** | object or `null`; `model` (echoed only), `language` (passed to the ASR), `prompt` (echoed only). `delay`, `keywords`, `languages`: Unsupported | effective object (unset keys omitted), or `null`. On by default (D15) | `session.audio.input.transcription.<key>` |
-| `audio.input.turn_detection` (`RealtimeAudioInputTurnDetection`) | **Partial** | `null` (manual turns), or `ServerVad`: `threshold` [0, 1], `prefix_padding_ms` ≥ 0, `silence_duration_ms` ≥ 0, `create_response`, `interrupt_response`, `idle_timeout_ms: null`. M1 detects speech with a scripted detector; Silero + Smart Turn arrive in M2 (D4). `SemanticVad`: **Unsupported** | every field filled, `idle_timeout_ms: null`; or `null` | `…turn_detection.type` (`semantic_vad`), `….idle_timeout_ms` (non-null), `….<field>` |
+| `audio.input.transcription` (`AudioTranscription`) | **Partial** | object or `null`; `model` (echoed only: the ASR is Qwen3-ASR, `providers.asr.model`), `language` (an ISO 639 code such as `zh` or `en`, passed to the ASR as its language name; absent: the ASR detects it), `prompt` (echoed only). `delay`, `keywords`, `languages`: Unsupported | effective object (unset keys omitted), or `null`. On by default (D15) | `session.audio.input.transcription.<key>` |
+| `audio.input.turn_detection` (`RealtimeAudioInputTurnDetection`) | **Supported** | `null` (manual turns), or `ServerVad`: Silero VAD v6.2.3 plus Smart Turn v3.2 (D4, §11.9). `threshold` [0, 1] (speech enters at it, leaves below it − 0.15), `prefix_padding_ms` ≥ 0, `silence_duration_ms` ≥ 0 (the silence before an end-of-turn evaluation; session default 200), `create_response`, `interrupt_response`; `idle_timeout_ms` only `null`. `SemanticVad`: **Unsupported** | every field filled, `idle_timeout_ms: null`; or `null` | `…turn_detection.type` (`semantic_vad`), `….idle_timeout_ms` (non-null), `….<field>` |
 | `audio.input.noise_reduction` (`NoiseReduction`) | **Unsupported** | `null` only (echo cancellation is internal, M4) | `null` | `session.audio.input.noise_reduction` |
 | `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | as input | `session.audio.output.format.type` / `.rate` |
 | `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19). M1 echoes it as given; M3 maps an unknown name to the default voice, logs a warning and echoes the effective voice. `VoiceID` objects: Unsupported | effective string | `session.audio.output.voice` (object) |
@@ -173,12 +175,12 @@ session).
 | `error` | `RealtimeErrorEvent` | **Supported** | §9 |
 | `input_audio_buffer.committed` | `InputAudioBufferCommittedEvent` | **Supported** | client commit, or the end of a detected speech turn |
 | `input_audio_buffer.cleared` | `InputAudioBufferClearedEvent` | **Supported** | after `input_audio_buffer.clear` |
-| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Partial** | `server_vad` only; `audio_start_ms` includes `prefix_padding_ms`; `item_id` of the item the commit will create. Scripted detection in M1, Silero in M2 |
-| `input_audio_buffer.speech_stopped` | `InputAudioBufferSpeechStoppedEvent` | **Partial** | `server_vad` only; `audio_end_ms` is the acoustic end of speech (§11.6) |
+| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Supported** | `server_vad` only, once speech has lasted `turn.vad.min_speech_ms` (150); `audio_start_ms` includes `prefix_padding_ms`; `item_id` of the item the commit will create. One per turn: speech that resumes while the turn is held continues it (§11.9) |
+| `input_audio_buffer.speech_stopped` | `InputAudioBufferSpeechStoppedEvent` | **Supported** | `server_vad` only, when the turn ends (§11.9), immediately before `input_audio_buffer.committed`; `audio_end_ms` is the acoustic end of speech (§11.6) |
 | `conversation.item.added` | `ConversationItemAdded` | **Supported** | client items, committed audio, response output items |
 | `conversation.item.done` | `ConversationItemDone` | **Supported** | client items (at once), user audio (when the transcript is final), response items (when they close) |
 | `conversation.item.created` | `ConversationItemCreatedEvent` | **Never** (D1) | replaced by `conversation.item.added` + `conversation.item.done` |
-| `conversation.item.input_audio_transcription.completed` | `ConversationItemInputAudioTranscriptionCompletedEvent` | **Supported** | one per committed utterance when transcription is on (the default, D15); `usage: {type: "duration", seconds}` |
+| `conversation.item.input_audio_transcription.completed` | `ConversationItemInputAudioTranscriptionCompletedEvent` | **Supported** | one per committed utterance when transcription is on (the default, D15): the whole turn's transcript from Qwen3-ASR, trimmed; `usage: {type: "duration", seconds}` |
 | `conversation.item.input_audio_transcription.failed` | `ConversationItemInputAudioTranscriptionFailedEvent` | **Supported** | the ASR request failed; the turn's response ends `failed` |
 | `conversation.item.input_audio_transcription.delta` | `ConversationItemInputAudioTranscriptionDeltaEvent` | **Unsupported** | the ASR returns final transcripts only |
 | `conversation.item.input_audio_transcription.segment` | `ConversationItemInputAudioTranscriptionSegment` | **Never** | diarization is not offered |
@@ -191,7 +193,7 @@ session).
 | `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 `audio/pcm` 24 kHz, whole samples, at most `output.max_delta_ms` (100 ms) per delta. M1 audio is a sine tone |
 | `response.output_audio_transcript.delta` / `.done` | `ResponseAudioTranscriptDeltaEvent` / `ResponseAudioTranscriptDoneEvent` | **Supported** | one delta per synthesized segment, sent just before the segment's first audio; `.done` carries the text whose deltas reached the client |
 | `response.output_text.delta` / `.done` | `ResponseTextDeltaEvent` / `ResponseTextDoneEvent` | **Supported** | text modality (D12): one delta per LLM delta; TTS is never opened |
-| `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Partial** | complete calls only, the arguments in one delta (§11.5). M1 delivers calls a provider makes (the mock is scripted); real tool calling is M5 |
+| `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Partial** | complete calls only, the arguments in one delta (§11.5). Calls the LLM server parsed are delivered since M2 (the provider passes the session tools when `tool_choice` is `auto`); real tool calling, with history replay checked, is M5 |
 | `response.done` | `ResponseDoneEvent` | **Supported** | always, last for its response (§7) |
 | `rate_limits.updated` | `RateLimitsUpdatedEvent` | **Never** | there are no rate limits to report |
 | `input_audio_buffer.timeout_triggered` | `InputAudioBufferTimeoutTriggered` | **Never** | `idle_timeout_ms` accepts only `null` (D4) |
@@ -258,12 +260,13 @@ response.created → conversation.item.input_audio_transcription.completed → c
 → response.output_item.added → … (audio response)
 ```
 
-**`server_vad` turn** (D7; `barge_in.jsonl`, second turn):
+**`server_vad` turn** (D7; `barge_in.jsonl`, second turn; with the real VAD, ASR and LLM providers on
+fake backends: `tests/integration/test_speech_turns.py`, text modality):
 ```
 input_audio_buffer.speech_started → input_audio_buffer.speech_stopped
 → input_audio_buffer.committed → conversation.item.added → response.created
 → conversation.item.input_audio_transcription.completed → conversation.item.done
-→ response.output_item.added → … (audio response)
+→ response.output_item.added → … (audio response, or response.output_text.* → response.done)
 ```
 With `create_response: false`, or while another response is active, no response is created; the
 commit still happens.
@@ -376,31 +379,49 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
    A response cancelled before a call is complete delivers no call; a delivered call is never retracted.
    `.done` therefore means "delivered", not "valid JSON" (the gateway never parses arguments).
 6. **`audio_end_ms`** of `speech_stopped` is the acoustic end of speech (ARCHITECTURE §6.2), not GA's
-   end of the silence window; the committed audio ends there.
+   end of the silence window; the committed audio ends there. With Smart Turn deciding, the commit
+   comes some time after it; logs record that delay as the turn's `turn_confirmed` stage.
 7. **Input timeline.** `audio_start_ms` and `audio_end_ms` count milliseconds of audio since the
    session's first append (GA). Audio is held at 16 kHz internally; the resampler's tail is flushed at
    a manual commit, so no trailing audio is lost.
 8. **Output flow control.** Audio is produced as fast as the backends allow, while the writer keeps
    up: producers wait whenever half of `outbound_queue_events` are queued. The real-time lead cap
    (D6) arrives in M3.
+9. **Turn detection (`server_vad`, D4).** Speech detection runs off the session's event loop, on
+   CPU executors; positions are on the input timeline, so the same audio always yields the same
+   turns.
+   - Speech starts once Silero's probability has been at least `threshold` and stayed above
+     `threshold − 0.15` for `turn.vad.min_speech_ms` (150): clicks and short noises never start a
+     turn or interrupt a response.
+   - After `silence_duration_ms` of silence, Smart Turn judges the turn's last ≤ 8 s, trailing
+     silence included. Complete (probability > `turn.smart_turn.threshold`, 0.5): the turn ends.
+     Incomplete: the turn is held; speech that resumes continues it (no second `speech_started`),
+     and after `turn.smart_turn.max_silence_ms` (3000) of silence it ends anyway.
+   - With `turn.smart_turn.enabled: false`, `silence_duration_ms` of silence ends the turn.
+   - While no turn is in progress the input buffer keeps only `prefix_padding_ms` plus one frame,
+     so a caller who streams silence never fills it.
+   - A manual `input_audio_buffer.commit` or `.clear`, and any change to `turn_detection`, drop the
+     turn in progress.
+   - Input may arrive faster than real time, but at most `limits.inbox_max_ms` (2 s) of it may wait
+     unread in the session's queue (§9, `input_queue_overflow`).
 
 ## 12. AICC compatibility
 
 ai-native-callcenter attaches through its existing `gateway` profile with no change (D11). Its five
 client traces in `spikes/aicc/traces/` are replayed in `tests/integration/test_aicc_replay.py`: every
 frame is sent as captured, AICC's fake-server ids are swapped for this server's ids, and no frame draws an
-`error`. AICC's requirements (ARCHITECTURE §2) at M1:
+`error`. AICC's requirements (ARCHITECTURE §2) at M2:
 
-| Area | M1 |
+| Area | M2 |
 |---|---|
 | Handshake | `session.updated` answers the first `session.update` at once; every AICC `session.update` (tools, `server_vad` with only `silence_duration_ms: 500`, flow voice) is accepted. |
 | Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted and echoed (D19; mapping in M3); instructions-only updates merge. |
-| Turn-taking | `server_vad` creates one response per commit, at the commit (D7); an empty transcript completes it empty. Speech detection is scripted in M1; Silero and Smart Turn arrive in M2. |
-| Deadlines | `response.created` is immediate. With mocks, the first audio delta follows at once; the real budget (ASR + LLM first token + first segment + TTS first chunk ≤ 3 s, G4) is measured from M3. |
+| Turn-taking | `server_vad` is Silero VAD + Smart Turn (§11.9): AICC's `silence_duration_ms: 500` is the silence before Smart Turn decides. One response per commit, at the commit (D7); an empty transcript completes it empty. |
+| Deadlines | `response.created` is immediate. The ASR and LLM are real since M2; the first audio delta is still the mock TTS's, so the real budget (ASR + LLM first token + first segment + TTS first chunk ≤ 3 s, G4) is measured from M3. |
 | One response at a time | `conversation_already_has_active_response`, not queued. |
 | Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`; the reply follows `speech_stopped`. Echo cancellation (D17) is M4. |
 | Client edits | `response.cancel` without an id, truncate with played milliseconds (clamped, D18), delete of unheard answers and of calls, user `input_text` notes, `function_call_output` with a `hint`: all replayed. |
-| Lines | `response.create` with "Say exactly this…" instructions, also on an empty conversation, is accepted; in M1 the line goes through the LLM, verbatim playback (D16) is M3. |
+| Lines | `response.create` with "Say exactly this…" instructions, also on an empty conversation, is accepted; until M3 the line goes through the LLM, verbatim playback (D16) is M3. |
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
 | Errors | only the codes of §9, and only where required (D18). |
 | Audio | 20 ms appends at any time, also while the bot speaks; output deltas of whole samples, at most 100 ms, faster than real time. The 10 s lead cap (D6) arrives in M3. |

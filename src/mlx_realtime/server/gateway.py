@@ -1,5 +1,5 @@
-"""Process-wide gateway state shared by every connection: configuration, providers, the session
-defaults, admission and readiness.
+"""Process-wide gateway state shared by every connection: configuration, providers, the speech
+and end-of-turn detectors, the session defaults, admission and readiness.
 """
 
 from __future__ import annotations
@@ -8,17 +8,20 @@ import asyncio
 import hmac
 import logging
 from collections.abc import Callable
+from pathlib import Path
 from typing import Protocol
 
-from mlx_realtime.config import Config, ConfigError
+from mlx_realtime.config import Config, ConfigError, TurnConfig
 from mlx_realtime.protocol.fields import ProtocolError
 from mlx_realtime.protocol.ids import IdFactory
 from mlx_realtime.protocol.session import decode_session_defaults
-from mlx_realtime.providers.registry import Providers
+from mlx_realtime.providers.base import Backend, Readiness
+from mlx_realtime.providers.registry import Providers, build_providers
 from mlx_realtime.server.readiness import ReadinessMonitor
 from mlx_realtime.session.actor import SessionDeps
 from mlx_realtime.session.settings import SessionSettings
 from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
+from mlx_realtime.vad.executors import VadRuntime
 from mlx_realtime.vad.scripted import ScriptedSpeech, ScriptedTurnEnd
 
 logger = logging.getLogger(__name__)
@@ -69,12 +72,15 @@ class Admission:
 
 
 class Gateway:
+    """``providers`` and the detector factories default to what ``config`` selects; tests pass
+    their own."""
+
     def __init__(
         self,
         config: Config,
-        providers: Providers,
+        providers: Providers | None = None,
         *,
-        speech_detector: Callable[[], SpeechDetector] = ScriptedSpeech,
+        speech_detector: Callable[[], SpeechDetector] | None = None,
         turn_end_detector: Callable[[], TurnEndDetector | None] | None = None,
     ) -> None:
         try:
@@ -82,15 +88,25 @@ class Gateway:
         except ProtocolError as error:
             raise ConfigError(f"invalid configuration:\n  {error.param}: {error.message}") from None
         self.config = config
-        self.providers = providers
+        self.providers = providers or build_providers(
+            config.providers, warmup_instructions=self.defaults.instructions
+        )
         self.ids = IdFactory()
-        self.readiness = ReadinessMonitor(providers.backends())
         self.admission = Admission(config.gateway.max_sessions)
-        self._speech_detector = speech_detector
+        backends = self.providers.backends()
+        if speech_detector is None and config.turn.vad.type == "silero":
+            runtime = vad_runtime(config.turn)
+            backends["vad"] = _VadBackend(runtime)
+            speech_detector = runtime.speech_detector
+            if turn_end_detector is None:
+                turn_end_detector = runtime.turn_end_detector
         if turn_end_detector is None:
             smart_turn = config.turn.smart_turn.enabled
             turn_end_detector = ScriptedTurnEnd if smart_turn else _no_turn_end_detector
+        self._speech_detector = speech_detector or ScriptedSpeech
         self._turn_end_detector = turn_end_detector
+        self._backends = backends
+        self.readiness = ReadinessMonitor(backends)
 
     def authorized(self, authorization: str | None) -> bool:
         """Bearer auth with ``gateway.api_key``; an empty key disables it."""
@@ -115,8 +131,36 @@ class Gateway:
         )
 
     async def aclose(self) -> None:
-        for backend in self.providers.backends().values():
+        for backend in self._backends.values():
             await backend.aclose()
+
+
+def vad_runtime(turn: TurnConfig) -> VadRuntime:
+    """Silero, and Smart Turn when enabled, on their CPU executors (the model files must exist)."""
+    smart_turn = turn.smart_turn
+    return VadRuntime(
+        silero_model=Path(turn.vad.model),
+        reset_interval_s=turn.vad.model_reset_interval_s,
+        smart_turn_model=Path(smart_turn.model) if smart_turn.enabled else None,
+        workers=smart_turn.workers,
+        intra_op_threads=smart_turn.intra_op_threads,
+    )
+
+
+class _VadBackend(Backend):
+    """The CPU detectors as a readiness backend: warmed with one inference each."""
+
+    def __init__(self, runtime: VadRuntime) -> None:
+        self._runtime = runtime
+
+    async def warmup(self) -> None:
+        await self._runtime.warmup()
+
+    async def ready(self) -> Readiness:
+        return Readiness(ready=True, detail="cpu")
+
+    async def aclose(self) -> None:
+        await self._runtime.aclose()
 
 
 def _no_turn_end_detector() -> TurnEndDetector | None:

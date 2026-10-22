@@ -1,18 +1,18 @@
-"""Turn detection for ``server_vad``: the state machine of ARCHITECTURE §6.2.
+"""Turn detection for ``server_vad``: the state machine of ARCHITECTURE §6.2 and D4.
 
-``TurnManager`` is fed speech probabilities per frame and end-of-turn verdicts, and answers
-with actions. It reads no clock: every duration is measured on the input audio timeline, so
-the same audio always yields the same turns.
+The speech gate (``vad/gate.py``, run by the VAD feeder) turns frame probabilities into speech
+starts and ends; ``TurnManager`` turns those, and the end-of-turn verdicts of Smart Turn, into
+turns. It reads no clock: every position is on the input audio timeline.
 
-    IDLE --speech >= min_speech_ms--> SPEAKING                           (SpeechStart)
-    SPEAKING --silence >= silence_duration_ms--> EVALUATING              (EvaluateTurn)
-    EVALUATING --speech resumes--> SPEAKING (the verdict is discarded)
+    IDLE --SpeechStart--> SPEAKING                                       (TurnStart)
+    SPEAKING --SpeechEnd--> EVALUATING                                   (EvaluateTurn)
+    EVALUATING --SpeechStart--> SPEAKING (the pending verdict is discarded)
     EVALUATING --verdict incomplete--> HOLDING
     EVALUATING --verdict complete--> IDLE                                (TurnEnd)
-    HOLDING --speech resumes--> SPEAKING (same turn, no new SpeechStart)
-    HOLDING --silence >= max_silence_ms--> IDLE                          (TurnEnd)
+    HOLDING --SpeechStart--> SPEAKING (same turn, no new TurnStart)
+    EVALUATING | HOLDING --LongSilence (max_silence_ms)--> IDLE          (TurnEnd)
 
-Without Smart Turn, EVALUATING is skipped: silence ends the turn.
+Without Smart Turn, SpeechEnd ends the turn at once: plain silence-based VAD.
 """
 
 from __future__ import annotations
@@ -21,9 +21,7 @@ import enum
 from dataclasses import dataclass
 
 from mlx_realtime.audio.pcm import SAMPLE_WIDTH
-from mlx_realtime.vad.base import FRAME_MS, FRAME_SAMPLES
-
-_HYSTERESIS = 0.15  # Silero's own: speech ends below threshold - 0.15
+from mlx_realtime.vad.base import FRAME_SAMPLES
 
 
 class TurnState(enum.Enum):
@@ -34,7 +32,7 @@ class TurnState(enum.Enum):
 
 
 @dataclass(frozen=True, slots=True)
-class SpeechStart:
+class TurnStart:
     onset_ms: int  # start of the first speech frame
 
 
@@ -50,55 +48,57 @@ class TurnEnd:
     audio_end_ms: int  # acoustic end of speech
 
 
-type TurnAction = SpeechStart | EvaluateTurn | TurnEnd
+type TurnAction = TurnStart | EvaluateTurn | TurnEnd
 
 
 @dataclass(frozen=True, slots=True)
 class TurnParams:
-    threshold: float
-    min_speech_ms: int
-    silence_duration_ms: int
     smart_turn: bool
     smart_turn_threshold: float
-    max_silence_ms: int
-    window_ms: int
+    window_ms: int  # Smart Turn sees at most this much of the turn, ending where it is evaluated
+    lead_ms: int  # audio kept before the onset (prefix_padding_ms), also shown to Smart Turn
 
 
 class TurnManager:
     def __init__(self, params: TurnParams) -> None:
         self._params = params
-        self._exit_threshold = max(params.threshold - _HYSTERESIS, 0.0)
         self.state = TurnState.IDLE
-        self._candidate_ms: int | None = None
-        self._turn_start_ms = 0
+        self._onset_ms = 0
         self._speech_end_ms = 0
-        self._frame_end_ms = 0
         self._evaluation = 0
 
     def reset(self) -> None:
         """Forget any turn in progress; a pending verdict becomes stale."""
         self.state = TurnState.IDLE
-        self._candidate_ms = None
         self._evaluation += 1
 
-    def on_frame(self, start_ms: int, end_ms: int, probability: float) -> list[TurnAction]:
-        self._frame_end_ms = end_ms
-        speech = probability >= self._params.threshold
+    def on_speech_start(self, onset_ms: int) -> list[TurnAction]:
         match self.state:
             case TurnState.IDLE:
-                return self._idle(start_ms, end_ms, probability)
-            case TurnState.SPEAKING:
-                if probability >= self._exit_threshold:
-                    self._speech_end_ms = end_ms
-                elif end_ms - self._speech_end_ms >= self._params.silence_duration_ms:
-                    return self._evaluate()
+                self.state = TurnState.SPEAKING
+                self._onset_ms = onset_ms
+                return [TurnStart(onset_ms)]
             case TurnState.EVALUATING | TurnState.HOLDING:
-                if speech:
-                    self.state = TurnState.SPEAKING
-                    self._speech_end_ms = end_ms
-                    self._evaluation += 1
-                elif end_ms - self._speech_end_ms >= self._params.max_silence_ms:
-                    return self._end_turn()
+                self.state = TurnState.SPEAKING
+                self._evaluation += 1
+            case TurnState.SPEAKING:
+                pass
+        return []
+
+    def on_speech_end(self, end_ms: int, detected_ms: int) -> list[TurnAction]:
+        if self.state is not TurnState.SPEAKING:
+            return []
+        self._speech_end_ms = end_ms
+        if not self._params.smart_turn:
+            return self._end_turn()
+        self.state = TurnState.EVALUATING
+        self._evaluation += 1
+        start_ms = max(self._onset_ms - self._params.lead_ms, detected_ms - self._params.window_ms)
+        return [EvaluateTurn(self._evaluation, start_ms, detected_ms)]
+
+    def on_long_silence(self) -> list[TurnAction]:
+        if self.state in (TurnState.EVALUATING, TurnState.HOLDING):
+            return self._end_turn()
         return []
 
     def on_verdict(self, evaluation: int, probability: float) -> list[TurnAction]:
@@ -109,38 +109,6 @@ class TurnManager:
             return self._end_turn()
         self.state = TurnState.HOLDING
         return []
-
-    def keep_from_ms(self, prefix_padding_ms: int) -> int:
-        """The earliest input position the buffer still needs."""
-        if self.state is not TurnState.IDLE:
-            return self._turn_start_ms - prefix_padding_ms
-        if self._candidate_ms is not None:
-            return self._candidate_ms - prefix_padding_ms
-        return self._frame_end_ms - prefix_padding_ms - FRAME_MS
-
-    def _idle(self, start_ms: int, end_ms: int, probability: float) -> list[TurnAction]:
-        if probability >= self._params.threshold or (
-            self._candidate_ms is not None and probability >= self._exit_threshold
-        ):
-            if self._candidate_ms is None:
-                self._candidate_ms = start_ms
-            if end_ms - self._candidate_ms >= self._params.min_speech_ms:
-                self.state = TurnState.SPEAKING
-                self._turn_start_ms = self._candidate_ms
-                self._speech_end_ms = end_ms
-                self._candidate_ms = None
-                return [SpeechStart(self._turn_start_ms)]
-        else:
-            self._candidate_ms = None
-        return []
-
-    def _evaluate(self) -> list[TurnAction]:
-        if not self._params.smart_turn:
-            return self._end_turn()
-        self.state = TurnState.EVALUATING
-        self._evaluation += 1
-        start_ms = max(self._turn_start_ms, self._speech_end_ms - self._params.window_ms)
-        return [EvaluateTurn(self._evaluation, start_ms, self._speech_end_ms)]
 
     def _end_turn(self) -> list[TurnAction]:
         self.state = TurnState.IDLE

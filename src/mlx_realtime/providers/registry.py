@@ -1,12 +1,21 @@
-"""Builds the configured providers. M1 has one implementation per role: the mocks."""
+"""Builds the configured providers: the HTTP providers for the model backends, or the mocks."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Protocol
 
-from mlx_realtime.config import MockASRConfig, MockLLMConfig, MockTTSConfig, ProvidersConfig
+from mlx_realtime.config import (
+    ASRConfig,
+    LLMConfig,
+    MlxAudioAsrConfig,
+    MlxLmChatConfig,
+    MockTTSConfig,
+    ProvidersConfig,
+)
 from mlx_realtime.providers.base import ASRProvider, Backend, LLMProvider, TTSProvider
+from mlx_realtime.providers.mlx_audio_asr import MlxAudioASR
+from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.mock import EchoLLM, ScriptedASR, SineTTS
 
 
@@ -29,13 +38,18 @@ class Providers:
         return {"llm": self.llm, "asr": self.asr, "tts": self.tts}
 
 
-def build_providers(config: ProvidersConfig) -> Providers:
+def build_providers(config: ProvidersConfig, *, warmup_instructions: str = "") -> Providers:
+    """``warmup_instructions`` are the session defaults' instructions (the LLM warmup prompt)."""
     return Providers(
-        llm=build_llm(config.llm), asr=build_asr(config.asr), tts=build_tts(config.tts)
+        llm=build_llm(config.llm, warmup_instructions=warmup_instructions),
+        asr=build_asr(config.asr),
+        tts=build_tts(config.tts),
     )
 
 
-def build_llm(config: MockLLMConfig) -> LLMBackend:
+def build_llm(config: LLMConfig, *, warmup_instructions: str = "") -> LLMBackend:
+    if isinstance(config, MlxLmChatConfig):
+        return MlxLmChatLLM(config, warmup_instructions=warmup_instructions)
     return EchoLLM(
         first_token_delay_s=config.first_token_delay_ms / 1000,
         token_delay_s=config.token_delay_ms / 1000,
@@ -43,7 +57,9 @@ def build_llm(config: MockLLMConfig) -> LLMBackend:
     )
 
 
-def build_asr(config: MockASRConfig) -> ASRBackend:
+def build_asr(config: ASRConfig) -> ASRBackend:
+    if isinstance(config, MlxAudioAsrConfig):
+        return MlxAudioASR(config)
     return ScriptedASR(config.transcripts, delay_s=config.delay_ms / 1000)
 
 

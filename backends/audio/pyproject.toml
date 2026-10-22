@@ -1,0 +1,21 @@
+[project]
+name = "mlxrt-backend-audio"
+version = "0.1.0"
+description = "mlx-realtime audio backend: runs mlx_audio.server for ASR and TTS (ARCHITECTURE §2, D10)"
+requires-python = ">=3.12"
+dependencies = [
+    "en-core-web-sm",
+    "espeakng-loader==0.2.4",
+    "huggingface-hub>=2.2.0",
+    "misaki[zh]==0.9.4",
+    "mlx-audio[server]==0.6.1",
+    "num2words==0.5.14",
+    "phonemizer-fork==3.3.2",
+    "spacy==3.8.16",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }

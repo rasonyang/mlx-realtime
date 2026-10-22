@@ -2,9 +2,9 @@
 
 Contracts every provider keeps:
 
-- Cancellation: the only mechanism is cancelling the consuming task or closing the iterator.
-  A provider lets ``CancelledError`` propagate, aborts its backend request in ``finally``
-  without awaiting anything that can block, and yields nothing after cancellation.
+- Cancellation: the only mechanism is cancelling the consuming task or closing the generator
+  (``aclose``). A provider lets ``CancelledError`` propagate, aborts its backend request in
+  ``finally`` without awaiting anything that can block, and yields nothing after cancellation.
 - Deadlines: every request has connect, first-item, idle and total deadlines; expiry raises
   ``ProviderTimeout``. Nothing waits without a deadline.
 - Errors: providers raise ``ProviderError(kind, retryable)``. They never emit protocol events
@@ -14,7 +14,7 @@ Contracts every provider keeps:
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Mapping, Sequence
+from collections.abc import AsyncGenerator, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
@@ -116,13 +116,13 @@ class LLMProvider(Protocol):
         *,
         tool_choice: ToolChoice = "auto",
         max_output_tokens: int | None = None,
-    ) -> AsyncIterator[Delta]: ...
+    ) -> AsyncGenerator[Delta]: ...
 
 
 class TTSProvider(Protocol):
     def stream(
         self, text: str, voice: str, lang: Lang, *, speed: float = 1.0
-    ) -> AsyncIterator[PCMChunk]: ...
+    ) -> AsyncGenerator[PCMChunk]: ...
 
 
 class Backend(Protocol):  # every provider also implements this

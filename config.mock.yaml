@@ -1,0 +1,56 @@
+# mlx-realtime with every provider a mock (the M1 setup): no model backends, no model files.
+# Used by the tests and the e2e suite: `uv run --locked mlxrt --config config.mock.yaml dev`.
+# Any key can be overridden with MLXRT__<SECTION>__<KEY>=<YAML value>, for example
+# MLXRT__GATEWAY__PORT=9000 or MLXRT__PROVIDERS__LLM__TOKEN_DELAY_MS=5.
+# An unknown key or a bad value stops startup and names the dotted path.
+
+gateway:
+  host: 127.0.0.1
+  port: 8000
+  max_sessions: 8
+  api_key: ""              # empty: no authentication
+  max_session_s: 3600
+
+limits:
+  client_max_message_bytes: 16777216   # GA allows 15 MiB of base64 per append
+  inbox_max_ms: 2000                   # queued input audio before the session fails
+  inbox_max_commands: 256
+  input_audio_buffer_max_ms: 60000
+  outbound_queue_events: 256
+  client_write_timeout_ms: 5000
+  max_response_audio_ms: 120000
+
+output:
+  max_delta_ms: 100
+
+# GA-shaped; echoed in session.created and validated exactly like a session.update.
+session_defaults:
+  model: mlx-realtime
+  instructions: "You are a helpful voice assistant. Answer briefly."
+  output_modalities: [audio]
+  audio:
+    input:
+      format: {type: audio/pcm, rate: 24000}
+      transcription: {model: qwen3-asr}
+      turn_detection: {type: server_vad, threshold: 0.5, prefix_padding_ms: 300,
+                       silence_duration_ms: 200, create_response: true, interrupt_response: true}
+    output:
+      format: {type: audio/pcm, rate: 24000}
+      voice: default
+      speed: 1.0
+
+turn:
+  vad: {type: mock, min_speech_ms: 150}   # a scripted detector that never hears speech
+  smart_turn: {enabled: false, threshold: 0.5, max_silence_ms: 3000, window_s: 8}
+
+text:
+  segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
+
+providers:
+  llm: {type: mock, first_token_delay_ms: 50, token_delay_ms: 20, greeting: "你好，有什么可以帮您？"}
+  asr: {type: mock, delay_ms: 50, transcripts: ["你好，我想查询一下账户余额。"]}
+  tts: {type: mock, first_chunk_delay_ms: 50, chunk_delay_ms: 0, chunk_ms: 80, ms_per_char: 60,
+        frequency_hz: 440.0}
+
+observability:
+  log_level: info

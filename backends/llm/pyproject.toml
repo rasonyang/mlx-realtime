@@ -1,0 +1,12 @@
+[project]
+name = "mlxrt-backend-llm"
+version = "0.1.0"
+description = "mlx-realtime LLM backend: runs mlx_lm.server (ARCHITECTURE §2, D10)"
+requires-python = ">=3.12"
+dependencies = [
+    "huggingface-hub>=2.2.0",
+    "mlx-lm==0.32.2",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"

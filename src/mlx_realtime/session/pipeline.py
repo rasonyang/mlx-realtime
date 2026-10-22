@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Awaitable, Callable, Coroutine, Sequence
+from contextlib import aclosing
 from dataclasses import dataclass
 from typing import Literal
 
@@ -118,19 +119,22 @@ async def _read_llm(
         tool_choice=request.tool_choice,
         max_output_tokens=request.max_output_tokens,
     )
-    async for delta in stream:
-        match delta:
-            case TextDelta(text=text):
-                if texts is None:
-                    await context.wait_for_room()  # text modality: each delta becomes an event
-                    context.post(LlmText(generation, text))
-                else:
-                    context.post(LlmText(generation, text))
-                    texts.put_nowait(text)
-            case ToolCall():
-                context.post(LlmToolCall(generation, delta))
-            case LLMDone():
-                context.post(LlmFinished(generation, delta))
+    # aclosing: a cancel that lands outside the provider (here, waiting for room) still
+    # closes its stream, and with it the backend request, before this task ends.
+    async with aclosing(stream):
+        async for delta in stream:
+            match delta:
+                case TextDelta(text=text):
+                    if texts is None:
+                        await context.wait_for_room()  # text modality: each delta is an event
+                        context.post(LlmText(generation, text))
+                    else:
+                        context.post(LlmText(generation, text))
+                        texts.put_nowait(text)
+                case ToolCall():
+                    context.post(LlmToolCall(generation, delta))
+                case LLMDone():
+                    context.post(LlmFinished(generation, delta))
     if texts is not None:
         texts.put_nowait(None)
 
@@ -188,9 +192,11 @@ async def _speak_segment(
     announced = False
     if spoken.strip():
         encoder = OutputEncoder(context.max_delta_ms)
-        async for chunk in context.tts.stream(spoken.strip(), request.voice, detect_lang(spoken)):
-            deltas = encoder.encode(chunk.pcm, chunk.sample_rate)
-            announced = await _deliver(deltas, started, announced, context)
+        stream = context.tts.stream(spoken.strip(), request.voice, detect_lang(spoken))
+        async with aclosing(stream):
+            async for chunk in stream:
+                deltas = encoder.encode(chunk.pcm, chunk.sample_rate)
+                announced = await _deliver(deltas, started, announced, context)
         announced = await _deliver(encoder.flush(), started, announced, context)
     if not announced:
         context.post(started)

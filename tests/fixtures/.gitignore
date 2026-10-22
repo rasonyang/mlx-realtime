@@ -1,0 +1,2 @@
+# The repository ignores *.wav; these speech fixtures are small, licensed and committed.
+!*.wav

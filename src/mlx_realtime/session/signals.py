@@ -1,8 +1,9 @@
-"""Signals: results that session-owned tasks (ASR requests, response pipelines) post to the actor.
+"""Signals: results that session-owned tasks (the VAD feeder, end-of-turn evaluations, ASR
+requests, response pipelines) post to the actor.
 
 ARCHITECTURE §4.2 calls these facts too; the code keeps "facts" for what the actor emits to the
 protocol layer, so the two directions read apart. Pipeline signals carry their response's
-generation, and the actor drops those of a finished response at ingress.
+generation and turn-detection signals their VAD epoch; the actor drops stale ones at ingress.
 """
 
 from __future__ import annotations
@@ -11,6 +12,23 @@ from dataclasses import dataclass
 from typing import Literal
 
 from mlx_realtime.providers.base import LLMDone, ProviderError, ToolCall, Transcript
+from mlx_realtime.vad.gate import GateEvent
+
+
+@dataclass(frozen=True, slots=True)
+class VadUpdate:
+    """What the speech gate found in the audio the feeder processed since its last update."""
+
+    epoch: int
+    events: tuple[GateEvent, ...]
+    keep_from_ms: int  # earliest input position a turn not yet ended can start at
+
+
+@dataclass(frozen=True, slots=True)
+class TurnVerdict:
+    epoch: int
+    evaluation: int
+    probability: float  # that the turn is complete
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,4 +101,4 @@ type PipelineSignal = (
     | SpeechFinished
     | PipelineFailed
 )
-type Signal = TranscriptReady | TranscriptFailed | PipelineSignal
+type Signal = VadUpdate | TurnVerdict | TranscriptReady | TranscriptFailed | PipelineSignal

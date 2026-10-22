@@ -2,8 +2,9 @@
 
 The actor takes commands and signals from one FIFO inbox and handles each in a synchronous
 step: no handler awaits. Barge-in, cancellation and truncation are therefore atomic with
-respect to everything else the session does. Work that has to wait (ASR requests, response
-pipelines) runs in tasks the actor owns, which report back through the inbox.
+respect to everything else the session does. Work that has to wait (speech detection,
+end-of-turn evaluations, ASR requests, response pipelines) runs in tasks the actor owns, which
+report back through the inbox.
 """
 
 from __future__ import annotations
@@ -15,7 +16,6 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from mlx_realtime import logs
-from mlx_realtime.audio.pcm import CANONICAL_RATE, samples_to_ms
 from mlx_realtime.config import LimitsConfig, SegmenterConfig, TurnConfig
 from mlx_realtime.providers.base import (
     ASRProvider,
@@ -74,6 +74,7 @@ from mlx_realtime.session.facts import (
     TranscriptCompleted,
     TranscriptionFailed,
 )
+from mlx_realtime.session.feeder import VadFeeder
 from mlx_realtime.session.history import build_messages
 from mlx_realtime.session.inbox import Inbox
 from mlx_realtime.session.input_buffer import CommittedAudio, InputBuffer
@@ -93,19 +94,22 @@ from mlx_realtime.session.signals import (
     SpeechFinished,
     TranscriptFailed,
     TranscriptReady,
+    TurnVerdict,
+    VadUpdate,
 )
+from mlx_realtime.session.timeline import AudioArrivals, TurnTimeline
 from mlx_realtime.session.truncation import clamp_audio_end, heard_text
 from mlx_realtime.session.turn import (
     EvaluateTurn,
-    Framer,
-    SpeechStart,
     TurnAction,
     TurnEnd,
     TurnManager,
     TurnParams,
+    TurnStart,
     TurnState,
 )
-from mlx_realtime.vad.base import FRAME_MS, SpeechDetector, TurnEndDetector
+from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
+from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +138,7 @@ class SessionDeps:
     llm: LLMProvider
     asr: ASRProvider
     tts: TTSProvider
-    speech: SpeechDetector
+    speech: SpeechDetector  # this session's own
     turn_end: TurnEndDetector | None  # None: silence alone ends a turn
     ids: IdSource
     limits: LimitsConfig
@@ -168,10 +172,19 @@ class SessionActor:
         self._emit = emit
         self._conversation = Conversation()
         self._input = InputBuffer(deps.limits.input_audio_buffer_max_ms)
-        self._framer = Framer()
+        # Audio the detector has not seen is never trimmed from the input buffer, so the
+        # buffer's bound is the backlog's too: a client may send faster than real time.
+        self._feeder = VadFeeder(
+            deps.speech, inbox.put_signal, max_queued_ms=deps.limits.input_audio_buffer_max_ms
+        )
+        self._vad_epoch = 0  # bumped by every commit, clear or turn-detection change
         self._turns = self._new_turn_manager()
+        self._feeder.configure(self._vad_epoch, self._gate_params())
         self._turn_item_id = ""  # the item a detected speech turn will commit
         self._turn_start_ms = 0
+        self._speech_stopped_at = 0.0  # when the gate last reported the end of speech
+        self._arrivals = AudioArrivals()
+        self._timelines: dict[str, TurnTimeline] = {}  # by user audio item, until logged
         self._response: Response | None = None
         self._generation = 0
         self._tasks: asyncio.TaskGroup | None = None
@@ -188,6 +201,7 @@ class SessionActor:
     async def run(self) -> None:
         async with asyncio.TaskGroup() as tasks:
             self._tasks = tasks
+            tasks.create_task(self._feeder.run())
             self._emit(SessionStarted(self._session_id, self._conversation_id, self._settings))
             while True:
                 self._handle(await self._inbox.get())
@@ -214,6 +228,10 @@ class SessionActor:
                 self._cancel_response(message)
             case RejectEvent(error=error):
                 self._emit(ErrorRaised(error))
+            case VadUpdate():
+                self._vad_update(message)
+            case TurnVerdict():
+                self._turn_verdict(message)
             case TranscriptReady():
                 self._transcript_ready(message)
             case TranscriptFailed():
@@ -227,36 +245,67 @@ class SessionActor:
 
     def _append(self, pcm: bytes) -> None:
         start, canonical = self._input.append(pcm)
-        vad = self._settings.turn_detection
-        if self._turns is None or vad is None:
+        self._arrivals.record(self._input.end_ms, self._now())
+        if self._turns is not None and canonical:
+            self._feeder.push(start, canonical)
+
+    def _vad_update(self, update: VadUpdate) -> None:
+        vad, turns = self._settings.turn_detection, self._turns
+        if update.epoch != self._vad_epoch or vad is None or turns is None:
             return
-        for frame_start, frame in self._framer.push(start, canonical):
-            start_ms = samples_to_ms(frame_start, CANONICAL_RATE)
-            probability = self._deps.speech.speech_probability(frame, start_ms=start_ms)
-            for action in self._turns.on_frame(start_ms, start_ms + FRAME_MS, probability):
+        for event in update.events:
+            for action in self._gate_event(turns, event):
                 self._turn_action(action, vad)
-        if self._turns.state is TurnState.IDLE:
-            self._input.trim_before(self._turns.keep_from_ms(vad.prefix_padding_ms))
+        if turns.state is TurnState.IDLE:
+            self._input.trim_before(update.keep_from_ms - vad.prefix_padding_ms)
+
+    def _gate_event(self, turns: TurnManager, event: GateEvent) -> list[TurnAction]:
+        match event:
+            case SpeechStart(onset_ms=onset_ms):
+                return turns.on_speech_start(onset_ms)
+            case SpeechEnd(end_ms=end_ms, detected_ms=detected_ms):
+                self._speech_stopped_at = self._now()
+                return turns.on_speech_end(end_ms, detected_ms)
+            case LongSilence():
+                return turns.on_long_silence()
+
+    def _turn_verdict(self, verdict: TurnVerdict) -> None:
+        vad, turns = self._settings.turn_detection, self._turns
+        if verdict.epoch != self._vad_epoch or vad is None or turns is None:
+            return
+        for action in turns.on_verdict(verdict.evaluation, verdict.probability):
+            self._turn_action(action, vad)
 
     def _turn_action(self, action: TurnAction, vad: ServerVad) -> None:
         match action:
-            case SpeechStart(onset_ms=onset_ms):
+            case TurnStart(onset_ms=onset_ms):
                 self._turn_item_id = self._ids.item()
                 self._turn_start_ms = max(self._input.start_ms, onset_ms - vad.prefix_padding_ms)
                 self._emit(SpeechStarted(self._turn_item_id, self._turn_start_ms))
                 if self._response is not None and vad.interrupt_response:
                     self._stop_response(self._response, StatusDetails("cancelled", "turn_detected"))
             case EvaluateTurn(evaluation=evaluation, start_ms=start_ms, end_ms=end_ms):
-                detector = self._deps.turn_end
                 audio = self._input.slice(start_ms, end_ms)
-                probability = 1.0 if detector is None else detector.end_of_turn_probability(audio)
-                if self._turns is not None:
-                    for follow_up in self._turns.on_verdict(evaluation, probability):
-                        self._turn_action(follow_up, vad)
+                self._spawn(self._evaluate_turn(self._vad_epoch, evaluation, audio))
             case TurnEnd(audio_end_ms=audio_end_ms):
                 self._emit(SpeechStopped(self._turn_item_id, audio_end_ms))
                 audio = self._input.commit_span(self._turn_start_ms, audio_end_ms)
-                self._commit(self._turn_item_id, audio, create_response=vad.create_response)
+                marks = {"speech_stopped": self._speech_stopped_at, "turn_confirmed": self._now()}
+                if (speech_end := self._arrivals.time_of(audio_end_ms)) is not None:
+                    marks["speech_end"] = speech_end
+                self._commit(
+                    self._turn_item_id, audio, create_response=vad.create_response, marks=marks
+                )
+
+    async def _evaluate_turn(self, epoch: int, evaluation: int, pcm: bytes) -> None:
+        probability = 1.0
+        detector = self._deps.turn_end
+        if detector is not None:
+            try:
+                probability = await detector.end_of_turn_probability(pcm)
+            except Exception:
+                logger.exception("end-of-turn evaluation failed; the turn ends")
+        self._inbox.put_signal(TurnVerdict(epoch, evaluation, probability))
 
     def _commit_buffer(self, event_id: str | None) -> None:
         audio = self._input.commit()
@@ -267,27 +316,45 @@ class SessionActor:
                 event_id,
             )
             return
-        if self._turns is not None:
-            self._turns.reset()  # a speech turn in progress ends with this commit
-        self._commit(self._ids.item(), audio, create_response=False)
+        self._restart_turn_detection()  # a speech turn in progress ends with this commit
+        self._commit(
+            self._ids.item(), audio, create_response=False, marks={"committed": self._now()}
+        )
 
-    def _commit(self, item_id: str, audio: CommittedAudio, *, create_response: bool) -> None:
+    def _commit(
+        self,
+        item_id: str,
+        audio: CommittedAudio,
+        *,
+        create_response: bool,
+        marks: dict[str, float],
+    ) -> None:
         transcription = self._settings.transcription
         item = AudioMessage(item_id, audio.audio_ms, show_transcript=transcription is not None)
         previous = self._last_item_id()
         self._conversation.append(item)
         self._emit(AudioCommitted(item, previous))
+        timeline = TurnTimeline(self._ids.turn(), item_id)
+        for name, at_s in marks.items():
+            timeline.mark(name, at_s)
+        self._timelines[item_id] = timeline
         language = transcription.language if transcription is not None else None
-        with logs.bound(turn=self._ids.turn(), item=item_id):
+        with logs.bound(turn=timeline.turn_id, item=item_id):
             self._spawn(self._transcribe(item_id, audio.pcm, language))
         if create_response and self._response is None:
             self._start_response(ResponseParams(), turn_item_id=item_id)
 
     def _clear_buffer(self) -> None:
         self._input.clear()
+        self._restart_turn_detection()
+        self._emit(AudioCleared())
+
+    def _restart_turn_detection(self) -> None:
+        """A new VAD epoch: the turn in progress is dropped, late detector results ignored."""
+        self._vad_epoch += 1
         if self._turns is not None:
             self._turns.reset()
-        self._emit(AudioCleared())
+        self._feeder.configure(self._vad_epoch, self._gate_params())
 
     async def _transcribe(self, item_id: str, pcm: bytes, language: str | None) -> None:
         try:
@@ -303,23 +370,28 @@ class SessionActor:
             self._inbox.put_signal(TranscriptReady(item_id, transcript))
 
     def _transcript_ready(self, signal: TranscriptReady) -> None:
+        self._mark(signal.item_id, "asr_done")
         item = self._conversation.get(signal.item_id)
         if not isinstance(item, AudioMessage):
+            self._timelines.pop(signal.item_id, None)
             return  # deleted while it was being transcribed
         item.transcript = signal.transcript.text
         item.status = "completed"
         logger.debug("transcript", extra={"item": item.id, "transcript": item.transcript})
         self._emit(TranscriptCompleted(item, self._conversation.previous_id(item.id)))
+        self._log_timeline_unless_answered(item.id)
         if self._response is not None and self._response.awaiting_transcript:
             self._advance(self._response)
 
     def _transcript_failed(self, signal: TranscriptFailed) -> None:
         item = self._conversation.get(signal.item_id)
         if not isinstance(item, AudioMessage):
+            self._timelines.pop(signal.item_id, None)
             return
         item.status = "completed"
         error = _backend_error("asr", signal.error)
         self._emit(TranscriptionFailed(item, self._conversation.previous_id(item.id), error))
+        self._log_timeline_unless_answered(item.id)
         response = self._response
         if response is None or not response.awaiting_transcript:
             return
@@ -335,15 +407,42 @@ class SessionActor:
         config = self._deps.turn
         return TurnManager(
             TurnParams(
-                threshold=vad.threshold,
-                min_speech_ms=config.vad.min_speech_ms,
-                silence_duration_ms=vad.silence_duration_ms,
                 smart_turn=self._deps.turn_end is not None,
                 smart_turn_threshold=config.smart_turn.threshold,
-                max_silence_ms=config.smart_turn.max_silence_ms,
                 window_ms=config.smart_turn.window_s * 1000,
+                lead_ms=vad.prefix_padding_ms,
             )
         )
+
+    def _gate_params(self) -> GateParams | None:
+        vad = self._settings.turn_detection
+        if vad is None:
+            return None
+        config = self._deps.turn
+        smart_turn = self._deps.turn_end is not None
+        return GateParams(
+            threshold=vad.threshold,
+            min_speech_ms=config.vad.min_speech_ms,
+            silence_duration_ms=vad.silence_duration_ms,
+            max_silence_ms=config.smart_turn.max_silence_ms if smart_turn else None,
+        )
+
+    # Turn timeline
+
+    def _mark(self, item_id: str | None, name: str) -> None:
+        timeline = None if item_id is None else self._timelines.get(item_id)
+        if timeline is not None:
+            timeline.mark(name, self._now())
+
+    def _log_timeline(self, item_id: str | None) -> None:
+        timeline = None if item_id is None else self._timelines.pop(item_id, None)
+        if timeline is not None:
+            timeline.log()
+
+    def _log_timeline_unless_answered(self, item_id: str) -> None:
+        """A turn no response answers ends with its transcript; the others with their response."""
+        if self._response is None or self._response.turn_item_id != item_id:
+            self._log_timeline(item_id)
 
     # Session and conversation
 
@@ -352,6 +451,7 @@ class SessionActor:
         self._settings = self._settings.apply(command.patch, self._defaults)
         if self._settings.turn_detection != previous_vad:
             self._turns = self._new_turn_manager()
+            self._restart_turn_detection()
         self._emit(SessionUpdated(self._session_id, self._settings))
 
     def _create_item(self, command: CreateItem) -> None:
@@ -495,11 +595,13 @@ class SessionActor:
     def _pipeline_signal(self, response: Response, signal: PipelineSignal) -> None:
         match signal:
             case LlmText(text=text):
+                self._mark(response.turn_item_id, "llm_first_token")
                 message = response.message or self._open_message(response)
                 if response.modality == "text":
                     message.text += text
                     self._emit(OutputTextDelta(response, message, text))
             case LlmToolCall(call=call):
+                self._mark(response.turn_item_id, "llm_first_token")
                 self._deliver_call(response, call)
             case LlmFinished(done=done):
                 response.llm_done = True
@@ -603,6 +705,7 @@ class SessionActor:
         response.status_details = details
         self._response = None
         self._emit(ResponseFinished(response))
+        self._log_timeline(response.turn_item_id)
 
     # Helpers
 
@@ -610,6 +713,10 @@ class SessionActor:
         if self._tasks is None:
             raise RuntimeError("the session actor is not running")
         return self._tasks.create_task(coroutine)
+
+    @staticmethod
+    def _now() -> float:
+        return asyncio.get_running_loop().time()
 
     def _last_item_id(self) -> str | None:
         last = self._conversation.last()

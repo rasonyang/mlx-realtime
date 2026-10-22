@@ -1,0 +1,37 @@
+{
+  "note": "ONNX models the gateway runs on CPU. `mlxrt models` downloads each `url` into this directory and verifies `bytes` and `sha256`; the files themselves are git-ignored. Hashes copied from the M0 spike (spikes/cpu/models/MANIFEST.json, fetched 2026-10-22).",
+  "models": [
+    {
+      "file": "silero_vad.onnx",
+      "source": "github.com/snakers4/silero-vad",
+      "tag": "v6.2.3",
+      "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+      "path": "src/silero_vad/data/silero_vad.onnx",
+      "license": "MIT",
+      "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+      "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+      "bytes": 2327524,
+      "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+    },
+    {
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+      "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+      "license": "BSD-2-Clause",
+      "precision": "int8",
+      "url": "https://huggingface.co/pipecat-ai/smart-turn-v3/resolve/f766f81d3cfdf7737ac64aad813d91bbfd56bf93/smart-turn-v3.2-cpu.onnx",
+      "bytes": 8679182,
+      "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+    },
+    {
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+      "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+      "license": "BSD-2-Clause",
+      "precision": "fp32",
+      "url": "https://huggingface.co/pipecat-ai/smart-turn-v3/resolve/f766f81d3cfdf7737ac64aad813d91bbfd56bf93/smart-turn-v3.2-gpu.onnx",
+      "bytes": 32411198,
+      "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+    }
+  ]
+}

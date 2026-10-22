@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import math
 from collections import deque
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncGenerator, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -169,7 +169,7 @@ class EchoLLM(_MockBackend):
         *,
         tool_choice: ToolChoice = "auto",
         max_output_tokens: int | None = None,
-    ) -> AsyncIterator[Delta]:
+    ) -> AsyncGenerator[Delta]:
         self.requests.append(
             LLMRequest(tuple(messages), tuple(tools), tool_choice, max_output_tokens)
         )
@@ -249,7 +249,7 @@ class SineTTS(_MockBackend):
 
     async def stream(
         self, text: str, voice: str, lang: Lang, *, speed: float = 1.0
-    ) -> AsyncIterator[PCMChunk]:
+    ) -> AsyncGenerator[PCMChunk]:
         self.requests.append(SpeechRequest(text, voice, lang))
         total = self.samples_for(text)
         self.streams.open()

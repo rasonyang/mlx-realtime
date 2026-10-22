@@ -22,6 +22,18 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
 
 
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """Tests marked ``backend`` run only when selected with ``-m backend``."""
+    if "backend" in str(config.getoption("markexpr") or ""):
+        return
+    skip = pytest.mark.skip(
+        reason="needs the real model backends: `make dev`, then `uv run --locked pytest -m backend`"
+    )
+    for item in items:
+        if item.get_closest_marker("backend") is not None:
+            item.add_marker(skip)
+
+
 @pytest.fixture
 def golden(request: pytest.FixtureRequest) -> GoldenCheck:
     """Check a recorded trace's causal invariants, then compare it with

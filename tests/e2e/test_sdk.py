@@ -131,8 +131,9 @@ async def test_cancel_mid_audio() -> None:
     assert not [e for e in events if e.type == "response.output_audio.delta"]
 
 
-async def test_dev_entry_point_with_the_repository_config() -> None:
-    """``mlxrt dev`` with config.yaml, as ``make dev`` runs it, on a free port."""
+async def test_dev_entry_point_with_the_mock_config() -> None:
+    """``mlxrt dev`` as ``make dev`` runs it, with config.mock.yaml (no model backends: config.yaml
+    would start the real ones), on a free port."""
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
@@ -142,7 +143,7 @@ async def test_dev_entry_point_with_the_repository_config() -> None:
         "-m",
         "mlx_realtime",
         "--config",
-        str(REPO / "config.yaml"),
+        str(REPO / "config.mock.yaml"),
         "dev",
         cwd=REPO,
         env=environ,

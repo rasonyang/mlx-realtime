@@ -1,7 +1,9 @@
 """Backend warmup and readiness (ARCHITECTURE §2: startup, warmup, readiness).
 
-Each backend is warmed once it answers. The gateway admits sessions after the first moment all
-of them were ready; later failures surface per response and on ``/readyz``.
+Each backend is warmed once it answers, all of them at once; one that is not up yet (still
+starting, or loading its model) is retried with exponential backoff. The gateway admits
+sessions from the first moment all of them were warm; later failures surface per response and
+on ``/readyz``.
 """
 
 from __future__ import annotations
@@ -18,21 +20,24 @@ _PROBE_TIMEOUT_S = 1.0
 
 
 class ReadinessMonitor:
-    def __init__(self, backends: Mapping[str, Backend], *, retry_s: float = 1.0) -> None:
+    def __init__(
+        self,
+        backends: Mapping[str, Backend],
+        *,
+        retry_s: float = 0.5,
+        max_retry_s: float = 5.0,
+    ) -> None:
         self._backends = dict(backends)
         self._retry_s = retry_s
+        self._max_retry_s = max_retry_s
         self._warm: set[str] = set()
         self.ever_ready = False
 
     async def warm_up(self) -> None:
-        """Warm every backend, retrying the ones that are not ready yet."""
-        while True:
+        """Warm every backend, retrying each until it succeeds."""
+        async with asyncio.TaskGroup() as tasks:
             for name, backend in self._backends.items():
-                if name not in self._warm and await self._warm_one(name, backend):
-                    self._warm.add(name)
-            if len(self._warm) == len(self._backends):
-                break
-            await asyncio.sleep(self._retry_s)
+                tasks.create_task(self._warm_until_ready(name, backend))
         self.ever_ready = True
         logger.info("all backends warm", extra={"backends": sorted(self._backends)})
 
@@ -49,15 +54,28 @@ class ReadinessMonitor:
         ready = self.ever_ready and all(detail["ready"] for detail in details.values())
         return ready, details
 
-    @staticmethod
-    async def _warm_one(name: str, backend: Backend) -> bool:
-        try:
-            await backend.warmup()
-            state = await backend.ready()
-        except ProviderError as error:
-            logger.warning("backend warmup failed", extra={"backend": name, "error": str(error)})
-            return False
-        return state.ready
+    async def _warm_until_ready(self, name: str, backend: Backend) -> None:
+        delay = self._retry_s
+        while not await _warm_one(name, backend):
+            await asyncio.sleep(delay)
+            delay = min(delay * 2, self._max_retry_s)
+        self._warm.add(name)
+        logger.info("backend warm", extra={"backend": name})
+
+
+async def _warm_one(name: str, backend: Backend) -> bool:
+    try:
+        await backend.warmup()
+        state = await backend.ready()
+    except ProviderError as error:
+        logger.warning("backend warmup failed", extra={"backend": name, "error": str(error)})
+        return False
+    except Exception:
+        logger.exception("backend warmup failed", extra={"backend": name})
+        return False
+    if not state.ready:
+        logger.warning("backend not ready", extra={"backend": name, "detail": state.detail})
+    return state.ready
 
 
 async def _probe(backend: Backend) -> Readiness:

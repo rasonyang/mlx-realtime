@@ -8,7 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "httpx2>=2.16.0",
     "numpy>=2.5.4",
+    "onnxruntime>=1.31.0",
     "pydantic>=2.14.1",
     "pyyaml>=6.0.3",
     "soxr>=1.1.0",
@@ -34,6 +36,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "ruff>=0.17.1",
+    "transformers>=5.20.2",
 ]
 
 [tool.ruff]
@@ -69,6 +72,7 @@ asyncio_default_fixture_loop_scope = "function"
 asyncio_default_test_loop_scope = "function"
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 markers = [
-    "e2e: the official openai SDK against a running gateway (mock providers in M1)",
+    "e2e: the official openai SDK against a running gateway with mock providers",
+    "backend: needs the real model backends (make dev); skipped unless selected with -m backend",
 ]
 filterwarnings = ["error"]
