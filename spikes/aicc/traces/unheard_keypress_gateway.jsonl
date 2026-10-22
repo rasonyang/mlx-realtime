@@ -1,0 +1,10 @@
+{"session":{"audio":{"input":{"format":{"rate":24000,"type":"audio/pcm"},"turn_detection":{"silence_duration_ms":500,"type":"server_vad"}},"output":{"format":{"rate":24000,"type":"audio/pcm"}}},"instructions":"You answer the phone for NovaNet.","tools":[{"description":"Read the caller's balance.","name":"lookup_balance","parameters":{"type":"object","properties":{"accountId":{"type":"string"}}},"type":"function"}],"type":"realtime"},"type":"session.update"}
+{"type":"response.create"}
+{"item":{"call_id":"fc_1","output":"{\"balance\":\"12.50\"}","type":"function_call_output"},"type":"conversation.item.create"}
+{"type":"response.create"}
+{"item_id":"answer-item","type":"conversation.item.delete"}
+{"item":{"content":[{"text":"(System note: the caller has not heard the result of the lookup yet, not a word of it. In your next reply to the caller, first respond briefly, then tell them the result.)","type":"input_text"}],"role":"user","type":"message"},"type":"conversation.item.create"}
+{"type":"response.cancel"}
+{"audio_end_ms":60,"content_index":0,"item_id":"reply-item","type":"conversation.item.truncate"}
+{"item":{"content":[{"text":"(The caller pressed 0 on their keypad.)","type":"input_text"}],"role":"user","type":"message"},"type":"conversation.item.create"}
+{"type":"response.create"}

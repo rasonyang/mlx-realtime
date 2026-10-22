@@ -1,0 +1,5 @@
+{"session":{"audio":{"input":{"format":{"rate":24000,"type":"audio/pcm"},"turn_detection":{"silence_duration_ms":500,"type":"server_vad"}},"output":{"format":{"rate":24000,"type":"audio/pcm"}}},"instructions":"You answer the phone for NovaNet.","tools":[{"description":"Read the caller's balance.","name":"lookup_balance","parameters":{"type":"object","properties":{"accountId":{"type":"string"}}},"type":"function"}],"type":"realtime"},"type":"session.update"}
+{"type":"response.create"}
+{"response":{"instructions":"Say exactly this, word for word, and add nothing else:\nYour request is done."},"type":"response.create"}
+{"item":{"content":[{"text":"Say exactly this, word for word, and add nothing else:\nYour request is done.","type":"input_text"}],"role":"user","type":"message"},"type":"conversation.item.create"}
+{"response":{"instructions":"Say exactly this, word for word, and add nothing else:\nYour request is done."},"type":"response.create"}

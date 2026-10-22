@@ -1,0 +1,14 @@
+# uv-managed environments and tool caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Large or downloaded artifacts (re-created by scripts; provenance in manifests)
+spikes/data/
+*.onnx
+*.pcm
+*.wav
+
+.DS_Store
