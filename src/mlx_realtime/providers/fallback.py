@@ -8,6 +8,9 @@
 - After ``failures`` consecutive primary failures the circuit opens: for ``cooldown_s`` every
   segment goes straight to the fallback. The first segment after the cooldown tries the
   primary again; one more failure reopens the circuit.
+- Unless ``latin_segments`` is on, the fallback never speaks a segment with Latin letters (D13,
+  M0 S3: Kokoro garbles English inside Chinese). Such a segment always goes to the primary,
+  circuit open or not, and a primary failure fails it.
 
 Cancellation and ``aclose`` pass through to whichever stream is running.
 """
@@ -15,6 +18,7 @@ Cancellation and ``aclose`` pass through to whichever stream is running.
 from __future__ import annotations
 
 import logging
+import re
 import time
 from collections.abc import AsyncGenerator, Callable
 from contextlib import aclosing
@@ -29,6 +33,14 @@ from mlx_realtime.providers.base import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+_LATIN = re.compile(r"[A-Za-z\uff21-\uff3a\uff41-\uff5a]")
+
+
+def has_latin(text: str) -> bool:
+    """Whether ``text`` has a Latin letter (ASCII or full-width)."""
+    return _LATIN.search(text) is not None
 
 
 class CircuitBreaker:
@@ -69,11 +81,13 @@ class FallbackTTS:
         *,
         failures: int,
         cooldown_s: float,
+        latin_segments: bool = False,
         now: Callable[[], float] = time.monotonic,
     ) -> None:
         self.primary = primary
         self.fallback = fallback
         self.breaker = CircuitBreaker(failures, cooldown_s, now=now)
+        self.latin_segments = latin_segments
 
     async def stream(
         self,
@@ -85,7 +99,8 @@ class FallbackTTS:
         timing: SpeechTiming | None = None,
     ) -> AsyncGenerator[PCMChunk]:
         timing = timing or SpeechTiming()
-        if not self.breaker.open:
+        fallback_may_speak = self.latin_segments or not has_latin(text)
+        if not self.breaker.open or not fallback_may_speak:
             started = False
             try:
                 primary = self.primary.stream(text, voice, lang, speed=speed, timing=timing)
@@ -98,6 +113,13 @@ class FallbackTTS:
                     raise
                 self.breaker.failure()
                 if started:
+                    raise
+                if not fallback_may_speak:
+                    logger.warning(
+                        "primary tts failed on a segment with Latin letters; the fallback "
+                        "does not speak those (D13), so the segment fails",
+                        extra={"error": str(error), "kind": error.kind},
+                    )
                     raise
                 logger.warning(
                     "primary tts failed before its first chunk; the fallback speaks the segment",

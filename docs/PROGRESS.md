@@ -848,3 +848,179 @@ under 0.3 dB. In the gateway, before the bypass, a caller over our speech with n
   words; `config.mock.yaml` with the canceller off.
 - SPIKE.md S11: AEC3's near-end suppression without echo (not simulated in M0, where echo was
   always present) and this milestone's CPU measurement.
+
+## M5 — Tool calling, and M0's TTS decisions applied (2026-10-23)
+
+**Goal.** Real tool calling: the session's function tools reach the LLM, `tool_choice` is enforced
+in the gateway, complete calls from `mlx_lm.server`'s parser become `function_call` items, and the
+round trip's history is shaped for the Qwen template in every form AICC produces. With it
+(Part B), the G5 normalizer scope and the S3 TTS defaults from DECISIONS (2026-10-23): 0.16 s
+chunks, the voice defaults without `ryan`, a proportional `max_tokens`, edge-silence trimming, and
+Kokoro limited to segments without Latin letters (D13, owner review pending).
+
+**Not yet run on the real backends.** M0's GPU spikes held the GPU; everything ran against the
+mocks and the fake servers, and the real-backend tests are written but not run (see "Pending").
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `providers/chat_wire.py` | `Shaping` (cue, system note, `interlude`, `unanswered`, placeholder) and the history rules below; the cue now opens a conversation without a user message |
+| `session/history.py` | the output of a deleted call is left out |
+| `session/pipeline.py` | calls go to the actor as they complete; a call not offered (`tool_choice: none`, an undeclared function) is dropped with a warning; whitespace at either end of an answer is dropped; per-segment silence trimming before the encoder |
+| `protocol/session.py` | `required` and forced functions: `invalid_value` that says why (the server cannot force a call) |
+| `audio/trim.py` | `SilenceTrimmer`: an energy gate on 20 ms frames, streaming |
+| `providers/mlx_audio_tts.py`, `providers/voices.py` | `token_cap` → `max_tokens` per request (Qwen3-TTS only); a voice can name a speaker per segment language |
+| `providers/fallback.py` | `latin_segments` (default off): a segment with Latin letters never goes to the fallback |
+| `text/normalize/` | the G5 scope (a forked sub-task; below) |
+| `config.py`, `config*.yaml` | `providers.llm.tool_interlude`, `unanswered_calls`, `pending_tool_output`; `output.trim_silence`; `TtsModelConfig.streaming_interval` 0.16 and `token_cap`; `fallback.latin_segments`; `VoiceConfig.speakers`; `ryan` removed; the normalizer keys |
+| `tests/fixtures/templates/` | the Qwen3.6 chat template (Apache-2.0, pinned revision); `tests/qwen_template.py` renders a message list with it as `mlx_lm.server` does (`jinja2` joined the dev dependencies) |
+
+**Tool calls on the wire** (PROTOCOL §11.5). Each complete call is its own item: `output_item.added`
+→ `conversation.item.added` → `function_call_arguments.delta` (once) → `.done` →
+`output_item.done` → `conversation.item.done`; several per response. The wire `call_id` is minted
+by the gateway, the server's id kept for history. Text before a call is spoken normally; a call is
+delivered when complete, even while that text's audio is still streaming. A call-only response is
+done as soon as the LLM is (measured: < 0.5 s after `response.created` with a 2 s TTS that is never
+asked). Cancelled before the call is complete: no call; delivered: never retracted, its output
+accepted. `tool_choice: auto` sends the session's tools, `none` sends none (session or response);
+`required` and forced functions are rejected, because `mlx_lm.server` ignores `tool_choice`.
+
+**History shaping for the Qwen template** (PROTOCOL §11.14; `chat_wire.py`):
+
+1. A call's results follow its assistant `tool_calls` message at once, in call order, whatever
+   order the outputs came in (several outputs, one `response.create`).
+2. Whatever lies between a call and its result moves after the results, in order: user notes,
+   caller speech, later answers. Assistant text before any such user item (AICC's wait line) is
+   merged into the call's message, before the call (`tool_interlude: merge`, default), or placed
+   after the results (`after_output`). Calls in the interlude before a user item join the call.
+3. A call unanswered when the request is built (the caller speaks while the wait line plays)
+   gets the placeholder result `pending_tool_output` (`unanswered_calls: pending`, default),
+   or none (`keep`), or is left out (`drop`).
+4. A deleted call's output is dropped; text-then-call of one response share one message; the cue
+   goes first when there is no user message.
+
+Every shape is rendered by the real Qwen3.6 template in the unit tests, so a shape the template
+rejects ("No user query found", a system message not first) fails offline. Whether the model
+answers well with each setting is for the M0 LLM spike and the backend tests.
+
+**Part B.**
+
+- *Normalizer (G5).* New: `emails` (zh "艾特"/"点", en "at"/"dot"), `cardinals` with
+  `min_cardinal_digits: 5`, `en_dates`, `en_amounts` (money ≥ `en_amount_min` 1000 in English);
+  phones now include 尾号/last-four, extensions (转, 分机, ext), North American numbers, short
+  numbers after a phone keyword, and 10086/12306/12315/12366. Money, decimals, percentages,
+  ordinals, other dates and times, units, URLs and brands stay raw (`numbers`, `money`, `dates`,
+  `units`, `spacing` stay available, off). To keep 5-digit cardinals from swallowing codes, ID
+  detection widened: keyed IDs from 4 digits, new keywords (code, PIN, 取件码, 提货码, 动态码,
+  校验码), and a token starting with a letter needs 3 digits (`A1B2C3` is an ID, `500Mbps` is not).
+- *TTS defaults.* Qwen3-TTS `streaming_interval` 0.16; voices `vivian` (default; its English
+  segments spoken by `aiden`), `serena`, `uncle_fu`, `aiden`; `token_cap` `{base: 25, per_cjk: 6,
+  per_other: 2}` codec frames, at most `max_tokens` or the server's 1200 (about 2× normal speech
+  plus 2 s for the edges: 91 frames, 7.3 s, for an 11-character Chinese sentence).
+- *Silence trimming.* `output.trim_silence` `{threshold_dbfs: -50, frame_ms: 20, max_lead_ms: 60,
+  max_tail_ms: 100}` (S3 counted a frame voiced within 35 dB of the loudest and above −55 dBFS;
+  a stream needs an absolute gate). The leading silence is held only while silent: the frame that
+  turns voiced goes out with the kept 60 ms at once. Silence after a voiced frame waits for the
+  next voiced frame (an inner pause, sent whole) or the end (100 ms kept). Trimming happens
+  before the audio enters the response's queue, so the segment map, truncation, D5 and the echo
+  reference count exactly the audio sent (tested on the wire).
+- *Kokoro fallback (D13).* Only for segments without Latin letters (ASCII or full-width), checked
+  on the normalized text; such a segment goes to the primary even while the circuit is open, and
+  a primary failure fails it. `fallback.latin_segments: true` restores M3's behaviour.
+
+### How to run and verify
+
+```sh
+uv run --locked pytest                     # everything but the backend tests
+make lint typecheck
+uv run --locked pytest tests/integration/test_tool_calls.py tests/unit/test_history_shaping.py
+# The real stack (pending the GPU):
+make dev
+uv run --locked pytest -m backend          # AICC_REPO=<checkout> for AICC's tools and harness
+```
+
+### Test results
+
+All green on 2026-10-23: **1491 passed, 19 skipped** (the `backend` tests and the AICC run that
+needs `AICC_REPO`) in about 132 s (`uv run --locked pytest`). `ruff check`, `ruff format --check`
+and `pyright` (strict on `src/`) report nothing.
+
+| Suite | Tests | New in M5 |
+|---|---|---|
+| unit | 1339 | history shaping (26: every AICC shape and every setting, rendered by the real template); the LLM provider (3: calls as the real server streams them, with the newline in the call's chunk and two calls in one chunk; a silently dropped second call; shaped history on the wire in both interlude modes); the normalizer (438 → 578); the trimmer (11); the TTS provider (token cap, defaults, the per-language speaker); `FallbackTTS` (6: Latin segments); the pipeline (1: whitespace at the ends) |
+| integration | 129 | `test_tool_calls.py` (11: six golden traces, `tool_choice` session and response, an undeclared function, `required`/forced rejected, whitespace before a call, the tool-only deadline); AICC replays through the real LLM provider on the fake `mlx_lm.server` (2: `call_gateway`, `waitline_gateway`, final requests rendered by the template); silence trimming on the wire (2) |
+| e2e | 5 | the SDK: a tool round trip with the mock LLM scripted to say a line and call a tool |
+| tests/aicc | 19 | unchanged |
+| backend | 18 | seven new, not run: see below |
+
+**Golden traces.** Six new: `tool_call_only`, `tool_text_and_call`, `tool_round_trip`,
+`tool_cancel_before_call`, `tool_cancel_after_call`, `tool_two_calls`. No existing trace changed:
+the mock TTS speaks a sine (nothing to trim), its segments are on the 20 ms grid, and no golden
+text has a number, address or ID the new normalizer reads.
+
+### Pending the GPU runs
+
+- `uv run --locked pytest -m backend`, M5's seven:
+  - `test_llm_tool_round_trip_with_aiccs_tools`: AICC's `line_session_zh.json` instructions and
+    six tools; "RMA1001" → `repair_status` with typed arguments, no markup in the text; the result
+    with its hint → a spoken answer, no second call;
+  - `test_wait_line_history_on_the_real_template` (4: `merge` / `after_output`, answered /
+    unanswered with the pending placeholder): the real template accepts each, the model answers
+    in text without repeating the call;
+  - `test_sdk_tool_round_trip_with_the_real_stack`: the SDK, AICC's tools, a `function_call`
+    item within 3 s of the request, the result, the answer;
+  - `test_tts_edges_are_trimmed_and_the_token_cap_leaves_speech_whole`: the real Qwen3-TTS edges
+    (S3's ~0.45/0.5 s) trimmed to ≤ 80/120 ms, and normal sentences end well before the cap.
+- M2–M4's backend tests (the fallback test speaks Chinese, so the Latin rule does not affect it).
+- The M0 LLM spike (S1.3, S1.4): which `tool_interlude` and `unanswered_calls` the model handles
+  best, silent drops, and whether Qwen writes text after a call.
+
+### Known gaps, by milestone
+
+| Milestone | What M5 leaves for it |
+|---|---|
+| M6 | metrics for dropped calls, trimmed silence, token-cap hits; the TTS queue mitigations |
+| open | a dropped call (not offered, or rejected by the server's parser next to a valid one) is only logged; a token-cap hit is not detected (the audio just ends) |
+
+### Deviations from ARCHITECTURE, with reasons
+
+1. **History shaping lives in the provider's wire adaptation** (`chat_wire.py`), as §5.2 puts
+   backend quirks there; `history.py` stays generic but drops a deleted call's output.
+2. **Unanswered calls get a placeholder result by default.** §6.7 says nothing about them; a
+   `tool_calls` message followed by a user message is outside what the template's model was
+   trained on, and without a result the model may call again or invent one. Configurable.
+3. **The cue opens the conversation** (M2 appended it at the end): a greeting or a call the
+   assistant already made comes after it, in order.
+4. **Calls not offered are dropped**, not delivered: the server parses call markup even with no
+   tools sent, so `tool_choice: none` is enforced on the way out too.
+5. **Whitespace at either end of an answer is dropped** (M3 kept it): the newline Qwen writes
+   around a call would open an empty message or end a transcript. M3's pipeline test changed
+   for this (its trailing newline).
+6. **A call can be delivered while the message before it is still streaming audio**, so its
+   events fall between the message's (GA's own model finishes the message first). AICC tracks
+   call items by id and starts the tool at once, which this favours.
+7. **`vivian`'s English segments are spoken by `aiden`** (S3's "vivian for zh/mixed, aiden for en",
+   read per segment): a female voice in Chinese and a male voice in English within one call.
+   Flagged for the owner; `voices.map.vivian.speakers: {}` keeps vivian throughout.
+8. **Trimming is an absolute energy gate** (−50 dBFS), not S3's relative one, and keeps up to one
+   frame more than the limits when speech starts or ends off the 20 ms grid.
+9. **Test changes on purpose.** The AICC replay's fake TTS pace follows 0.16 s chunks (80 ms to
+   the first, 50 ms per chunk; M3: 0.32 s every 90 ms), and the flow-voice replay expects
+   `aiden` for its English line; the voice-lock test uses `uncle_fu` instead of `ryan`; the TTS
+   provider tests pin 0.32 s chunks where they count chunks, and test the new defaults on their
+   own; the chat-wire cue test expects the cue first.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §5.2 `tool_choice`: `required` and forced functions rejected for good (not "until M5"); calls not
+  offered are dropped. §5.2 message shape: the rules of PROTOCOL §11.14 and the cue's position.
+- §6.7: the history rules; unanswered calls; delivery interleaved with the message's audio;
+  whitespace at the ends of an answer.
+- §5.3 TTS row and §7: `streaming_interval` 0.16, `max_tokens` from the text, edge trimming before
+  the queue; §10: the new keys (`tool_interlude`, `unanswered_calls`, `pending_tool_output`,
+  `output.trim_silence`, `token_cap`, `latin_segments`, `speakers`, the normalizer keys).
+- D13: the Latin rule as built (`latin_segments`), pending the owner.
+- DECISIONS: the default history shaping (`merge`, `pending`) until the M0 LLM spike reports;
+  vivian → aiden for English segments (deviation 7) for the owner; the normalizer's widened ID
+  detection.

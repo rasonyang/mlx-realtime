@@ -12,6 +12,7 @@ from mlx_realtime.config import (
     MlxLmChatConfig,
     MockASRConfig,
     MockLLMConfig,
+    NormalizerConfig,
     load_config,
     validate_config,
 )
@@ -20,7 +21,8 @@ from mlx_realtime.providers.mlx_audio_asr import MlxAudioASR
 from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.providers.registry import build_providers
-from mlx_realtime.server.gateway import Gateway
+from mlx_realtime.server.gateway import Gateway, normalizer_options
+from mlx_realtime.text.normalize import NormalizerOptions
 from tests.speech import needs_models
 
 REPO = Path(__file__).parents[2]
@@ -69,7 +71,23 @@ def test_repository_config_points_at_the_real_backends() -> None:
     assert gateway.defaults.voice == config.voices.default == "vivian"
     assert config.output.max_lead_ms == 10_000  # D6
     assert tuple(config.lines.verbatim_prefixes) == DEFAULT_VERBATIM_PREFIXES  # D16
-    assert (config.text.normalizer.phones, config.text.normalizer.numbers) == (True, False)
+    # B2's G5 scope: config.yaml spells out the defaults, and they are the normalizer's own.
+    normalizer = config.text.normalizer
+    assert normalizer == NormalizerConfig()
+    assert (normalizer.phones, normalizer.ids, normalizer.emails, normalizer.cardinals) == (
+        True,
+        True,
+        True,
+        True,
+    )
+    assert (normalizer.numbers, normalizer.money, normalizer.dates, normalizer.units) == (
+        False,
+        False,
+        False,
+        False,
+    )
+    assert (normalizer.min_cardinal_digits, normalizer.en_amount_min) == (5, 1000)
+    assert normalizer_options(normalizer) == NormalizerOptions()
     # M4: D17 as G7 decided it.
     aec = config.aec
     assert (aec.enabled, aec.engine, aec.asr_input) == (True, "webrtc_aec3", "processed")

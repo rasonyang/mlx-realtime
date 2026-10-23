@@ -22,6 +22,7 @@ from mlx_realtime.config import (
     BargeInConfig,
     LimitsConfig,
     SegmenterConfig,
+    SilenceTrimConfig,
     TurnConfig,
 )
 from mlx_realtime.providers.base import (
@@ -174,6 +175,7 @@ class SessionDeps:
     aec: AecConfig
     barge_in: BargeInConfig
     echo: EchoRuntime | None  # the canceller's executor and engine (D17), when enabled
+    trim_silence: SilenceTrimConfig  # each TTS segment's edge silence (M0 S3)
 
 
 class SessionActor:
@@ -252,6 +254,7 @@ class SessionActor:
             post=inbox.put_signal,
             wait_for_room=wait_for_room,
             clock=deps.clock,
+            trim_silence=deps.trim_silence,
         )
 
     async def run(self) -> None:

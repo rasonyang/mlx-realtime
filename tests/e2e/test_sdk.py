@@ -17,6 +17,7 @@ from openai import AsyncOpenAI
 from openai.resources.realtime.realtime import AsyncRealtimeConnection
 from openai.types.realtime import RealtimeServerEvent, RealtimeSessionCreateRequest
 
+from mlx_realtime.providers.base import LLMDone, TextDelta, ToolCall, Usage
 from tests.speech import needs_models
 from tests.support import Mocks, build_gateway, http_get, running
 
@@ -131,6 +132,69 @@ async def test_cancel_mid_audio() -> None:
     assert done.response.status_details is not None
     assert done.response.status_details.reason == "client_cancelled"
     assert not [e for e in events if e.type == "response.output_audio.delta"]
+
+
+LOOKUP_TOOL = {
+    "type": "function",
+    "name": "lookup_balance",
+    "description": "Read the caller's balance.",
+    "parameters": {"type": "object", "properties": {"accountId": {"type": "string"}}},
+}
+
+
+async def test_tool_round_trip() -> None:
+    """M5: the SDK declares a tool; the mock LLM is scripted to say a line and call it; the SDK
+    returns the result (with an AICC-style hint) and asks for the answer, which the LLM gives
+    with the call and its result in its history."""
+    async with gateway_with_mocks() as (address, mocks), realtime(address) as connection:
+        session = {**GA_SESSION, "tools": [LOOKUP_TOOL], "tool_choice": "auto"}
+        await connection.session.update(session=session)  # pyright: ignore[reportArgumentType]
+        updated = (await until(connection, "session.updated"))[-1]
+        assert updated.type == "session.updated"
+        assert isinstance(updated.session, RealtimeSessionCreateRequest)
+        assert [tool.name for tool in updated.session.tools or []] == ["lookup_balance"]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
+        await ask(connection, QUESTION)
+        mocks.llm.script(
+            TextDelta("好的，我查一下。"),
+            ToolCall("provider-1", "lookup_balance", '{"accountId": "42"}'),
+            LLMDone("tool_calls", Usage(30, 12)),
+        )
+        await connection.response.create()
+        events = await until(connection, "response.done")
+        done = events[-1]
+        assert done.type == "response.done"
+        assert done.response.status == "completed"
+        calls = [item for item in done.response.output or [] if item.type == "function_call"]
+        assert len(calls) == 1
+        call = calls[0]
+        assert call.name == "lookup_balance"
+        assert call.arguments == '{"accountId": "42"}'
+        assert call.call_id is not None
+        assert call.call_id.startswith("call_")
+        assert call.call_id != "provider-1"  # the wire id is minted by the gateway
+        argument_deltas = [e for e in events if e.type == "response.function_call_arguments.delta"]
+        assert [e.delta for e in argument_deltas] == ['{"accountId": "42"}']
+        result = '{"balance": "12.50", "hint": "Tell the caller the balance."}'
+        await connection.conversation.item.create(
+            item={"type": "function_call_output", "call_id": call.call_id, "output": result}
+        )
+        added = (await until(connection, "conversation.item.done"))[-1]
+        assert added.type == "conversation.item.done"
+        mocks.llm.script(TextDelta("您的余额是十二元五角。"), LLMDone("stop", Usage(50, 8)))
+        await connection.response.create()
+        answer = await until(connection, "response.done")
+    transcript = "".join(
+        e.delta for e in answer if e.type == "response.output_audio_transcript.delta"
+    )
+    assert transcript == "您的余额是十二元五角。"
+    history = mocks.llm.requests[-1].messages
+    assert [(m.role, m.tool_call_id) for m in history[-2:]] == [
+        ("assistant", None),
+        ("tool", "provider-1"),
+    ]
+    assert history[-1].content == result
+    assert mocks.llm.requests[-1].tool_choice == "auto"
+    assert [tool.name for tool in mocks.llm.requests[-1].tools] == ["lookup_balance"]
 
 
 @needs_models

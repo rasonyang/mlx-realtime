@@ -7,16 +7,24 @@ import json
 
 import pytest
 
+from mlx_realtime.config import PENDING_TOOL_OUTPUT
 from mlx_realtime.providers.base import Message, ProviderError, TextDelta, ToolCall, ToolDef, Usage
-from mlx_realtime.providers.chat_wire import ChunkReader, Sampling, chat_messages, request_body
+from mlx_realtime.providers.chat_wire import (
+    ChunkReader,
+    Sampling,
+    Shaping,
+    chat_messages,
+    request_body,
+)
 from mlx_realtime.providers.sse import sse_data
 
 CUE = "(The conversation has just started.)"
 NOTE = "(System note: {text})"
+SHAPING = Shaping(CUE, NOTE, "merge", "pending", PENDING_TOOL_OUTPUT)
 
 
 def adapt(*messages: Message) -> list[dict[str, object]]:
-    return chat_messages(messages, cue=CUE, system_note=NOTE)
+    return chat_messages(messages, SHAPING)
 
 
 def test_leading_system_messages_become_one() -> None:
@@ -47,7 +55,8 @@ def test_a_later_system_message_becomes_a_marked_user_note() -> None:
 )
 def test_a_conversation_without_a_user_message_gets_the_cue(messages: list[Message]) -> None:
     adapted = adapt(*messages)
-    assert adapted[-1] == {"role": "user", "content": CUE}
+    first = 1 if adapted[0]["role"] == "system" else 0
+    assert adapted[first] == {"role": "user", "content": CUE}  # it opens the conversation
     assert sum(entry["role"] == "user" for entry in adapted) == 1
 
 
@@ -81,8 +90,7 @@ def body(**changes: object) -> dict[str, object]:
         "max_output_tokens": None,
         "sampling": Sampling(512, 0.7, 0.8),
         "model": None,
-        "cue": CUE,
-        "system_note": NOTE,
+        "shaping": SHAPING,
     }
     arguments.update(changes)
     return request_body(

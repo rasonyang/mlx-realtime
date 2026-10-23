@@ -65,7 +65,7 @@ async def test_the_voice_locks_once_the_session_has_spoken() -> None:
     gateway, mocks = build_gateway()
     async with running(gateway) as address, Client.connect(address) as client:
         await client.start(MANUAL)
-        await client.send(voice_update("ryan"))
+        await client.send(voice_update("uncle_fu"))
         await client.until("session.updated")
         await client.say("你好。")
         await client.send(
@@ -81,10 +81,10 @@ async def test_the_voice_locks_once_the_session_has_spoken() -> None:
             "session.audio.output.voice",
             "change",
         )
-        await client.send(voice_update("ryan"))  # the same voice again: nothing changes
+        await client.send(voice_update("uncle_fu"))  # the same voice again: nothing changes
         assert (await client.until("session.updated"))[-1]["session"]["audio"]["output"][
             "voice"
-        ] == "ryan"
+        ] == "uncle_fu"
         await client.send(
             {
                 "type": "response.create",
@@ -102,8 +102,8 @@ async def test_the_voice_locks_once_the_session_has_spoken() -> None:
         assert (await client.until("session.updated"))[-1]["session"]["instructions"] == "x"
         await client.send({"type": "response.create"})
         done = (await client.until("response.done"))[-1]["response"]
-    assert done["audio"]["output"]["voice"] == "ryan"
-    assert [request.voice for request in mocks.tts.requests] == ["aiden", "ryan"]
+    assert done["audio"]["output"]["voice"] == "uncle_fu"
+    assert [request.voice for request in mocks.tts.requests] == ["aiden", "uncle_fu"]
 
 
 async def test_a_line_on_an_empty_conversation_has_the_events_of_an_audio_response() -> None:

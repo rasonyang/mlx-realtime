@@ -12,8 +12,11 @@ from mlx_realtime.providers.voices import SEGMENT_LANG, VoiceBook
 def test_the_builtin_voices_are_qwen3_speakers_without_the_dialect_ones() -> None:
     book = VoiceBook(VoicesConfig())
     assert book.default == "vivian"
-    assert set(book.names()) == {"vivian", "serena", "uncle_fu", "ryan", "aiden"}
+    assert set(book.names()) == {"vivian", "serena", "uncle_fu", "aiden"}
     assert not {"dylan", "eric"} & set(book.names())  # dialects with chinese/auto
+    assert "ryan" not in book  # S3: the runaway defect follows it
+    vivian = book.voice("vivian")
+    assert (vivian.speaker_for("zh"), vivian.speaker_for("en")) == ("vivian", "aiden")  # S3
     for voice in book.voices():
         assert voice.speaker == voice.name
         assert voice.lang == SEGMENT_LANG

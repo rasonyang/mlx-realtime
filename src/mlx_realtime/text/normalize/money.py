@@ -17,6 +17,8 @@ Rules:
   ``5万元`` in en → fifty thousand yuan.
 - ``3块5`` (块 followed by a digit) is not an amount. An amount glued to a letter (``$5k``) is
   left as written.
+- Each match carries its largest value with the scale applied (``Match.amount``), so English
+  amounts of 1000 or more can be read while the category is off (G5).
 """
 
 from __future__ import annotations
@@ -133,7 +135,8 @@ def _find(pattern: re.Pattern[str], text: str) -> Iterator[Match]:
         numbers = (first,) if second is None else (first, second)
         scale = (found["scale"] or "").strip()
         amount = _Amount(found.group(), currency, numbers, scale, groups.get("word"))
-        yield Match(found.start(), found.end(), partial(_read, amount))
+        largest = max(value(number) for number in numbers) * _SCALES.get(scale, Decimal(1))
+        yield Match(found.start(), found.end(), partial(_read, amount), amount=largest)
 
 
 def _read(amount: _Amount, lang: Lang) -> str:

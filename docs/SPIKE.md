@@ -688,3 +688,25 @@ English segments fail on IDs, numeric dates and amounts of 1000 or more.
   Latin letters. A segment with Latin letters fails rather than being garbled. Config can switch the
   fallback to Qwen3-TTS 0.6B 4-bit (`family: qwen3_tts`, supported since M3) if the owner approves
   the substitution.
+
+**S11 double-talk ΔCER** (B4, 2026-10-23; points of error rate over the clean telephone chain, zh CER /
+en WER, 80 utterances per cell, continuous double talk; raw: `spikes/results/s11_cer.json`):
+
+| Canceller | zh 0 dB | zh −15 dB | en 0 dB | en −15 dB |
+|---|---|---|---|---|
+| none | +13.0 | +68.1 | +5.7 | +61.4 |
+| AEC3 (pywebrtc) | +2.0 | +10.9 | +4.9 | +28.4 |
+| AEC3 (livekit) | +1.2 | +8.4 | +2.6 | +20.4 |
+| Speex linear + GCC-PHAT | +0.9 | +0.6 | +0.7 | −0.8 |
+| Speex + preprocessor + GCC-PHAT | +0.1 | +0.2 | +0.6 | −0.6 |
+
+AEC3 fails C2, because its suppressor removes quiet caller speech. Speex passes C2 but fails C1, because
+its residual triggers the VAD. Continuous double talk overstates the barge-in case: our output stops
+≈ 0.5 s after a barge-in, so only the start of the caller's turn overlaps the echo.
+
+**G7 revision (2026-10-23, flagged for owner review).** The plan is a dual path: AEC3 output drives
+Silero and Smart Turn, and a cleaner path feeds the InputBuffer and the ASR. Candidates for that path:
+Speex linear or with its preprocessor (only if it can be built reproducibly through uv, e.g. vendored
+BSD sources compiled as a project extension), or raw audio. A follow-up task after M5 (effort max)
+measures the ASR input on barge-in-realistic double talk and implements it. Until then,
+`aec.asr_input` stays `processed` (AEC3).

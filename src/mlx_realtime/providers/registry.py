@@ -117,6 +117,7 @@ def build_speech(
         model(fallback, "fallback"),
         failures=fallback.breaker_failures,
         cooldown_s=fallback.cooldown_s,
+        latin_segments=fallback.latin_segments,
     )
 
 

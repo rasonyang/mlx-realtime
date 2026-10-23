@@ -25,12 +25,14 @@ from contextlib import aclosing
 from pathlib import Path
 
 import httpx2
+import numpy as np
 import pytest
 from openai import AsyncOpenAI
 from openai.types.realtime import RealtimeServerEvent
 
 from mlx_realtime.audio.pcm import CANONICAL_RATE, WIRE_RATE
 from mlx_realtime.audio.resample import Resampler
+from mlx_realtime.audio.trim import SilenceTrimmer
 from mlx_realtime.config import (
     Config,
     MlxAudioAsrConfig,
@@ -149,6 +151,156 @@ async def test_llm_makes_a_tool_call(llm: MlxLmChatLLM) -> None:
     assert "beijing" in json.loads(calls[0].arguments)["city"].lower()
 
 
+def aicc_line_session() -> dict[str, object]:
+    """AICC's Chinese line-session fixture (instructions and its six flat tools), read from the
+    AICC checkout in ``AICC_REPO`` (default: a sibling ``ai-native-callcenter``)."""
+    repo = Path(os.environ.get("AICC_REPO", REPO.parent / "ai-native-callcenter"))
+    path = repo / "internal" / "provider" / "testdata" / "line_session_zh.json"
+    if not path.exists():
+        pytest.skip(f"{path} not found: set AICC_REPO to an AICC checkout")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def aicc_tools(session: dict[str, object]) -> list[ToolDef]:
+    tools = session["tools"]
+    assert isinstance(tools, list)
+    return [
+        ToolDef(tool["Name"], tool.get("Description"), tool.get("Parameters"))
+        for tool in tools  # pyright: ignore[reportUnknownVariableType]
+    ]
+
+
+REPAIR_RESULT = json.dumps(
+    {
+        "found": 1,
+        "status": "维修完成，等待取件",
+        "hint": "告诉来电者手机已修好，可以到店取件，然后问还有什么需要。",
+    },
+    ensure_ascii=False,
+)
+
+
+async def test_llm_tool_round_trip_with_aiccs_tools(llm: MlxLmChatLLM) -> None:
+    """M5: AICC's real instructions and tools. A clear repair number makes the model call
+    ``repair_status`` with typed arguments, and no markup reaches the text; the result (with
+    AICC's hint) replayed after the call gets a spoken answer, not a second call."""
+    session = aicc_line_session()
+    tools = aicc_tools(session)
+    instructions = str(session["instructions"])
+    asked = [Message("system", instructions), Message("user", "我想查维修进度，单号是RMA1001。")]
+    deltas = await collect(llm.stream(asked, tools))
+    calls = [delta for delta in deltas if isinstance(delta, ToolCall)]
+    text = "".join(delta.text for delta in deltas if isinstance(delta, TextDelta))
+    assert [call.name for call in calls] == ["repair_status"]
+    assert "RMA1001" in json.loads(calls[0].arguments)["rma"].upper().replace(" ", "")
+    assert "<tool_call>" not in text
+    assert "<function=" not in text
+    history = [
+        *asked,
+        Message("assistant", text, tool_calls=(calls[0],)),
+        Message("tool", REPAIR_RESULT, tool_call_id=calls[0].call_id),
+    ]
+    answer = await collect(llm.stream(history, tools))
+    await llm.aclose()
+    spoken = "".join(delta.text for delta in answer if isinstance(delta, TextDelta))
+    assert not [delta for delta in answer if isinstance(delta, ToolCall)]
+    assert isinstance(answer[-1], LLMDone)
+    assert answer[-1].finish_reason == "stop"
+    assert "取" in spoken  # the result reached the model
+
+
+@pytest.mark.parametrize("interlude", ["merge", "after_output"])
+@pytest.mark.parametrize("unanswered", [False, True])
+async def test_wait_line_history_on_the_real_template(
+    config: Config, interlude: str, unanswered: bool
+) -> None:
+    """M5: the wait-line shape AICC produces (call → verbatim wait line → result), shaped both
+    ways, and the unanswered call while the caller speaks over the line (a pending
+    placeholder): the real template accepts each (no HTTP 404), and the model answers in text
+    without calling the tool again."""
+    session = aicc_line_session()
+    tools = aicc_tools(session)
+    assert isinstance(config.providers.llm, MlxLmChatConfig)
+    settings = config.providers.llm.model_copy(update={"tool_interlude": interlude})
+    llm = MlxLmChatLLM(settings)
+    call = ToolCall("call-wait-1", "repair_status", '{"rma": "RMA1001"}')
+    history = [
+        Message("system", str(session["instructions"])),
+        Message("user", "我想查维修进度，单号是RMA1001。"),
+        Message("assistant", "好的，我查一下。", tool_calls=(call,)),
+        Message("assistant", "请稍等，正在为您查询。"),  # the wait line, spoken verbatim
+    ]
+    if unanswered:
+        history.append(Message("user", "喂？还在吗？"))
+    else:
+        history.append(Message("tool", REPAIR_RESULT, tool_call_id=call.call_id))
+    deltas = await collect(llm.stream(history, tools))
+    await llm.aclose()
+    text = "".join(delta.text for delta in deltas if isinstance(delta, TextDelta))
+    assert text.strip()
+    assert not [d for d in deltas if isinstance(d, ToolCall) and d.name == "repair_status"]
+
+
+async def test_sdk_tool_round_trip_with_the_real_stack(config: Config) -> None:
+    """M5 end to end: the SDK declares AICC's tools, asks in text, gets a ``function_call`` item
+    from the real LLM, returns the result and gets the answer."""
+    session = aicc_line_session()
+    gateway = config.gateway
+    client = AsyncOpenAI(base_url=f"http://{gateway.host}:{gateway.port}/v1", api_key="local")
+    tools = [
+        {
+            "type": "function",
+            "name": t.name,
+            "description": t.description,
+            "parameters": t.parameters,
+        }
+        for t in aicc_tools(session)
+    ]
+    async with client.realtime.connect(model="gpt-realtime") as connection:
+        await connection.session.update(
+            session={
+                "type": "realtime",
+                "output_modalities": ["text"],
+                "instructions": session["instructions"],
+                "tools": tools,
+            }  # pyright: ignore[reportArgumentType]
+        )
+        await connection.conversation.item.create(
+            item={
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "我想查维修进度，单号是RMA1001。"}],
+            }
+        )
+        await connection.response.create()
+        call = None
+        started = time.monotonic()
+        async with asyncio.timeout(30):
+            async for event in connection:
+                if event.type == "response.done":
+                    calls = [i for i in event.response.output or [] if i.type == "function_call"]
+                    assert len(calls) == 1
+                    call = calls[0]
+                    break
+        assert call is not None
+        assert call.name == "repair_status"
+        assert call.call_id
+        assert time.monotonic() - started < 3.0  # AICC's tool-only deadline (from the request)
+        await connection.conversation.item.create(
+            item={"type": "function_call_output", "call_id": call.call_id, "output": REPAIR_RESULT}
+        )
+        await connection.response.create()
+        text = ""
+        async with asyncio.timeout(30):
+            async for event in connection:
+                if event.type == "response.output_text.delta":
+                    text += event.delta
+                elif event.type == "response.done":
+                    assert event.response.status == "completed"
+                    break
+    assert "取" in text
+
+
 async def test_sdk_server_vad_turn_with_the_real_stack(config: Config) -> None:
     """The official SDK streams a spoken question in real time with server_vad; the gateway
     detects the turn, transcribes it and answers with text from the real LLM."""
@@ -229,6 +381,51 @@ async def test_tts_streams_with_a_fast_first_chunk_and_faster_than_real_time(
         assert total / seconds < 1.0
         assert 1.0 < seconds < 15.0
         assert not timing.fallback
+    await tts.aclose()
+
+
+def edges_ms(pcm: bytes, threshold_dbfs: float = -50.0) -> tuple[int, int]:
+    """Leading and trailing silence of ``pcm`` (24 kHz s16le), on 10 ms frames."""
+    samples = np.frombuffer(pcm, dtype="<i2").astype(np.float64)
+    frame = WIRE_RATE // 100
+    frames = samples[: samples.size // frame * frame].reshape(-1, frame)
+    level = 10 * np.log10(np.mean(frames**2, axis=1) / 32768.0**2 + 1e-12)
+    voiced = np.flatnonzero(level >= threshold_dbfs)
+    assert voiced.size, "no voiced audio"
+    return int(voiced[0]) * 10, (frames.shape[0] - 1 - int(voiced[-1])) * 10
+
+
+async def test_tts_edges_are_trimmed_and_the_token_cap_leaves_speech_whole(
+    config: Config,
+) -> None:
+    """M0 S3 on the real model: each output has ~0.45 s of silence before and ~0.5 s after.
+    Through the gateway's trimmer at most ~60 ms (+ a frame) is left at either end, and the
+    proportional ``max_tokens`` never cuts a normal sentence short."""
+    tts = speech(config)
+    primary = tts.primary
+    assert isinstance(primary, MlxAudioTTS)
+    trim = config.output.trim_silence
+    for text, lang in (
+        ("您好，欢迎致电客服中心，请问有什么可以帮您？", "zh"),
+        ("Hello, thank you for calling. How can I help you today?", "en"),
+    ):
+        _, _, raw = await timed(primary, text, "vivian", lang, SpeechTiming())
+        trimmer = SilenceTrimmer(
+            WIRE_RATE,
+            threshold_dbfs=trim.threshold_dbfs,
+            frame_ms=trim.frame_ms,
+            max_lead_ms=trim.max_lead_ms,
+            max_tail_ms=trim.max_tail_ms,
+        )
+        trimmed = trimmer.push(raw) + trimmer.flush()
+        raw_lead, raw_tail = edges_ms(raw)
+        lead, tail = edges_ms(trimmed)
+        assert raw_lead >= 200 or raw_tail >= 200, (raw_lead, raw_tail)  # what S3 measured
+        assert lead <= trim.max_lead_ms + trim.frame_ms
+        assert tail <= trim.max_tail_ms + trim.frame_ms
+        body = primary.request_body(text, "vivian", "zh" if lang == "zh" else "en")
+        cap_s = int(body["max_tokens"]) / 12.5  # pyright: ignore[reportArgumentType]
+        assert len(raw) / 2 / WIRE_RATE < cap_s * 0.8  # speech ended well before the cap
     await tts.aclose()
 
 

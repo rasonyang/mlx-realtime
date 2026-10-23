@@ -8,7 +8,7 @@ import asyncio
 
 import pytest
 
-from mlx_realtime.config import SegmenterConfig
+from mlx_realtime.config import SegmenterConfig, SilenceTrimConfig
 from mlx_realtime.providers.base import LLMDone, ProviderError, TextDelta, Usage
 from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.session.pipeline import PipelineContext, PipelineRequest, run_pipeline
@@ -74,6 +74,7 @@ def context(
         post=posted.append,
         wait_for_room=room,
         clock=clock,
+        trim_silence=SilenceTrimConfig(),
     )
 
 
@@ -206,8 +207,21 @@ async def test_segments_with_nothing_to_say_are_not_synthesized() -> None:
     posted: list[PipelineSignal] = []
     await run_pipeline(request(), context(llm, tts, posted, StepClock()))
     segments = [signal for signal in posted if isinstance(signal, SegmentStarted)]
-    assert "".join(segment.text for segment in segments) == "好的。\n……\n"
+    # The answer's trailing newline is dropped (M5); the rest of its transcript is kept.
+    assert "".join(segment.text for segment in segments) == "好的。\n……"
     assert [r.text for r in tts.requests] == ["好的。"]  # punctuation alone is never sent
+
+
+async def test_whitespace_around_the_answer_is_dropped() -> None:
+    """Leading whitespace never opens a message; trailing whitespace waits for more text and is
+    dropped at the end; whitespace inside the answer is kept."""
+    llm, tts = EchoLLM(), SineTTS(ms_per_char=20, chunk_ms=40)
+    deltas = ["\n", " Sure.", "\n\n", "Done. ", "\n"]
+    llm.script(*(TextDelta(text) for text in deltas), LLMDone("stop", None))
+    posted: list[PipelineSignal] = []
+    await run_pipeline(request(), context(llm, tts, posted, StepClock()))
+    texts = [signal.text for signal in posted if isinstance(signal, LlmText)]
+    assert texts == ["Sure.", "\n\nDone."]
 
 
 async def test_timeline_marks() -> None:

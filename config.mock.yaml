@@ -73,7 +73,7 @@ barge_in:                  # D17's second line of defence: as config.yaml
 
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
-  normalizer: {enabled: true, phones: true, ids: true}
+  normalizer: {enabled: true}   # the G5 defaults (config.yaml lists every key)
 
 providers:
   llm: {type: mock, first_token_delay_ms: 50, token_delay_ms: 20, greeting: "你好，有什么可以帮您？"}

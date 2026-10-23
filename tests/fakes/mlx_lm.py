@@ -72,7 +72,11 @@ class Reasoning:
 
 @dataclass(frozen=True)
 class Calls:
+    """Complete calls in one chunk. The real server sends a call with the token after its
+    ``</tool_call>``, with any text (often a newline) the model wrote since the last chunk."""
+
     calls: list[Json]
+    text: str = ""
 
 
 @dataclass(frozen=True)
@@ -241,7 +245,7 @@ class _Handler(BaseHTTPRequestHandler):
         # generate_response(), stream=True
         finish = step.reason if isinstance(step, Finish) else None
         delta: Json = {"role": "assistant"}
-        text = step.text if isinstance(step, Text | Finish) else ""
+        text = step.text if isinstance(step, Text | Finish | Calls) else ""
         if text:
             delta["content"] = text
         if isinstance(step, Reasoning):

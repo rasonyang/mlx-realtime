@@ -212,3 +212,38 @@ async def test_warmup_readiness_and_close_cover_both_models() -> None:
     assert not state.ready
     assert state.detail == "primary: ok; fallback: fallback model not loaded"
     await tts.aclose()
+
+
+async def collect_text(tts: FallbackTTS, text: str, lang: Lang = "zh") -> list[bytes]:
+    async with aclosing(tts.stream(text, "vivian", lang)) as stream:
+        return [chunk.pcm async for chunk in stream]
+
+
+@pytest.mark.parametrize("text", ["请登录 App 查看。", "Hello.", "订单 A B 1 2。", "ＯＫ。"])
+async def test_the_fallback_never_speaks_a_segment_with_latin_letters(text: str) -> None:
+    """D13 (M0 S3): Kokoro garbles English inside Chinese, so a primary failure on a segment
+    with Latin letters fails that segment instead of moving it."""
+    primary, fallback = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)])), ScriptedTTS("f")
+    tts = fallback_tts(primary, fallback)
+    with pytest.raises(ProviderError) as failed:
+        await collect_text(tts, text)
+    assert failed.value is FAIL
+    assert fallback.calls == []
+
+
+async def test_a_latin_segment_goes_to_the_primary_while_the_circuit_is_open() -> None:
+    primary = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)] * 3))
+    fallback = ScriptedTTS("f")
+    tts = fallback_tts(primary, fallback)
+    for _ in range(3):
+        await collect_text(tts, "你好。")
+    assert tts.breaker.open
+    assert await collect_text(tts, "你好。") == [b"f\x00", b"f\x01"]  # no Latin: the fallback
+    assert await collect_text(tts, "Hello.", "en") == [b"p\x00", b"p\x01"]  # Latin: the primary
+    assert not tts.breaker.open  # and the primary worked
+
+
+async def test_latin_segments_can_be_allowed() -> None:
+    primary, fallback = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)])), ScriptedTTS("f")
+    tts = FallbackTTS(primary, fallback, failures=3, cooldown_s=30.0, latin_segments=True)
+    assert await collect_text(tts, "Hello.", "en") == [b"f\x00", b"f\x01"]

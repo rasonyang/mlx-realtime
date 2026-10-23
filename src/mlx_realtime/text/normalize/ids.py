@@ -3,15 +3,18 @@
 Rules:
 
 - An alphanumeric token (letters and digits joined by single ``-_/.``) is an ID when it holds at
-  least 6 letters and digits, at least 4 digits and at least 1 letter, and no run of more than 5
+  least 6 letters and digits, at least 3 digits and at least 1 letter (with only 3 digits it must
+  start with a letter: ``500Mbps`` is a quantity, ``A1B2C3`` an ID), and no run of more than 5
   letters (a longer run is a word: ``report2024``). A quantity is not an ID: a number with a unit,
   an ordinal suffix, a decade ``s``, am/pm or a currency code (``1000km``, ``1990s``,
   ``10am-12pm``, ``USD2000``), or a size (``1920x1080``); nor is a name with a version number
   (``Qwen2.5-72B``, ``Llama-3.1-70B``). A leading ``No.`` is not part of the ID.
-- A run of 6 or more digits (joined by single ``-_/.``, or by spaces before groups of 3 or more)
-  is an ID only right after an ID keyword: 订单号, 订单编号, 单号, 运单号, 快递单号, 物流单号,
-  工单号, 编号, 流水号, 账号, 卡号, 会员号, 验证码, order number, order no., order #,
-  tracking number, reference number, ref, account number, confirmation code, case number, ID.
+- A run of 4 or more digits (joined by single ``-_/.``, or by spaces before groups of 3 or more)
+  is an ID only right after an ID keyword (with long cardinals read as numbers, G5, a short code
+  after its keyword must not be read as a quantity): 订单号, 订单编号, 单号, 运单号, 快递单号,
+  物流单号, 工单号, 编号, 流水号, 账号, 卡号, 会员号, 验证码, 取件码, 提货码, 动态码, 校验码,
+  order number, order no., order #, tracking number, reference number, ref, account number,
+  confirmation code, code, PIN, case number, ID.
   Spaces, colons, ``#``, ``.``, ``No.``, 是, 为 and ``is`` may come between.
 - Reading: letters as capitals separated by spaces; each digit on its own (zh 零一二…九, 1 is 一,
   never 幺; en zero … nine); a letter run and a digit run are separated by a space. A digit run
@@ -44,8 +47,9 @@ _DIGIT_RUN = re.compile(
 )
 _KEYWORD = re.compile(
     r"(?:订单编号|订单号|快递单号|物流单号|运单号|工单号|单号|编号|流水号|账号|卡号|会员号|验证码"
+    r"|取件码|提货码|动态码|校验码"
     r"|(?<![A-Za-z])(?:order (?:number|no\.|#)|tracking number|reference number|ref"
-    r"|account number|confirmation code|case number|ID))"
+    r"|account number|confirmation code|code|PIN|case number|ID))"
     r"(?:[ :：#.]|是|为|No\.|(?<![A-Za-z])is(?![A-Za-z]))*\Z",
     re.IGNORECASE,
 )
@@ -79,7 +83,7 @@ def _keyed_digits(text: str) -> Iterator[Match]:
     for found in _DIGIT_RUN.finditer(text):
         token = found.group()
         digits = sum(char.isdigit() for char in token)
-        if digits >= 6 and ends_with(_KEYWORD, text, found.start()):
+        if digits >= 4 and ends_with(_KEYWORD, text, found.start()):
             yield Match(found.start(), found.end(), partial(_read, token))
 
 
@@ -87,7 +91,7 @@ def _is_id(token: str) -> bool:
     digits = sum(char.isdigit() for char in token)
     letters = sum(char.isalpha() for char in token)
     return (
-        digits >= 4
+        (digits >= 4 or (digits == 3 and token[0].isalpha()))
         and letters >= 1
         and digits + letters >= 6
         and not _WORD.search(token)

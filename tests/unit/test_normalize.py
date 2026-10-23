@@ -7,7 +7,14 @@ import pytest
 from mlx_realtime.text.normalize import NormalizerOptions, normalize, normalize_with_map
 
 DEFAULT = NormalizerOptions()
-NOTHING = NormalizerOptions(phones=False, ids=False)
+NARROW_OFF: dict[str, bool] = {
+    "cardinals": False,
+    "emails": False,
+    "en_dates": False,
+    "en_amounts": False,
+}
+PHONES_AND_IDS = NormalizerOptions(**NARROW_OFF)  # the M3 defaults, before G5
+NOTHING = NormalizerOptions(phones=False, ids=False, **NARROW_OFF)
 EVERYTHING = NormalizerOptions(numbers=True, money=True, dates=True, units=True, spacing=True)
 NUMBERS = NormalizerOptions(numbers=True)
 MONEY = NormalizerOptions(money=True)
@@ -24,6 +31,8 @@ COMBOS = {
     "money-dates-units": NormalizerOptions(money=True, dates=True, units=True),
     "spacing": SPACING,
     "numbers-without-yao": NormalizerOptions(numbers=True, phone_one_as_yao=False),
+    "phones-and-ids": PHONES_AND_IDS,
+    "cardinals-from-3": NormalizerOptions(min_cardinal_digits=3),
     "disabled": NormalizerOptions(enabled=False, numbers=True, spacing=True),
 }
 
@@ -66,16 +75,22 @@ def test_disabled_returns_the_text_unchanged() -> None:
     assert normalize(text, options, lang="en") == text
 
 
-def test_defaults_read_phones_and_ids_only() -> None:
+def test_defaults_follow_g5() -> None:
     expected_defaults = NormalizerOptions(
         enabled=True,
         numbers=False,
+        cardinals=True,
+        min_cardinal_digits=5,
         money=False,
         dates=False,
         phones=True,
         ids=True,
+        emails=True,
         units=False,
         spacing=False,
+        en_dates=True,
+        en_amounts=True,
+        en_amount_min=1000,
         phone_one_as_yao=True,
     )
     assert expected_defaults == DEFAULT
@@ -84,6 +99,79 @@ def test_defaults_read_phones_and_ids_only() -> None:
         "订单 O R D 二零二四，一零二三，零零一 金额 ¥12.5，2024-10-23 送达 5km，共 3 件，"
         "电话 幺三八，零零幺三，八零零零"
     )
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        # M0 S9 sentences the TTS read wrongly by itself (spikes/audio/b2_texts.py).
+        ("您的积分余额是15600分。", "您的积分余额是一万五千六百分。"),
+        ("您的手机号码尾号是5678。", "您的手机号码尾号是五六七八。"),
+        ("请回拨021-12345678转8001分机。", "请回拨零二幺，幺二三四，五六七八转八零零幺分机。"),
+        (
+            "您登记的手机号是138 0013 8000，对吗？",
+            "您登记的手机号是幺三八，零零幺三，八零零零，对吗？",
+        ),
+        ("您的工单编号为TK-2024-0789。", "您的工单编号为T K，二零二四，零七八九。"),
+        ("退货单号是RT20241102A3。", "退货单号是R T 二零二四，一一零二 A 三。"),
+        (
+            "请把截图发到我们的邮箱service@example.com。",
+            "请把截图发到我们的邮箱service艾特example点com。",
+        ),
+        (
+            "Your order total is $1,280.50.",
+            "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+        ),
+        (
+            "Please call us at 1-800-555-0199.",
+            "Please call us at one, eight zero zero, five five five, zero one nine nine.",
+        ),
+        (
+            "Your appointment is on 03/15/2024 at 2:30 PM.",
+            "Your appointment is on March fifteenth, twenty twenty-four at 2:30 PM.",
+        ),
+        (
+            "Your order number is A20241015001.",
+            "Your order number is A two zero two four, one zero one five, zero zero one.",
+        ),
+    ],
+)
+def test_defaults_read_what_the_tts_misreads(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # M0 S9 sentences the TTS read right by itself: G5 leaves them as written.
+        "您本月一共有3笔订单待处理。",
+        "当前排队人数为128人，请您耐心等待。",
+        "本次活动全场8.5折。",
+        "您的好评率达到了99.6%。",
+        "您是今天第2位来电的客户。",
+        "您本期账单应还金额为¥1,280.50。",
+        "您充值的100元已经到账。",
+        "该套餐的月费为$29.99。",
+        "违约金为合同金额的5%，即2500元。",
+        "您的账单金额是12,800元。",
+        "您的预约时间是2024年3月15日下午2:30。",
+        "活动截止到12月31日24:00。",
+        "您的新套餐将于2025-01-01生效。",
+        "日期是03/15/2024。",
+        "包裹重量为2.5kg。",
+        "您家的宽带速率是500Mbps。",
+        "您可以登录官网www.example.com查询。",
+        "您的iPhone 15需要送修吗？",
+        "请先连接Wi-Fi再下载更新包。",
+        "The package weighs 2.5 kg.",
+        "You get 15% off orders over $200.",
+        "It costs $999.99 at 10:30 on May 5.",
+        "She came 2nd, with 3.5 points and 1234 votes.",
+        "我们支持PayPal和Apple Pay付款。",
+    ],
+)
+def test_defaults_leave_what_the_tts_reads_right(text: str) -> None:
+    assert normalize(text) == text
 
 
 # --- Phones ---------------------------------------------------------------------------------
@@ -109,6 +197,10 @@ def test_defaults_read_phones_and_ids_only() -> None:
         ("客服 800 810 8888", "客服 八零零，八幺零，八八八八"),
         ("客服 4008-208-820", "客服 四零零，八二零，八八二零"),
         ("请拨打95588", "请拨打九五五八八"),
+        ("请拨打110", "请拨打幺幺零"),
+        ("热线5588", "热线五五八八"),
+        ("致电 12345 市民热线", "致电 幺二三四五 市民热线"),
+        ("移动客服10086", "移动客服幺零零八六"),
         ("客服热线是 95588。", "客服热线是 九五五八八。"),
         (
             "电话：010-12345678，手机：13800138000",
@@ -164,7 +256,7 @@ def test_phone_one_as_yao_toggle() -> None:
         "共1380013800个",  # 10 digits
         "号码12345678901",  # 1 is not followed by 3-9
         "95588",  # a hotline needs a phone keyword
-        "热线5588",
+        "热线电话12",  # too short
         "价格13800138000.5",
         "¥13800138000",
         "13800138000元",
@@ -173,7 +265,7 @@ def test_phone_one_as_yao_toggle() -> None:
     ],
 )
 def test_not_phones(text: str) -> None:
-    assert normalize(text) == text
+    assert normalize(text, PHONES_AND_IDS) == text
 
 
 def test_phones_off_leaves_phones_as_written() -> None:
@@ -246,7 +338,8 @@ def test_ids_in_english(text: str, expected: str) -> None:
         "iPhone15 很好用",
         "A1B2 和 X1",
         "号码 123456",  # digits without an ID keyword
-        "订单号 12345",  # too short
+        "订单号 123",  # too short
+        "A1B2C",  # fewer than 3 digits
         "No.123456",
         "Windows2000",  # a word, not an ID
         "report2024.pdf",
@@ -258,12 +351,11 @@ def test_ids_in_english(text: str, expected: str) -> None:
         "我在用 Qwen2.5-72B 模型",  # a version number
         "Llama-3.1-70B",
         "车次G1234",  # fewer than 6 letters and digits
-        "mail ORD2024@example.com",
         "https://example.com/ORD20241023001",
     ],
 )
 def test_not_ids(text: str) -> None:
-    assert normalize(text) == text
+    assert normalize(text, PHONES_AND_IDS) == text
 
 
 def test_ids_off_leaves_ids_as_written() -> None:
@@ -614,6 +706,191 @@ def test_spacing_runs_last_on_the_normalized_text() -> None:
     )
 
 
+# --- G5: last four digits, extensions, North American numbers -------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("尾号1234的卡", "尾号幺二三四的卡"),
+        ("手机尾号为 8801。", "手机尾号为 八八零幺。"),
+        ("卡号末四位是0011", "卡号末四位是零零幺幺"),
+        ("后四位：2468", "后四位：二四六八"),
+        (
+            "The card ending in 4321 is blocked.",
+            "The card ending in four three two one is blocked.",
+        ),
+        ("last four digits are 1001", "last four digits are one zero zero one"),
+        ("尾号12345", "尾号一万二千三百四十五"),  # five digits are no last four: a cardinal
+    ],
+)
+def test_last_four_digits(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("请拨010-12345678转8023", "请拨零幺零，幺二三四，五六七八转八零二三"),
+        ("请拨010-12345678 转 8023", "请拨零幺零，幺二三四，五六七八 转八零二三"),
+        ("电话 010-12345678 分机 23", "电话 零幺零，幺二三四，五六七八 分机二三"),
+        ("请转分机号是8023。", "请转分机号是八零二三。"),
+        (
+            "Call 800-555-0199 ext. 123",
+            "Call eight zero zero, five five five, zero one nine nine extension one two three",
+        ),
+        (
+            "Call 800-555-0199 x12",
+            "Call eight zero zero, five five five, zero one nine nine extension one two",
+        ),
+        ("Extension 4567, please.", "extension four five six seven, please."),
+        ("请拨 010-12345678 ext 8", "请拨 零幺零，幺二三四，五六七八 分机八"),
+        ("转3次", "转3次"),  # 转 alone is a verb, not an extension
+    ],
+)
+def test_extensions(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Call (212) 555-0147.", "Call two one two, five five five, zero one four seven."),
+        ("Call 212.555.0147 now", "Call two one two, five five five, zero one four seven now"),
+        (
+            "Call +1 212 555 0147",
+            "Call plus one, two one two, five five five, zero one four seven",
+        ),
+        ("美国号码 1-212-555-0147", "美国号码 幺，二幺二，五五五，零幺四七"),
+        ("美国号码 +1 212 555 0147", "美国号码 加幺，二幺二，五五五，零幺四七"),
+    ],
+)
+def test_north_american_numbers(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+@pytest.mark.parametrize("text", ["2125550147", "123-456-7890", "212-55-0147", "No 21-555-0147"])
+def test_not_north_american_numbers(text: str) -> None:
+    assert normalize(text, PHONES_AND_IDS) == text
+
+
+# --- G5: IDs after their keyword, short alphanumeric IDs -------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("验证码1234", "验证码一二三四"),
+        ("订单号 12345", "订单号 一二三四，五"),
+        ("Your code is 482913", "Your code is four eight two nine, one three"),
+        ("取件码 5821", "取件码 五八二一"),
+        ("Confirmation code 4829", "Confirmation code four eight two nine"),
+        ("激活码 A1B2C3", "激活码 A 一 B 二 C 三"),
+        ("账户 abc123", "账户 A B C 一二三"),
+        ("网速500Mbps", "网速500Mbps"),  # three digits first: a quantity
+    ],
+)
+def test_short_ids(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+# --- G5: long cardinals ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("积分15600分", "积分一万五千六百分"),
+        ("共有12,800人", "共有一万二千八百人"),
+        ("差额-15600", "差额负一万五千六百"),
+        ("共1234人", "共1234人"),  # four digits: as written
+        ("增长15600.5", "增长15600.5"),  # a decimal: as written
+        ("占比12345%", "占比12345%"),  # a percent: as written
+        ("从10000-20000", "从10000-20000"),  # a range: as written
+        ("We have 15600 points.", "We have fifteen thousand six hundred points."),
+        ("We have 1500 points.", "We have 1500 points."),
+    ],
+)
+def test_long_cardinals(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+def test_the_cardinal_threshold_and_switch() -> None:
+    assert normalize("共1234人", NormalizerOptions(min_cardinal_digits=4)) == "共一千二百三十四人"
+    assert normalize("积分15600分", NormalizerOptions(cardinals=False)) == "积分15600分"
+    assert normalize("共3人", NormalizerOptions(min_cardinal_digits=0)) == "共三人"
+
+
+# --- G5: English numeric dates and amounts --------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("See you on 2024-10-23.", "See you on October twenty-third, twenty twenty-four."),
+        ("Due 2024/10/23", "Due October twenty-third, twenty twenty-four"),
+        ("Due 10/23/2024", "Due October twenty-third, twenty twenty-four"),
+        ("Due 3/5/2024 please", "Due March fifth, twenty twenty-four please"),
+        ("Due 23/10/2024", "Due October twenty-third, twenty twenty-four"),  # day first
+        ("Due 31/31/2024", "Due 31/31/2024"),  # no such date
+        ("Due 10/11/12", "Due 10/11/12"),  # ambiguous
+        ("Open at 14:30 on May 5", "Open at 14:30 on May 5"),  # times and word dates stay
+        ("日期是2024-10-23", "日期是2024-10-23"),  # Chinese: as written
+    ],
+)
+def test_english_numeric_dates(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+def test_english_numeric_dates_switch() -> None:
+    assert normalize("Due 10/23/2024", NormalizerOptions(en_dates=False)) == "Due 10/23/2024"
+    assert normalize("截止03/15/2024", DATES) == "截止二零二四年三月十五日"
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("A fee of $1,000.", "A fee of one thousand dollars."),
+        ("Pay USD 2500 now", "Pay two thousand five hundred dollars now"),
+        ("raised $1.5 million", "raised one point five million dollars"),
+        ("save $500-1500 now", "save five hundred to one thousand five hundred dollars now"),
+        ("It is $999.99.", "It is $999.99."),
+        ("That is ¥100.", "That is ¥100."),
+        ("应还¥1,280.50元", "应还¥1,280.50元"),  # Chinese: as written
+    ],
+)
+def test_english_amounts(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+
+
+def test_english_amounts_threshold_and_switch() -> None:
+    assert normalize("A fee of $1,000.", NormalizerOptions(en_amounts=False)) == (
+        "A fee of $1,000."
+    )
+    assert normalize("It is $50.", NormalizerOptions(en_amount_min=10)) == "It is fifty dollars."
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "您的手机号码尾号是5678。",
+        "请回拨021-12345678转8001分机。",
+        "请把截图发到我们的邮箱service@example.com。",
+        "您的积分余额是15600分。",
+        "Your order total is $1,280.50.",
+        "Due 03/15/2024, call 1-800-555-0199 ext. 12.",
+    ],
+)
+def test_the_character_map_covers_the_g5_readings(text: str) -> None:
+    spoken, source = normalize_with_map(text)
+    assert spoken == normalize(text)
+    assert spoken != text
+    assert len(source) == len(spoken) + 1
+    assert source[-1] == len(text)
+    assert list(source) == sorted(source)
+    assert all(0 <= index <= len(text) for index in source)
+
+
 # --- Recognition order and protection -------------------------------------------------------
 
 
@@ -680,15 +957,42 @@ def test_language_is_decided_by_the_nearest_letters(
     [
         "请访问 https://example.com/order/12345678 查询",
         "官网 www.novanet.com/help?id=13800138000",
-        "发邮件到 support123456@163.com",
-        "Email first.last2024@example.co.uk.",
         "Visit https://example.com/a?b=1&c=2, then call.",
+        "See https://example.com/?to=help@novanet.cn now",  # an address inside a URL
         "See 163.com or novanet.cn/2024",
         "文件 report2024.pdf",
     ],
 )
-def test_urls_and_emails_are_untouched(text: str) -> None:
+def test_urls_are_untouched(text: str) -> None:
     assert normalize(text, EVERYTHING) == text
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("发邮件到 support123456@163.com", "发邮件到 support一二三四五六艾特一六三点com"),
+        ("邮箱是zhang_san@novanet.com.cn。", "邮箱是zhang下划线san艾特novanet点com点cn。"),
+        ("请发到123456789@qq.com", "请发到一二三四五六七八九艾特qq点com"),
+        (
+            "Email first.last2024@example.co.uk.",
+            "Email first dot last two zero two four at example dot co dot uk.",
+        ),
+        ("mail ORD2024@example.com", "mail ORD two zero two four at example dot com"),
+        (
+            "Write to help-desk+vip@nova-net.io",
+            "Write to help dash desk plus vip at nova dash net dot io",
+        ),
+    ],
+)
+def test_emails_are_spoken(text: str, expected: str) -> None:
+    assert normalize(text) == expected
+    assert normalize(text, NormalizerOptions(emails=False)) == text
+
+
+def test_emails_are_never_read_by_another_category() -> None:
+    text = "邮箱 13800138000@163.com"
+    assert normalize(text, NormalizerOptions(emails=False, numbers=True)) == text
+    assert normalize(text) == "邮箱 一三八零零一三八零零零艾特一六三点com"
 
 
 @pytest.mark.parametrize(

@@ -1,12 +1,29 @@
 """The chat-completions wire format as mlx_lm.server 0.32.2 speaks it (ARCHITECTURE §5.2, §5.3).
 
-Requests: the conversation is adapted to what the Qwen chat template accepts.
+Requests: the conversation is adapted to what the Qwen chat template accepts (``Shaping``).
 
 - All leading system messages become one system message, first.
 - A system message later in the conversation becomes a user message in ``system_note``.
-- Adjacent assistant messages merge: text, then tool calls, as one assistant message.
+- Adjacent assistant messages merge: text, then tool calls, as one assistant message. Text that
+  follows a call is not merged here; it is an interlude (below).
+- Tool results follow their call (M5). Each assistant message with tool calls is followed at
+  once by the results of its calls, in call order, so the template renders
+  ``<tool_call>`` then ``<tool_response>`` with nothing between. What the conversation holds
+  between a call and its result is the call's interlude:
+
+  - an assistant text (AICC's wait line) before any user message of the interlude is merged into
+    the call's message, before the call (``interlude: merge``, the default), or placed after
+    the results (``interlude: after_output``);
+  - more calls before any user message join the call's message (parallel calls);
+  - everything else (user notes, caller speech, later assistant text) keeps its order and comes
+    after the results.
+
+  A call still unanswered when the request is built gets a placeholder result
+  (``unanswered: pending``, the default), is replayed without a result (``keep``), or is left
+  out (``drop``). A result whose call is not in the conversation is dropped.
 - A conversation with no user message (a greeting asked for with ``response.create``) gets a
-  synthetic user cue at its end.
+  synthetic user cue, right after the system message: it opens the conversation, before anything
+  the assistant already said.
 
 Responses: one ``chat.completion.chunk`` per SSE event. ``delta.content`` is text,
 ``delta.reasoning`` is dropped (thinking is off), and ``delta.tool_calls`` holds complete calls:
@@ -18,9 +35,10 @@ is a bad response, never a partial call. The usage chunk (``choices: []``) prece
 from __future__ import annotations
 
 import json
+from collections import deque
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
-from typing import cast
+from dataclasses import dataclass, replace
+from typing import Literal, cast
 
 from mlx_realtime.providers.base import (
     FinishReason,
@@ -35,6 +53,8 @@ from mlx_realtime.providers.base import (
 )
 
 type Json = dict[str, object]
+type Interlude = Literal["merge", "after_output"]
+type Unanswered = Literal["pending", "keep", "drop"]
 
 _FINISH_REASONS: dict[str, FinishReason] = {
     "stop": "stop",
@@ -51,6 +71,17 @@ class Sampling:
     top_p: float
 
 
+@dataclass(frozen=True, slots=True)
+class Shaping:
+    """How the conversation is adapted to the Qwen template (the module docstring)."""
+
+    cue: str
+    system_note: str
+    interlude: Interlude
+    unanswered: Unanswered
+    pending_output: str  # the placeholder result of an unanswered call
+
+
 def request_body(
     messages: Sequence[Message],
     tools: Sequence[ToolDef],
@@ -59,12 +90,11 @@ def request_body(
     max_output_tokens: int | None,
     sampling: Sampling,
     model: str | None,
-    cue: str,
-    system_note: str,
+    shaping: Shaping,
 ) -> Json:
     limit = sampling.max_completion_tokens
     body: Json = {
-        "messages": chat_messages(messages, cue=cue, system_note=system_note),
+        "messages": chat_messages(messages, shaping),
         "stream": True,
         # Without include_usage the server fails mid-stream (ARCHITECTURE §5.3).
         "stream_options": {"include_usage": True},
@@ -84,50 +114,131 @@ def request_body(
     return body
 
 
-def chat_messages(messages: Sequence[Message], *, cue: str, system_note: str) -> list[Json]:
+def chat_messages(messages: Sequence[Message], shaping: Shaping) -> list[Json]:
     leading: list[str] = []
     rest = list(messages)
     while rest and rest[0].role == "system":
         leading.append(rest.pop(0).content)
+    notes = [
+        Message("user", shaping.system_note.format(text=message.content))
+        if message.role == "system"
+        else message
+        for message in rest
+    ]
+    shaped = _merge_adjacent(_place_results(_merge_adjacent(notes), shaping))
     adapted: list[Json] = []
     if leading:
         adapted.append({"role": "system", "content": "\n\n".join(leading)})
-    for message in rest:
-        match message.role:
-            case "system":
-                adapted.append(
-                    {"role": "user", "content": system_note.format(text=message.content)}
-                )
-            case "assistant":
-                _add_assistant(adapted, message)
-            case "tool":
-                adapted.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": message.tool_call_id or "",
-                        "content": message.content,
-                    }
-                )
-            case "user":
-                adapted.append({"role": "user", "content": message.content})
-    if not any(entry["role"] == "user" for entry in adapted):
-        adapted.append({"role": "user", "content": cue})
+    if not any(message.role == "user" for message in shaped):
+        # The template needs a user message. The cue opens the conversation, before anything
+        # the assistant already said (a greeting, a call it made).
+        adapted.append({"role": "user", "content": shaping.cue})
+    adapted += [_entry(message) for message in shaped]
     return adapted
 
 
-def _add_assistant(adapted: list[Json], message: Message) -> None:
-    calls = [_call_spec(call) for call in message.tool_calls]
-    previous = adapted[-1] if adapted else None
-    if previous is not None and previous["role"] == "assistant":
-        texts = [text for text in (str(previous["content"]), message.content) if text]
-        previous["content"] = "\n".join(texts)
-        if calls:
-            previous["tool_calls"] = [*cast(list[Json], previous.get("tool_calls", [])), *calls]
-        return
-    entry: Json = {"role": "assistant", "content": message.content}
-    if calls:
-        entry["tool_calls"] = calls
-    adapted.append(entry)
+def _merge_adjacent(messages: Sequence[Message]) -> list[Message]:
+    """Adjacent assistant messages become one, text before calls; text after a call stays apart
+    (it is the call's interlude, which ``_place_results`` shapes)."""
+    merged: list[Message] = []
+    for message in messages:
+        previous = merged[-1] if merged else None
+        if (
+            message.role == "assistant"
+            and previous is not None
+            and previous.role == "assistant"
+            and (not previous.tool_calls or not message.content)
+        ):
+            merged[-1] = _join(previous, message)
+        else:
+            merged.append(message)
+    return merged
+
+
+def _join(first: Message, second: Message, *, calls: bool = True) -> Message:
+    text = "\n".join(part for part in (first.content, second.content) if part)
+    tool_calls = first.tool_calls + second.tool_calls if calls else first.tool_calls
+    return replace(first, content=text, tool_calls=tool_calls)
+
+
+def _place_results(messages: Sequence[Message], shaping: Shaping) -> list[Message]:
+    """Each call message followed at once by its results; its interlude after them."""
+    placed: list[Message] = []
+    answered: set[str] = set()  # calls whose block is placed
+    queue = deque(messages)
+    while queue:
+        message = queue.popleft()
+        if message.role == "tool":
+            if message.tool_call_id in answered:
+                placed.append(message)  # a second result for a placed call stays where it is
+            continue  # a result whose call is not in the conversation: dropped
+        if message.role != "assistant" or not message.tool_calls:
+            placed.append(message)
+            continue
+        call, results, interlude = _block(message, queue, shaping)
+        order = [entry.call_id for entry in call.tool_calls]
+        missing = [call_id for call_id in order if call_id not in results]
+        match shaping.unanswered:
+            case "pending":
+                for call_id in missing:
+                    results[call_id] = Message("tool", shaping.pending_output, tool_call_id=call_id)
+            case "drop":
+                kept = tuple(entry for entry in call.tool_calls if entry.call_id in results)
+                call = replace(call, tool_calls=kept)
+            case "keep":
+                pass
+        if call.content or call.tool_calls:
+            placed.append(call)
+        placed += [results[call_id] for call_id in order if call_id in results]
+        answered.update(order)
+        queue.extendleft(reversed(interlude))  # shaped in turn: it may hold calls of its own
+    return placed
+
+
+def _block(
+    call: Message, queue: deque[Message], shaping: Shaping
+) -> tuple[Message, dict[str, Message], list[Message]]:
+    """Take ``call``'s results and interlude from the front of ``queue``, up to its last
+    result (or the end, while a call is unanswered)."""
+    pending = {entry.call_id for entry in call.tool_calls}
+    results: dict[str, Message] = {}
+    interlude: list[Message] = []
+    heard_user = False
+    while queue and pending:
+        message = queue.popleft()
+        if message.role == "tool" and message.tool_call_id in pending:
+            results[message.tool_call_id] = message
+            pending.discard(message.tool_call_id)
+        elif message.role == "assistant" and not heard_user and message.tool_calls:
+            pending.update(entry.call_id for entry in message.tool_calls)
+            if shaping.interlude == "merge" or not message.content:
+                call = _join(call, message)
+            else:
+                call = replace(call, tool_calls=call.tool_calls + message.tool_calls)
+                interlude.append(replace(message, tool_calls=()))
+        elif message.role == "assistant" and not heard_user and shaping.interlude == "merge":
+            call = _join(call, message)
+        else:
+            heard_user = heard_user or message.role == "user"
+            interlude.append(message)
+    return call, results, interlude
+
+
+def _entry(message: Message) -> Json:
+    match message.role:
+        case "assistant":
+            entry: Json = {"role": "assistant", "content": message.content}
+            if message.tool_calls:
+                entry["tool_calls"] = [_call_spec(call) for call in message.tool_calls]
+            return entry
+        case "tool":
+            return {
+                "role": "tool",
+                "tool_call_id": message.tool_call_id or "",
+                "content": message.content,
+            }
+        case _:
+            return {"role": message.role, "content": message.content}
 
 
 def _call_spec(call: ToolCall) -> Json:

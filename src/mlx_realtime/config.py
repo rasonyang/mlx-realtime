@@ -55,6 +55,19 @@ class LimitsConfig(_Section):
     max_response_audio_ms: int = Field(default=120_000, gt=0)
 
 
+class SilenceTrimConfig(_Section):
+    """Edge silence of each synthesized segment (M0 S3: Qwen3-TTS adds ~0.45 s before and ~0.5 s
+    after every output). An energy gate on ``frame_ms`` frames (voiced from ``threshold_dbfs``
+    RMS) keeps at most ``max_lead_ms`` before the first voiced frame and ``max_tail_ms`` after
+    the last; inner pauses are kept whole. The first voiced frame goes out at once."""
+
+    enabled: bool = True
+    threshold_dbfs: float = Field(default=-50.0, lt=0)
+    frame_ms: int = Field(default=20, gt=0, le=100)
+    max_lead_ms: int = Field(default=60, ge=0)
+    max_tail_ms: int = Field(default=100, ge=0)
+
+
 class OutputConfig(_Section):
     """Output audio: deltas of at most ``max_delta_ms``, sent as soon as they are synthesized but
     never more than ``max_lead_ms`` ahead of real time, counted from a response's first delta
@@ -62,6 +75,7 @@ class OutputConfig(_Section):
 
     max_delta_ms: int = Field(default=100, gt=0, le=1000)
     max_lead_ms: int = Field(default=10_000, gt=0)
+    trim_silence: SilenceTrimConfig = SilenceTrimConfig()
 
     @model_validator(mode="after")
     def _lead_holds_a_delta(self) -> Self:
@@ -99,6 +113,9 @@ class VoiceConfig(_Section):
     """How the TTS models speak one session voice name (``audio.output.voice``, D19)."""
 
     speaker: str = Field(min_length=1)  # the primary model's speaker
+    # The primary model's speaker for segments of one language, instead of `speaker` (S3:
+    # vivian speaks zh and mixed segments, aiden en segments).
+    speakers: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
     # "segment": each segment's language tag through the primary model's lang_codes. Any
     # other value is sent as the lang_code itself ("auto", "chinese", "english", ...).
     lang: str = Field(default="segment", min_length=1)
@@ -109,16 +126,19 @@ class VoiceConfig(_Section):
 def _builtin_voices() -> dict[str, VoiceConfig]:
     """Qwen3-TTS-12Hz-0.6B-CustomVoice's Mandarin and English speakers, each with Kokoro voices
     of the same gender. ``dylan`` and ``eric`` are left out: with chinese or auto they turn
-    into Beijing and Sichuan dialect."""
+    into Beijing and Sichuan dialect. ``ryan`` is left out: M0 S3 found the runaway defect
+    (mlx-audio#1002) follows it on every model. The default voice, vivian, hands English
+    segments to aiden (S3: vivian for zh and mixed, aiden for en)."""
 
-    def voice(speaker: str, zh: str, en: str) -> VoiceConfig:
-        return VoiceConfig(speaker=speaker, fallback={"zh": zh, "en": en})
+    def voice(
+        speaker: str, zh: str, en: str, speakers: dict[SegmentLang, str] | None = None
+    ) -> VoiceConfig:
+        return VoiceConfig(speaker=speaker, speakers=speakers or {}, fallback={"zh": zh, "en": en})
 
     return {
-        "vivian": voice("vivian", "zf_xiaobei", "af_heart"),
+        "vivian": voice("vivian", "zf_xiaobei", "af_heart", {"en": "aiden"}),
         "serena": voice("serena", "zf_xiaoxiao", "af_bella"),
         "uncle_fu": voice("uncle_fu", "zm_yunjian", "am_adam"),
-        "ryan": voice("ryan", "zm_yunxi", "am_michael"),
         "aiden": voice("aiden", "zm_yunyang", "am_puck"),
     }
 
@@ -248,16 +268,26 @@ class SegmenterConfig(_Section):
 
 class NormalizerConfig(_Section):
     """TTS input normalization by category (ARCHITECTURE §7); transcripts keep the original
-    text. Phone numbers and IDs are on, the rest off, until the S9 probe decides (G5)."""
+    text. The G5 scope (M0 S9) is the default: phone numbers (with 尾号 and extensions), IDs,
+    e-mail addresses, cardinals of ``min_cardinal_digits`` or more digits, and in English text
+    numeric dates and amounts from ``en_amount_min``. Money, decimals, percentages, ordinals,
+    dates and times, units, URLs and brand names stay as written. The keys are the fields of
+    ``NormalizerOptions``."""
 
     enabled: bool = True
-    numbers: bool = False  # cardinal, decimal, percent; read in Chinese or English by context
+    numbers: bool = False  # every free-standing number: cardinal, decimal, percent, ordinal
+    cardinals: bool = True  # free-standing plain cardinals of min_cardinal_digits or more
+    min_cardinal_digits: int = Field(default=5, ge=1)
     money: bool = False
     dates: bool = False  # dates and times
-    phones: bool = True  # mobile, landline, 400/800: digit by digit, in groups
+    phones: bool = True  # every form, digit by digit, with 尾号 and extensions
     ids: bool = True  # order and tracking IDs: character by character
+    emails: bool = True  # "@" and "." spoken
     units: bool = False
     spacing: bool = False  # zh/en spacing
+    en_dates: bool = True  # numeric dates read in English text, even with dates off
+    en_amounts: bool = True  # amounts of en_amount_min or more in English text, money off
+    en_amount_min: int = Field(default=1000, ge=0)
     phone_one_as_yao: bool = True  # read 1 as 幺 in Chinese phone numbers
 
 
@@ -298,6 +328,10 @@ class HttpTimeouts(_Section):
     warmup_ms: int = Field(default=600_000, gt=0)  # a backend may still be loading its model
 
 
+PENDING_TOOL_OUTPUT = '{"status": "pending", "note": "The result has not arrived yet."}'
+"""The placeholder result of a call that is still unanswered when an LLM request is built."""
+
+
 class MlxLmChatConfig(_Section):
     type: Literal["mlx_lm_chat"]
     base_url: str = "http://127.0.0.1:8101"
@@ -308,6 +342,14 @@ class MlxLmChatConfig(_Section):
     top_p: float = Field(default=0.8, gt=0.0, le=1.0)
     empty_conversation_cue: str = "(The conversation has just started.)"
     system_note: str = "(System note: {text})"  # how a later system item reaches the model
+    # M5 history shaping for the Qwen template (providers/chat_wire.py). A tool result always
+    # follows its call. tool_interlude: an assistant text between a call and its result (AICC's
+    # wait line) is merged into the call's message (merge) or placed after the result
+    # (after_output). unanswered_calls: a call with no result yet gets pending_tool_output as
+    # a placeholder result (pending), is replayed without one (keep), or is left out (drop).
+    tool_interlude: Literal["merge", "after_output"] = "merge"
+    unanswered_calls: Literal["pending", "keep", "drop"] = "pending"
+    pending_tool_output: str = Field(default=PENDING_TOOL_OUTPUT, min_length=1)
     max_in_flight: int = Field(default=8, ge=1)
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts()
@@ -335,25 +377,41 @@ type TtsFamily = Literal["qwen3_tts", "kokoro"]
 _TTS_TIMEOUTS = HttpTimeouts(first_item_ms=1500, idle_ms=1000, total_ms=60_000, warmup_ms=300_000)
 
 
+class TokenCapConfig(_Section):
+    """The codec frames (12.5 per second) a segment may take: ``base`` plus ``per_cjk`` per CJK
+    character and ``per_other`` per other letter or digit, never more than the model's
+    ``max_tokens`` (or the server's 1200). Normal speech needs about 3 frames per CJK
+    character and 1 per Latin letter; the defaults leave twice that, plus 2 s for the edge
+    silence."""
+
+    base: int = Field(default=25, ge=1)
+    per_cjk: float = Field(default=6.0, gt=0)
+    per_other: float = Field(default=2.0, gt=0)
+
+
 class TtsModelConfig(_Section):
     """One model of the TTS backend, and the fields its requests carry (ARCHITECTURE §5.3).
 
     ``streaming_interval``: seconds of audio per streamed chunk (Qwen3-TTS streams
-    ``max(1, int(interval × 12.5))`` codec frames of 80 ms; at 0.32 the first chunk arrived
-    about 110 ms after the request in M0). The sampling fields are sent only when set; unset,
-    the model's own generation_config.json applies.
+    ``max(1, int(interval × 12.5))`` codec frames of 80 ms; M0 S3 chose 0.16, whose first chunk
+    came about 76 ms after the request, uncapped). The sampling fields are sent only when set;
+    unset, the model's own generation_config.json applies. ``token_cap`` bounds ``max_tokens``
+    by the text (Qwen3-TTS only).
     """
 
     model: str = Field(min_length=1)  # the name sent in requests
     family: TtsFamily = "qwen3_tts"
     lang_codes: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
-    streaming_interval: float = Field(default=0.32, gt=0)
+    streaming_interval: float = Field(default=0.16, gt=0)  # S3: 2 codec frames per chunk
     voices_dir: str | None = None  # Kokoro voice packs; None: voices/ of the pinned snapshot
     temperature: float | None = Field(default=None, ge=0)
     top_p: float | None = Field(default=None, gt=0, le=1)
     top_k: int | None = Field(default=None, ge=1)
     repetition_penalty: float | None = Field(default=None, gt=0)
     max_tokens: int | None = Field(default=None, ge=1)  # None: the server's 1200 codec frames
+    # A max_tokens per request in proportion to its text (S3: a runaway otherwise runs to the
+    # 1200-frame limit, 96 s); None sends max_tokens alone. Qwen3-TTS only.
+    token_cap: TokenCapConfig | None = TokenCapConfig()
     timeouts: HttpTimeouts = _TTS_TIMEOUTS
 
 
@@ -365,6 +423,10 @@ class TtsFallbackConfig(TtsModelConfig):
     enabled: bool = True
     breaker_failures: int = Field(default=3, ge=1)
     cooldown_s: float = Field(default=30.0, gt=0)
+    # D13 (owner review pending): Kokoro garbles English inside Chinese (S3: 15.9% errors on
+    # mixed text), so by default it never speaks a segment with Latin letters: a primary
+    # failure on one fails that segment instead.
+    latin_segments: bool = False
 
 
 class MlxAudioSpeechConfig(_Section):

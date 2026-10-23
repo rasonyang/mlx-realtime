@@ -14,10 +14,10 @@ from pathlib import Path
 import httpx2
 import pytest
 
-from mlx_realtime.config import MlxAudioSpeechConfig, VoicesConfig
+from mlx_realtime.config import MlxAudioSpeechConfig, TokenCapConfig, VoicesConfig
 from mlx_realtime.providers.base import PCMChunk, ProviderError, ProviderTimeout, SpeechTiming
 from mlx_realtime.providers.fallback import FallbackTTS
-from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS, SpeechServer
+from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS, SpeechServer, token_cap
 from mlx_realtime.providers.registry import build_speech
 from mlx_realtime.providers.voices import VoiceBook
 from tests.fakes.mlx_audio import (
@@ -62,7 +62,8 @@ def packs(tmp_path: Path) -> Path:
 
 def speech_config(base_url: str, **overrides: object) -> MlxAudioSpeechConfig:
     raw: dict[str, object] = {"type": "mlx_audio_speech", "base_url": base_url}
-    raw["primary"] = {"model": QWEN, "timeouts": FAST}
+    # 0.32 s chunks (the stream tests count CHUNK); the defaults are tested on their own
+    raw["primary"] = {"model": QWEN, "timeouts": FAST, "streaming_interval": 0.32}
     raw["fallback"] = {"model": KOKORO, "family": "kokoro", "timeouts": FAST}
     raw.update(overrides)
     return MlxAudioSpeechConfig.model_validate(raw)
@@ -107,12 +108,13 @@ async def test_qwen3_requests_name_the_speaker_and_the_segment_language(
     fake: tuple[FakeMlxAudio, str],
 ) -> None:
     server, url = fake
-    tts = primary(url)
+    tts = primary(url, primary={"model": QWEN, "timeouts": FAST})  # the defaults
     await collect(tts.stream(TEXT, "serena", "zh"))
-    await collect(tts.stream("Hello there.", "ryan", "en"))
+    await collect(tts.stream("Hello there.", "aiden", "en"))
     await collect(tts.stream("Hello there.", "flow-voice", "en"))  # not configured: the default
+    await collect(tts.stream(TEXT, "flow-voice", "zh"))
     await tts.aclose()
-    chinese, english, unknown = (speech.body for speech in server.speeches)
+    chinese, english, unknown_en, unknown_zh = (speech.body for speech in server.speeches)
     assert chinese == {
         "model": QWEN,
         "input": TEXT,
@@ -120,10 +122,22 @@ async def test_qwen3_requests_name_the_speaker_and_the_segment_language(
         "lang_code": "chinese",
         "response_format": "pcm",
         "stream": True,
-        "streaming_interval": 0.32,
+        "streaming_interval": 0.16,  # S3
+        "max_tokens": token_cap(TEXT, TokenCapConfig(), None),  # S3: in proportion to the text
     }  # no sampling fields: the model's generation_config.json decides
-    assert (english["voice"], english["lang_code"]) == ("ryan", "english")
-    assert (unknown["voice"], unknown["lang_code"]) == ("vivian", "english")
+    assert (english["voice"], english["lang_code"]) == ("aiden", "english")
+    # the default voice, vivian, hands English segments to aiden (S3)
+    assert (unknown_en["voice"], unknown_en["lang_code"]) == ("aiden", "english")
+    assert (unknown_zh["voice"], unknown_zh["lang_code"]) == ("vivian", "chinese")
+
+
+def test_the_token_cap_follows_the_text() -> None:
+    cap = TokenCapConfig(base=25, per_cjk=6, per_other=2)
+    assert token_cap("你好。", cap, None) == 25 + 12
+    assert token_cap("Hi there!", cap, None) == 25 + 14
+    assert token_cap("订单 A12", cap, None) == 25 + 12 + 6
+    assert token_cap("你" * 500, cap, None) == 1200  # never past the server's own limit
+    assert token_cap("你" * 500, cap, 900) == 900  # nor the configured max_tokens
 
 
 async def test_sampling_fields_and_a_fixed_lang_code_when_configured(
@@ -137,7 +151,13 @@ async def test_sampling_fields_and_a_fixed_lang_code_when_configured(
     tts = primary(
         url,
         voices=voices,
-        primary={"model": QWEN, "max_tokens": 600, "streaming_interval": 0.16, **sampling},
+        primary={
+            "model": QWEN,
+            "max_tokens": 600,
+            "token_cap": None,
+            "streaming_interval": 0.16,
+            **sampling,
+        },
     )
     await collect(tts.stream(TEXT, "auto", "zh"))
     await tts.aclose()
@@ -154,12 +174,13 @@ async def test_kokoro_requests_send_the_voice_pack_path_and_its_lang_code(
     tts = kokoro(url, packs)
     timing = SpeechTiming()
     chunks = await collect(tts.stream(TEXT, "vivian", "zh", timing=timing))
-    await collect(tts.stream("Hello.", "ryan", "en"))
+    await collect(tts.stream("Hello.", "aiden", "en"))
     await tts.aclose()
     chinese, english = (speech.body for speech in server.speeches)
     assert chinese["voice"] == str(packs / "voices" / "zf_xiaobei.safetensors")
     assert chinese["lang_code"] == "z"
-    assert english["voice"] == str(packs / "voices" / "am_michael.safetensors")
+    assert "max_tokens" not in chinese  # the token cap is Qwen3-TTS's
+    assert english["voice"] == str(packs / "voices" / "am_puck.safetensors")
     assert english["lang_code"] == "a"
     assert sum(len(chunk.pcm) for chunk in chunks) == AUDIO  # Kokoro: one chunk
     assert (timing.model, timing.fallback) == (KOKORO, True)
@@ -442,14 +463,17 @@ async def test_warmup_speaks_every_voice_in_both_languages_on_every_model(
         for speech in server.speeches
     ]
     qwen = {(voice, text) for model, voice, text in requests if model == QWEN}
-    speakers = {"vivian", "serena", "uncle_fu", "ryan", "aiden"}
     zh, en = "您好，请问有什么可以帮您？", "Hello, how can I help you?"
-    assert qwen == {(speaker, text) for speaker in speakers for text in (zh, en)}
+    # vivian's English is aiden's (S3), so each speaker and language is warmed once
+    assert qwen == {
+        ("vivian", zh),
+        *((speaker, text) for speaker in ("serena", "uncle_fu", "aiden") for text in (zh, en)),
+    }
     kokoro_voices = {Path(voice).stem for model, voice, _ in requests if model == KOKORO}
     assert kokoro_voices == {
         name for voice in VoicesConfig().map.values() for name in voice.fallback.values()
     }
-    assert len(requests) == len(set(requests)) == 20
+    assert len(requests) == len(set(requests)) == 7 + 8
     state = await tts.ready()
     assert state.ready, state.detail
     await tts.aclose()

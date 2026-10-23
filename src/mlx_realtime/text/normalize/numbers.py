@@ -11,6 +11,8 @@ Rules:
   after 第.
 - en: 1234 → one thousand two hundred thirty-four; 3.14 → three point one four; 50% → fifty
   percent; -5 → minus five; 3-5 → three to five; 21st → twenty-first (the suffix must fit).
+- A plain cardinal (one integer, no decimals, no percent) carries its digit count
+  (``Match.digits``), so long cardinals can be read while the rest stays as written (G5).
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ from mlx_realtime.text.normalize.readers import (
     en_number,
     en_ordinal,
     readable,
+    split_number,
     zh_cardinal,
     zh_number,
 )
@@ -79,7 +82,9 @@ def _number(text: str, found: re.Match[str]) -> Match | None:
     negative = len(numbers) == 1 and is_minus(text, start - 1)
     liang = not (negative or percent or _after_di(text, start)) and bool(_MEASURE.match(text, end))
     number = _Number(numbers, negative, percent, liang)
-    return Match(start - 1 if negative else start, end, partial(_read, number))
+    integer, fraction = split_number(numbers[0])
+    digits = len(integer) if len(numbers) == 1 and not (percent or fraction) else 0
+    return Match(start - 1 if negative else start, end, partial(_read, number), digits=digits)
 
 
 def _after_di(text: str, start: int) -> bool:

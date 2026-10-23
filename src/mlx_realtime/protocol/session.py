@@ -128,9 +128,15 @@ def decode_modalities(value: object, param: str) -> Modality:
 
 
 def decode_tool_choice(value: object, param: str) -> ToolChoice:
-    """``required`` and forced functions stay unsupported until M5 (ARCHITECTURE §5.2)."""
+    """``auto`` offers the session's tools, ``none`` offers none. ``required`` and forced
+    functions are rejected (M5): mlx_lm.server ignores ``tool_choice``, so nothing could make
+    the model call a tool, and accepting them would promise what cannot be enforced."""
     if value == "required" or isinstance(value, dict):
-        message = f"'{param}' is not supported: only 'auto' and 'none' are accepted."
+        what = "'required'" if value == "required" else "a forced function"
+        message = (
+            f"Invalid value for '{param}': {what} is not supported, because this server cannot "
+            "force the model to call a tool. Supported values are: 'auto', 'none'."
+        )
         raise ProtocolError("invalid_value", message, param)
     return expect_choice(value, param, _TOOL_CHOICES)
 

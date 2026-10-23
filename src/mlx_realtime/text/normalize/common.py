@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Literal
 
 Lang = Literal["zh", "en"]
@@ -42,11 +43,18 @@ _KEYWORD_WINDOW = 40
 
 @dataclass(frozen=True, slots=True)
 class Match:
-    """A recognized span ``text[start:end]`` and how to read it in a language."""
+    """A recognized span ``text[start:end]`` and how to read it in a language.
+
+    The optional facts let a category that is off still read some of its spans (G5): the
+    amount of money, whether a date is numeric, the digits of a plain cardinal.
+    """
 
     start: int
     end: int
     read: Callable[[Lang], str]
+    amount: Decimal | None = None  # money: the largest value of the amount, scale applied
+    numeric_date: bool = False  # dates: written all in digits (2024-10-23, 03/15/2024)
+    digits: int = 0  # numbers: the integer digits of a plain cardinal (0 for anything else)
 
 
 def is_minus(text: str, index: int) -> bool:

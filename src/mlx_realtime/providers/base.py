@@ -20,7 +20,8 @@ from typing import Literal, Protocol
 
 Lang = Literal["zh", "en"]
 ToolChoice = Literal["auto", "none"]
-"""``required`` and forced functions stay unsupported until M5 decides (ARCHITECTURE §5.2)."""
+"""``none`` sends no tools. ``required`` and forced functions are rejected by the protocol layer:
+mlx_lm.server ignores ``tool_choice``, so they cannot be enforced (M5)."""
 
 FinishReason = Literal["stop", "length", "tool_calls", "content_filter"]
 ProviderErrorKind = Literal["unavailable", "timeout", "overloaded", "bad_response", "internal"]

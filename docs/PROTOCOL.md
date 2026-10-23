@@ -1,13 +1,15 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M4 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> **Status: M5 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
 > (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
 > the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
 > of real time (D6), with configured voices (D19) and verbatim lines (D16). M4 made barge-in,
 > cancellation and truncation complete (§11.2, §11.3, §11.13): the D5 truncation fallback, and
 > echo cancellation in the service (D17) with its second line of defence, which gates the speech
-> events while the client is modelled as playing our audio.
+> events while the client is modelled as playing our audio. M5 made tool calling real: calls from
+> the LLM server's parser, `tool_choice` enforced in the gateway, and the round trip's history
+> shaped for the Qwen template (§11.5, §11.14).
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -103,7 +105,7 @@ the configured session defaults, so its absent fields take their configured valu
 | `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19): a name in `voices.map` is that voice, any other name is spoken by `voices.default` and logged as a warning (§11.10). Locked once the session has produced audio, as in GA: a different voice then gets `cannot_update_voice`; the same voice, or no voice field, passes. `VoiceID` objects: Unsupported | the effective voice (default `vivian`) | `session.audio.output.voice` (object; or `cannot_update_voice`) |
 | `audio.output.speed` | **Partial** | `1.0` only (D14: the TTS has no speed control) | `1.0` | `session.audio.output.speed` |
 | `tools` (`RealtimeToolsConfig`) | **Supported** | `RealtimeFunctionTool`: `type: "function"` and `name` required, `description`, `parameters` (an object, passed through). Duplicate names rejected. `Mcp`: Unsupported | effective list; `[]` when unset | `session.tools[i].type` / `.name` / `.parameters` / `.<key>` |
-| `tool_choice` (`RealtimeToolChoiceConfig`) | **Partial** | `"auto"`, `"none"`. `"required"`, `ToolChoiceFunction`, `ToolChoiceMcp`: **Unsupported (M5)** | effective; `"auto"` by default | `session.tool_choice` |
+| `tool_choice` (`RealtimeToolChoiceConfig`) | **Partial** | `"auto"` (the session's tools are offered), `"none"` (none are: the LLM request carries no tools, and a call the model makes anyway is dropped). `"required"`, `ToolChoiceFunction` and `ToolChoiceMcp`: **Unsupported**, `invalid_value`: `mlx_lm.server` ignores `tool_choice`, so nothing can make the model call a tool, and accepting them would promise what cannot be enforced (§11.5) | effective; `"auto"` by default | `session.tool_choice` |
 | `max_output_tokens` | **Supported** | `"inf"` or 1–4096 | effective | `session.max_output_tokens` |
 | `truncation` (`RealtimeTruncation`) | **Partial** | `"auto"` only | `"auto"` | `session.truncation` |
 | `tracing` (`RealtimeTracingConfig`) | **Partial** | `null` only | `null` | `session.tracing` |
@@ -127,7 +129,7 @@ this response only. `response: null` or absent means the session's settings.
 | `instructions` | **Supported** | replaces the session instructions for this response (GA). Server extension, invisible on the wire: instructions that start with a configured direction are a verbatim line, spoken as written without the LLM (D16, §11.11) | `response.instructions` |
 | `output_modalities` | **Supported** | `["audio"]` or `["text"]` | `response.output_modalities` |
 | `max_output_tokens` | **Supported** | `"inf"` or 1–4096; reaching it ends the response `incomplete` (`max_output_tokens`) | `response.max_output_tokens` |
-| `tool_choice` | **Partial** | `"auto"`, `"none"`; the rest **Unsupported (M5)** | `response.tool_choice` |
+| `tool_choice` | **Partial** | `"auto"`, `"none"`, for this response only; `"required"` and forced functions **Unsupported** (`invalid_value`, as for the session) | `response.tool_choice` |
 | `audio.output.voice` (`OutputVoice`) | **Partial** | this response's voice, resolved as the session's (D19); once the session has produced audio only the session voice is accepted, any other draws `cannot_update_voice` and no response. `OutputVoiceID`: Unsupported | `response.audio.output.voice` |
 | `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | `response.audio.output.format.type` |
 | `metadata` | **Supported** | at most 16 pairs; keys ≤ 64 characters, values strings ≤ 512; echoed on the response | `response.metadata` / `response.metadata.<key>` |
@@ -197,7 +199,7 @@ session).
 | `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 `audio/pcm` 24 kHz, whole samples, at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (Kokoro when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
 | `response.output_audio_transcript.delta` / `.done` | `ResponseAudioTranscriptDeltaEvent` / `ResponseAudioTranscriptDoneEvent` | **Supported** | one delta per synthesized segment, sent just before the segment's first audio; `.done` carries the text whose deltas reached the client |
 | `response.output_text.delta` / `.done` | `ResponseTextDeltaEvent` / `ResponseTextDoneEvent` | **Supported** | text modality (D12): one delta per LLM delta; TTS is never opened |
-| `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Partial** | complete calls only, the arguments in one delta (§11.5). Calls the LLM server parsed are delivered since M2 (the provider passes the session tools when `tool_choice` is `auto`); real tool calling, with history replay checked, is M5 |
+| `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Supported** | complete calls only, the arguments in one delta (§11.5); several calls per response, each its own item |
 | `response.done` | `ResponseDoneEvent` | **Supported** | always, last for its response (§7) |
 | `rate_limits.updated` | `RateLimitsUpdatedEvent` | **Never** | there are no rate limits to report |
 | `input_audio_buffer.timeout_triggered` | `InputAudioBufferTimeoutTriggered` | **Never** | `idle_timeout_ms` accepts only `null` (D4) |
@@ -395,9 +397,30 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
    the client stopped playing the item there (§11.13).
 4. **Deleting an item a response is producing** is accepted: the item leaves the conversation, the
    response's own events continue, and its closing `conversation.item.done` is skipped.
-5. **Function calls (§6.7).** A call is delivered when complete: arguments in one delta, then `.done`.
-   A response cancelled before a call is complete delivers no call; a delivered call is never retracted.
-   `.done` therefore means "delivered", not "valid JSON" (the gateway never parses arguments).
+5. **Function calls (§6.7, M5).** Calls come from `mlx_lm.server`'s own parser (Qwen3.6:
+   qwen3_coder XML, arguments typed by the tool's JSON schema), one complete call at a time.
+   - Each call is delivered as soon as it is complete, as its own item: `output_item.added` →
+     `conversation.item.added` → `function_call_arguments.delta` (all of it, once) → `.done` →
+     `output_item.done` → `conversation.item.done`. A response may hold several. The wire
+     `call_id` (`call_…`) is minted by the gateway; the server's own id is kept for history.
+   - Text before a call is spoken (or streamed) normally; call markup never reaches the TTS or a
+     transcript (the server streams nothing while the model is inside a call). Whitespace at
+     either end of an answer is dropped, so the newline a model writes before a call opens no
+     empty message. A message started before the call keeps output index 0, and its audio may
+     still be streaming when the call is delivered (the call's events come in between).
+   - A call-only response ends with `response.done{completed}` as soon as the LLM is done:
+     nothing waits on the TTS (AICC's 3 s tool-only deadline).
+   - A response cancelled before a call is complete delivers no call; a delivered call is never
+     retracted (it stays in the cancelled response's `output` and in the conversation, and its
+     `function_call_output` is accepted). `.done` means "delivered", not "valid JSON": the gateway
+     never parses arguments, the server's parser already did.
+   - `tool_choice: "none"` sends no tools to the LLM. A call the model makes anyway (the server
+     parses call markup whether or not tools were sent), or a call to a function the session does
+     not declare, is dropped with a warning in the log, never delivered.
+   - A call the server's parser rejects is dropped by the server itself. When that leaves the
+     response with no call at all (`finish_reason: tool_calls` and nothing parsed), the response
+     fails (`server_error`, `provider_error`); when another call was delivered, the dropped one is
+     invisible.
 6. **`audio_end_ms`** of `speech_stopped` is the acoustic end of speech (ARCHITECTURE §6.2), not GA's
    end of the silence window; the committed audio ends there. With Smart Turn deciding, the commit
    comes some time after it; logs record that delay as the turn's `turn_confirmed` stage.
@@ -430,10 +453,12 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
    - Input may arrive faster than real time, but at most `limits.inbox_max_ms` (2 s) of it may wait
      unread in the session's queue (§9, `input_queue_overflow`).
 10. **Voices (D19).** `voices.map` in `config.yaml` names the voices a session can ask for (default:
-    the Qwen3-TTS speakers `vivian`, `serena`, `uncle_fu`, `ryan`, `aiden`; `vivian` is the
-    default). Each name says which Qwen3-TTS speaker speaks it, how its lang_code is chosen (each
-    segment's zh/en tag, or a fixed code), and which Kokoro voice speaks it per language when the
-    fallback takes a segment. Any other name is accepted, spoken by the default voice, logged as a
+    the Qwen3-TTS speakers `vivian`, `serena`, `uncle_fu`, `aiden`; `vivian` is the default;
+    `ryan` is not offered since M5, because of the runaway defect M0 found). Each name says which
+    Qwen3-TTS speaker speaks it (optionally a different speaker per segment language: by default
+    `vivian`'s English segments are spoken by `aiden`, as M0 S3 chose), how its lang_code is chosen
+    (each segment's zh/en tag, or a fixed code), and which Kokoro voice speaks it per language when
+    the fallback takes a segment. Any other name is accepted, spoken by the default voice, logged as a
     warning, and `session.updated` and the response echo the effective name, never the one asked
     for. Once the session has produced audio its voice is locked (GA); clients that set the voice
     in their first `session.update` only, as AICC does, never meet the lock.
@@ -449,12 +474,21 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
     session instructions as GA specifies. A client that does not send these exact prefixes never
     sees a difference.
 12. **What the TTS hears.** Each segment is normalized for the TTS only (transcripts keep the
-    original text): phone numbers are read digit by digit in groups (1 as 幺 in Chinese) and order or
-    tracking IDs character by character; numbers, money, dates, units and spacing are configurable
-    (`text.normalizer`, off by default until M0's S9 probe decides). A segment is tagged zh (any CJK,
-    mixed text included) or en, which picks each model's lang_code. A segment the primary TTS fails
-    before its first audio is spoken by the fallback (Kokoro); a failure after audio started fails
-    the response (`provider_error` / `backend_*`), so the voice never switches mid-sentence.
+    original text), within the scope M0's S9 probe chose (G5): phone numbers in every form, digit
+    by digit (1 as 幺 in Chinese, 尾号 and extensions included); alphanumeric and dashed IDs
+    character by character; e-mail addresses (with "@" and "." read out); cardinals of 5 or more
+    digits; and in English text numeric dates and amounts of 1000 or more. Money, decimals,
+    percentages, ordinals, other dates and times, units, URLs and brand names stay as written
+    (`text.normalizer`). A segment is tagged zh (any CJK, mixed text included) or en, which picks
+    each model's lang_code. Qwen3-TTS streams 0.16 s chunks, with `max_tokens` capped in
+    proportion to the text, so a runaway stops early. Each segment's edge silence is trimmed as
+    it streams (at most 60 ms before its first voiced frame and 100 ms after its last; inner
+    pauses kept; `output.trim_silence`): the client receives only the trimmed audio, and every
+    count (transcript timing, truncation, D5, the echo reference) is of that audio. A segment the
+    primary TTS fails before its first audio is spoken by the fallback (Kokoro) only when it has
+    no Latin letters (D13: Kokoro garbles English inside Chinese); otherwise, and for any failure
+    after audio started, the response fails (`provider_error` / `backend_*`), so the voice never
+    switches mid-sentence.
 13. **Echo (D17), invisible on the wire.** Neither AICC nor FreeSWITCH cancels echo, so the caller's
     audio carries our own speech back. The gateway handles it, configured in `config.yaml`'s `aec`
     and `barge_in` sections (`config.mock.yaml` turns the canceller off: its sine-tone TTS is no
@@ -484,6 +518,30 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       holds.
     - Each rule can be switched off (`echo_guard_ms: 0`, `min_speech_ms_while_playing: null`,
       `echo_turn_suppression: false`, `aec.enabled: false`).
+14. **Tool calls in later LLM requests (M5), invisible on the wire.** The round trip is GA's:
+    `conversation.item.create {type: function_call_output, call_id, output}` (any text; AICC's JSON
+    with a `hint` reaches the model verbatim), answered by `conversation.item.added` → `.done`, then
+    `response.create`. The conversation is replayed for the Qwen template by these rules
+    (`providers.llm` in `config.yaml`):
+    - A call's result always follows its call: the call is an assistant message with
+      `tool_calls` (text the same response spoke before the call is its content), followed at once
+      by the results of its calls, in call order, however many outputs arrived and in whatever
+      order.
+    - What the conversation holds between a call and its result is moved after the results,
+      keeping its order: user notes (keypress, dead air, "(System note …)"), caller speech, later
+      answers. An assistant text spoken before any such user item (AICC's wait line) is merged
+      into the call's message, before the call (`tool_interlude: merge`, the default), or placed
+      after the results (`after_output`).
+    - A call still unanswered when a request is built (the caller speaks while the wait line plays
+      and the tool runs) gets a placeholder result, `pending_tool_output` (`unanswered_calls:
+      pending`, the default), so the model neither repeats the call nor invents its result;
+      `keep` replays it without a result, `drop` leaves it out.
+    - The output of a deleted call is left out; a deleted call leaves nothing.
+    - A conversation with no user message opens with the synthetic cue, before anything the
+      assistant said.
+
+    How the real model behaves with each setting is checked by M0's LLM spike and the backend
+    tests; the defaults may change with their findings.
 
 ## 12. AICC compatibility
 
@@ -494,9 +552,9 @@ measured): every frame is sent as captured, AICC's fake-server ids are swapped f
 no frame draws an `error`, and every response meets AICC's deadlines. AICC's own client harness
 (`probe`, `measureResponseCreated`, a lines check, and since M4 the barge-in and keypress
 scenarios) runs against the gateway with `tests/aicc/probe.py` (`make aicc-probe`). AICC's
-requirements (ARCHITECTURE §2) at M4:
+requirements (ARCHITECTURE §2) at M5:
 
-| Area | M4 |
+| Area | M5 |
 |---|---|
 | Handshake | `session.updated` answers the first `session.update` at once; every AICC `session.update` (tools, `server_vad` with only `silence_duration_ms: 500`, flow voice) is accepted. |
 | Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted, spoken by the default voice when not configured, and the effective voice echoed (D19); instructions-only updates merge and never meet the voice lock. |
@@ -505,6 +563,7 @@ requirements (ARCHITECTURE §2) at M4:
 | One response at a time | `conversation_already_has_active_response`, not queued. |
 | Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`, in one step; the reply follows `speech_stopped`; audio held back by pacing is discarded. Speech over the tail of a finished answer gets `speech_started`, AICC's flush and truncate, and a reply. The echo of our own speech is cancelled in the service, and gated while AICC is modelled as playing (D17, §11.13); AICC's own 800 ms guard stays as it is. |
 | Client edits | `response.cancel` without an id, truncate with played milliseconds (clamped, D18; also after `response.done`), a truncate to 0 then the delete of an unheard answer, delete of calls, user `input_text` notes, `function_call_output` with a `hint`: all replayed. |
+| Tools | flat function tools offered to the LLM; calls delivered complete, each its own item, with a minted `call_id`; a tool-only response done as soon as the LLM is (its 3 s deadline checked on every replay); the result, with its `hint`, replayed right after its call, the wait line merged into the call's message (§11.14). `tool_choice` stays `auto` (AICC's gateway profile sends none). |
 | Lines | "Say exactly this…" lines are spoken verbatim, without the LLM (D16): on an empty conversation, mid-call, and as the wait line while a call is unanswered; their latency is the TTS's first chunk. |
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
 | Errors | only the codes of §9, and only where required (D18); AICC never meets `cannot_update_voice`. |
@@ -514,9 +573,9 @@ Trace by trace (what each replay checks beyond "no error"):
 
 | Trace | Checked |
 |---|---|
-| `call_gateway` | tools and `server_vad` accepted; a bare opening `response.create` on an empty conversation completes; caller silence creates no turn; truncate of the greeting; instructions-only update; keypress note; a scripted tool call answered by `function_call_output` (the LLM history replays it with the provider's call id); the closing line spoken verbatim, without the LLM |
-| `opening_gateway_with_voice` | the flow voice accepted and the effective voice (`vivian`) echoed and sent to the TTS; the opening line spoken verbatim (no LLM request) |
-| `waitline_gateway` | the wait line, asked for while the first call is unanswered, spoken verbatim: its turn makes no second call, so the trace's delete of one is not sent (AICC deletes only calls a line's turn made); the first call answered; the owed `response.create` completes and sees the line in its history |
+| `call_gateway` | tools and `server_vad` accepted; a bare opening `response.create` on an empty conversation completes; caller silence creates no turn; truncate of the greeting; instructions-only update; keypress note; a scripted tool call answered by `function_call_output` (the LLM history replays it with the provider's call id); the closing line spoken verbatim, without the LLM. Since M5 also through the real LLM provider on a fake `mlx_lm.server` streaming the call as the real one does: the session's tools in every request, text then the call delivered, and the final request's messages (the keypress note, the call with its text, the result with its hint) rendered by the real Qwen3.6 template |
+| `opening_gateway_with_voice` | the flow voice accepted and the effective voice (`vivian`) echoed; the English opening line sent to the TTS as `vivian`'s English speaker, `aiden` (M5, S3); the opening line spoken verbatim (no LLM request) |
+| `waitline_gateway` | the wait line, asked for while the first call is unanswered, spoken verbatim: its turn makes no second call, so the trace's delete of one is not sent (AICC deletes only calls a line's turn made); the first call answered; the owed `response.create` completes and sees the line in its history. Since M5 also through the real LLM provider: a tool-only opening within the deadline, and the owed request's messages are cue, the call with the wait line merged in, and its result, accepted by the real template |
 | `unheard_keypress_gateway` | an unheard answer deleted; a system note; the keypress `response.cancel` of a reply in progress (started by the test: the trace's reply came from caller speech); the truncate clamped to the audio sent; the keypress note and the owed response |
 | `dropped_line_retry_gateway` | the line, the direction re-sent as a user item, and the retry all complete; both lines spoken verbatim |
 | barge-in (M4, from `call_gateway`'s session) | AICC simulated in real time (20 ms appends, its playout and barge-in) with the real Silero VAD and canceller: the caller talks over a long line → `speech_started` → `response.done{cancelled}` in one step → AICC's truncate (its played frames) accepted → a reply after `speech_stopped`; and over the tail of a finished line → `speech_started`, truncate, reply |

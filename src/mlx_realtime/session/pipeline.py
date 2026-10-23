@@ -13,9 +13,17 @@ every terminal event itself.
   has finished generating. It drains each stream as fast as the backend produces it, so a slow
   client or the lead cap never holds a backend that every session shares; the audio waits in
   this response's queue, bounded by ``max_audio_ms``.
+- Each segment's edge silence is trimmed as it streams (``audio/trim.py``, M0 S3): at most
+  60 ms before its first voiced frame, 100 ms after its last. Trimmed audio never enters the
+  queue, so everything downstream counts the audio actually sent.
 - The sender posts that audio paced (D6): at once, but at most ``max_lead_ms`` ahead of real
   time. A segment's transcript goes out just before its first audio delta.
 - Text modality runs the LLM reader (or the line) alone and never opens TTS.
+- Tool calls go to the actor as they complete, whatever the TTS is doing, so a tool-only
+  response is done as soon as the LLM is. A call the response did not offer (``tool_choice``
+  ``none``, a function not in the session's tools) is dropped. Whitespace at either end of the
+  answer is dropped, so the newline a model writes around a call opens no empty message and
+  never ends a transcript.
 """
 
 from __future__ import annotations
@@ -29,7 +37,8 @@ from typing import Literal
 
 from mlx_realtime.audio.codec import OutputEncoder
 from mlx_realtime.audio.pcm import SAMPLE_WIDTH, WIRE_RATE, ms_to_bytes
-from mlx_realtime.config import SegmenterConfig
+from mlx_realtime.audio.trim import SilenceTrimmer
+from mlx_realtime.config import SegmenterConfig, SilenceTrimConfig
 from mlx_realtime.providers.base import (
     LLMDone,
     LLMProvider,
@@ -88,6 +97,7 @@ class PipelineContext:
     post: Callable[[PipelineSignal], None]
     wait_for_room: Callable[[], Awaitable[None]]  # outbound backpressure, before each delta event
     clock: Clock
+    trim_silence: SilenceTrimConfig  # each segment's edge silence (M0 S3)
 
 
 @dataclass(frozen=True, slots=True)
@@ -176,20 +186,42 @@ async def _read_llm(
         tool_choice=request.tool_choice,
         max_output_tokens=request.max_output_tokens,
     )
+    callable_tools = (
+        {tool.name for tool in request.tools} if request.tool_choice == "auto" else set[str]()
+    )
+    # Whitespace at either end of the answer is dropped: before its first visible text, and
+    # held back after its latest until more text follows (else dropped at the end).
+    started = False
+    held = ""
     # aclosing: a cancel that lands outside the provider (here, waiting for room) still
     # closes its stream, and with it the backend request, before this task ends.
     async with aclosing(stream):
         async for delta in stream:
             match delta:
                 case TextDelta(text=text):
+                    text = held + text if started else text.lstrip()
+                    body = text.rstrip()
+                    held = text[len(body) :]
+                    if not body:
+                        continue  # e.g. the newline a model writes around a tool call
+                    started = True
+                    text = body
                     if texts is None:
                         await context.wait_for_room()  # text modality: each delta is an event
                         context.post(LlmText(generation, text))
                     else:
                         context.post(LlmText(generation, text))
                         texts.put_nowait(text)
-                case ToolCall():
+                case ToolCall(name=name) if name in callable_tools:
                     context.post(LlmToolCall(generation, delta))
+                case ToolCall(name=name):
+                    # The server parses call markup even when no tools were sent; a call the
+                    # response may not make (tool_choice none, an undeclared function) is
+                    # dropped, never delivered.
+                    logger.warning(
+                        "tool call dropped: not offered to this response",
+                        extra={"tool": name, "tool_choice": request.tool_choice},
+                    )
                 case LLMDone():
                     context.post(LlmFinished(generation, delta))
     if texts is not None:
@@ -261,24 +293,47 @@ async def _synthesize(
         if _speakable(spoken):
             timing = SpeechTiming()
             encoder = OutputEncoder(context.max_delta_ms)
+            trimmer: SilenceTrimmer | None = None
+            rate = 0
             stream = context.tts.stream(spoken.strip(), request.voice, lang, timing=timing)
             async with aclosing(stream):
                 async for chunk in stream:
                     if first_chunk:
                         first_chunk = False
                         context.post(_first_chunk_mark(request.generation, timing, context))
-                    for pcm in encoder.encode(chunk.pcm, chunk.sample_rate):
-                        audio.put_nowait(_Delta(segment, pcm))
-                        produced += len(pcm)
+                    if not rate:
+                        rate, trimmer = chunk.sample_rate, _trimmer(chunk.sample_rate, context)
+                    pcm = chunk.pcm if trimmer is None else trimmer.push(chunk.pcm)
+                    for delta in encoder.encode(pcm, chunk.sample_rate):
+                        audio.put_nowait(_Delta(segment, delta))
+                        produced += len(delta)
                     if produced > limit_bytes:
                         break
-            for pcm in encoder.flush():
+            # Only audio that passed the trimmer exists from here on: the segment map,
+            # truncation, D5 and the echo reference all count what is sent.
+            tail = b"" if trimmer is None else trimmer.flush()
+            deltas = encoder.encode(tail, rate) if tail else []
+            for pcm in [*deltas, *encoder.flush()]:
                 audio.put_nowait(_Delta(segment, pcm))
                 produced += len(pcm)
         audio.put_nowait(_SegmentEnd(segment))
         if produced > limit_bytes:
             break  # the actor ends the response incomplete once this much audio is sent
     audio.put_nowait(None)
+
+
+def _trimmer(sample_rate: int, context: PipelineContext) -> SilenceTrimmer | None:
+    """The segment's silence trimmer, or None when trimming is off."""
+    config = context.trim_silence
+    if not config.enabled:
+        return None
+    return SilenceTrimmer(
+        sample_rate,
+        threshold_dbfs=config.threshold_dbfs,
+        frame_ms=config.frame_ms,
+        max_lead_ms=config.max_lead_ms,
+        max_tail_ms=config.max_tail_ms,
+    )
 
 
 def _first_chunk_mark(

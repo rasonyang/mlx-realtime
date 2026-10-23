@@ -1,4 +1,4 @@
-# mlx-realtime configuration (ARCHITECTURE §10). M3: Silero VAD and Smart Turn on CPU, the ASR, LLM
+# mlx-realtime configuration (ARCHITECTURE §10). M5: Silero VAD and Smart Turn on CPU, the ASR, LLM
 # and TTS backends (Qwen3-TTS, with Kokoro as the fallback). config.mock.yaml runs every provider as
 # a mock.
 # Any key can be overridden with MLXRT__<SECTION>__<KEY>=<YAML value>, for example
@@ -25,6 +25,10 @@ limits:
 output:
   max_delta_ms: 100        # audio per response.output_audio.delta
   max_lead_ms: 10000       # D6: audio goes out at once, at most this far ahead of real time
+  # M0 S3: Qwen3-TTS adds ~0.45 s of silence before and ~0.5 s after every segment. An energy
+  # gate on 20 ms frames keeps at most max_lead_ms / max_tail_ms of it; the first voiced frame
+  # goes out at once, inner pauses are kept.
+  trim_silence: {enabled: true, threshold_dbfs: -50, frame_ms: 20, max_lead_ms: 60, max_tail_ms: 100}
 
 # D16: a response whose own instructions start with one of these is spoken as written, without
 # the LLM (AICC's greetings, announces, wait and closing lines). [] turns lines off.
@@ -36,15 +40,16 @@ lines:
 # D19: the session voice names (audio.output.voice). Any other name is accepted, spoken by
 # `default`, logged as a warning and echoed as the effective voice. speaker: the Qwen3-TTS
 # speaker; lang: "segment" (each segment's zh/en tag) or a fixed lang_code; fallback: the Kokoro
-# voice for zh and for en segments. Not offered: dylan and eric (dialects with chinese/auto).
-# Pending B2 (S3): the default speaker for zh and en.
+# voice for zh and for en segments; speakers: a speaker per segment language instead of
+# `speaker`. S3: vivian reads zh, en and mixed (0% WER on en); aiden is the en-only default. Not offered: dylan and eric
+# (dialects with chinese/auto), ryan (the runaway defect, mlx-audio#1002).
 voices:
   default: vivian
   map:
-    vivian:   {speaker: vivian,   lang: segment, fallback: {zh: zf_xiaobei,  en: af_heart}}
+    vivian:   {speaker: vivian,   lang: segment,
+               fallback: {zh: zf_xiaobei,  en: af_heart}}
     serena:   {speaker: serena,   lang: segment, fallback: {zh: zf_xiaoxiao, en: af_bella}}
     uncle_fu: {speaker: uncle_fu, lang: segment, fallback: {zh: zm_yunjian,  en: am_adam}}
-    ryan:     {speaker: ryan,     lang: segment, fallback: {zh: zm_yunxi,    en: am_michael}}
     aiden:    {speaker: aiden,    lang: segment, fallback: {zh: zm_yunyang,  en: am_puck}}
 
 # GA-shaped; echoed in session.created and validated exactly like a session.update.
@@ -104,10 +109,15 @@ barge_in:
 
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
-  # TTS input only; transcripts keep the original text. Pending S9 (G5): which categories the TTS
-  # reads wrongly by itself. Until then phone numbers and IDs only.
-  normalizer: {enabled: true, numbers: false, money: false, dates: false, phones: true, ids: true,
-               units: false, spacing: false, phone_one_as_yao: true}
+  # TTS input only; transcripts keep the original text. G5 (M0 S9): only what Qwen3-TTS misreads
+  # by itself: phone numbers (with 尾号 and extensions, 1 read as 幺), IDs, e-mail addresses ("@"
+  # and "." spoken), cardinals of min_cardinal_digits or more digits, and in English text numeric
+  # dates and amounts from en_amount_min. Money, decimals, percentages, ordinals, dates and times,
+  # units, URLs and brand names stay as written (each category can be switched on).
+  normalizer: {enabled: true, phones: true, ids: true, emails: true, cardinals: true,
+               min_cardinal_digits: 5, en_dates: true, en_amounts: true, en_amount_min: 1000,
+               numbers: false, money: false, dates: false, units: false, spacing: false,
+               phone_one_as_yao: true}
 
 providers:
   llm:
@@ -119,6 +129,13 @@ providers:
     top_p: 0.8                   # placeholder until G2
     empty_conversation_cue: "(The conversation has just started.)"
     system_note: "(System note: {text})"
+    # M5 history shaping (the Qwen template): a tool result always follows its call. A wait
+    # line spoken between a call and its result is merged into the call's message (merge) or
+    # placed after the result (after_output); a call still unanswered gets a placeholder
+    # result (pending), none (keep), or is left out (drop). Pending the M0 LLM spike.
+    tool_interlude: merge
+    unanswered_calls: pending
+    pending_tool_output: '{"status": "pending", "note": "The result has not arrived yet."}'
     max_in_flight: 8
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000,
@@ -142,13 +159,17 @@ providers:
       model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit
       family: qwen3_tts
       lang_codes: {zh: chinese, en: english}
-      streaming_interval: 0.32   # pending B2 (S3): 4 codec frames, first chunk ~110 ms in M0
+      streaming_interval: 0.16   # S3: 2 codec frames per chunk, first chunk ~76 ms uncapped
+      # S3: max_tokens in proportion to the text, so a runaway stops early (not at 1200 frames):
+      # base + per_cjk per CJK character + per_other per other letter or digit, 12.5 per second.
+      token_cap: {base: 25, per_cjk: 6, per_other: 2}
       # Sampling: unset, the model's generation_config.json applies (temperature 0.9, top_k 50,
       # top_p 1.0, repetition_penalty 1.05). Pending B2 (S3 quality guardrail).
       timeouts: {connect_ms: 500, first_item_ms: 1500, idle_ms: 1000, total_ms: 60000,
                  warmup_ms: 300000}
-    fallback:                    # D13: pending B2 (S3.6, G6) evidence on Kokoro's zh and mixed text
+    fallback:                    # D13 (owner review pending): Kokoro, for segments without Latin letters
       enabled: true
+      latin_segments: false      # S3: Kokoro garbles English inside Chinese; such a segment fails
       model: mlx-community/Kokoro-82M-bf16
       family: kokoro             # voice packs from the pinned snapshot's voices/ (offline-safe)
       lang_codes: {zh: z, en: a}

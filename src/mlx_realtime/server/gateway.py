@@ -149,6 +149,7 @@ class Gateway:
             aec=config.aec,
             barge_in=config.barge_in,
             echo=self.echo,
+            trim_silence=config.output.trim_silence,
         )
 
     async def aclose(self) -> None:

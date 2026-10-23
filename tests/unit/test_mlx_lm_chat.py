@@ -166,6 +166,86 @@ async def test_tool_calls_arrive_complete(base_url: str, fake: FakeMlxLm) -> Non
     assert deltas[3].finish_reason == "tool_calls"
 
 
+async def test_calls_as_the_real_server_streams_them(base_url: str, fake: FakeMlxLm) -> None:
+    """A newline before the call rides in the call's chunk; two calls the parser returned from
+    one span arrive in one chunk; the call ids are the server's uuids."""
+    fake.script(
+        Text("好的，"),
+        Calls([tool_call("lookup", {"account": "42"}, "6f1c")], text="\n\n"),
+        Calls(
+            [
+                tool_call("lookup", {"account": "43"}, "7a2d", index=1),
+                tool_call("lookup", {"account": "44"}, "8b3e", index=2),
+            ]
+        ),
+        Finish("tool_calls"),
+        UsageChunk(),
+        Done(),
+    )
+    llm = provider(base_url)
+    deltas = await collect(llm.stream(ASK, [LOOKUP]))
+    await llm.aclose()
+    assert deltas[:5] == [
+        TextDelta("好的，"),
+        ToolCall("6f1c", "lookup", '{"account": "42"}'),
+        TextDelta("\n\n"),
+        ToolCall("7a2d", "lookup", '{"account": "43"}'),
+        ToolCall("8b3e", "lookup", '{"account": "44"}'),
+    ]
+    assert isinstance(deltas[5], LLMDone)
+    assert deltas[5].finish_reason == "tool_calls"
+
+
+async def test_a_silently_dropped_second_call(base_url: str, fake: FakeMlxLm) -> None:
+    """The server logs and skips a call its parser rejects. With another call delivered, the
+    stream looks complete: the call that parsed is delivered, the response completes."""
+    fake.script(
+        Calls([tool_call("lookup", {"account": "42"})]), Finish("tool_calls"), UsageChunk(), Done()
+    )
+    llm = provider(base_url)
+    deltas = await collect(llm.stream(ASK, [LOOKUP]))
+    await llm.aclose()
+    assert deltas[0] == ToolCall("call-1", "lookup", '{"account": "42"}')
+    assert isinstance(deltas[1], LLMDone)
+    assert deltas[1].finish_reason == "tool_calls"
+
+
+async def test_history_is_shaped_for_the_template(base_url: str, fake: FakeMlxLm) -> None:
+    """The wait line spoken between a call and its result: merged into the call (default), or
+    after the result (``tool_interlude: after_output``); the result always follows its call."""
+    call = ToolCall("6f1c", "lookup", '{"account": "42"}')
+    history = [
+        *ASK,
+        Message("assistant", "", tool_calls=(call,)),
+        Message("assistant", "请稍等。"),
+        Message("user", "(The caller pressed 2 on their keypad.)"),
+        Message("tool", '{"balance": "12.50"}', tool_call_id="6f1c"),
+    ]
+    for interlude in ("merge", "after_output"):
+        llm = provider(base_url, tool_interlude=interlude)
+        await collect(llm.stream(history, [LOOKUP]))
+        await llm.aclose()
+    merged, after = (request["messages"][2:] for request in fake.requests)
+    spec = {
+        "id": "6f1c",
+        "type": "function",
+        "function": {"name": "lookup", "arguments": call.arguments},
+    }
+    result = {"role": "tool", "tool_call_id": "6f1c", "content": '{"balance": "12.50"}'}
+    note = {"role": "user", "content": "(The caller pressed 2 on their keypad.)"}
+    assert merged == [
+        {"role": "assistant", "content": "请稍等。", "tool_calls": [spec]},
+        result,
+        note,
+    ]
+    assert after == [
+        {"role": "assistant", "content": "", "tool_calls": [spec]},
+        result,
+        {"role": "assistant", "content": "请稍等。"},
+        note,
+    ]
+
+
 @pytest.mark.parametrize(
     "steps",
     [

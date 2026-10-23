@@ -39,6 +39,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 from collections.abc import AsyncGenerator, Mapping
 from contextlib import aclosing
 from pathlib import Path
@@ -47,7 +48,7 @@ from typing import Literal, cast
 import httpx2
 
 from mlx_realtime.audio.pcm import SAMPLE_WIDTH
-from mlx_realtime.config import MlxAudioSpeechConfig, TtsFamily, TtsModelConfig
+from mlx_realtime.config import MlxAudioSpeechConfig, TokenCapConfig, TtsFamily, TtsModelConfig
 from mlx_realtime.providers.base import (
     Lang,
     PCMChunk,
@@ -64,11 +65,13 @@ from mlx_realtime.providers.http import (
     transport_error,
 )
 from mlx_realtime.providers.voices import SEGMENT_LANG, VoiceBook
+from mlx_realtime.text.lang import is_cjk
 
 logger = logging.getLogger(__name__)
 
 SPEECH = "/v1/audio/speech"
 MODELS = "/v1/models"
+SERVER_MAX_TOKENS = 1200  # mlx_audio.server's default max_tokens (codec frames)
 
 FAMILY_LANG_CODES: dict[TtsFamily, dict[Lang, str]] = {
     "qwen3_tts": {"zh": "chinese", "en": "english"},
@@ -171,6 +174,8 @@ class MlxAudioTTS:
             value = getattr(self._config, name)
             if value is not None:
                 body[name] = value
+        if self._config.token_cap is not None and self._config.family == "qwen3_tts":
+            body["max_tokens"] = token_cap(text, self._config.token_cap, self._config.max_tokens)
         return body
 
     async def warmup(self) -> None:
@@ -203,9 +208,9 @@ class MlxAudioTTS:
 
     def _voice_field(self, name: str, lang: Lang) -> str:
         voice = self._voices.voice(name)
-        chosen = voice.speaker if self._role == "primary" else voice.fallback.get(lang)
+        chosen = voice.speaker_for(lang) if self._role == "primary" else voice.fallback.get(lang)
         if self._config.family != "kokoro":
-            return chosen or voice.speaker
+            return chosen or voice.speaker_for(lang)
         if chosen is None:
             raise ProviderError("internal", f"tts: voice '{voice.name}' has no {lang} voice pack")
         if self._voices_dir is None:
@@ -272,6 +277,14 @@ class MlxAudioTTS:
                     raise _bad("the stream carried no audio")
             finally:
                 await response.aclose()
+
+
+def token_cap(text: str, cap: TokenCapConfig, limit: int | None) -> int:
+    """The codec frames a segment may take (S3: a runaway stops here instead of at 1200)."""
+    cjk = sum(1 for char in text if is_cjk(char))
+    other = sum(1 for char in text if char.isalnum() and not is_cjk(char))
+    frames = math.ceil(cap.base + cap.per_cjk * cjk + cap.per_other * other)
+    return min(frames, limit or SERVER_MAX_TOKENS)
 
 
 async def _error_body(response: httpx2.Response, clock: RequestClock) -> bytes:

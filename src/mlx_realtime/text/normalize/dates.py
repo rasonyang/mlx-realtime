@@ -12,7 +12,11 @@ Rules:
   zh: 十四点三十分, 九点零五分, 八点, 两点, 十四点三十分十五秒; am/pm become 上午/下午 in front.
   en: fourteen thirty, nine oh five, ten o'clock (fourteen hundred past noon, zero hundred at
   midnight), fourteen thirty and fifteen seconds; am/pm are spelled A M / P M.
+- US numeric dates with a four-digit year: ``03/15/2024`` is month/day/year; when the month
+  cannot be one (``15/03/2024``) it is read day/month/year.
 - Ambiguous forms such as ``10/11/12`` are left as written.
+- Numeric dates (``2024-10-23``, ``03/15/2024``) are marked ``Match.numeric_date``: English text
+  reads them even with the category off (G5).
 """
 
 from __future__ import annotations
@@ -38,6 +42,10 @@ _MONTHS = (
 _NUMERIC_DATE = re.compile(
     rf"{FREE_LEFT}(?P<year>[12][0-9]{{3}})(?P<sep>[-/.])(?P<month>[0-9]{{1,2}})(?P=sep)"
     rf"(?P<day>[0-9]{{1,2}}){FREE_RIGHT}"
+)
+_US_DATE = re.compile(
+    rf"{FREE_LEFT}(?P<first>[0-9]{{1,2}})/(?P<second>[0-9]{{1,2}})/(?P<year>[12][0-9]{{3}})"
+    rf"{FREE_RIGHT}"
 )
 _ZH_DATE = re.compile(
     rf"{FREE_LEFT}(?:(?P<year>[12][0-9]{{3}}) ?年 ?)?(?P<month>[0-9]{{1,2}}) ?月"
@@ -80,7 +88,7 @@ class _Clock:
 
 def find(text: str) -> list[Match]:
     """Every date and time in ``text``."""
-    return first_wins([*_dates(text), *_times(text)])
+    return first_wins([*_dates(text), *_us_dates(text), *_times(text)])
 
 
 def _dates(text: str) -> Iterator[Match]:
@@ -92,7 +100,21 @@ def _dates(text: str) -> Iterator[Match]:
             )
             if _exists(year, month, day):
                 date = _Date(year, month, day, groups.get("day_word") or "日")
-                yield Match(found.start(), found.end(), partial(_read_date, date))
+                numeric = pattern is _NUMERIC_DATE
+                read = partial(_read_date, date)
+                yield Match(found.start(), found.end(), read, numeric_date=numeric)
+
+
+def _us_dates(text: str) -> Iterator[Match]:
+    """``03/15/2024``: month/day/year, or day/month/year when the first cannot be a month."""
+    for found in _US_DATE.finditer(text):
+        year, first, second = int(found["year"]), int(found["first"]), int(found["second"])
+        for month, day in ((first, second), (second, first)):
+            if _exists(year, month, day):
+                date = _Date(year, month, day, "日")
+                read = partial(_read_date, date)
+                yield Match(found.start(), found.end(), read, numeric_date=True)
+                break
 
 
 def _exists(year: int | None, month: int | None, day: int | None) -> bool:

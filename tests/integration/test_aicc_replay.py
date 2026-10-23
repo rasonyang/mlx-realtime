@@ -1,6 +1,7 @@
 """Replay of AICC's real client frames (spikes/aicc/traces, ARCHITECTURE §2, §11), on the real TTS
 path: the TTS provider (Qwen3-TTS primary, Kokoro fallback) against a fake mlx_audio.server that
-streams at the pace M0 measured (first chunk after about 110 ms, a 320 ms chunk every 90 ms).
+streams at the pace M0 measured (S3, streaming_interval 0.16 since M5: first chunk after about
+80 ms, a 160 ms chunk every 50 ms; M3 ran 0.32 s chunks every 90 ms).
 
 Frames are sent exactly as captured, except that ids minted by AICC's fake server (``item-1``,
 ``call-7``, ``fc_1``, ``answer-item``, ...) are replaced by the ids this server minted for the
@@ -31,16 +32,20 @@ from pathlib import Path
 
 import pytest
 
-from mlx_realtime.config import MlxAudioSpeechConfig, VoicesConfig, validate_config
-from mlx_realtime.providers.base import LLMDone, TextDelta, ToolCall
+from mlx_realtime.config import MlxAudioSpeechConfig, MlxLmChatConfig, VoicesConfig, validate_config
+from mlx_realtime.providers.base import LLMBackend, LLMDone, TextDelta, ToolCall
+from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.mock import EchoLLM, ScriptedASR
 from mlx_realtime.providers.registry import Providers, build_speech
 from mlx_realtime.providers.voices import VoiceBook
 from mlx_realtime.server.gateway import Gateway
 from mlx_realtime.vad.scripted import ScriptedSpeech
 from tests.fakes.mlx_audio import Chunks, FakeMlxAudio, Gate, Hold, Rest, serve_asgi
+from tests.fakes.mlx_lm import Calls, Done, FakeMlxLm, Finish, Text, reply, tool_call
+from tests.fakes.mlx_lm import Usage as UsageChunk
 from tests.integration.deadlines import check_deadlines
 from tests.phone import SimulatedCall
+from tests.qwen_template import render
 from tests.speech import EN, SILERO, ZH, clip, needs_models, to_wire
 from tests.support import Client, Event, running
 
@@ -62,15 +67,18 @@ class Session:
 
 
 @asynccontextmanager
-async def aicc_session(packs: Path, *, silero: bool = False) -> AsyncIterator[Session]:
-    """``silero``: the real Silero VAD hears the caller (else a detector that never does)."""
+async def aicc_session(
+    packs: Path, *, silero: bool = False, provider: LLMBackend | None = None
+) -> AsyncIterator[Session]:
+    """``silero``: the real Silero VAD hears the caller (else a detector that never does).
+    ``provider``: the LLM provider to use instead of the scripted mock (``Session.llm``)."""
     llm, tts = EchoLLM(), FakeMlxAudio()
     async with serve_asgi(tts) as tts_url:
         speech = MlxAudioSpeechConfig.model_validate(
             {"type": "mlx_audio_speech", "base_url": tts_url}
         )
         providers = Providers(
-            llm=llm,
+            llm=provider or llm,
             asr=ScriptedASR(["喂？"]),
             tts=build_speech(speech, VoiceBook(VoicesConfig()), snapshots=lambda repo: packs),
         )
@@ -83,7 +91,7 @@ async def aicc_session(packs: Path, *, silero: bool = False) -> AsyncIterator[Se
             )
         async with running(gateway) as address:
             # Warm (every voice, both models) at full speed; then the pace M0 measured.
-            tts.first_chunk_s, tts.chunk_s = 0.11, 0.09
+            tts.first_chunk_s, tts.chunk_s = 0.08, 0.05
             async with Client.connect(address, model="gpt-realtime") as client:
                 await client.until("conversation.created")
                 yield Session(client, llm, tts)
@@ -189,7 +197,7 @@ async def test_opening_with_a_flow_voice(packs: Path) -> None:
         assert spoken(response) == line_of(opening) == "Good morning, NovaNet support."
         assert session.llm.requests == []  # the opening line is spoken verbatim (D16)
         bodies = [speech.body for speech in session.tts.speeches if speech.body["input"] != ""]
-        assert bodies[-1]["voice"] == "vivian"
+        assert bodies[-1]["voice"] == "aiden"  # vivian's speaker for English segments (S3)
         assert bodies[-1]["model"] == QWEN
         assert bodies[-1]["input"] == "Good morning, NovaNet support."
 
@@ -255,6 +263,119 @@ async def test_unheard_answer_then_keypress(packs: Path) -> None:
         assert truncated["audio_end_ms"] <= truncate["audio_end_ms"]  # clamped to the audio sent
         await answered(client, keypress, "conversation.item.done")
         await respond(client, owed)
+
+
+def offered_tools(request: Event) -> list[str]:
+    return [tool["function"]["name"] for tool in request.get("tools", [])]
+
+
+async def test_call_gateway_through_the_llm_provider(packs: Path) -> None:
+    """M5: the call_gateway trace with the real LLM provider on a fake mlx_lm.server that streams
+    the call the way the real one does (the newline before ``<tool_call>`` in the call's chunk,
+    the server's own call id). The request offers the session's tools; the result, with AICC's
+    hint, follows its call in the next request, which the real Qwen template renders."""
+    update, opening, audio, truncate, closing, keypress, create, tool_result, create_again, line = (
+        frames("call_gateway")
+    )
+    fake = FakeMlxLm()
+    with fake.serving() as url:
+        config = MlxLmChatConfig.model_validate({"type": "mlx_lm_chat", "base_url": url})
+        provider = MlxLmChatLLM(config)
+        async with aicc_session(packs, provider=provider) as session:
+            fake.requests.clear()  # the warmup's
+            fake.script(*reply("Hello, NovaNet support."))
+            fake.script(
+                Text("Let me check that."),
+                Calls([tool_call("lookup_balance", {"accountId": "42"}, "6f1c-uuid")], text="\n"),
+                Finish("tool_calls"),
+                UsageChunk(),
+                Done(),
+            )
+            fake.script(*reply("Your balance is 12.50.", " Anything else?"))
+            client = session.client
+            await updated(client, update)
+            greeting = await respond(client, opening)
+            await client.send(audio)
+            await client.quiet()
+            message = output_of(greeting, "message")["id"]
+            await answered(
+                client, with_id(truncate, item_id=message), "conversation.item.truncated"
+            )
+            await updated(client, closing)
+            await answered(client, keypress, "conversation.item.done")
+            asked = await respond(client, create)
+            assert [item["type"] for item in asked["output"]] == ["message", "function_call"]
+            assert spoken(asked) == "Let me check that."
+            call = output_of(asked, "function_call")
+            assert call["call_id"] != "6f1c-uuid"  # minted by the gateway
+            assert call["arguments"] == '{"accountId": "42"}'
+            result = with_id(tool_result, call_id=call["call_id"])
+            await answered(client, result, "conversation.item.done")
+            await respond(client, create_again)
+            closing_line = await respond(client, line)
+            assert spoken(closing_line) == "Thanks for calling NovaNet."
+        await provider.aclose()
+    assert len(fake.requests) == 3  # the closing line skipped the LLM
+    assert all(offered_tools(request) == ["lookup_balance"] for request in fake.requests)
+    messages = fake.requests[-1]["messages"]
+    assert messages[0] == {"role": "system", "content": "You are now closing the call."}
+    spec = {
+        "id": "6f1c-uuid",
+        "type": "function",
+        "function": {"name": "lookup_balance", "arguments": '{"accountId": "42"}'},
+    }
+    assert messages[-3:] == [
+        {"role": "user", "content": "(The caller pressed 2 on their keypad.)"},
+        {"role": "assistant", "content": "Let me check that.", "tool_calls": [spec]},
+        {
+            "role": "tool",
+            "tool_call_id": "6f1c-uuid",
+            "content": tool_result["item"]["output"],
+        },
+    ]
+    render(messages, fake.requests[-1]["tools"])
+
+
+async def test_wait_line_through_the_llm_provider(packs: Path) -> None:
+    """M5: AICC's wait line spoken between the call and its output. The owed request replays
+    the call with the line merged into its message, and the result right after it."""
+    update, opening, line, tool_result, _delete, owed = frames("waitline_gateway")
+    fake = FakeMlxLm()
+    with fake.serving() as url:
+        config = MlxLmChatConfig.model_validate({"type": "mlx_lm_chat", "base_url": url})
+        provider = MlxLmChatLLM(config)
+        async with aicc_session(packs, provider=provider) as session:
+            fake.requests.clear()  # the warmup's
+            fake.script(
+                Calls([tool_call("lookup_balance", {"accountId": "42"}, "7a2d-uuid")]),
+                Finish("tool_calls"),
+                UsageChunk(),
+                Done(),
+            )
+            fake.script(*reply("Your balance is 12.50."))
+            client = session.client
+            await updated(client, update)
+            first = await respond(client, opening)  # a tool-only response (deadline checked)
+            assert [item["type"] for item in first["output"]] == ["function_call"]
+            call = output_of(first, "function_call")
+            await respond(client, line)
+            await answered(
+                client, with_id(tool_result, call_id=call["call_id"]), "conversation.item.done"
+            )
+            answer = await respond(client, owed)
+            assert spoken(answer) == "Your balance is 12.50."
+        await provider.aclose()
+    messages = fake.requests[-1]["messages"]
+    assert [entry["role"] for entry in messages] == ["system", "user", "assistant", "tool"]
+    assert messages[1]["content"] == config.empty_conversation_cue  # no caller turn yet
+    assert messages[2]["content"] == "One moment, let me check that."
+    assert [entry["id"] for entry in messages[2]["tool_calls"]] == ["7a2d-uuid"]
+    assert messages[3] == {
+        "role": "tool",
+        "tool_call_id": "7a2d-uuid",
+        "content": tool_result["item"]["output"],
+    }
+    render(messages, fake.requests[-1]["tools"])
 
 
 async def test_dropped_line_retry(packs: Path) -> None:

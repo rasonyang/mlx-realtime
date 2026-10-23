@@ -23,7 +23,7 @@ from mlx_realtime.providers.base import (
     ToolChoice,
     ToolDef,
 )
-from mlx_realtime.providers.chat_wire import ChunkReader, Json, Sampling, request_body
+from mlx_realtime.providers.chat_wire import ChunkReader, Json, Sampling, Shaping, request_body
 from mlx_realtime.providers.http import (
     Deadlines,
     RequestClock,
@@ -48,6 +48,13 @@ class MlxLmChatLLM:
     ) -> None:
         self._config = config
         self._sampling = Sampling(config.max_completion_tokens, config.temperature, config.top_p)
+        self._shaping = Shaping(
+            cue=config.empty_conversation_cue,
+            system_note=config.system_note,
+            interlude=config.tool_interlude,
+            unanswered=config.unanswered_calls,
+            pending_output=config.pending_tool_output,
+        )
         self._deadlines = Deadlines.of(config.timeouts)
         self._warmup_deadlines = Deadlines.warmup(config.timeouts)
         self._slots = Slots(config.max_in_flight, config.queue_timeout_ms / 1000)
@@ -103,8 +110,7 @@ class MlxLmChatLLM:
             max_output_tokens=max_output_tokens,
             sampling=self._sampling,
             model=self._config.model,
-            cue=self._config.empty_conversation_cue,
-            system_note=self._config.system_note,
+            shaping=self._shaping,
         )
 
     async def _complete(self, body: Json, deadlines: Deadlines) -> AsyncGenerator[Delta]:

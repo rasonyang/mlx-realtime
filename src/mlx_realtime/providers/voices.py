@@ -9,7 +9,7 @@ rejected: it resolves to the default voice, and the session echoes the effective
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from mlx_realtime.config import VoicesConfig
 from mlx_realtime.providers.base import Lang
@@ -24,13 +24,18 @@ class Voice:
     speaker: str  # the primary model's speaker
     lang: str  # SEGMENT_LANG, or the lang_code the primary model always gets
     fallback: Mapping[Lang, str]  # the fallback model's voice per segment language
+    speakers: Mapping[Lang, str] = field(default_factory=dict[Lang, str])  # per-language speaker
+
+    def speaker_for(self, lang: Lang) -> str:
+        """The primary model's speaker for a segment in ``lang``."""
+        return self.speakers.get(lang, self.speaker)
 
 
 class VoiceBook:
     def __init__(self, config: VoicesConfig) -> None:
         self.default = config.default
         self._voices = {
-            name: Voice(name, entry.speaker, entry.lang, dict(entry.fallback))
+            name: Voice(name, entry.speaker, entry.lang, dict(entry.fallback), dict(entry.speakers))
             for name, entry in config.map.items()
         }
 

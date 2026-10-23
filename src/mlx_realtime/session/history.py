@@ -1,9 +1,10 @@
 """The conversation as a provider-neutral message list for the next LLM request.
 
-The list is generic: system items stay system messages wherever they occur, and a function
-call is its own assistant message. Adapting this to what a backend accepts (one leading
-system message, at least one user message, merged tool calls) is the provider's job
-(ARCHITECTURE §5.2).
+The list is generic: system items stay system messages wherever they occur, a function call
+is its own assistant message (with the provider's own call id), and a call's output is a tool
+message in conversation order. The output of a call that was deleted is left out. Adapting
+this to what a backend accepts (one leading system message, at least one user message, merged
+tool calls, results right after their call) is the provider's job (ARCHITECTURE §5.2).
 """
 
 from __future__ import annotations
@@ -37,8 +38,8 @@ def build_messages(conversation: Conversation, instructions: str) -> list[Messag
                 )
             case FunctionCallOutput(call_id=call_id, output=output):
                 call = conversation.find_call(call_id)
-                provider_id = call.provider_call_id if call is not None else call_id
-                messages.append(Message("tool", output, tool_call_id=provider_id))
+                if call is not None:  # the output of a deleted call answers nothing: left out
+                    messages.append(Message("tool", output, tool_call_id=call.provider_call_id))
             case _:
                 pass  # audio without speech or our own echo (D17), or nothing heard
     return messages
