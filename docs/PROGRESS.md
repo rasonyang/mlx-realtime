@@ -2267,8 +2267,8 @@ warm, gave 3.7 s, 10.3 s and 0.9 s.
   1.52–1.54); up to three calls P50 ≤ 1.6 s / P95 ≤ 2.5 s (measured 1.42–1.47 / 1.86–2.78). AICC's
   hard floor: one call holds it with margin, including a full re-prefill after an instructions
   change (~2.4 s worst case from `response.created`). **Three calls do not hold it reliably**: the
-  one TTS stream queues first segments for up to 1.9 s (one first audio at 3.39 s, eight
-  `backend_busy` failures, 1.8 % of the three-session responses), and a tool-only transfer
+  one TTS stream queues first segments for up to 1.9 s (one first audio at 3.39 s, seven
+  `backend_busy` failures at three sessions, 1.8 % of their responses; eight in all), and a tool-only transfer
   reaches 2.78 s beside two talking sessions. Reaching the three-call target needs more TTS
   capacity (a second TTS process, or batched generation) or shorter segments; the owner decides.
 - **G6, 3 model processes or merged: keep 3.** The soak showed no instability: no hang, crash,

@@ -1,9 +1,11 @@
 # mlx-realtime — Architecture
 
-> **Status: DRAFT (2026-10-22).** Decisions D1–D19 were approved on 2026-10-22, and D17 was revised the
-> same day. Nothing is implemented yet.
-> **[M0]** marks a fact or choice that the M0 spikes (`docs/SPIKE.md`) must confirm.
-> **[D#]** points to a decision in §12. Milestones are in §13, and sources in §14.
+> **Status: implemented (synced 2026-10-24).** M0–M7 are built, followed by the LLM hardening, the
+> G7 dual-path echo cancellation and the first real-stack validation (`docs/PROGRESS.md`). Decisions
+> D1–D19 were approved on 2026-10-22; D13 and D17 were settled since (§12), and later decisions are
+> in `docs/DECISIONS.md`.
+> **[M0]** marks a fact or choice the M0 spikes (`docs/SPIKE.md`) were to confirm; their findings are
+> there. **[D#]** points to a decision in §12. Milestones are in §13, and sources in §14.
 
 ## 1. Purpose and priorities
 
@@ -46,28 +48,45 @@ machines, persistence, server-side tool execution, full Realtime parity.
          ▼
  ┌───────────────── gateway · Python 3.12 · asyncio · uvicorn + starlette ─────────────────┐
  │ WS transport → GA protocol adapter → session actors → per-response pipelines            │
+ │ echo cancellation: WebRTC AEC3 + vendored SpeexDSP (CPU executor)                       │
  │ Silero VAD + Smart Turn (onnxruntime, CPU executors)                                    │
  │ resampling · G.711 · sentence segmenter · text normalizer · metrics                     │
- │ /healthz  /readyz  /metrics                          (no MLX installed in this env)     │
+ │ /healthz  /readyz  /metrics  /debug/turns (off)      (no MLX installed in this env)     │
  └──────┬──────────────────────────────┬─────────────────────────────────┬─────────────────┘
         │ HTTP                         │ HTTP + SSE                      │ HTTP, chunked PCM
         ▼                              ▼                                 ▼
  ┌──────────────────┐        ┌────────────────────┐          ┌───────────────────────────┐
  │ asr   :8102      │        │ llm   :8101        │          │ tts   :8103               │
- │ Qwen3-ASR-1.7B   │        │ mlx_lm.server      │          │ Qwen3-TTS-0.6B            │
- │ mlx-audio  [M0]  │        │ Qwen3.x-35B-A3B    │          │ + Kokoro-82M fallback     │
+ │ mlx_audio.server │        │ mlxrt_llm.serve    │          │ mlx_audio.server          │
+ │ Qwen3-ASR-1.7B   │        │ (mlx_lm.server)    │          │ Qwen3-TTS-0.6B 8-bit      │
+ │ 8-bit            │        │ Qwen3.6-35B-A3B    │          │ + 4-bit fallback (D13)    │
  └──────────────────┘        └────────────────────┘          └───────────────────────────┘
    one MLX thread per process; the three processes share the GPU and unified memory
+   capacity: at most 3 concurrent calls, bound by the TTS (one stream at a time)
 ```
 
 | Process | Runs | Owns | Environment | Default bind |
 |---|---|---|---|---|
-| gateway | `python -m mlx_realtime serve` | protocol, sessions, VAD and turn detection, segmentation, normalization, barge-in, metrics | root uv project; no `mlx*` packages | configurable (AICC runs on another host or in Docker) |
-| llm | `mlx_lm.server --model <M0> --chat-template-args '{"enable_thinking":false}' --max-tokens … --temp … --top-p … --top-k …` | LLM weights, KV and prompt cache | `backends/llm` uv project (mlx-lm ≥ 0.32.0) | 127.0.0.1:8101 |
-| asr | `mlx_audio.server`, or a thin worker if G1 says so [M0] | ASR model | `backends/audio` uv project | 127.0.0.1:8102 |
-| tts | `mlx_audio.server`, or a thin worker if G1 says so [M0] | TTS primary and fallback | `backends/audio` uv project | 127.0.0.1:8103 |
+| gateway | `python -m mlx_realtime serve` | protocol, sessions, echo cancellation, VAD and turn detection, segmentation, normalization, barge-in, metrics | root uv project; no `mlx*` packages | 127.0.0.1:8000, configurable (AICC runs on another host or in Docker) |
+| llm | `python -m mlxrt_llm.serve --model <pinned snapshot> --chat-template-args '{"enable_thinking":false}' --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0 --prompt-cache-size 64 --prompt-cache-bytes 8GB --tools-checkpoint --shared-prefix-checkpoint` | LLM weights, KV and prompt cache (64 cached prompts, ~100 MB each) | `backends/llm` uv project, package `mlxrt_llm`: `mlx_lm.server` with a lenient qwen3_coder tool-call parser and prompt-cache checkpoints, guarded to mlx-lm 0.32.2 (§5.3) | 127.0.0.1:8101 |
+| asr | `mlx_audio.server` (stock, G1) | Qwen3-ASR-1.7B-8bit | `backends/audio` uv project (mlx-audio 0.6.1) | 127.0.0.1:8102 |
+| tts | `mlx_audio.server` (stock, G1) | Qwen3-TTS-0.6B-CustomVoice 8-bit (primary) and 4-bit (fallback, D13) | `backends/audio` uv project | 127.0.0.1:8103 |
 
-**What the desk check found** (mlx-lm 0.32.2, mlx-audio 0.6.1; M0 confirms each item hands-on):
+`mlxrt dev` starts each backend as `uv run --locked --project <project> <command> --host <host>
+--port <port> [--model <local snapshot>] <args>`, from `backends` in `config.yaml` (§10). Every model
+is pinned by revision and fetched ahead of time (`mlxrt models --mlx`); the backends run with
+`HF_HUB_OFFLINE=1`.
+
+**Capacity.** At most 3 concurrent calls (`gateway.max_sessions: 3`, the owner's target for this
+development Mac), with one process per backend. The LLM batches requests (`max_in_flight` 4: one
+response per call plus a prompt-cache warm-up), and the ASR takes 3 at once. The TTS server
+synthesizes one stream at a time, so the calls share it through a gateway-side queue (§4.4, §7), and
+that queue is the capacity limit. One call meets AICC's deadlines with margin. Three calls do not
+reliably meet them: first segments wait up to 1.9 s for the TTS (G4, `docs/LATENCY.md` §4). More TTS
+capacity is an open owner decision (`docs/DECISIONS.md`, 2026-10-24).
+
+**What the desk check found** (mlx-lm 0.32.2, mlx-audio 0.6.1; confirmed hands-on in M0 and the
+real-stack validation):
 
 - **Both backends keep MLX on one thread.**
   - `mlx_lm.server` runs every MLX call on a single generation thread and batches requests
@@ -75,13 +94,14 @@ machines, persistence, server-side tool execution, full Realtime parity.
   - `mlx_audio.server` serializes HTTP inference on one broker thread. Its WebSocket routes and
     `POST /v1/models` run MLX on the asyncio thread instead, so the gateway uses only its HTTP routes.
 - **`mlx_audio.server` loads each requested model lazily** and has no preload or pinning. The gateway's
-  warmup request is what loads the model.
+  warmup request is what loads the model, after every start of the process.
 - **mlx_lm.server's generation thread can die,** and nothing restarts it. `/health` then returns 503,
   and the supervisor must restart the process.
 - **Running several MLX processes on one GPU has open bug reports:** occasional hangs, and IOGPU
-  kernel panics on macOS 26 under high memory pressure. The supervisor therefore restarts any backend
-  that fails its health check or stalls a request. M0 runs a soak test before we commit to three
-  processes.
+  kernel panics on macOS 26 under high memory pressure. The 30-minute soak on the real stack (S6) saw
+  no hang, crash, backend error or GPU kernel message, and memory stayed flat, so the three processes
+  stay (G6). A backend that dies is restarted by the supervisor (Supervision, below), and the gateway
+  warms it again when it is back (§8).
 
 **Separate environments [D10].** Each `backends/<role>/` is an independent uv project.
 
@@ -107,8 +127,8 @@ machines, persistence, server-side tool execution, full Realtime parity.
   - `AICC_PROVIDER=gateway`
   - `AICC_PROVIDER_ENDPOINT=ws://<host>:8000/v1/realtime`
   - `REALTIME_API_KEY=<key>`
-- A dedicated profile can come later; AICC adds it in its own repository. It would enable G.711
-  passthrough (after M7) and `tool_choice`.
+- A dedicated profile can come later; AICC adds it in its own repository. It would set
+  `AcceptsG711: true` (G.711 passthrough, supported since M7) and enable `tool_choice`.
 
 AICC's client requirements, from an audit of its `internal/provider` on 2026-10-22. Its client
 frames are in `spikes/aicc/traces/`.
@@ -129,28 +149,38 @@ frames are in `spikes/aicc/traces/`.
 
 **Startup, warmup, readiness.**
 
-- Processes start independently, with no start-order dependency, and each backend loads its model at
-  start.
-- Once a backend answers, the gateway warms its provider:
-  - LLM: a one-token completion with the default instructions, which also seeds the prompt cache [M0].
+- Processes start independently, with no start-order dependency. The LLM backend loads its model at
+  start; `mlx_audio.server` loads a model when the gateway's warmup first asks for it.
+- The gateway warms every backend at once, each as soon as it answers, retrying one that is not up
+  yet with exponential backoff (0.5 s to 5 s):
+  - LLM: a one-token completion with the default instructions, which also seeds the prompt cache.
   - ASR: a bundled 1 s clip.
-  - TTS: one short Chinese and one English sentence per configured voice, on both primary and fallback.
+  - TTS: one Chinese and one English sentence per configured voice on the primary, and the default
+    voice on the fallback.
   - Silero and Smart Turn: one inference each.
+- On the real stack the gateway was ready 13.3 s after it started (warm page cache).
 - `/healthz` reports whether the gateway's event loop is responsive. It makes no backend calls.
-- `/readyz` reports whether every provider is reachable and warmed, with per-backend detail.
+- `/readyz` reports, with per-backend detail, whether every backend answers ready **and** is warm;
+  `mlxrt_backend_ready` on `/metrics` follows the same rule.
 - Until the first successful readiness, a new connection receives an `error` event (`server_error`,
-  code `not_ready`) and is closed. After that, connections are accepted; backend failures surface per
-  response (§8) and on `/readyz`.
+  code `not_ready`) and is closed (1013). After that, connections are accepted; backend failures
+  surface per response (§8) and on `/readyz`.
+- After the startup warmup the readiness monitor keeps the backends warm: it probes each warm
+  backend every 5 s, and warms one that answers "not ready" again, with the same retries, until it
+  is ready (§8, Backend health).
 
 **Supervision.**
 
-- `make dev` runs `uv sync --locked`, then `uv run --locked mlxrt dev`, a small supervisor in the
-  gateway package. It:
+- `make dev` runs `uv sync --locked` and fetches the ONNX models, then runs `uv run --locked mlxrt
+  dev`, a small supervisor in the gateway package. It:
   - reads `config.yaml` and starts the three backends and the gateway;
+  - refuses to start while a configured port is in use (connections left in TIME_WAIT by a stack
+    that just stopped do not count);
   - prefixes every output line with the process name;
   - forwards SIGINT/SIGTERM, and exits when any child exits (no restart loop in development).
-- For unattended use (optional), `mlxrt launchd` renders one launchd plist per process, with KeepAlive
-  and log paths, so a crashed backend restarts on its own without touching the others.
+- For unattended use (optional, not built yet), `mlxrt launchd` would render one launchd plist per
+  process, with KeepAlive and log paths, so a crashed backend restarts on its own without touching
+  the others. Restarting one backend by hand works the same way (the real-stack recovery test).
 
 ## 3. Repository layout
 
@@ -161,50 +191,61 @@ mlx-realtime/
 ├── uv.lock                   # committed
 ├── .python-version           # 3.12, written by `uv python pin`
 ├── config.yaml               # the single configuration file (§10)
-├── Makefile                  # dev, test, test-e2e, lint, fmt, typecheck, models, bench
+├── config.mock.yaml          # every provider a mock (make dev-mock, AICC's harness without the GPU)
+├── Makefile                  # dev, dev-mock, test, test-e2e, test-backend, test-llm-backend, lint, fmt, typecheck,
+│                             # models, models-mlx, aicc-probe, aicc-probe-mock, bench, bench-mock, fairness
 ├── README.md
 ├── docs/
 │   ├── ARCHITECTURE.md       # this file
 │   ├── PROTOCOL.md           # GA support matrix: every event and field supported / partial / unsupported (M1)
 │   ├── SPIKE.md              # M0 plan, then findings
+│   ├── PROGRESS.md           # per milestone: what was built, test results, deviations from this file
 │   ├── DECISIONS.md          # dated one-line decision log
-│   └── LATENCY.md            # latency reports (M6+)
+│   └── LATENCY.md            # latency report on the real stack; G4's budget and targets
 ├── src/mlx_realtime/         # the gateway package; never imports mlx*
 │   ├── __main__.py           # serve
-│   ├── cli.py                # serve | dev (supervisor) | launchd | models (fetch + verify ONNX files)
+│   ├── cli.py                # serve | dev (supervisor) | models (fetch + verify ONNX files; --mlx: the MLX repos)
 │   ├── config.py             # load config.yaml, env overrides, validation
+│   ├── supervisor.py         # mlxrt dev
+│   ├── fetch.py, hub.py      # mlxrt models; the HF cache layout
 │   ├── logs.py               # JSON log formatter; contextvars for session_id, turn_id, …
-│   ├── metrics.py            # turn timeline, Prometheus histograms, windowed P50/P95
-│   ├── server/               # starlette app, WS transport (reader, single writer), admission, health
+│   ├── server/               # starlette app, WS transport (reader, single writer), admission, readiness, metrics
 │   ├── protocol/             # GA wire layer: decode + validate → commands; facts → events; ids; errors
-│   ├── session/              # actor, conversation, input buffer, turn manager, response FSM, pipeline, truncation
-│   ├── audio/                # resample.py (the only resampler), g711.py, codec.py (wire format ↔ canonical PCM)
-│   ├── vad/                  # silero.py, smart_turn.py, whisper_features.py (numpy), executors.py
-│   ├── text/                 # segmenter.py, normalize/ (numbers, money, dates, phones, ids), lang.py
-│   └── providers/            # base.py (interfaces, types, errors), registry.py, mock.py, mlx_lm_chat.py (LLM),
-│                             # mlx_audio_asr.py, mlx_audio_tts.py, fallback.py
+│   ├── session/              # actor, conversation, input buffer, turn manager, response FSM, pipeline, pacing,
+│   │                         # echo reference, truncation, timeline, observer
+│   ├── audio/                # resample.py (the only resampler), g711.py, formats.py, codec.py (wire format ↔ canonical
+│   │                         # PCM), aec.py (AEC3, SpeexDSP), delay.py (GCC-PHAT), playout.py (AICC's playout), trim.py
+│   ├── vad/                  # silero.py, smart_turn.py, whisper_features.py (numpy), gate.py, executors.py
+│   ├── text/                 # segmenter.py, normalize/ (phones, IDs, e-mail, numbers, …), lang.py, similarity.py
+│   └── providers/            # base.py (interfaces, types, errors), registry.py, mock.py, http.py, mlx_lm_chat.py,
+│                             # chat_wire.py, sse.py (LLM), mlx_audio_asr.py, mlx_audio_tts.py, fallback.py, voices.py
 ├── backends/                 # model processes; each a standalone uv project (uv init --no-workspace)
-│   ├── llm/                  # pins mlx-lm; runs mlx_lm.server
+│   ├── llm/                  # pins mlx-lm 0.32.2; package mlxrt_llm (serve.py, lenient.py, checkpoints.py) + tests/
 │   │   ├── pyproject.toml
 │   │   ├── uv.lock
 │   │   └── .python-version
-│   └── audio/                # pins mlx-audio; runs the ASR and TTS processes
+│   └── audio/                # pins mlx-audio 0.6.1; runs stock mlx_audio.server for the ASR and TTS (G1)
 │       ├── pyproject.toml
 │       ├── uv.lock
-│       ├── .python-version
-│       └── src/mlxrt_audio/  # thin workers, only if M0 shows mlx_audio.server is not enough
+│       └── .python-version
+├── vendor/speexdsp-aec/      # SpeexDSP 1.2.1's BSD sources (echo canceller, preprocessor), vendored with
+│                             # their sha256s, built as a CPython extension through uv (needs a C compiler)
 ├── models/                   # ONNX files (Silero, Smart Turn) + manifest with source revision and sha256; files git-ignored
-├── deploy/launchd/           # plist templates (optional)
 ├── tests/
-│   ├── unit/                 # codecs, resampling, segmenter, normalizer, input buffer, turn manager, truncation, protocol
-│   ├── integration/          # in-process server + mock providers: golden traces, causal invariants, cancellation matrix
+│   ├── unit/                 # codecs, resampling, segmenter, normalizer, input buffer, turn manager, truncation, protocol, echo
+│   ├── integration/          # in-process server + mock providers and fake backends: golden traces, causal invariants,
+│   │                         # cancellation matrix, AICC replays, simulated echo
 │   ├── golden/               # golden JSONL event traces
-│   └── e2e/                  # official openai SDK against the full local stack (pytest marker: e2e)
+│   ├── fakes/                # fake mlx_lm.server and mlx_audio.server that copy the real wire formats
+│   ├── aicc/                 # AICC's own Realtime client harness (probe.py, zz_mlx_live_test.go via go test -overlay)
+│   ├── backend/              # the real backends (pytest marker: backend; needs make dev)
+│   └── e2e/                  # official openai SDK against the local stack (pytest marker: e2e)
 ├── bench/
-│   ├── bench.py              # replay a WAV directory at real-time speed; per-stage times, P50/P95, CER
-│   ├── cer.py
-│   └── README.md             # dataset layout: wav + reference text, incl. 8 kHz telephone samples
-└── spikes/                   # M0 throwaway scripts and raw results; each spike a standalone uv project with its uv.lock
+│   ├── bench.py              # replay utterances at real-time speed; per-stage times, P50/P95, AICC's windows
+│   ├── dataset.py            # manifest or WAV directory, incl. 8 kHz telephone audio and G.711 streams
+│   ├── scoring.py            # CER / WER / MER with M0's text_norm
+│   └── report.py
+└── spikes/                   # M0 and later measurement scripts and raw results; each a standalone uv project with its uv.lock
 ```
 
 **Dependencies and environments: uv only** (rules in `CLAUDE.md`).
@@ -277,9 +318,11 @@ These rules are enforced by an import-graph test and by ruff's banned-imports ru
 **CPU inference runs off the loop.** onnxruntime releases the GIL inside `run()`.
 
 - Silero runs on a single-thread executor, one call per 32 ms frame. Batching all ready streams into one
-  call is an M6 optimization if loop lag shows up.
-- Smart Turn runs on its own executor with K workers.
-- Results return to the actor as Facts.
+  call is left for if loop lag shows up (M0 S7 sized the executors for 64 streams).
+- Smart Turn runs on its own executor with K workers (2).
+- The echo cancellers run on their own executor (`aec.workers`, 2), each session's frames in order;
+  three calls use about 3 % of one core.
+- Results return to the actor as Signals.
 
 **Backends are shared by all sessions.** The gateway drains backend streams promptly and buffers in its
 own memory under explicit caps (§4.4). A slow client can never stall a model process that other
@@ -289,34 +332,53 @@ sessions depend on.
 
 ```
 input   audio/pcm 24 kHz s16le ───────────────────────┐
-        audio/pcmu | audio/pcma ─── G.711 LUT decode ──┤  (8 kHz assumed [D3]; M7)
+        audio/pcmu | audio/pcma ─── G.711 LUT decode ──┤  (8 kHz [D3]; 8 → 16 kHz at soxr LQ)
                                                        ▼
                       soxr ResampleStream → 16 kHz mono int16 (canonical)
-                                                       │
-                     echo canceller (AEC) ◄── reference: our own output, resampled to 16 kHz
-                                                       │      and placed on the modelled client
-                                                       │      playout timeline (§6.5)
-             ┌──────────────────────────┬──────────────┴───────────────────┐
-             ▼                          ▼                                  ▼
-     Silero VAD                  Smart Turn v3.2                      InputBuffer
-     512-sample frames           last ≤ 8 s of the turn,              committed span → ASR
-     (+64-sample context,        front-padded with zeros,             (whole turn, 16 kHz)
-      state [2,1,128])           Whisper log-mel [80×800]
+                                                       │      reference: our own output, resampled
+                                                       │      to 16 kHz and placed on the modelled
+                                                       │      client playout timeline (§6.5)
+                   ┌───────────────────────────────────┴──────────────────┐
+                   ▼  detection path                                      ▼  ASR path
+         WebRTC AEC3 (pywebrtc-audio)                    3.8 kHz low-pass → SpeexDSP linear
+                   │                                     canceller (64 ms) + preprocessor
+          ┌────────┴────────────────────┐                                 │
+          ▼                             ▼                                 ▼
+   Silero VAD                    Smart Turn v3.2                      InputBuffer
+   512-sample frames             last ≤ 8 s of the turn,              committed span → ASR
+   (+64-sample context,          front-padded with zeros,             (whole turn, 16 kHz;
+    state [2,1,128])             Whisper log-mel [80×800]              aec.asr_input's track)
 
-output  TTS PCM (model rate, 24 kHz expected [M0]) → resample if needed → encode (PCM16 | G.711)
-        → base64 → response.output_audio.delta
+output  TTS PCM 24 kHz → edge-silence trim → resample if needed (24 → 8 kHz at soxr HQ for G.711)
+        → encode (PCM16 | G.711) → base64 → response.output_audio.delta
 ```
+
+**The dual path [D17, G7].** AEC3 cleans what speech and end-of-turn detection hear; its suppressor
+also removes quiet caller speech in double talk, which costs the ASR accuracy. A SpeexDSP linear
+canceller, aligned by the same GCC-PHAT estimator, cleans what the ASR hears. The InputBuffer keeps
+three tracks over the same positions: the input as received, AEC3's output (Smart Turn reads it) and
+the ASR path's output. A commit hands the ASR the track `aec.asr_input` names: `speex` (default),
+`aec3` or `raw`. Until Speex has aligned (about 2.5 s into a call's first answer), the ASR track is
+the input as received, unfiltered. §6.5 has the details.
 
 **One canonical internal format.** Audio is held as 16 kHz mono int16 and converted to float32 only at
 model inputs, so wideband and telephony input share one code path.
 
-- Silero has a native 8 kHz mode, but upsampling 8 → 16 kHz once is simpler, and pipecat does the same
-  for Smart Turn. M0 compares the two paths for Silero.
+- Silero has a native 8 kHz mode, but it drifts on long calls (M0 S7, G3), so telephone audio is
+  upsampled 8 → 16 kHz once, as pipecat does for Smart Turn.
 
 **Conversion modules.**
 
 - `audio/resample.py` is the only module that changes sample rates. It keeps one stateful
-  `soxr.ResampleStream` (quality HQ) per stream and direction, and flushes it at stream end.
+  `soxr.ResampleStream` per stream and direction, and flushes it at stream end. The quality is HQ,
+  except for G.711's 8 → 16 kHz input step, which runs at `g711.input_quality` LQ: it lags 32 ms on
+  average against HQ's 64, and the real-stack validation found HQ no more accurate for the ASR. The
+  echo reference of G.711 output takes the same path.
+- `audio/codec.py` holds the input decoder per session and one output encoder per response. The
+  encoder flushes its resampler at each segment's end, so a segment's tail never waits for the next
+  segment's synthesis.
+- `audio/formats.py` does every wire byte ↔ ms conversion (24 kHz PCM16; 8 kHz G.711, 1 byte a
+  sample).
 - `audio/g711.py` implements μ-law and A-law with lookup tables: 256 entries to decode, 65 536 to
   encode. It is tested exhaustively against `audioop`, which still exists (deprecated) in Python 3.12;
   there is no runtime dependency on `audioop`.
@@ -335,20 +397,22 @@ model inputs, so wideband and telephony input share one code path.
 | Buffer | Bound | When full |
 |---|---|---|
 | inbound WS message | `client_max_message_bytes` = 16 MiB (the GA append limit is 15 MiB) | close 1009 |
-| session inbox (appends + commands) | `inbox_max_ms` of audio (2 s) + 256 commands | fatal `input_queue_overflow`: `error` event, close 1011. Audio is never dropped silently |
+| session inbox (appends + commands) | `inbox_max_ms` of audio (2 s, counted as duration in the input format) + 256 commands | fatal `input_queue_overflow`: `error` event, close 1011. Audio is never dropped silently |
 | InputBuffer | `input_audio_buffer_max_ms` (60 s); idle audio trimmed in VAD modes (§6.2) | fatal `input_audio_buffer_overflow` |
 | LLM stream | drained immediately; text bounded by `max_output_tokens` | — |
-| TTS audio per response | `max_response_audio_ms` (120 s) | response ends `incomplete` |
+| TTS audio per response | `max_response_audio_ms` (120 s); the TTS stage drains every stream into the response's queue at once | response ends `incomplete` |
+| audio held back per response (the reserve, §7) | `output.reserve.hold_ms` (1.5 s) while more segments are to come | released one delta at a time (after `keepalive_ms` without a delta, or when the client's modelled buffer drops below `min_lead_ms`); then 20 ms keepalive silence (§7) |
 | outbound events per session | 256 events | Pipeline producers wait once half the queue is full; the actor never waits. A backlog over the limit, or a write stalled longer than `client_write_timeout` (5 s), closes the session (1008, `slow_client`) |
-| backend in-flight requests | per-backend semaphore + `queue_timeout` | response `failed`, `error` code `backend_busy` |
+| backend in-flight requests | per-backend slots (`max_in_flight`: LLM 4, ASR 3, TTS 1) + `queue_timeout_ms` (LLM and ASR 1 s from arrival) | response `failed`, `error` code `backend_busy` |
+| TTS queue (one stream shared by every session) | `scheduling: edf`: the request whose session runs out of audio soonest goes first, a first segment counting from its response's start; `queue_timeout_ms` (2 s) past that deadline | response `failed`, `backend_busy` |
 
 ## 5. Provider interfaces
 
 ### 5.1 Interfaces
 
 ```python
-# src/mlx_realtime/providers/base.py — sketch
-from collections.abc import AsyncIterator, Sequence
+# src/mlx_realtime/providers/base.py — abridged; the file defines every type named here
+from collections.abc import AsyncGenerator, Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
@@ -386,20 +450,29 @@ class ASRProvider(Protocol):
 class LLMProvider(Protocol):
     def stream(self, messages: Sequence[Message], tools: Sequence[ToolDef], *,
                tool_choice: ToolChoice = "auto",
-               max_output_tokens: int | None = None) -> AsyncIterator[Delta]: ...
+               max_output_tokens: int | None = None) -> AsyncGenerator[Delta]: ...
 
 class TTSProvider(Protocol):
     def stream(self, text: str, voice: str, lang: Lang, *,
-               speed: float = 1.0) -> AsyncIterator[PCMChunk]: ...
+               speed: float = 1.0,
+               timing: SpeechTiming | None = None) -> AsyncGenerator[PCMChunk]: ...
 
 class Backend(Protocol):          # every provider also implements this
     async def warmup(self) -> None: ...
     async def ready(self) -> Readiness: ...
     async def aclose(self) -> None: ...
+
+class PrefixWarmer(Protocol):     # optional: an LLM provider that can warm its prompt cache
+    async def warm_prefix(self, messages: Sequence[Message], tools: Sequence[ToolDef], *,
+                          tool_choice: ToolChoice) -> None: ...
 ```
 
 The three method signatures are the brief's. The keyword-only options (`language`, `tool_choice`,
-`max_output_tokens`, `speed`) are additions.
+`max_output_tokens`, `speed`, `timing`) are additions: `timing` carries the TTS request's deadline
+for the queue (§4.4) and reports back its queue wait, the model and whether the fallback spoke.
+Streams are async generators, and the pipeline closes them with `aclosing`, so a cancel that lands
+outside the provider still closes the backend request. `LLMBackend`, `ASRBackend` and `TTSBackend`
+combine each provider with `Backend`.
 
 ### 5.2 Contracts
 
@@ -411,8 +484,9 @@ The three method signatures are the brief's. The keyword-only options (`language
   HTTP response closes the connection.
 - It must yield nothing after cancellation.
 - Every provider has a cancellation test at each await point.
-- M0 checks whether each backend stops computing when the connection closes. Where one does not, the
-  wasted GPU time is measured and reported.
+- M0 checked whether each backend stops computing when the connection closes (§5.3): the TTS stops
+  within a chunk; the LLM stops at its next write, so not inside a tool-call span, and up to 2 more
+  prefill steps run during a long prefill.
 
 **Deadlines.**
 
@@ -435,38 +509,76 @@ The LLM provider (mlx-lm 0.32.2):
 - **Message shape.** It always produces a messages list the Qwen chat template accepts; a template
   error comes back as HTTP 404.
   - The system message comes first.
-  - System items created later in the conversation are folded into a user-role message with a marker
-    [M5].
-  - There is always at least one user message. An empty conversation, such as a greeting requested
-    with `response.create`, gets a short configurable synthetic cue.
+  - System items created later in the conversation are folded into a user-role message,
+    `(System note: …)`.
+  - There is always at least one user message. A conversation without one, such as a greeting
+    requested with `response.create`, opens with a configurable synthetic cue: "(The call has
+    connected. Greet the caller as instructed.)".
+  - A call's results follow its assistant `tool_calls` message at once; AICC's wait line spoken
+    between a call and its result is merged into the call's message (`tool_interlude: merge`); a
+    call still unanswered gets a placeholder result (`unanswered_calls: pending`). PROTOCOL.md §11.14
+    has every rule.
 - **`tool_choice`.** The server ignores `tool_choice` and `parallel_tool_calls`, so the gateway
   enforces them:
   - `none` sends no tools at all;
   - `auto` sends the session tools;
-  - `required` and a forced function are rejected as unsupported until M5 decides.
+  - `required` and a forced function are rejected for good (M5): the server cannot force a call.
+  - A call to a function the request did not offer is dropped with a warning.
+- **Sampling (G2).** A request with tools attached runs greedy (`tool_temperature` 0, `tool_top_p`
+  1.0); one without tools at `temperature` 0.7 / `top_p` 0.8. `max_completion_tokens` 512.
 - **Tool calls.** They arrive from the server already parsed (Qwen3.6's template uses the qwen3_coder
   XML format, and the server's parser types the arguments from the JSON schema), one complete call per
-  delta. A `finish_reason: tool_calls` with no parsed call means the server dropped a malformed call.
-  The provider reports that as `bad_response`; it never delivers a partial call.
-- **Thinking.** `delta.reasoning` is dropped; it should never appear while thinking is off.
+  delta. The backend's lenient parser also recovers calls Qwen3.6 writes as `<NAME>` for a declared
+  NAME (§5.3). A `finish_reason: tool_calls` with no parsed call means the server still dropped a
+  malformed call: before any visible text the provider asks once more in the same stream, at the
+  reply sampling (`retry_dropped_call`); after text, or on a second drop, it reports `bad_response`.
+  It never delivers a partial call.
+- **Pseudo-calls.** A reply made without tools passes through a filter that drops JSON shaped like a
+  tool call (M0 saw `好的，我查一下。\n{"tool_name": …}`); any other text is released as it was.
+- **Prefix warming.** A `session.update` that changes the instructions or the tools makes the
+  session send a one-token request with the prefix of its next request, so the server's prompt
+  cache holds it (`warm_on_update`). While the session's LLM is generating, the warm-up starts when
+  it finishes. A request whose prefix is being warmed waits for that warm-up instead of prefilling
+  it twice. At most one warm-up per prefix is in flight, `max_warmups_in_flight` (1) in all, and a
+  sent warm-up runs to its end (the server cannot drop a prefill).
+- **Thinking.** `delta.reasoning` is dropped; it never appeared with thinking off (M0 S1: 20/20).
 
-**TTS fallback.** `FallbackTTS(primary, fallback)` wraps two providers.
+**TTS fallback.** `FallbackTTS(primary, fallback)` wraps two providers: two builds of one model
+(Qwen3-TTS-0.6B-CustomVoice, 8-bit and 4-bit, D13), with the same speakers.
 
 - If the primary fails before its first chunk of a segment, that segment is retried on the fallback
-  with a mapped voice.
+  in the same speaker, Latin letters included.
 - A failure after audio has started fails the segment; the voice never switches mid-sentence.
-- After N consecutive primary failures, a circuit breaker uses the fallback for `cooldown_s`.
+- `overloaded` is not retried and does not count: both models share the backend's queue.
+- After `breaker_failures` (3) consecutive primary failures, a circuit breaker uses the fallback for
+  `cooldown_s` (30 s); then the next segment tries the primary, and one more failure reopens it.
 
 ### 5.3 Backend wire contracts
 
-These are desk-verified against the source of mlx-lm 0.32.2 and mlx-audio 0.6.1, and confirmed
-hands-on in M0.
+These were desk-verified against the source of mlx-lm 0.32.2 and mlx-audio 0.6.1, and confirmed
+hands-on in M0 and on the real stack.
 
 | Role | Request | Response | Readiness |
 |---|---|---|---|
-| LLM (`mlx_lm.server`) | `POST /v1/chat/completions`: `messages`, `stream: true`, `stream_options: {include_usage: true}` (sending `stream_options` without that key fails mid-stream), `max_completion_tokens`, `temperature`, `top_p`, `tools`, `chat_template_kwargs: {enable_thinking: false}`; no `seed` (it disables batching) | SSE `data:` chunks whose deltas carry `content`, `reasoning` or `tool_calls`. A usage chunk, with `cached_tokens`, precedes `[DONE]`. `: keepalive` comment lines arrive during prefill | `GET /health` (503 once the generation thread has died) |
-| ASR (`mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` plus the warmup request |
-| TTS (`mlx_audio.server`) | `POST /v1/audio/speech`, JSON: `model`, `input`, `voice`, `lang_code` (`chinese` / `english` / `auto`), `response_format: "pcm"`, `stream: true`, `streaming_interval` | chunked body of raw s16le mono at 24 kHz, one chunk per `streaming_interval × 12.5` codec frames (80 ms each). Without `stream: true` nothing arrives until synthesis ends | as ASR |
+| LLM (`mlxrt_llm.serve`, i.e. `mlx_lm.server`) | `POST /v1/chat/completions`: `messages`, `stream: true`, `stream_options: {include_usage: true}` (sending `stream_options` without that key fails mid-stream), `max_completion_tokens`, `temperature`, `top_p`, `tools`, `chat_template_kwargs: {enable_thinking: false}`; no `model` (the server runs its pinned snapshot); no `seed` (it disables batching) | SSE `data:` chunks whose deltas carry `content`, `reasoning` or `tool_calls`. A usage chunk, with `cached_tokens`, precedes `[DONE]`. `: keepalive` comment lines arrive during prefill | `GET /health` (503 once the generation thread has died) |
+| ASR (`mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` lists the model, plus the warmup request |
+| TTS (`mlx_audio.server`) | `POST /v1/audio/speech`, JSON: `model`, `input`, `voice`, `lang_code` (`chinese` / `english` / `auto`), `response_format: "pcm"`, `stream: true`, `streaming_interval` (0.16), `max_tokens` (in proportion to the text, against runaways) | chunked body of raw s16le mono at 24 kHz, one chunk per `streaming_interval × 12.5` codec frames (80 ms each). Without `stream: true` nothing arrives until synthesis ends. A failure inside generation cuts the body (`bad_response`). One stream at a time: the gateway queues the rest (`max_in_flight` 1) | as ASR, for both models |
+
+**The LLM backend** (`backends/llm`, `python -m mlxrt_llm.serve`): `mlx_lm.server`'s own CLI with two
+patches, each refusing to start on anything but mlx-lm 0.32.2's internals.
+
+- **Lenient tool-call parser.** When the stock qwen3_coder parser fails on a call written as `<NAME>`
+  for a NAME the request declared, the tag is rewritten to `<function=NAME>` and parsed again (M0 S1:
+  11 % of realistic transfer turns were dropped otherwise). An undeclared name is never turned into a
+  call.
+- **Prompt-cache checkpoints.** Qwen3.6 is hybrid (Gated DeltaNet + attention), so its cache cannot be
+  trimmed back: the server reuses only whole prefixes it saved, at segment ends, and only for requests
+  that end with a user message. `--tools-checkpoint` also saves where the tool definitions end, and
+  `--shared-prefix-checkpoint` where the system message stops matching recent ones (AICC's phase
+  changes then prefill ~190 tokens, not ~1650). A cache hit also refreshes its entry, so these
+  checkpoints are not evicted first. Prompts and outputs are unchanged.
+- The server notices a closed connection only at its next write, so a prefill is never cancelled
+  (hence the warm-up rules in §5.2).
 
 Behaviour each contract implies:
 
@@ -474,14 +586,17 @@ Behaviour each contract implies:
   - `mlx_lm.server` stops at the next token once a write fails. It cannot notice a disconnect while
     it streams nothing, which happens during a tool-call span and, on its sequential path, during
     prefill.
-  - `mlx_audio.server` stops between chunks.
-- **Model choices for M0** (all checked to exist on HF, 2026-10-22):
-  - LLM: `mlx-community/Qwen3.6-35B-A3B-4bit` and `mlx-community/Qwen3.5-35B-A3B-4bit`, 20.4 GB each,
-    model_type `qwen3_5_moe`, hybrid thinking.
-  - ASR: `mlx-community/Qwen3-ASR-1.7B-8bit` (2.5 GB).
-  - TTS: `mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit` (2.0 GB).
-  - TTS fallback: `mlx-community/Kokoro-82M-bf16` (0.4 GB).
-  - Qwen publishes no official MLX build of 3.5 or 3.6.
+  - `mlx_audio.server` stops between chunks (M0 S3: 41 ms after the close at 0.16 s chunks).
+- **Models** (pinned by revision in `config.yaml`):
+  - LLM: `mlx-community/Qwen3.6-35B-A3B-4bit` @38740b84 (G2; Qwen3.5-35B-A3B-4bit was the
+    alternative), model_type `qwen3_5_moe`, hybrid thinking. Qwen publishes no official MLX build of
+    3.5 or 3.6.
+  - ASR: `mlx-community/Qwen3-ASR-1.7B-8bit` @a8379a2e.
+  - TTS: `mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit` @049ef77f.
+  - TTS fallback: `mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit` @08c72cad (D13; Kokoro-82M,
+    the brief's choice, garbled English inside Chinese and was dropped).
+  - Resident after warmup on the real stack: LLM 22.9 GB (with 64 cached prompts), TTS 3.8 GB,
+    ASR 2.5 GB, gateway 0.25 GB.
 
 ### 5.4 Implementations by milestone
 
@@ -491,6 +606,8 @@ Behaviour each contract implies:
 | M2 | `MlxLmChatLLM` → llm process; `MlxAudioASR` → asr process. |
 | M3 | `MlxAudioTTS` → tts process; `FallbackTTS`. |
 | M5 | Tool calls taken from the server's own parser, replayed in history, with `tool_choice` enforced in the gateway. |
+| LLM hardening | `mlxrt_llm.serve` (lenient parser, cache checkpoints); the dropped-call retry, the pseudo-call filter and prefix warming in `MlxLmChatLLM`. |
+| D13 | The 4-bit Qwen3-TTS build as `FallbackTTS`'s fallback; Kokoro removed. |
 
 ## 6. Session state machine
 
@@ -611,7 +728,9 @@ stateDiagram-v2
   and no LLM call [D7]. A client that waits for one reply per speech turn, as AICC does, is still
   released.
 - With AICC's 3 s first-audio deadline starting at `response.created`, the budget has to cover ASR +
-  LLM TTFT + the first segment + the TTS first chunk (G4).
+  LLM TTFT + the first segment + the TTS first chunk (G4). On the real stack it is 0.94–0.97 s at
+  P95 for one call, ~2.4 s with a full re-prefill after an instructions change; at three calls the
+  TTS queue adds up to 1.9 s (P95 1.9–2.2 s, one response at 3.4 s; `docs/LATENCY.md` §4).
 
 **Audio response events, in order.** This is the GA guide's lifecycle order, also used by cascade's
 approved profile.
@@ -679,39 +798,67 @@ step:
 - A self-cancelling server would therefore interrupt itself on its own echo, and AICC's 800 ms barge
   guard cannot prevent that.
 
-**Echo canceller** (implemented in M4; the engine is chosen in M0). Each session runs an echo
-canceller on the canonical 16 kHz input, before VAD, Smart Turn and the InputBuffer, so every consumer
-sees cancelled audio.
+**Echo cancellers** (M4, then the G7 dual path). Each session runs two cancellers on the canonical
+16 kHz input (§4.3): WebRTC AEC3 (`pywebrtc-audio` 0.2.0) before Silero and Smart Turn, and a
+SpeexDSP linear canceller (vendored SpeexDSP 1.2.1: a 64 ms MDF filter, after a 3.8 kHz low-pass,
+followed by SpeexDSP's preprocessor) for the ASR (`aec.asr_input: speex`). AEC3 alone cost the ASR
+up to +28 en points in double talk at −15 dB; the dual path keeps the double-talk ΔCER within M0's C2
+limits in all 8 cells (worst +1.8 zh / +1.6 en at −15 dB).
 
-- **Reference.** The reference is the session's own output audio, resampled to 16 kHz and placed on a
-  model of the client's playout:
-  - a response's audio starts playing when its first delta reaches the client, after a configurable
-    prebuffer (AICC: 3 frames, 60 ms);
-  - it then plays continuously at real time;
+- **Reference.** The reference is the session's own output audio, as the writer hands each delta to
+  the socket, resampled to 16 kHz and placed on a model of AICC's playout:
+  - a 20 ms tick; a response's audio starts playing at 3 queued frames (60 ms) or 60 ms after the
+    queue was last empty, and re-buffers after more than 2 empty ticks;
+  - it then plays continuously at real time, and the reference leads it by 60 ms
+    (`reference_lead_ms`), so our audio precedes its echo;
   - it stops at a barge-in flush. The played position is corrected by the client's
-    `conversation.item.truncate` (`audio_end_ms`).
-- **Delay.** The canceller, or a gateway-side delay estimator, absorbs the remaining delay: network,
-  jitter buffer and echo path. That delay is bounded, unlike the raw send-to-play delay, which grows
-  with the client's queue.
-- **Runtime.** The canceller runs per session in the CPU executor, on 10 ms frames.
-- **Choice.** The algorithm and library are chosen in M0 (G7) from simulated telephone echo built from
-  public speech and standard line-echo path models. Live measurement on a real call is deferred.
+    `conversation.item.truncate` (`audio_end_ms`): when the client's played frames differ from the
+    model's by 2 or more, the model's arrivals shift by the difference (at most ±500 ms).
+  - Exactly one reference frame is fed per capture frame (zeros when nothing plays). While a response
+    may still add audio and the model does not cover the reference ahead, an input frame waits until
+    its reference is final (about 70 ms); idle input is never held.
+- **Delay.** A GCC-PHAT estimator (2 s windows every 0.5 s, PSR ≥ 8, two windows within 2 ms to
+  confirm) measures the residual delay on the raw input. AEC3's reference is moved only when a
+  confirmed residual leaves [5, 450] ms; AICC's 20 ms tick phase is learned from confirmed estimates.
+  Speex's reference is placed so the echo trails it by 20 ms, and moved only when a confirmed estimate
+  leaves [0, 44] ms. Until Speex's first confirmed estimate (median 2.5 s into a call's first answer,
+  at most 5 s in the G7 runs) the ASR hears the input as received; a line without echo never aligns
+  it. After a truncate re-anchors the model, Speex's shift absorbs the move and estimates of audio
+  placed before it are ignored for 2 s.
+- **No echo on the line.** With no echo, AEC3's suppressor takes a caller who talks over our audio
+  for echo and silences them (M4: up to 44 dB, so barge-in came 2.5–3.4 s late or not at all). Once
+  the estimator has watched `aec.bypass_without_echo_ms` (1.5 s) of playing reference with no echo of
+  it, AEC3 is fed a silent reference and passes the input through. **Leaving the bypass** takes three
+  consecutive valid windows that agree within 2 ms, each with a PSR of at least 10: the estimator's
+  own two-window confirmation let chance peaks in a caller's double talk turn the canceller back on
+  (false resumes 29 → 2 in 4.5 minutes of FLEURS double talk), and a real echo resumes it one window
+  (0.5 s) later. The ASR path never takes the bypass: a linear filter cannot silence a caller, and the
+  bypass misfires in long double talk.
+- **Runtime.** Both cancellers run per session on the canceller executor, on 10 ms frames: about
+  9.3 ms of CPU per audio second per session.
+- **Choice.** G7 picked the engines on simulated telephone echo built from public speech and ITU-T
+  G.168 echo paths (M0 S11, then `spikes/g7dual`). Live measurement on a real call is deferred.
 
 **Second line of defence.** Both rules stay configurable, because residual and nonlinear echo can
-still cross the VAD threshold. While the client is modelled as playing:
+still cross the VAD threshold. They apply while the client is modelled as playing: from a response's
+first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of echo tail.
 
-- **Onset guard.** For the first `echo_guard_ms` of playback, a speech onset does not trigger
-  barge-in. For the rest of playback it needs a longer `min_speech_ms`.
-- **Echo-turn suppression.** A committed turn whose transcript matches recent assistant text is
-  dropped, so the bot never answers itself.
+- **Onset guard.** For the first `echo_guard_ms` (2000) of a response's playback, a speech onset does
+  not trigger barge-in. For the rest of playback it needs `min_speech_ms_while_playing` (400) instead
+  of `turn.vad.min_speech_ms` (150).
+- **Echo-turn suppression.** A VAD-detected turn whose transcript matches the assistant audio played
+  around it (at least 0.7 of its CJK characters and Latin words, in order) is noise under D7, so the
+  bot never answers itself.
 
-**Observability.** Per call: the estimated echo return loss enhancement (ERLE), and the number of
-barge-ins whose turn turned out to be empty or echo.
+**Observability.** One `echo summary` log line per session (ERLE for both cancellers, re-alignments,
+re-anchorings, bypasses, the learned tick phase, barge-ins); on `/metrics`, the barge-ins whose turn
+turned out empty or echo, and the echo turns.
 
 **Test coverage.** Tests cover every phase, each with every trigger:
 
-- Phases: awaiting transcript, before the first token, mid-text, mid-tool-call, mid-audio, and draining
-  after the LLM is done.
+- Phases: awaiting transcript, before the first token, mid-text, mid-tool-call, waiting for the TTS
+  backend's slot, before the first TTS chunk, mid-audio, audio held back by pacing, draining after the
+  LLM is done, and a verbatim line.
 - Triggers: barge-in, `response.cancel`, disconnect, backend error, backend timeout.
 
 Each test asserts that:
@@ -719,13 +866,16 @@ Each test asserts that:
 - no delta follows a terminal event;
 - every opened stream is closed exactly once;
 - provider streams are observed closed within a bound;
+- audio held back by pacing is never sent;
+- for a barge-in, only terminal events lie between `speech_started` and `response.done{cancelled}`;
 - the conversation history is consistent.
 
 ### 6.6 Truncation
 
 **Segment map.** For each assistant item the actor keeps, per synthesized segment: the original text,
-the normalized text, `audio_start_ms`, `audio_ms` and how much of it was sent. All positions are on the
-item's output-audio timeline.
+the normalized text with its map back to the original, `audio_start_ms`, the audio sent, and how much
+of that is keepalive silence (§7) sent after its speech. All positions are on the item's output-audio
+timeline, in the response's output format.
 
 **Client truncate.** `conversation.item.truncate {item_id, content_index: 0, audio_end_ms}`:
 
@@ -737,18 +887,25 @@ item's output-audio timeline.
   the failure of whatever request it has in flight. AICC's played-ms is counted in whole 20 ms frames
   of audio we sent, so it can overshoot only by rounding.
 - then sets the item's effective text to:
-  - every segment that ends at or before `audio_end_ms`, plus
-  - a proportional prefix of the segment playing at that moment, measured in characters and snapped to
-    a word boundary for Latin text;
+  - every segment whose speech ends at or before `audio_end_ms`, plus
+  - a proportional prefix of the segment speaking at that moment, measured over its speech in spoken
+    (normalized) characters, mapped back through the normalizer's character map to the original
+    text (a phone number read digit by digit is heard as far as its digits were read), and snapped
+    to a word boundary for Latin text;
 - then emits `conversation.item.truncated`. The next LLM request sees only the effective text.
 
-**Fallback when the client sends no truncate [D5].** Before building the next LLM request, the actor
-applies a fallback cut.
+A segment's speech excludes the keepalive silence the reserve may have sent after it while the next
+segment waited (§7): a cut inside that silence heard the segment whole.
+
+**Fallback when the client sends no truncate [D5].** When a cancelled audio answer (barge-in or
+`response.cancel`) gets no client truncate, the next LLM request sees it cut.
 
 - The brief specifies "the duration the server has sent". But over WebSocket audio is sent faster than
   real time (GA: "The server will produce audio faster than realtime"), so after a barge-in `sent_ms`
   can be several times what was actually heard.
-- Proposed fallback: `min(sent_ms, time since the item's first audio delta was sent)`.
+- The cut is `min(sent_ms, time since the item's first audio delta was sent)`, taken at the cancel on
+  the session clock; a later truncate overrides it. It does not apply to failed responses, and the
+  transcript events still report the text sent.
 
 **Transcript deltas.** A segment's transcript deltas are sent when that segment's audio starts going
 out, so the client's transcript follows what it is playing.
@@ -759,9 +916,13 @@ out, so the client's transcript follows what it is playing.
 
 - `session.tools` reach the LLM request. `tool_choice` (session-level or per response) is applied by
   the gateway, as described in §5.2.
-- The LLM provider yields only complete calls, taken from `mlx_lm.server`'s parsed `tool_calls`.
+- The LLM provider yields only complete calls, taken from `mlx_lm.server`'s parsed `tool_calls`
+  (with the backend's lenient parser, §5.3). A call to a function not offered is dropped.
 - Text before a call is spoken normally. Call markup never reaches the segmenter or TTS, because the
-  server streams nothing while the model is inside a call.
+  server streams nothing while the model is inside a call. Whitespace at either end of an answer is
+  dropped.
+- A call is delivered as soon as it is complete, even while the text before it is still streaming
+  audio, so its events can fall between the message's.
 
 **Events per call.**
 
@@ -781,7 +942,9 @@ response.output_item.added (function_call) → conversation.item.added
 2. The server answers `conversation.item.added` → `conversation.item.done`.
 3. The client sends `response.create`.
 
-History replays the call as an assistant `tool_calls` message followed by a `tool` message.
+History replays the call as an assistant `tool_calls` message followed by a `tool` message, shaped for
+the Qwen template as §5.2 describes (results right after their call, the wait line merged into the
+call's message, a placeholder result for a call still unanswered).
 
 **Cancellation.** A response cancelled before its call is complete delivers no call, and a call that
 has been delivered is never retracted.
@@ -789,10 +952,12 @@ has been delivered is never retracted.
 ## 7. Response pipeline
 
 ```
-LLM deltas ─► segmenter ─► normalizer ─► TTS (one request per segment) ─► encoder ─► writer
-    │             └── original text ──────────────────────────────────► transcript deltas
+LLM deltas ─► segmenter ─► normalizer ─► TTS (one request per segment) ─► trim ─► encoder ─► sender ─► writer
+    │             └── original text ──────────────────────────────────────────────────► transcript deltas
     └─► complete tool calls ─► actor
 ```
+
+The sender paces the audio (D6) and holds the audio reserve (Pacing, below).
 
 **Segmenter** (`text/segmenter.py`).
 
@@ -808,17 +973,19 @@ LLM deltas ─► segmenter ─► normalizer ─► TTS (one request per segmen
 
 **Normalizer** (`text/normalize/`). It applies to TTS input only; transcripts keep the original text.
 
-- Categories:
-  - numbers: cardinal, decimal and percent, read in Chinese or English depending on context;
-  - currency;
-  - dates and times;
-  - phone numbers, read digit by digit in groups, with `1` read as 幺 if configured;
-  - order and tracking IDs, read character by character;
-  - units;
-  - zh/en spacing.
-- Each segment gets a language tag (`zh` or `en`; mixed text is tagged `zh`), which goes to
-  `TTSProvider.stream(lang)`.
-- M0 measures which categories the TTS already reads correctly; we normalize only where it helps.
+- Only what Qwen3-TTS misreads by itself is normalized (G5, M0 S9), each span read in Chinese or
+  English by its neighbourhood:
+  - phone numbers in every form (with 尾号 and extensions), digit by digit in groups, `1` read as 幺
+    in Chinese (`phone_one_as_yao`);
+  - order and tracking IDs (alphanumeric and dashed, keyed IDs from 4 digits), character by
+    character;
+  - e-mail addresses ("@" and "." spoken);
+  - cardinals of 5 or more digits;
+  - in English text, numeric dates and amounts of 1000 or more.
+- Money, decimals, percentages, ordinals, dates and times, units, zh/en spacing, URLs and brand names
+  stay as written; each of those categories is still available as a switch, off by default.
+- Each segment gets a language tag (`zh` or `en`; mixed text is tagged `zh`) from its original text,
+  which goes to `TTSProvider.stream(lang)`.
 
 **TTS.**
 
@@ -827,36 +994,70 @@ LLM deltas ─► segmenter ─► normalizer ─► TTS (one request per segmen
     request.
   - Streamed requests are never batched.
 - The next request starts as soon as the previous one has finished generating, not when its audio has
-  finished playing.
-- The LLM keeps decoding on the same GPU in the meantime. M0 measures that contention; MLX has no
-  queue-priority API.
+  finished playing. The TTS stage drains each stream into the response's queue at once, so pacing or
+  a slow client never holds the backend's single stream.
+- Every session's requests share the server's one stream, through the gateway's EDF queue (§4.4): the
+  request whose session runs out of audio soonest goes first.
+- The LLM keeps decoding on the same GPU in the meantime. On the real stack (S5) that raises the TTS's
+  RTF from 0.25 to 0.33–0.38, and the TTS costs the LLM 12 % of its decode rate; a ~16k-token prefill
+  would starve the TTS (RTF 2.1), but AICC's prompts are ~1.6k tokens. MLX has no queue-priority API.
+- Each segment's leading and trailing silence (~0.45 s and ~0.5 s from Qwen3-TTS) is trimmed to at
+  most 60 ms and 100 ms before it enters the queue (`output.trim_silence`), and `max_tokens` is capped
+  in proportion to the text (`token_cap`), so a runaway stops early.
 - Qwen3-TTS 0.6B CustomVoice parameters:
   - speakers: `vivian`, `serena`, `uncle_fu`, `dylan`, `eric`, `ryan`, `aiden`, `ono_anna`, `sohee`;
   - languages: `auto`, `chinese`, `english`, … (an unknown code silently becomes `auto`);
   - no `speed`, and no `instruct` on 0.6B.
-- `audio.output.voice` names a speaker. An unknown name is accepted, mapped to the configured default
-  voice, and logged as a warning; the effective voice is echoed back [D19]. AICC passes a flow-chosen
-  name and keeps it on retry, so rejecting a name would fail every call of that flow.
+- `audio.output.voice` names a session voice from `voices.map`: `vivian` (default), `serena`,
+  `uncle_fu`, `aiden`. Not offered: `dylan` and `eric` (dialects with `chinese`/`auto`) and `ryan`
+  (the runaway defect, mlx-audio#1002). **One voice per session:** each voice reads zh, en and mixed
+  segments itself (vivian's English WER is 0 %), on the primary and the fallback alike.
+- An unknown name is accepted, mapped to the configured default voice, and logged as a warning; the
+  effective voice is echoed back [D19]. AICC passes a flow-chosen name and keeps it on retry, so
+  rejecting a name would fail every call of that flow. Once the session has produced audio the voice
+  is locked, as in GA, for the session and for per-response voices alike (`cannot_update_voice`).
 
 **Verbatim lines [D16].** If a response's instructions start with a configured direction prefix, the
 server skips the LLM and speaks the rest of the text as written. The default prefixes are AICC's
 "Say exactly this, word for word, and add nothing else:\n" and its Chinese equivalent.
 
 - The text becomes the assistant message.
+- A line answers no user turn: it does not wait for a pending transcript and makes no tool call, so
+  it works on an empty conversation, mid-call, and while a function call is unanswered.
 - This makes AICC's greetings, announces, wait lines and closing lines exact.
 - Their latency drops to the TTS first chunk, with no prefill of a changed system prompt.
 - Any other `instructions` override replaces the session instructions for that response, as GA
   specifies.
 
-**Encoder.** It resamples and encodes to the session's output format, in deltas of at most
-`max_delta_ms`.
+**Encoder.** One per response: it resamples and encodes to the response's output format, in deltas of
+at most `max_delta_ms`, flushed at each segment's end.
 
-**Pacing [D6].** Audio is sent as soon as it is available, as GA does over WebSocket, but never more
-than `max_lead_ms` ahead of real time. The default cap is 10 s.
+**Pacing [D6].** A sender task between the TTS stage and the actor sends audio as soon as it is
+available, as GA does over WebSocket, but never more than `max_lead_ms` ahead of real time, counted
+from the response's first delta. The default cap is 10 s.
 
 - The cap bounds the client's queue; AICC queues at most 30 s and drops the rest.
 - It also keeps a cancelled response's unsent audio on the server, where the barge-in flush removes it.
-- Sends stay small and steady, so the gap between deltas never approaches AICC's 2 s watchdog.
+- At the cap the sender releases one `max_delta_ms` delta per `max_delta_ms`, so sends stay small and
+  steady.
+
+**The audio reserve** (`output.reserve`, on by default). Pacing alone cannot keep AICC's 2 s gap
+watchdog fed when a session's next segment waits in the shared TTS queue after all its audio has
+been sent. So while a response has segments to come, the sender holds back up to `hold_ms` (1.5 s) of
+its synthesized audio and releases it one delta at a time: after `keepalive_ms` (1 s) without a delta,
+or when the client's modelled buffer drops below `min_lead_ms` (400 ms). The response's first delta
+never waits; once the last segment is synthesized, the rest goes out paced as usual. Held audio is
+unsent, so a barge-in discards it, and truncation and D5 count only what was sent.
+
+**Keepalive silence** (`output.reserve.keepalive_silence`, on by default). The reserve spends itself
+keeping the client's buffer from running dry, so its last delta goes out shortly before the audio
+sent so far finishes playing. If the next segment is still waiting then (on the real stack, 2.3 s
+behind another session's long segment), the wire would go quiet past 2 s. Once nothing is held and
+more audio is to come, a 20 ms silence delta goes out every `keepalive_ms`, never before the
+response's first audio (that deadline is the client's to judge). The caller hears the same pause.
+The silence belongs to the segment before it but is not its speech (§6.6), and the TTS queue's
+timeout still bounds the wait. In the three-session soak 23 responses were bridged this way, and no
+gap exceeded 1.0 s.
 
 ## 8. Reliability
 
@@ -878,15 +1079,27 @@ code `session_limit_reached`), then close 1013 (try again later).
 - An ASR failure emits `conversation.item.input_audio_transcription.failed` for the item, and ends that
   turn's response as `failed`. The client still sees the turn end.
 
-**Backend health.** The gateway keeps a health state per backend, fed by:
+**Backend health.** A request that fails, or stalls (no chunk within `idle_timeout`), fails its
+response at once, as above. Readiness is the readiness monitor's (`server/readiness.py`):
 
-- request outcomes;
-- stalls: no chunk within `idle_timeout`;
-- periodic probes.
+- After the startup warmup it probes each warm backend every 5 s (1 s probe timeout).
+- A backend that answers "not ready" (unreachable, or its model no longer loaded) has gone down or
+  been restarted. It is marked cold and warmed again, with the startup retries, until it is ready:
+  a restarted `mlx_audio.server` loads a model only when a request asks for it, and the first
+  caller's turn must not be the one that waits for it.
+- A probe that times out is a busy backend, not a lost one, and changes nothing; one that raises is
+  logged and skipped.
+- `/readyz` (and `mlxrt_backend_ready`) count a backend as ready only when it answers ready and is
+  warm, so a backend being warmed again after a restart is not.
 
-`/readyz` reports that state. Restarting a dead or wedged backend is the supervisor's job (launchd
-KeepAlive, or `mlxrt dev`), never the gateway's. MLX multi-process hangs and a dead `mlx_lm.server`
-generation thread both end up there.
+Measured on the real stack (each backend killed with `kill -9`, then restarted): while it is down,
+`/readyz` is 503 and each response that needs it fails with `backend_unavailable`, every session
+staying open; after the restart, `/readyz` is 200 again in 1.7 s (ASR), 10.4 s (TTS, both models and
+every voice) and 3.0 s (LLM), and the next turn is normal.
+
+Restarting a dead or wedged backend is the supervisor's job, never the gateway's. MLX multi-process
+hangs and a dead `mlx_lm.server` generation thread both end up there. `mlxrt dev` stops the whole
+stack when any child exits; per-process restarts (launchd KeepAlive) are not built yet (§2).
 
 **Error policy [D18].** An `error` event is sent only when the protocol requires one, or when a
 client request cannot be honoured. Where OpenAI's live service has a known code that AICC matches,
@@ -896,6 +1109,7 @@ that code is used:
 - `response_cancel_not_active`: a `response.cancel` with nothing to cancel.
 - `param: "item_id"` (code `item_not_found`): an unknown item on `conversation.item.delete` or
   `conversation.item.truncate`.
+- `cannot_update_voice`: a different voice after the session has produced audio (§7).
 
 When a backend fails during a response, the `error` event goes out before `response.done{failed}`, so
 AICC ties it to that response. Session-ending codes: `slow_client` (close 1008) and `internal_error`
@@ -936,26 +1150,38 @@ speech_end (acoustic, from the audio timeline) · speech_stopped (VAD fired)
 → turn_confirmed → asr_done → llm_first_token → first_sentence_ready → tts_first_chunk → first_audio_sent
 ```
 
-- Each stage is the difference between consecutive marks.
+- Each stage is named after the mark that ends it and runs from the mark before it.
+  `llm_first_token` runs from the later of `asr_done` and `response_created` (a client may create the
+  response after the transcript), and is marked by the pipeline's LLM reader when the token arrives.
 - End-to-end latency is `first_audio_sent − speech_end`, which is what the user experiences.
 - Under manual commit, `committed` stands in for `speech_stopped` and `turn_confirmed`.
+- Every response has a timeline; one that answers a user audio turn extends that turn's. Only those
+  are measured: a verbatim line's or a text turn's are not. Values logged with the marks:
+  `tts_queue_ms`, `tts_model`, `tts_fallback`, `verbatim`.
 - One summary log line per turn carries every mark.
 
-**`/metrics`** (Prometheus text format).
+**`/metrics`** (Prometheus text format; unauthenticated, like `/healthz`).
 
-- Histograms: `mlxrt_stage_seconds{stage}` and `mlxrt_e2e_seconds`.
-- Counters: sessions, responses by status, barge-ins, and provider errors by backend and kind.
+- Histograms: `mlxrt_stage_seconds{stage}`, `mlxrt_e2e_seconds`, `mlxrt_tts_queue_wait_seconds`.
+- Counters: sessions, sessions refused by reason, responses by status, barge-ins, barge-ins whose turn
+  was empty or echo, echo turns, provider errors by backend and kind (including primary TTS failures
+  the fallback absorbed), and segments the TTS fallback spoke.
 - Gauges:
   - active sessions;
-  - backend readiness;
-  - windowed P50/P95 per stage (`mlxrt_stage_p50_seconds`, `mlxrt_stage_p95_seconds`) over the last N
+  - backend readiness (`mlxrt_backend_ready`: ready and warm, probed at each scrape);
+  - the TTS queue depth;
+  - windowed P50/P95 per stage and end to end (`mlxrt_stage_p50_seconds`, `mlxrt_stage_p95_seconds`,
+    `mlxrt_e2e_p50_seconds`, `mlxrt_e2e_p95_seconds`) over the last `quantile_window_turns` (200)
     turns.
+- Labels are fixed sets (stage, status, reason, backend, error kind), never an id.
 
 The Python Prometheus client's `Summary` exposes only count and sum, so quantiles for direct reading are
 computed in-process. The histograms remain the aggregatable source.
 
 **Benchmark data [D8].** The benchmark collects each turn's server-side marks from a debug endpoint,
-`GET /debug/turns?session_id=…`, which is off by default.
+`GET /debug/turns?session_id=…`, which is off by default (`observability.debug_endpoints`). One
+record per finished turn: ids, status, marks, stage durations, end to end and the logged values,
+for the last 64 sessions and at most 500 turns each; never transcripts or audio.
 
 ## 10. Configuration
 
@@ -966,18 +1192,29 @@ computed in-process. The histograms remain the aggregatable source.
   marks nesting, and the value is parsed as YAML.
 - Validation runs at startup. An unknown key or a bad value stops startup and names the dotted path.
 - Model ids and revisions, ports, thresholds, timeouts and queue bounds all live here.
+- `config.mock.yaml` runs every provider as a mock, with the real Silero VAD and the barge-in rules
+  but the echo canceller off (a sine mock TTS looks like echo).
 
-Sketch (the values are illustrative; real ids and numbers come from M0):
+Abridged from `config.yaml`, which is the reference and explains every key in its comments
+(`src/mlx_realtime/config.py` has the schema and the defaults):
 
 ```yaml
-gateway:   {host: 127.0.0.1, port: 8000, max_sessions: 8, api_key: "", max_session_s: 3600}
-limits:    {client_max_message_bytes: 16777216, inbox_max_ms: 2000, input_audio_buffer_max_ms: 60000,
-            outbound_queue_events: 256, client_write_timeout_ms: 5000, max_response_audio_ms: 120000}
-output:    {max_lead_ms: 10000, max_delta_ms: 100, default_voice: "<M0>"}
+gateway:   {host: 127.0.0.1, port: 8000, max_sessions: 3, api_key: "", max_session_s: 3600}
+limits:    {client_max_message_bytes: 16777216, inbox_max_ms: 2000, inbox_max_commands: 256,
+            input_audio_buffer_max_ms: 60000, outbound_queue_events: 256, client_write_timeout_ms: 5000,
+            max_response_audio_ms: 120000}
+output:
+  max_delta_ms: 100
+  max_lead_ms: 10000                    # D6
+  trim_silence: {enabled: true, threshold_dbfs: -50, frame_ms: 20, max_lead_ms: 60, max_tail_ms: 100}
+  reserve: {enabled: true, hold_ms: 1500, keepalive_ms: 1000, min_lead_ms: 400,
+            keepalive_silence: true}    # §7
+g711:      {input_quality: LQ, output_quality: HQ}
 lines:     {verbatim_prefixes: ["Say exactly this, word for word, and add nothing else:\n",
                                 "请一字不差地说出下面这句话，不要添加任何其它内容：\n"]}
-aec:       {enabled: true, engine: "<M0: G7>", client_prebuffer_ms: 60, max_residual_delay_ms: "<M0>"}
-barge_in:  {echo_guard_ms: "<M0>", min_speech_ms_while_playing: "<M0>", echo_turn_suppression: true}
+voices:                                 # D19; one voice per session
+  default: vivian
+  map: {vivian: {speaker: vivian, lang: segment}, serena: …, uncle_fu: …, aiden: …}
 session_defaults:                       # GA-shaped; echoed in session.created
   instructions: "…"
   output_modalities: [audio]
@@ -987,28 +1224,78 @@ session_defaults:                       # GA-shaped; echoed in session.created
       transcription: {model: qwen3-asr}
       turn_detection: {type: server_vad, threshold: 0.5, prefix_padding_ms: 300,
                        silence_duration_ms: 200, create_response: true, interrupt_response: true}
-    output: {format: {type: audio/pcm, rate: 24000}, voice: "<M0>", speed: 1.0}
+    output: {format: {type: audio/pcm, rate: 24000}, voice: vivian, speed: 1.0}
 turn:
-  vad:        {model: models/silero_vad.onnx, min_speech_ms: 150}
-  smart_turn: {enabled: true, model: models/smart-turn-v3.2-cpu.onnx, threshold: 0.5,
-               max_silence_ms: 3000, window_s: 8, workers: 2}
+  vad:        {type: silero, model: models/silero_vad.onnx, min_speech_ms: 150, model_reset_interval_s: null}
+  smart_turn: {enabled: true, model: models/smart-turn-v3.2-gpu.onnx, threshold: 0.5,
+               max_silence_ms: 3000, window_s: 8, workers: 2, intra_op_threads: 2}
+aec:                                    # D17, G7 dual path (§6.5)
+  enabled: true
+  engine: webrtc_aec3
+  asr_input: speex                      # speex | aec3 | raw
+  speex: {filter_ms: 64, target_delay_ms: 20, max_delay_ms: 44, prefilter_hz: 3800, preprocess: true}
+  workers: 2
+  client_tick_ms: 20
+  client_prebuffer_ms: 60
+  client_underrun_ticks: 2
+  reference_lead_ms: 60
+  learn_tick_phase: true
+  delay_guard: true
+  min_residual_delay_ms: 5
+  max_residual_delay_ms: 450
+  # bypass_without_echo_ms: 1500 (the default; null never bypasses)
+barge_in:  {echo_guard_ms: 2000, min_speech_ms_while_playing: 400, echo_turn_suppression: true,
+            echo_match_threshold: 0.7, echo_match_min_units: 4, echo_match_window_ms: 3000}
 text:
   segmenter:  {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
-  normalizer: {enabled: true, phone_one_as_yao: true}
+  normalizer: {enabled: true, phones: true, ids: true, emails: true, cardinals: true,
+               min_cardinal_digits: 5, en_dates: true, en_amounts: true, en_amount_min: 1000,
+               numbers: false, money: false, dates: false, units: false, spacing: false,
+               phone_one_as_yao: true}   # G5
 providers:
-  llm: {type: mlx_lm_chat, base_url: http://127.0.0.1:8101/v1, model: "<M0: repo id + revision>",
-        temperature: 0.7, top_p: 0.8, max_context_tokens: 8192, empty_conversation_cue: "…",
-        timeouts: {connect_ms: 500, first_token_ms: 5000, idle_ms: 3000}}
+  llm:
+    type: mlx_lm_chat
+    base_url: http://127.0.0.1:8101     # no `model`: the server runs its pinned snapshot
+    max_completion_tokens: 512
+    temperature: 0.7
+    top_p: 0.8
+    tool_temperature: 0.0               # G2: requests with tools run greedy
+    tool_top_p: 1.0
+    retry_dropped_call: true            # LLM hardening (§5.2)
+    warm_on_update: true
+    max_warmups_in_flight: 1
+    empty_conversation_cue: "(The call has connected. Greet the caller as instructed.)"
+    system_note: "(System note: {text})"
+    tool_interlude: merge               # M5 history shaping
+    unanswered_calls: pending
+    max_in_flight: 4                    # 3 calls plus a warm-up
+    queue_timeout_ms: 1000
+    timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000, warmup_ms: 600000}
   asr: {type: mlx_audio_transcription, base_url: http://127.0.0.1:8102,
-        model: mlx-community/Qwen3-ASR-1.7B-8bit}
-  tts: {type: mlx_audio_speech, base_url: http://127.0.0.1:8103,
-        model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit, streaming_interval: "<M0>",
-        fallback: {model: "<D13>", voices: {zh: "<M0>", en: "<M0>"}}}
-backends:                               # what `make dev` and launchd start; args come from M0
-  llm: {project: backends/llm,   port: 8101, args: [--chat-template-args, '{"enable_thinking":false}', "<M0>"]}
-  asr: {project: backends/audio, port: 8102}
-  tts: {project: backends/audio, port: 8103}
-observability: {log_level: info, quantile_window_turns: 200, debug_endpoints: false}
+        model: mlx-community/Qwen3-ASR-1.7B-8bit, max_in_flight: 3, queue_timeout_ms: 1000, timeouts: …}
+  tts:
+    type: mlx_audio_speech
+    base_url: http://127.0.0.1:8103
+    max_in_flight: 1                    # the server runs one stream at a time
+    scheduling: edf
+    first_segment_grace_ms: 0
+    queue_timeout_ms: 2000              # past the request's deadline; then backend_busy
+    primary:  {model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit, streaming_interval: 0.16,
+               token_cap: {base: 25, per_cjk: 6, per_other: 2}, timeouts: …}
+    fallback: {enabled: true, model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit,
+               streaming_interval: 0.16, breaker_failures: 3, cooldown_s: 30, timeouts: …}  # D13
+backends:                               # what `make dev` starts (§2)
+  env: {HF_HUB_OFFLINE: "1"}
+  llm: {project: backends/llm, command: [python, -m, mlxrt_llm.serve], port: 8101,
+        model: {repo: mlx-community/Qwen3.6-35B-A3B-4bit, revision: 38740b84…},
+        args: [--chat-template-args, '{"enable_thinking":false}', --max-tokens, "2048", --temp, "0.7",
+               --top-p, "0.8", --top-k, "20", --min-p, "0.0", --prompt-cache-size, "64",
+               --prompt-cache-bytes, 8GB, --tools-checkpoint, --shared-prefix-checkpoint]}
+  asr: {project: backends/audio, command: [mlx_audio.server], port: 8102, fetch: [Qwen3-ASR @a8379a2e…]}
+  tts: {project: backends/audio, command: [mlx_audio.server], port: 8103,
+        fetch: [8-bit @049ef77f…, 4-bit @08c72cad…]}
+observability: {log_level: info, quantile_window_turns: 200, debug_endpoints: false,
+                debug_sessions: 64, debug_turns_per_session: 500}
 ```
 
 ## 11. Testing strategy
@@ -1043,19 +1330,44 @@ observability: {log_level: info, quantile_window_turns: 200, debug_endpoints: fa
   - nothing follows a cancel.
 - The cancellation matrix of §6.5.
 
-**E2E** (pytest marker `e2e`, real backends). The official `openai` SDK (`openai[realtime]`, pinned)
-connects with only `base_url` changed and completes one Chinese spoken turn.
+**E2E** (pytest marker `e2e`). The official `openai` SDK (`openai[realtime]`, pinned) connects with
+only `base_url` changed: a Chinese spoken turn, a text turn, a cancel mid-audio and a tool round
+trip on the mock providers, and `mlxrt dev` on `config.mock.yaml`.
+
+**Backend tests** (pytest marker `backend`, run against `make dev`). Every provider on its real
+backend, the TTS fallback, and the official SDK on the real stack: a Chinese spoken turn (PCM and
+G.711), a barge-in and a tool round trip, each within AICC's deadlines. With `AICC_REPO` set they
+also run AICC's harness. The LLM backend's own patches are tested in `backends/llm`
+(`make test-llm-backend`).
 
 **AICC acceptance.**
 
 - **M3, connectivity.** The client frames in `spikes/aicc/traces/` are replayed against the gateway
-  as integration tests. AICC's own Realtime client harness (`probe`, `measureResponseCreated`),
-  pointed at mlx-realtime, checks the handshake, a spoken turn and the 3 s deadlines.
-- **M4, barge-in.** The same harness covers interruption, the truncate and delete flows, and
-  behaviour under simulated echo.
+  as integration tests. AICC's own Realtime client harness (`probe`, `measureResponseCreated`, and a
+  lines check), pointed at mlx-realtime, checks the handshake, a spoken turn and the 3 s deadlines.
+  `tests/aicc/probe.py` adds our `zz_mlx_live_test.go` to AICC's package with `go test -overlay`, so
+  any AICC checkout runs unmodified.
+- **M4, barge-in.** The same harness covers interruption and the keypress cancel, with the truncate
+  and delete flows; simulated echo (`tests/phone.py`: AICC's playout, G.711 and a synthetic echo path)
+  runs in the integration tests.
+- **M7, G.711.** `probe.py --g711` runs the harness on the `AcceptsG711: true` variant of AICC's
+  profile.
+- On the real stack every `TestMLX*` test passed in both profiles (PROGRESS.md, Real-stack
+  validation).
 
-**Benchmark** (`bench/`). Replays a WAV directory, including 8 kHz telephone samples, at real-time
-speed. It reports each turn's stage durations, P50/P95, and ASR CER.
+**Benchmark** (`bench/`). Replays a manifest or a WAV directory (wideband, or 8 kHz telephone audio
+as PCM or G.711) over `/v1/realtime` at real-time speed, configured as AICC configures a session, with
+`--concurrency` sessions. After each utterance it streams silence until the answer has been played
+out, as a listening caller would (`--overlap` keeps the old timing, which made every later turn
+double talk for the echo canceller). It reports each turn's server stages (from `/debug/turns`) and
+client end to end, P50/P95, AICC's windows for every response (first audio, delta gaps, tool-only
+`response.done`), and ASR CER/WER/MER. `docs/LATENCY.md` is its report on the real stack.
+
+**Real-stack measurements** (`spikes/realstack`, a uv project like the other spikes; nothing in it is
+imported by the service): the 30-minute soak (`soak.sh`), backend recovery (`recovery.sh`), AICC's
+call flow with tools (`aiccflow.sh`), repeated harness barge-ins (`bargein.sh`), GPU contention
+(`contention.py`), the G.711 input quality (`g711_quality.py`), the echo bypass (`echo_bypass.py`),
+and `bench_tables.py` for LATENCY.md's tables.
 
 **Tooling.**
 
@@ -1066,7 +1378,8 @@ speed. It reports each turn's stage durations, P50/P95, and ASR CER.
 ## 12. Decisions
 
 All approved on 2026-10-22. D17 was revised the same day: FreeSWITCH provides no echo cancellation,
-so the service does it. Further dated entries go to `docs/DECISIONS.md`.
+so the service does it. D9, D13 and D17 were settled since by M0's gates and the owner (2026-10-23);
+their rows below say how. Further dated entries go to `docs/DECISIONS.md`.
 
 | # | Decision | Resolution |
 |---|---|---|
@@ -1078,15 +1391,15 @@ so the service does it. Further dated entries go to `docs/DECISIONS.md`.
 | D6 | Output pacing | Send as soon as available, capped at `max_lead_ms` (10 s) ahead of real time. The cap keeps AICC's 30 s queue from overflowing and keeps unsent audio flushable. |
 | D7 | When a VAD turn creates its response | At commit, as OpenAI and cascade do and as AICC expects. An empty or noise transcript completes the response with no output and no LLM call, so AICC's held turns are released. |
 | D8 | Logging of transcripts; how the bench gets server-side marks | Transcripts at debug level only; marks from `/debug/turns`, off by default. |
-| D9 | Smart Turn file | Measure both in M0. The int8 "cpu" file scores 85.8% on the Chinese test set; the fp32 file (named "gpu", but it runs on CPU) scores 90.5%. Prefer fp32 if its M3 Max CPU latency fits the budget. |
+| D9 | Smart Turn file | Measure both in M0. The int8 "cpu" file scores 85.8% on the Chinese test set; the fp32 file (named "gpu", but it runs on CPU) scores 90.5%. Prefer fp32 if its M3 Max CPU latency fits the budget. **Settled (G3):** the fp32 file, 2 intra-op threads, 2 workers. |
 | D10 | Separate uv projects for the model processes | Yes (§2). |
 | D11 | How AICC attaches | Satisfy AICC's existing `gateway` profile, with zero AICC changes: `CancelsResponseItself` true; `NeedsCueForFirstTurn` false (the gateway inserts its own cue, because the Qwen template needs a user message); `AcceptsG711` false (24 kHz PCM); `TranscribeModel` empty (we transcribe without being asked); `Voice` empty (we never reject one). We additionally accept `response.tool_choice` `none` / `auto`, so a future dedicated AICC profile can enable it, together with G.711 after M7. |
 | D12 | `output_modalities: ["text"]`, which adds `response.output_text.*` and is not in the brief | Support it. The SDK's own `examples/realtime/realtime.py` uses a text loop, and it makes M1 and M2 testable without TTS. |
-| D13 | TTS fallback (the brief names Kokoro-82M) | Kokoro's Chinese needs `misaki[zh]`, splits only on ASCII punctuation, and probably mispronounces English words inside Chinese. M0 measures it. If it fails, the proposed alternative is a second Qwen3-TTS build (e.g. 0.6B CustomVoice 4-bit) in the same process. Your call; nothing is substituted without approval. |
+| D13 | TTS fallback (the brief names Kokoro-82M) | Kokoro's Chinese needs `misaki[zh]`, splits only on ASCII punctuation, and probably mispronounces English words inside Chinese. M0 measures it. If it fails, the proposed alternative is a second Qwen3-TTS build (e.g. 0.6B CustomVoice 4-bit) in the same process. Your call; nothing is substituted without approval. **Final (owner, 2026-10-23):** M0 S3 found Kokoro garbles English inside Chinese (mixed-set error 15.9% vs 2.2%). The fallback is Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit @08c72cad in the TTS process, with the primary's speakers and Latin segments allowed; Kokoro and its dependencies are removed. |
 | D14 | `audio.output.speed` | Qwen3-TTS has no speed control, so only 1.0 is accepted; other values get an `error`. |
 | D15 | Transcription events by default | On (the session default sets `audio.input.transcription`). AICC's gateway-style profile sends no transcription field, and it needs the caller's words in its call transcript. |
 | D16 | Verbatim lines | When instructions start with a configured direction prefix (AICC's two by default), skip the LLM and speak the text as written. Lines become exact, and their latency drops to the TTS first chunk. |
-| D17 | Echo (neither AICC nor FreeSWITCH cancels it on these calls; FreeSWITCH's own canceller is off by default) | The service cancels echo: a per-session echo canceller on the input, referenced to our own output on a modelled client playout timeline (§6.5). M0 (G7) picks the engine on simulated telephone echo. The onset guard and echo-turn suppression stay as a second line. Live echo measurement is deferred. |
+| D17 | Echo (neither AICC nor FreeSWITCH cancels it on these calls; FreeSWITCH's own canceller is off by default) | The service cancels echo: a per-session echo canceller on the input, referenced to our own output on a modelled client playout timeline (§6.5). M0 (G7) picks the engine on simulated telephone echo. The onset guard and echo-turn suppression stay as a second line. Live echo measurement is deferred. **Final (G7, owner, 2026-10-23):** a dual path. WebRTC AEC3 feeds Silero and Smart Turn, with a bypass on lines without echo; a vendored SpeexDSP linear canceller, GCC-PHAT aligned, feeds the InputBuffer and the ASR (§4.3, §6.5). |
 | D18 | Error policy | Use OpenAI's live codes where AICC matches them (`conversation_already_has_active_response`, `response_cancel_not_active`). Clamp a truncate that overshoots the sent audio instead of erroring. Send no unsolicited errors, because AICC pins an `error` on whatever request it has in flight. |
 | D19 | Unknown `audio.output.voice` | Accept it, map it to the default voice, log a warning, and echo the effective voice. Never reject it. |
 
@@ -1095,16 +1408,26 @@ so the service does it. Further dated entries go to `docs/DECISIONS.md`.
 The milestones are completed in order, with a stop and report after each one. Each milestone starts
 only on the owner's explicit go-ahead.
 
-| Milestone | Scope (brief) | Also lands here |
-|---|---|---|
-| M0 | Validation: research and spikes, findings in `docs/SPIKE.md` | S11: echo-canceller selection (G7) |
-| M1 | Protocol skeleton and mock providers (text echo + sine audio), end to end with the official SDK | D1, D2, D12, D18; `docs/PROTOCOL.md` |
-| M2 | VAD + Smart Turn + ASR + LLM: the speech-to-transcript path | D4, D7, D15; the synthetic cue for an empty conversation |
-| M3 | Streaming TTS: one full spoken turn | D6, D13, D16, D19. **AICC acceptance, part 1 — connectivity:** the client traces are replayed, and AICC's `probe` harness checks the handshake, a spoken turn and the 3 s deadlines |
-| M4 | Barge-in, cancellation and truncate, with full test coverage | D5. **D17 echo cancellation:** the canceller, the reference playout timeline, the onset guard and echo-turn suppression. **AICC acceptance, part 2 — barge-in:** interruption, truncate and delete flows, and behaviour under simulated echo |
-| M5 | Tool calling | `tool_choice` enforced in the gateway (§5.2) |
-| M6 | Metrics and the benchmark script; first latency report in `docs/LATENCY.md` | — |
-| M7 | G.711 8 kHz telephony | Afterwards, AICC can switch to G.711 passthrough with a dedicated profile, written on the AICC side |
+| Milestone | Scope (brief) | Also lands here | Status |
+|---|---|---|---|
+| M0 | Validation: research and spikes, findings in `docs/SPIKE.md` | S11: echo-canceller selection (G7) | Done. G1–G7 decided; G4's budget and targets await the owner's approval |
+| M1 | Protocol skeleton and mock providers (text echo + sine audio), end to end with the official SDK | D1, D2, D12, D18; `docs/PROTOCOL.md` | Done (2026-10-23) |
+| M2 | VAD + Smart Turn + ASR + LLM: the speech-to-transcript path | D4, D7, D15; the synthetic cue for an empty conversation | Done (2026-10-23) |
+| M3 | Streaming TTS: one full spoken turn | D6, D13, D16, D19. **AICC acceptance, part 1 — connectivity:** the client traces are replayed, and AICC's `probe` harness checks the handshake, a spoken turn and the 3 s deadlines | Done (2026-10-23) |
+| M4 | Barge-in, cancellation and truncate, with full test coverage | D5. **D17 echo cancellation:** the canceller, the reference playout timeline, the onset guard and echo-turn suppression. **AICC acceptance, part 2 — barge-in:** interruption, truncate and delete flows, and behaviour under simulated echo | Done (2026-10-23) |
+| M5 | Tool calling | `tool_choice` enforced in the gateway (§5.2) | Done (2026-10-23) |
+| M6 | Metrics and the benchmark script; first latency report in `docs/LATENCY.md` | The audio reserve and EDF TTS scheduling | Done (2026-10-23) |
+| M7 | G.711 8 kHz telephony | Afterwards, AICC can switch to G.711 passthrough with a dedicated profile, written on the AICC side | Done (2026-10-23) |
+
+Follow-up work after M7, each recorded in `docs/PROGRESS.md`:
+
+- **LLM hardening** (2026-10-23): `mlxrt_llm.serve`, the dropped-call retry, the pseudo-call filter
+  and prefix warming, which keep AICC's 3 s windows after instructions changes (§5.2, §5.3).
+- **G7 dual path, D13, capacity** (2026-10-23): the SpeexDSP ASR path, the 4-bit Qwen3-TTS fallback,
+  and `max_sessions` 3.
+- **Real-stack validation** (2026-10-23/24): every backend test, AICC's harness in both profiles,
+  the benchmark (`docs/LATENCY.md`), the soak, recovery, G4 and G6; with it the readiness re-warm,
+  the keepalive silence and the bypass resume rule.
 
 ## 14. Sources
 

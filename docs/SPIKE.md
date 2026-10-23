@@ -1,9 +1,10 @@
 # M0 — Validation spikes
 
-> **Status: PLAN — not started.** M0 waits for the owner's explicit go-ahead. Decisions D1–D19 were
-> approved on 2026-10-22, and S11 (echo cancellation) was added the same day. M0 writes no production
-> code: spike scripts live in `spikes/` and are thrown away. Findings, measured numbers and
-> recommended plan changes will be written into this file.
+> **Status: done (findings through 2026-10-24).** Every gate is decided; G4's budget and targets
+> await the owner's approval. S5, S6 and S10 ran through the real gateway in the real-stack
+> validation (§6, last finding). Decisions D1–D19 were approved on 2026-10-22, and S11 (echo
+> cancellation) was added the same day. M0 writes no production code: spike scripts live in
+> `spikes/`. Findings, measured numbers and recommended plan changes are in §6.
 
 ## 0. Already settled by desk research (2026-10-22)
 
@@ -121,6 +122,15 @@ and ASR 0.6B — add about 30 GB. 377 GB is free.
 | G5 | Text normalization scope | S9 | Normalize only the categories the TTS gets wrong |
 | G6 | TTS fallback (D13) and 3 vs 2 model processes | S3, S6 | Kokoro stays if zh and mixed text are intelligible; process merge proposed only if S6 shows instability |
 | G7 | Echo-canceller engine and reference alignment (D17) | S11 | On simulated telephone echo, pick the candidate that wins on all four: echo-only segments must not trigger VAD speech; near-end speech in double talk must stay recognisable (CER close to clean); it must converge after an echo-path change; CPU per session must fit the executor budget. If none wins on all four, the result and the trade-off come back to you |
+
+G4 and G6 waited for S5, S6 and S10, which ran through the real gateway in the real-stack validation
+(2026-10-23/24); their outcomes are the last finding in §6:
+
+- **G4:** a budget and targets are proposed for approval (`docs/LATENCY.md` §4). One call meets the
+  targets and AICC's floor with margin; three calls miss the P95 target (2.53–2.78 s against 2.5 s)
+  and do not hold AICC's floor reliably, because of the one TTS stream.
+- **G6:** keep three model processes (the soak was clean). The fallback half was settled by the owner:
+  the 4-bit Qwen3-TTS replaces Kokoro (D13).
 
 ## 3. Spikes
 
@@ -519,7 +529,8 @@ the first 1 s and no false start, at `min_speech` 150 / 400 ms):
 it passes 10 of 12, for 1.4 ms CPU per audio second.
 
 **Double talk.** AEC3's suppressor removes part of the near-end speech: spectral SDR is 6.1 dB, against
-4.2 dB with no canceller and 20 dB for Speex linear. ΔCER is pending the GPU, after B2.
+4.2 dB with no canceller and 20 dB for Speex linear. ΔCER is pending the GPU, after B2. *(Measured later: see the G7 dual-path finding and DECISIONS
+2026-10-23.)*
 
 **G7 decision (2026-10-23, orchestrator under the M0–M7 goal; flagged for owner review).**
 
@@ -687,7 +698,8 @@ English segments fail on IDs, numeric dates and amounts of 1000 or more.
 - **D13 (flagged for owner review): keep Kokoro**, as the brief names it, but only for segments without
   Latin letters. A segment with Latin letters fails rather than being garbled. Config can switch the
   fallback to Qwen3-TTS 0.6B 4-bit (`family: qwen3_tts`, supported since M3) if the owner approves
-  the substitution.
+  the substitution. *(Superseded 2026-10-23: the owner chose the Qwen3-TTS 4-bit fallback; Kokoro
+  was removed.)*
 
 **S11 double-talk ΔCER** (B4, 2026-10-23; points of error rate over the clean telephone chain, zh CER /
 en WER, 80 utterances per cell, continuous double talk; raw: `spikes/results/s11_cer.json`):
@@ -709,7 +721,8 @@ Silero and Smart Turn, and a cleaner path feeds the InputBuffer and the ASR. Can
 Speex linear or with its preprocessor (only if it can be built reproducibly through uv, e.g. vendored
 BSD sources compiled as a project extension), or raw audio. A follow-up task after M5 (effort max)
 measures the ASR input on barge-in-realistic double talk and implements it. Until then,
-`aec.asr_input` stays `processed` (AEC3).
+`aec.asr_input` stays `processed` (AEC3). *(Superseded 2026-10-23: the owner chose the dual path;
+`aec.asr_input` is `speex`, and `processed` was renamed `aec3`.)*
 
 ### S1 / S2 — LLM behaviour and performance (B1, 2026-10-23)
 
@@ -770,3 +783,53 @@ but it silently says "好的，我查一下" and never calls (6/40 lookups).
   contention.
 - A tool-only transfer after an instructions change misses the 3 s window (p95 3.12 s).
 - An LLM-hardening task (effort max, per the owner's rule) addresses these before S5/S6/S10.
+- **Outcome:** with the hardening (`mlxrt_llm.serve`, prefix warming, cache checkpoints) every AICC
+  case is inside the 3 s windows at p95, one call at a time; the tightest is a tool-only transfer,
+  2.17–2.58 s with ASR (`docs/PROGRESS.md`, LLM hardening). The whole of G4 is in the last finding
+  below.
+
+### S5 / S6 / S10 — Contention, stability, budget: G4 and G6 (real-stack validation, 2026-10-23/24)
+
+Run through the real gateway and backends (High Power on AC, Qwen3.6 @38740b84, Qwen3-ASR @a8379a2e,
+Qwen3-TTS 8-bit @049ef77f and 4-bit @08c72cad). Details: `docs/PROGRESS.md`, "Real-stack validation";
+tables: `docs/LATENCY.md`; raw results: `spikes/results/realstack_*`.
+
+**S5, GPU contention** (`spikes/realstack/contention.py`, LATENCY.md §3.7). While the LLM decodes one
+or three streams, the TTS's first chunk goes from 56 to 71–81 ms (P50) and its RTF from 0.25 to
+0.33–0.38; the ASR from 172 to 194–215 ms. While the TTS streams, the LLM decodes 12 % slower
+(77 → 68 tok/s). While the LLM prefills ~16k tokens, the TTS runs at RTF 2.1; AICC's prompts are
+~1.6k tokens. RTF stays well below 1 under decode contention, so `streaming_interval` stays 0.16;
+it exceeds 1 only during a long prefill, which AICC's prompt sizes do not cause, and
+`--prefill-step-size` was not tried.
+
+**S6, stability** (`spikes/realstack/soak.sh 1800`). Three sessions back to back for 30 minutes
+through `make dev`: 45 sessions, 378 utterances, 625 TTS requests (fewer than the planned 1000: the
+answers are one sentence). No hang, no crash, no backend error status, no IOGPU or GPU kernel message;
+7 responses failed with `backend_busy` (the TTS queue timeout). Memory was flat after the LLM's prompt
+cache filled in the first 5 minutes, with no swap. Each backend killed with `kill -9` and restarted
+recovers on its own; the gateway warms it again (`/readyz` 200 after 1.7 s for the ASR, 10.4 s for
+the TTS, 3.0 s for the LLM).
+
+**S10, budget** (`bench/` on 126 utterances, LATENCY.md §3–§4). Server end to end, speech end →
+first audio, on turns that end on a complete Smart Turn verdict: 1.37–1.39 / 1.52–1.54 s (P50 / P95)
+at one session, 1.42–1.47 / 1.86–2.78 s at two and three. The tails at two and three sessions are the
+serialized TTS: a first segment waited up to 1.9 s for another session's segment.
+
+**G4 decision (2026-10-24; proposed, awaiting the owner's approval).**
+
+- **Budget** (P95 per stage from speech end, AICC's 500 ms silence): VAD 550 ms, Smart Turn 100 ms
+  (up to `max_silence_ms` when it holds a turn), ASR 400 ms, LLM first token 500 ms warm, first
+  sentence 250 ms, TTS first chunk 150 ms alone (2 s when shared), first audio sent 200 ms.
+- **Targets** (speech end → first audio, complete verdicts): one call P50 ≤ 1.5 s / P95 ≤ 1.8 s, met;
+  up to three calls P50 ≤ 1.6 s / P95 ≤ 2.5 s, P50 met, P95 not met at three calls (2.53–2.78 s).
+- **AICC's floor:** one call holds it with margin (`response.created` → first audio 0.94–0.97 s at
+  P95; ~2.4 s with a full re-prefill after an instructions change). Three calls do not hold it
+  reliably: one first audio at 3.39 s, 7 `backend_busy` failures (1.8 % of the three-session
+  responses), and a tool-only transfer at 2.78 s beside two talking sessions.
+- **Plan change:** the three-call target needs more TTS capacity (a second TTS process, or batched
+  generation) or shorter segments; an owner decision (`docs/DECISIONS.md`, 2026-10-24).
+
+**G6 decision (2026-10-24): keep three model processes.** The soak showed no instability, so the
+rule proposes no merge, and recovery works per process. A merge would not widen the TTS stream,
+which is the capacity limit. The fallback half of G6 was settled by the owner on 2026-10-23: the
+4-bit Qwen3-TTS build replaces Kokoro (D13).
