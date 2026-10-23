@@ -1,0 +1,1531 @@
+{
+ "spike": "S1.3",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": null,
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.839969166,
+  "first_request_done_s": 2.105083916,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792724662.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 6.0029296875,
+  "loadavg_1m_after": 5.18505859375,
+  "wall_s": 37.2,
+  "footprint_gb": 21.15
+ },
+ "data": {
+  "no_user_message__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    }
+   ],
+   "results": [
+    {
+     "status": 404,
+     "error": "{\"error\": \"No user query found in messages.\"}",
+     "content": "",
+     "tool_calls": [],
+     "finish_reason": null,
+     "ttft": null,
+     "prompt_tokens": null
+    }
+   ]
+  },
+  "no_user_message__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "(The conversation has just started.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 1.200618792,
+     "prompt_tokens": 1566
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.040132708,
+     "prompt_tokens": 1566
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.03806575,
+     "prompt_tokens": 1566
+    }
+   ]
+  },
+  "instructions_only__raw": {
+   "messages_sent": [],
+   "results": [
+    {
+     "status": 404,
+     "error": "{\"error\": \"No user query found in messages.\"}",
+     "content": "",
+     "tool_calls": [],
+     "finish_reason": null,
+     "ttft": null,
+     "prompt_tokens": null
+    }
+   ]
+  },
+  "instructions_only__gateway": {
+   "messages_sent": [
+    {
+     "role": "user",
+     "content": "(The conversation has just started.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.162508791,
+     "prompt_tokens": 1536
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.031490917,
+     "prompt_tokens": 1536
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.030635041,
+     "prompt_tokens": 1536
+    }
+   ]
+  },
+  "system_not_first__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "你好"
+    },
+    {
+     "role": "assistant",
+     "content": "您好，请问有什么可以帮您？"
+    },
+    {
+     "role": "system",
+     "content": "通话即将结束，请礼貌道别。"
+    },
+    {
+     "role": "user",
+     "content": "嗯"
+    }
+   ],
+   "results": [
+    {
+     "status": 404,
+     "error": "{\"error\": \"System message must be at the beginning.\"}",
+     "content": "",
+     "tool_calls": [],
+     "finish_reason": null,
+     "ttft": null,
+     "prompt_tokens": null
+    }
+   ]
+  },
+  "system_not_first__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "你好"
+    },
+    {
+     "role": "assistant",
+     "content": "您好，请问有什么可以帮您？"
+    },
+    {
+     "role": "user",
+     "content": "(System note: 通话即将结束，请礼貌道别。)"
+    },
+    {
+     "role": "user",
+     "content": "嗯"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.172326292,
+     "prompt_tokens": 1597
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "hangup",
+       "{\"isFarewellSpoken\": false}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.401167666,
+     "prompt_tokens": 1597
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "hangup",
+       "{\"isFarewellSpoken\": false}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.39357975,
+     "prompt_tokens": 1597
+    }
+   ]
+  },
+  "wait_line_between_call_and_result__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单号 RMA1001 显示为“维修完成”，请您前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.195393875,
+     "prompt_tokens": 1679
+    }
+   ]
+  },
+  "wait_line_between_call_and_result__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，您的维修单号RMA1001已维修完成，请前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.181130333,
+     "prompt_tokens": 1671
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机维修已完成，可以前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.035714917,
+     "prompt_tokens": 1671
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单 RMA1001 状态是“维修完成”，请您前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.033525083,
+     "prompt_tokens": 1671
+    }
+   ]
+  },
+  "tool_result_call_deleted__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，您的维修单号RMA1001，状态为“维修完成”，您可以前往原送修门店取件。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.175915417,
+     "prompt_tokens": 1620
+    }
+   ]
+  },
+  "tool_result_call_deleted__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，您的维修单号 RMA1001 进度已更新为“维修完成”，您可以前往原送修门店取机。请问还有其他业务需要办理吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032994959,
+     "prompt_tokens": 1620
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，我查到了。您的维修单号 RMA1001 目前状态为“维修完成”，您可以前往原送修门店取机。请问还有其他可以帮您的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.030916917,
+     "prompt_tokens": 1620
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，您的维修单号 RMA1001 进度已查到。目前状态是“维修完成”，您可以前往原送修门店取机。请问还有其他需要协助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.17610375,
+     "prompt_tokens": 1620
+    }
+   ]
+  },
+  "tool_result_call_deleted_after_wait_line__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机已经维修完成，可以前往原送修门店取件。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.208776209,
+     "prompt_tokens": 1639
+    }
+   ]
+  },
+  "tool_result_call_deleted_after_wait_line__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，您的维修单号RMA1001已维修完成，可以前往原送修门店取机。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.031658958,
+     "prompt_tokens": 1639
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机已维修完成，请携带相关凭证到原送修门店取机。请问还有其他问题吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032319458,
+     "prompt_tokens": 1639
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机维修已完成，请前往原送修门店取机。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.202914458,
+     "prompt_tokens": 1639
+    }
+   ]
+  },
+  "several_results_one_request__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "帮我查一下RMA1001的进度，再问一下合约机提前解约的违约金。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      },
+      {
+       "id": "call_2",
+       "type": "function",
+       "function": {
+        "name": "kb_search_slow",
+        "arguments": "{\"query\": \"合约机提前解约违约金\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_2",
+     "content": "{\"found\": 1, \"answer\": \"合约期内提前解约需支付剩余月数月租的30%作为违约金。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单 RMA1001 状态是“维修完成”，请前往原送修门店取机。\n\n关于合约机提前解约，合约期内解约需支付剩余月数月租的30%作为违约金。\n\n请问还有其他业务需要办理吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.2396145,
+     "prompt_tokens": 1731
+    }
+   ]
+  },
+  "several_results_one_request__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "帮我查一下RMA1001的进度，再问一下合约机提前解约的违约金。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      },
+      {
+       "id": "call_2",
+       "type": "function",
+       "function": {
+        "name": "kb_search_slow",
+        "arguments": "{\"query\": \"合约机提前解约违约金\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_2",
+     "content": "{\"found\": 1, \"answer\": \"合约期内提前解约需支付剩余月数月租的30%作为违约金。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，您的手机维修已完成，请回原送修门店取机。关于合约机提前解约，需支付剩余月数月租的30%作为违约金。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.038916458,
+     "prompt_tokens": 1731
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单 RMA1001 状态为“维修完成”，请前往原送修门店取机。关于合约机提前解约，需支付剩余月数月租的30%作为违约金。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.029923,
+     "prompt_tokens": 1731
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单 RMA1001 状态为“维修完成”，您可以前往原送修门店取机。关于合约机提前解约，违约金是剩余月数月租的30%。请问还有其他业务需要办理吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.228636833,
+     "prompt_tokens": 1731
+    }
+   ]
+  },
+  "keypress_note_en__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我想转人工"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，请按0转接人工客服。"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 0 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工服务\", \"summary\": \"用户通过按键0要求转接人工客服。\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 1.098811917,
+     "prompt_tokens": 1591
+    }
+   ]
+  },
+  "keypress_note_en__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我想转人工"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，请按0转接人工客服。"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 0 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"User wants to speak to an agent.\", \"summary\": \"User requested to transfer to a human agent.\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 1.019211541,
+     "prompt_tokens": 1591
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转人工\", \"summary\": \"用户要求转人工客服\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.927082208,
+     "prompt_tokens": 1591
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"The user wants to transfer to a human agent.\", \"summary\": \"The user pressed 0 to transfer to a human agent.\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 1.074315875,
+     "prompt_tokens": 1591
+    }
+   ]
+  },
+  "keypress_note_zh__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我想转人工"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，请按0转接人工客服。"
+    },
+    {
+     "role": "user",
+     "content": "(用户通过电话按键输入:0)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转人工服务\", \"summary\": \"用户要求转人工服务\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 1.021721459,
+     "prompt_tokens": 1590
+    }
+   ]
+  },
+  "keypress_note_zh__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我想转人工"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，请按0转接人工客服。"
+    },
+    {
+     "role": "user",
+     "content": "(用户通过电话按键输入:0)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转人工\", \"summary\": \"用户要求转人工服务。\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.918437166,
+     "prompt_tokens": 1590
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转人工\", \"summary\": \"用户要求转人工服务。\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.913009375,
+     "prompt_tokens": 1590
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转人工\", \"summary\": \"用户要求转人工客服\", \"slots\": {}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.899536417,
+     "prompt_tokens": 1590
+    }
+   ]
+  },
+  "keypress_2_note_en__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 2 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，请问您的维修单号是多少？以RMA开头的。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.118544917,
+     "prompt_tokens": 1569
+    }
+   ]
+  },
+  "keypress_2_note_en__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 2 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，我帮您查询维修进度。请报一下您的维修单号，以 RMA 开头。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.036259042,
+     "prompt_tokens": 1569
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，请问您的维修单号是多少？请提供以“RMA”开头的单号。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032625,
+     "prompt_tokens": 1569
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，正在为您查询国际漫游资费。请问您具体想了解哪个国家或地区的资费标准？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.051756041,
+     "prompt_tokens": 1569
+    }
+   ]
+  },
+  "dead_air_note__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "(The caller has been silent for 8 seconds.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.117211333,
+     "prompt_tokens": 1570
+    }
+   ]
+  },
+  "dead_air_note__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "(The caller has been silent for 8 seconds.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.031489125,
+     "prompt_tokens": 1570
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032443167,
+     "prompt_tokens": 1570
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，请问有什么可以帮您？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.031300833,
+     "prompt_tokens": 1570
+    }
+   ]
+  },
+  "system_note_unheard_result__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    },
+    {
+     "role": "user",
+     "content": "(System note: the caller has not heard the result of the lookup yet, not a word of it. In your next reply to the caller, first respond briefly, then tell them the result.)"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 0 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，我帮您转接人工客服。请稍等。",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.219757792,
+     "prompt_tokens": 1714
+    }
+   ]
+  },
+  "system_note_unheard_result__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}"
+    },
+    {
+     "role": "user",
+     "content": "(System note: the caller has not heard the result of the lookup yet, not a word of it. In your next reply to the caller, first respond briefly, then tell them the result.)"
+    },
+    {
+     "role": "user",
+     "content": "(The caller pressed 0 on their keypad.)"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户已查询维修进度，但坚持要求转人工，可能希望进一步确认或咨询其他问题。\", \"summary\": \"用户查询维修单号RMA1001的进度，系统显示“维修完成”，可前往“原送修门店”取机。随后用户按键0要求转人工。\", \"slots\": {\"rma\": \"RMA1001\"}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 1.672643208,
+     "prompt_tokens": 1714
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，工单 RMA1001 状态为“维修完成”，请前往原送修门店取机。请问还有其他业务需要办理吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.0310505,
+     "prompt_tokens": 1714
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "好的，我为您转接人工客服。\n\n",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户查询维修进度后要求转人工\", \"summary\": \"用户查询维修单号RMA1001的进度，结果显示维修已完成，可在原送修门店取机。随后用户按键0要求转人工客服。\", \"slots\": {\"rma\": \"RMA1001\", \"status\": \"维修完成\", \"pickup\": \"原送修门店\"}}"
+      ]
+     ],
+     "finish_reason": "tool_calls",
+     "ttft": 0.051769666,
+     "prompt_tokens": 1714
+    }
+   ]
+  },
+  "tool_result_with_hint__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"status\": \"维修完成\", \"hint\": \"告诉用户维修已经完成，可以到原送修门店取机，然后问还有没有其它问题。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单号RMA1001状态为维修完成，您可以到原送修门店取机。请问还有其他需要办理的业务吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.189247,
+     "prompt_tokens": 1664
+    }
+   ]
+  },
+  "tool_result_with_hint__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"status\": \"维修完成\", \"hint\": \"告诉用户维修已经完成，可以到原送修门店取机，然后问还有没有其它问题。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，您的手机维修已完成。请前往原送修门店取机。请问还有其他问题需要协助吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032064542,
+     "prompt_tokens": 1664
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您好，您的手机维修已经完成，可以前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.032304209,
+     "prompt_tokens": 1664
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机维修已完成，请携带维修凭证到原送修门店取机。请问还有其他问题需要帮助吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.182773584,
+     "prompt_tokens": 1664
+    }
+   ]
+  },
+  "wait_line_then_hint_result__raw": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。"
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"status\": \"维修完成\", \"hint\": \"告诉用户维修已经完成，可以到原送修门店取机，然后问还有没有其它问题。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机维修已完成，可以前往原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.197803375,
+     "prompt_tokens": 1683
+    }
+   ]
+  },
+  "wait_line_then_hint_result__gateway": {
+   "messages_sent": [
+    {
+     "role": "assistant",
+     "content": "星讯手机售后热线,语音助手为您服务。请问是咨询手机使用问题,查询维修进度,还是其它服务?"
+    },
+    {
+     "role": "user",
+     "content": "我的维修单号是RMA1001，帮我查一下进度。"
+    },
+    {
+     "role": "assistant",
+     "content": "好的，我帮您查一下，请稍等。",
+     "tool_calls": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "repair_status",
+        "arguments": "{\"rma\": \"RMA1001\"}"
+       }
+      }
+     ]
+    },
+    {
+     "role": "tool",
+     "tool_call_id": "call_1",
+     "content": "{\"found\": 1, \"status\": \"维修完成\", \"hint\": \"告诉用户维修已经完成，可以到原送修门店取机，然后问还有没有其它问题。\"}"
+    }
+   ],
+   "results": [
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机已经维修完成，您可以到原送修门店取机。请问还有其他问题需要咨询吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.186695167,
+     "prompt_tokens": 1675
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的手机维修已完成，您可以到原送修门店取机。请问还有其他需要帮助的吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.031259083,
+     "prompt_tokens": 1675
+    },
+    {
+     "status": 200,
+     "error": null,
+     "content": "您的维修单号RMA1001已维修完成，您可以到原送修门店取机。请问还有其他问题吗？",
+     "tool_calls": [],
+     "finish_reason": "stop",
+     "ttft": 0.029912166,
+     "prompt_tokens": 1675
+    }
+   ]
+  },
+  "cue_wording": {
+   "gateway_default": {
+    "cue": "(The conversation has just started.)",
+    "results": [
+     {
+      "content": "您好，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.077773,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.031764,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.031473834,
+      "status": 200
+     },
+     {
+      "content": "您好，星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.03151925,
+      "status": 200
+     },
+     {
+      "content": "您好，星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.047392583,
+      "status": 200
+     }
+    ]
+   },
+   "proposed_en": {
+    "cue": "(The call has connected. Greet the caller as instructed.)",
+    "results": [
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.084182625,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.032596792,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.03049225,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.030261,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.030537208,
+      "status": 200
+     }
+    ]
+   },
+   "proposed_zh": {
+    "cue": "(电话已接通，请按指示问候来电者。)",
+    "results": [
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.085501125,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.032078083,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.031817125,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.030973167,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.032588625,
+      "status": 200
+     }
+    ]
+   },
+   "proposed_zh_short": {
+    "cue": "(来电已接通)",
+    "results": [
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.104624541,
+      "status": 200
+     },
+     {
+      "content": "您好，星讯手机售后服务热线，请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.032412584,
+      "status": 200
+     },
+     {
+      "content": "您好，星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.030917625,
+      "status": 200
+     },
+     {
+      "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.047706125,
+      "status": 200
+     },
+     {
+      "content": "您好，星讯手机售后服务热线。请问有什么可以帮您？",
+      "tool_calls": [],
+      "ttft": 0.031741041,
+      "status": 200
+     }
+    ]
+   }
+  },
+  "system_note_wording": {
+   "gateway_default__closing": {
+    "format": "(System note: {text})",
+    "text": "通话时间即将用完，请礼貌地结束通话。",
+    "results": [
+     {
+      "content": "从屏幕顶部下滑打开控制中心，点击“屏幕录制”即可。请问还有其他需要帮助的吗？",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "从屏幕顶部下滑，在快捷菜单里点击“屏幕录制”即可。还有其他需要帮忙的吗？",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "",
+      "tool_calls": [
+       "hangup"
+      ],
+      "status": 200
+     }
+    ]
+   },
+   "gateway_default__info": {
+    "format": "(System note: {text})",
+    "text": "来电号码已验证为机主本人。",
+    "results": [
+     {
+      "content": "下滑打开控制中心，点击“屏幕录制”即可。",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "从屏幕顶部下滑呼出控制中心，点击“屏幕录制”按钮即可开始。",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "下拉控制中心，点击“屏幕录制”即可。",
+      "tool_calls": [],
+      "status": 200
+     }
+    ]
+   },
+   "proposed_zh__closing": {
+    "format": "(系统提示：{text})",
+    "text": "通话时间即将用完，请礼貌地结束通话。",
+    "results": [
+     {
+      "content": "下拉控制中心，点击“屏幕录制”即可。请问还有其他需要帮忙的吗？",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "",
+      "tool_calls": [
+       "hangup"
+      ],
+      "status": 200
+     },
+     {
+      "content": "",
+      "tool_calls": [
+       "hangup"
+      ],
+      "status": 200
+     }
+    ]
+   },
+   "proposed_zh__info": {
+    "format": "(系统提示：{text})",
+    "text": "来电号码已验证为机主本人。",
+    "results": [
+     {
+      "content": "下拉控制中心，点击“屏幕录制”即可开始。",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "下滑打开控制中心，点击“屏幕录制”即可。",
+      "tool_calls": [],
+      "status": 200
+     },
+     {
+      "content": "下拉控制中心，点击“屏幕录制”按钮即可开始。",
+      "tool_calls": [],
+      "status": 200
+     }
+    ]
+   }
+  }
+ }
+}

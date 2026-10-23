@@ -1,0 +1,658 @@
+{
+ "spike": "S1.4 tool-call parse probe",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0",
+   "--log-level",
+   "DEBUG"
+  ],
+  "env": {},
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0 --log-level DEBUG",
+  "ready_s": 0.837208084,
+  "first_request_done_s": 2.709839209,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_toolparse_qwen3.6_1792729115.log"
+ },
+ "n": 30,
+ "dropped": 7,
+ "rows": [
+  {
+   "i": 0,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了所有截图方法均无效，要求转人工客服并详细说明情况。\", \"summary\": \"用户表示尝试了所有截图方法均无效，要求转人工客服并详细说明情况。\"}"
+     },
+     "type": "function",
+     "id": "d4a16d3e-5f2b-4653-9614-0e6ee4693399",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 18.4
+  },
+  {
+   "i": 1,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户手机充电慢，已尝试更换充电线和清理充电口无效，要求转人工客服说明情况。\", \"summary\": \"用户反馈手机充电特别慢，已尝试更换充电线、清理充电口及检查省电模式，均无效，现要求转人工客服进一步处理。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "6dc36bd6-7b7e-487c-9c63-baa5cfb532ff",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 17.0
+  },
+  {
+   "i": 2,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 17.0
+  },
+  {
+   "i": 3,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试升级系统失败，要求转人工客服说明情况。\", \"summary\": \"用户咨询手机系统升级到最新版本的方法，尝试后表示无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "f1f19d66-3db8-4c0b-a764-9988f0dd7df1",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 17.0
+  },
+  {
+   "i": 4,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"手机自动重启问题无法解决，用户要求转人工客服。\", \"summary\": \"用户手机频繁自动重启，已尝试重启、系统更新、清除缓存及恢复出厂设置均无效，现要求转接人工客服处理。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "996f1c8e-30f8-4d4c-8907-3a7188466200",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 15.8
+  },
+  {
+   "i": 5,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户无法通过指导关闭自动亮度和截图，要求转人工。\", \"summary\": \"用户咨询如何关闭自动亮度及截图方法，尝试指导后用户表示无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "cf8076e1-9100-4138-8178-55aae3456151",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 16.2
+  },
+  {
+   "i": 6,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 17.7
+  },
+  {
+   "i": 7,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 17.7
+  },
+  {
+   "i": 8,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户手机连不上无线网，已尝试开关Wi-Fi、飞行模式、重启手机、忘记网络、重启路由器等方法均无效，需要人工客服进一步协助。\", \"summary\": \"用户反馈手机无法连接无线网，已尝试多种常规解决方法（开关Wi-Fi、飞行模式、重启、忘记网络、重启路由器）均无效，请求转接人工客服解决。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "b676b55c-3340-40e0-bf2a-eae08b49bc5a",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 19.2
+  },
+  {
+   "i": 9,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户无法通过语音指导完成恢复出厂设置，要求转人工客服沟通详细情况。\", \"summary\": \"用户咨询如何恢复出厂设置，得知会丢失数据后表示已尝试过其他方法无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "877275a5-df19-476b-8ba3-502ff92460b5",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 20.4
+  },
+  {
+   "i": 10,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户屏幕发黄，已尝试调节设置无效，需要人工客服进一步处理。\", \"summary\": \"用户反映手机屏幕发黄，已尝试调节设置无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "6e6d3bfa-4206-41b1-bbf7-e76f0ca8d555",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 20.4
+  },
+  {
+   "i": 11,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户咨询省电模式和截图方法，尝试多种方法无效，要求转人工。\", \"summary\": \"用户咨询如何开启省电模式和截图，尝试多种方法无效，要求转人工客服。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "09d0e104-a27a-4ec7-96f9-83e4e1635d57",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 21.7
+  },
+  {
+   "i": 12,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 23.0
+  },
+  {
+   "i": 13,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户备份照片失败，尝试指导后仍无法解决，要求转人工。\", \"summary\": \"用户咨询如何备份手机照片，按指导操作后反馈无效，要求转人工客服处理。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "d70c7f54-ba35-4624-bbd5-ab88b88f0ece",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 23.0
+  },
+  {
+   "i": 14,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户手机信号问题，已尝试开关机、检查SIM卡、连接Wi-Fi、开关飞行模式均无效，需要人工客服协助。\", \"summary\": \"用户反馈手机信号差，已指导尝试开关机、重插SIM卡、连Wi-Fi、开关飞行模式，均无效。用户要求转人工客服说明情况。\"}"
+     },
+     "type": "function",
+     "id": "fbc62979-fbc1-4264-a97d-5239c01774bc",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 24.3
+  },
+  {
+   "i": 15,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.8
+  },
+  {
+   "i": 16,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.8
+  },
+  {
+   "i": 17,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户关闭应用通知失败，尝试常规方法及重启无效，需要人工客服协助解决。\", \"summary\": \"用户咨询如何关闭应用通知，已尝试常规方法及重启手机，但问题仍未解决，要求转人工客服处理。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "336e6661-3f7e-4537-a513-025d6b87e90b",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 27.1
+  },
+  {
+   "i": 18,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"手机突然没声音，用户已尝试重启和检查静音模式，问题未解决，要求转人工。\", \"summary\": \"用户反馈手机突然没声音，已尝试重启和检查静音模式无效，要求转人工客服解决。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "fb6c0a5c-0a33-4724-a493-034e4786d49d",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 27.8
+  },
+  {
+   "i": 19,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户反馈指纹解锁设置多次尝试无效，要求转人工处理。\", \"summary\": \"用户咨询如何设置指纹解锁，尝试了多个方法均无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "e14c7d83-e32c-46d8-a4ae-4851c8acadcc",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 27.8
+  },
+  {
+   "i": 20,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了多种截图方法均无效，需要人工客服协助解决。\", \"summary\": \"用户咨询手机截图方法，已提供常见方案但用户表示均无效，要求转人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "4e5dfbc0-64ab-4a34-8617-22d8dc4e2f45",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 27.1
+  },
+  {
+   "i": 21,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户手机充电慢，已尝试使用原装充电器和数据线但无效，需要人工客服进一步排查或提供解决方案。\", \"summary\": \"用户反映手机充电速度特别慢，已尝试使用原装充电器和数据线，但问题仍未解决，要求转接人工客服处理。\"}"
+     },
+     "type": "function",
+     "id": "06b81976-a75e-4caf-a4aa-69289940441e",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 27.1
+  },
+  {
+   "i": 22,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户存储空间清理问题未解决，需要人工客服进一步协助。\", \"summary\": \"用户手机存储空间已满，尝试了删除应用、备份照片视频、清理垃圾文件、检查应用缓存及恢复出厂设置，但问题仍未解决。用户要求转接人工客服说明情况。\"}"
+     },
+     "type": "function",
+     "id": "bf1647ed-876d-4fb6-8abb-bc90cddb46c6",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.9
+  },
+  {
+   "i": 23,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户手机系统升级失败，尝试多种方法无效，需要人工客服协助解决。\", \"summary\": \"用户咨询手机系统升级到最新版本的方法，已尝试多种途径均无效，要求转人工客服处理。\"}"
+     },
+     "type": "function",
+     "id": "3357f149-edaf-4d7f-8d3d-8c2041ba77d8",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.1
+  },
+  {
+   "i": 24,
+   "finish_reason": "tool_calls",
+   "dropped": true,
+   "parse_warning": true,
+   "tool_calls": [],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.1
+  },
+  {
+   "i": 25,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试关闭自动亮度及清洁传感器、重启均无效，需人工协助处理屏幕亮度异常问题。\", \"summary\": \"用户咨询如何关闭手机自动亮度。已指导用户通过“设置-显示-亮度”关闭该功能。用户反馈操作后无效，且已尝试清洁屏幕顶部传感器区域和重启手机，问题仍未解决。用户要求转接人工客服以进一步处理。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "d0ea6b66-a178-41aa-95cd-3b3b8b4aa152",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 25.1
+  },
+  {
+   "i": 26,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"手机发烫问题用户已尝试常规解决方法无效，要求转人工客服说明情况。\", \"summary\": \"用户反馈手机发烫，已尝试关闭后台、避免边充边用、通风冷却等方法均无效，要求转人工客服处理。\"}"
+     },
+     "type": "function",
+     "id": "53e9b4dd-27f2-4a33-8256-4abc1601580c",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 24.5
+  },
+  {
+   "i": 27,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户无法解决来电铃声设置问题，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何设置来电铃声，尝试多种方法无效，要求转人工客服。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "f2c82eb6-9778-4092-874e-918e786c55fb",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 24.5
+  },
+  {
+   "i": 28,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户Wi-Fi连接问题，已尝试重启手机和路由器、忘记网络重连均无效，需人工进一步处理。\", \"summary\": \"用户手机连不上无线网，已指导重启手机和路由器、忘记网络重连，均无效，要求转人工客服。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "2779fc84-a3c8-434c-9a03-2e1cb74ed61b",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 23.6
+  },
+  {
+   "i": 29,
+   "finish_reason": "tool_calls",
+   "dropped": false,
+   "parse_warning": false,
+   "tool_calls": [
+    {
+     "function": {
+      "name": "transfer_to_agent",
+      "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户恢复出厂设置失败，需要人工客服协助。\", \"summary\": \"用户尝试恢复出厂设置但未成功，需要转接人工客服说明情况。\", \"slots\": {}}"
+     },
+     "type": "function",
+     "id": "e9384e3e-4d6a-41e1-9b5d-e84de02c1cb2",
+     "index": 0
+    }
+   ],
+   "content": "",
+   "raw_generated": "",
+   "load1": 23.9
+  }
+ ],
+ "dropped_raw_from_log": [
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户尝试清理存储和截图操作无效，要求转人工客服说明情况。\n</parameter>\n<parameter=summary>\n用户反馈清理存储和截图操作均无效，要求转人工客服。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户咨询手机发烫及截图方法，尝试常规方法无效，要求转人工。\n</parameter>\n<parameter=summary>\n用户咨询手机发烫是否正常及截图方法。已告知轻微发热属正常及常规截图方式。用户表示尝试无效，要求转人工客服说明情况。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户反馈设置来电铃声的方法无效，要求转人工客服说明情况。\n</parameter>\n<parameter=summary>\n用户咨询如何设置来电铃声，按指引操作后反馈无效，要求转人工客服处理。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户蓝牙耳机连接问题已尝试多种方法无效，需要人工客服协助解决。\n</parameter>\n<parameter=summary>\n用户咨询蓝牙耳机连不上手机，已指导删除配对记录、恢复出厂设置、重启设备等操作，但问题仍未解决，要求转人工客服。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户咨询存储查看方法后表示尝试无果，要求转人工客服说明情况。\n</parameter>\n<parameter=summary>\n用户询问如何查看手机剩余存储空间，助手指导其进入设置-存储查看。用户反馈尝试后无效，要求转人工客服沟通具体情况。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n用户手机开不了机，已尝试常规方法无效，要求转人工处理。\n</parameter>\n<parameter=summary>\n用户手机无法开机，已尝试常规方法无效，要求转人工客服说明情况。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>",
+  "<tool_call>\n<transfer_to_agent>\n<parameter=queue>\nmobile_support\n</parameter>\n<parameter=reason>\n手机自动重启问题无法通过常规方法解决，需要人工客服介入处理。\n</parameter>\n<parameter=summary>\n用户反馈手机频繁自动重启，已尝试强制重启和检查系统更新无效，要求转人工客服详细说明情况。\n</parameter>\n<parameter=slots>\n{}\n</parameter>\n</function>\n</tool_call>"
+ ],
+ "lenient_check": [
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户尝试清理存储和截图操作无效，要求转人工客服说明情况。",
+     "summary": "用户反馈清理存储和截图操作均无效，要求转人工客服。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户咨询手机发烫及截图方法，尝试常规方法无效，要求转人工。",
+     "summary": "用户咨询手机发烫是否正常及截图方法。已告知轻微发热属正常及常规截图方式。用户表示尝试无效，要求转人工客服说明情况。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户反馈设置来电铃声的方法无效，要求转人工客服说明情况。",
+     "summary": "用户咨询如何设置来电铃声，按指引操作后反馈无效，要求转人工客服处理。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户蓝牙耳机连接问题已尝试多种方法无效，需要人工客服协助解决。",
+     "summary": "用户咨询蓝牙耳机连不上手机，已指导删除配对记录、恢复出厂设置、重启设备等操作，但问题仍未解决，要求转人工客服。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户咨询存储查看方法后表示尝试无果，要求转人工客服说明情况。",
+     "summary": "用户询问如何查看手机剩余存储空间，助手指导其进入设置-存储查看。用户反馈尝试后无效，要求转人工客服沟通具体情况。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "用户手机开不了机，已尝试常规方法无效，要求转人工处理。",
+     "summary": "用户手机无法开机，已尝试常规方法无效，要求转人工客服说明情况。",
+     "slots": {}
+    }
+   }
+  },
+  {
+   "stock": "ValueError: No function provided.",
+   "lenient": {
+    "name": "transfer_to_agent",
+    "arguments": {
+     "queue": "mobile_support",
+     "reason": "手机自动重启问题无法通过常规方法解决，需要人工客服介入处理。",
+     "summary": "用户反馈手机频繁自动重启，已尝试强制重启和检查系统更新无效，要求转人工客服详细说明情况。",
+     "slots": {}
+    }
+   }
+  }
+ ]
+}

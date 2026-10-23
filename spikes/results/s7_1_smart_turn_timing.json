@@ -1,0 +1,559 @@
+{
+  "spike": "S7.1 Smart Turn v3.2 CPU timing",
+  "env": {
+    "date": "2026-10-22T22:20:54+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "numpy_config": "Build Dependencies:\n  blas:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\n  lapack:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\nCompilers:\n  c:\n    commands: cc\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  c++:\n    commands: c++\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  cython:\n    commands: cython\n    linker: cython\n    name: cython\n    version: 3.3.0\nMachine Information:\n  build:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\n  host:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\nPython Information:\n  path: /private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/build-env-b5_gj3sx/bin/python\n  version: '3.12'\nSIMD Extensions:\n  baseline:\n  - NEON\n  - NEON_FP16\n  - NEON_VFPV4\n  - ASIMD\n  found:\n  - ASIMDHP\n  - ASIMDDP\n  not found:\n  - ASIMDFHM\n\n",
+  "protocol": {
+    "warmup": 20,
+    "runs": 200,
+    "input": "random normal * 0.1, 8 s at 16 kHz",
+    "provider": "CPUExecutionProvider",
+    "execution_mode": "ORT_SEQUENTIAL",
+    "inter_op_num_threads": 1,
+    "graph_optimization_level": "ORT_ENABLE_ALL"
+  },
+  "results": [
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 1,
+      "allow_spinning": true,
+      "load_before": 2.91,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 59.19,
+        "first_features": 4.67,
+        "first_model_call": 53.95
+      },
+      "load_after": 2.77,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9198,
+        "p95": 2.0902,
+        "p99": 2.141,
+        "max": 2.2546,
+        "mean": 1.9447
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 51.7843,
+        "p95": 53.1328,
+        "p99": 54.1271,
+        "max": 57.6036,
+        "mean": 52.0055
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 53.7212,
+        "p95": 55.1158,
+        "p99": 56.0991,
+        "max": 59.5341,
+        "mean": 53.9502
+      },
+      "cpu_cores_busy": 1.0
+    },
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 1,
+      "allow_spinning": false,
+      "load_before": 2.77,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 31.11,
+        "first_features": 2.01,
+        "first_model_call": 54.02
+      },
+      "load_after": 3.11,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.918,
+        "p95": 2.0729,
+        "p99": 2.1608,
+        "max": 2.273,
+        "mean": 1.9385
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 51.7804,
+        "p95": 53.6222,
+        "p99": 55.5747,
+        "max": 56.477,
+        "mean": 52.0424
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 53.7029,
+        "p95": 55.5728,
+        "p99": 57.6611,
+        "max": 58.472,
+        "mean": 53.9809
+      },
+      "cpu_cores_busy": 1.0
+    },
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 2,
+      "allow_spinning": true,
+      "load_before": 3.11,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 31.15,
+        "first_features": 1.95,
+        "first_model_call": 27.61
+      },
+      "load_after": 3.26,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.8984,
+        "p95": 2.0926,
+        "p99": 2.2623,
+        "max": 2.3142,
+        "mean": 1.933
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 27.4349,
+        "p95": 28.4695,
+        "p99": 29.749,
+        "max": 31.822,
+        "mean": 27.6446
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 29.334,
+        "p95": 30.5415,
+        "p99": 31.9492,
+        "max": 33.8483,
+        "mean": 29.5777
+      },
+      "cpu_cores_busy": 2.0
+    },
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 2,
+      "allow_spinning": false,
+      "load_before": 3.26,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 31.02,
+        "first_features": 1.96,
+        "first_model_call": 28.26
+      },
+      "load_after": 3.24,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.8901,
+        "p95": 2.0704,
+        "p99": 2.1734,
+        "max": 2.2793,
+        "mean": 1.9175
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 28.0731,
+        "p95": 29.6426,
+        "p99": 30.3849,
+        "max": 32.3887,
+        "mean": 28.2755
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 29.9586,
+        "p95": 31.5798,
+        "p99": 32.4262,
+        "max": 34.5593,
+        "mean": 30.1931
+      },
+      "cpu_cores_busy": 1.88
+    },
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 4,
+      "allow_spinning": true,
+      "load_before": 3.24,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 31.09,
+        "first_features": 2.0,
+        "first_model_call": 15.09
+      },
+      "load_after": 3.46,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.8872,
+        "p95": 2.0096,
+        "p99": 2.1113,
+        "max": 2.2073,
+        "mean": 1.9037
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 14.9558,
+        "p95": 15.5424,
+        "p99": 15.972,
+        "max": 17.0153,
+        "mean": 15.0673
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 16.8446,
+        "p95": 17.5261,
+        "p99": 17.8595,
+        "max": 19.0258,
+        "mean": 16.971
+      },
+      "cpu_cores_busy": 4.0
+    },
+    {
+      "model": "v3.2-cpu",
+      "file": "smart-turn-v3.2-cpu.onnx",
+      "intra_op_num_threads": 4,
+      "allow_spinning": false,
+      "load_before": 3.46,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 31.72,
+        "first_features": 2.19,
+        "first_model_call": 19.22
+      },
+      "load_after": 3.58,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9072,
+        "p95": 2.1601,
+        "p99": 2.2163,
+        "max": 2.2516,
+        "mean": 1.9404
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 16.9954,
+        "p95": 17.9995,
+        "p99": 19.291,
+        "max": 21.5454,
+        "mean": 17.1993
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 18.9098,
+        "p95": 20.1945,
+        "p99": 21.191,
+        "max": 23.4769,
+        "mean": 19.1397
+      },
+      "cpu_cores_busy": 3.2
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 1,
+      "allow_spinning": true,
+      "load_before": 3.58,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 25.78,
+        "first_features": 2.44,
+        "first_model_call": 108.8
+      },
+      "load_after": 3.47,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9439,
+        "p95": 2.1104,
+        "p99": 2.1907,
+        "max": 2.5742,
+        "mean": 1.9766
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 107.9395,
+        "p95": 110.444,
+        "p99": 113.3267,
+        "max": 114.3295,
+        "mean": 108.4133
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 109.9114,
+        "p95": 112.4408,
+        "p99": 115.2271,
+        "max": 116.2652,
+        "mean": 110.39
+      },
+      "cpu_cores_busy": 1.0
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 1,
+      "allow_spinning": false,
+      "load_before": 3.47,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 25.37,
+        "first_features": 1.97,
+        "first_model_call": 108.05
+      },
+      "load_after": 5.61,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9401,
+        "p95": 2.0981,
+        "p99": 2.2819,
+        "max": 2.785,
+        "mean": 1.9717
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 107.8899,
+        "p95": 110.6079,
+        "p99": 113.0707,
+        "max": 114.1843,
+        "mean": 108.4099
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 109.8582,
+        "p95": 112.6088,
+        "p99": 115.1144,
+        "max": 116.3385,
+        "mean": 110.3817
+      },
+      "cpu_cores_busy": 1.0
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 2,
+      "allow_spinning": true,
+      "load_before": 3.63,
+      "load_wait_s": 50.0,
+      "cold_ms": {
+        "session_create": 28.34,
+        "first_features": 2.2,
+        "first_model_call": 57.09
+      },
+      "load_after": 3.68,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9274,
+        "p95": 2.0639,
+        "p99": 2.104,
+        "max": 2.2585,
+        "mean": 1.9524
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 56.5987,
+        "p95": 58.3634,
+        "p99": 61.2787,
+        "max": 63.27,
+        "mean": 56.922
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 58.5388,
+        "p95": 60.3986,
+        "p99": 63.2165,
+        "max": 65.1948,
+        "mean": 58.8745
+      },
+      "cpu_cores_busy": 2.0
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 2,
+      "allow_spinning": false,
+      "load_before": 3.68,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 25.15,
+        "first_features": 1.95,
+        "first_model_call": 57.27
+      },
+      "load_after": 3.53,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9204,
+        "p95": 2.0787,
+        "p99": 2.244,
+        "max": 2.3018,
+        "mean": 1.948
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 57.1056,
+        "p95": 59.2111,
+        "p99": 62.1683,
+        "max": 63.1583,
+        "mean": 57.4658
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 59.0425,
+        "p95": 61.1971,
+        "p99": 64.2274,
+        "max": 65.1885,
+        "mean": 59.4139
+      },
+      "cpu_cores_busy": 1.95
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 4,
+      "allow_spinning": true,
+      "load_before": 3.53,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 25.9,
+        "first_features": 1.99,
+        "first_model_call": 30.41
+      },
+      "load_after": 3.65,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9298,
+        "p95": 2.0509,
+        "p99": 2.1566,
+        "max": 2.9277,
+        "mean": 1.9588
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 29.9864,
+        "p95": 30.4927,
+        "p99": 32.0018,
+        "max": 32.7123,
+        "mean": 30.0245
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 31.9418,
+        "p95": 32.4764,
+        "p99": 34.0079,
+        "max": 34.735,
+        "mean": 31.9833
+      },
+      "cpu_cores_busy": 4.0
+    },
+    {
+      "model": "v3.2-gpu",
+      "file": "smart-turn-v3.2-gpu.onnx",
+      "intra_op_num_threads": 4,
+      "allow_spinning": false,
+      "load_before": 3.65,
+      "load_wait_s": 0.0,
+      "cold_ms": {
+        "session_create": 25.32,
+        "first_features": 2.01,
+        "first_model_call": 31.87
+      },
+      "load_after": 4.23,
+      "load_flag": false,
+      "features_ms": {
+        "n": 200,
+        "p50": 1.9555,
+        "p95": 2.149,
+        "p99": 2.232,
+        "max": 2.2768,
+        "mean": 1.9776
+      },
+      "model_ms": {
+        "n": 200,
+        "p50": 31.7689,
+        "p95": 33.2105,
+        "p99": 34.1807,
+        "max": 35.1494,
+        "mean": 31.8528
+      },
+      "total_ms": {
+        "n": 200,
+        "p50": 33.7244,
+        "p95": 35.2375,
+        "p99": 36.1184,
+        "max": 37.2602,
+        "mean": 33.8304
+      },
+      "cpu_cores_busy": 3.6
+    }
+  ]
+}

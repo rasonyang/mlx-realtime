@@ -1,0 +1,2099 @@
+{
+  "spike": "S7.6 soxr streaming vs one-shot",
+  "env": {
+    "date": "2026-10-22T22:12:04+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "MQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 603.33,
+      "delay_max_ms": 37.708,
+      "lag_ms_max": 37.71,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143921,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            78.0,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.88,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143893,
+          "delay_first_chunk": 86.67,
+          "delay_steady_min_max": [
+            78.67,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.33,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143498,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            78.67,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.59,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143961,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            81.0,
+            603.33
+          ],
+          "lag_ms_max": 37.71,
+          "lag_ms_mean": 21.53,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144120,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            79.33,
+            603.0
+          ],
+          "lag_ms_max": 37.69,
+          "lag_ms_mean": 21.64,
+          "flush_samples": 597
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "MQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 603.33,
+      "delay_max_ms": 37.708,
+      "lag_ms_max": 37.71,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            78.0,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.88,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 86.67,
+          "delay_steady_min_max": [
+            78.67,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.33,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            78.67,
+            602.67
+          ],
+          "lag_ms_max": 37.67,
+          "lag_ms_mean": 21.59,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            81.0,
+            603.33
+          ],
+          "lag_ms_max": 37.71,
+          "lag_ms_mean": 21.53,
+          "flush_samples": 597
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            79.33,
+            603.0
+          ],
+          "lag_ms_max": 37.69,
+          "lag_ms_mean": 21.64,
+          "flush_samples": 597
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "HQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 585.33,
+      "delay_max_ms": 36.583,
+      "lag_ms_max": 36.58,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143341,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            96.67,
+            583.0
+          ],
+          "lag_ms_max": 36.44,
+          "lag_ms_mean": 21.02,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143995,
+          "delay_first_chunk": 122.67,
+          "delay_steady_min_max": [
+            98.33,
+            583.0
+          ],
+          "lag_ms_max": 36.44,
+          "lag_ms_mean": 20.77,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144191,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            97.0,
+            584.0
+          ],
+          "lag_ms_max": 36.5,
+          "lag_ms_mean": 21.57,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143967,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            97.33,
+            585.33
+          ],
+          "lag_ms_max": 36.58,
+          "lag_ms_mean": 21.3,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143405,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            96.67,
+            584.67
+          ],
+          "lag_ms_max": 36.54,
+          "lag_ms_mean": 21.41,
+          "flush_samples": 465
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "HQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 585.33,
+      "delay_max_ms": 36.583,
+      "lag_ms_max": 36.58,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            96.67,
+            583.0
+          ],
+          "lag_ms_max": 36.44,
+          "lag_ms_mean": 21.02,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 122.67,
+          "delay_steady_min_max": [
+            98.33,
+            583.0
+          ],
+          "lag_ms_max": 36.44,
+          "lag_ms_mean": 20.77,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            97.0,
+            584.0
+          ],
+          "lag_ms_max": 36.5,
+          "lag_ms_mean": 21.57,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            97.33,
+            585.33
+          ],
+          "lag_ms_max": 36.58,
+          "lag_ms_mean": 21.3,
+          "flush_samples": 465
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            96.67,
+            584.67
+          ],
+          "lag_ms_max": 36.54,
+          "lag_ms_mean": 21.41,
+          "flush_samples": 465
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "VHQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 1232.0,
+      "delay_max_ms": 77.0,
+      "lag_ms_max": 77.0,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143998,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            134.0,
+            1232.0
+          ],
+          "lag_ms_max": 77.0,
+          "lag_ms_mean": 43.66,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144161,
+          "delay_first_chunk": 612.67,
+          "delay_steady_min_max": [
+            133.33,
+            1232.0
+          ],
+          "lag_ms_max": 77.0,
+          "lag_ms_mean": 43.54,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144415,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            135.33,
+            1230.67
+          ],
+          "lag_ms_max": 76.92,
+          "lag_ms_mean": 42.77,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144185,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            132.67,
+            1229.33
+          ],
+          "lag_ms_max": 76.83,
+          "lag_ms_mean": 42.74,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144472,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            133.33,
+            1228.67
+          ],
+          "lag_ms_max": 76.79,
+          "lag_ms_mean": 42.48,
+          "flush_samples": 1000
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "quality": "VHQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 1232.0,
+      "delay_max_ms": 77.0,
+      "lag_ms_max": 77.0,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.67,
+          "delay_steady_min_max": [
+            134.0,
+            1232.0
+          ],
+          "lag_ms_max": 77.0,
+          "lag_ms_mean": 43.66,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 810,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 612.67,
+          "delay_steady_min_max": [
+            133.33,
+            1232.0
+          ],
+          "lag_ms_max": 77.0,
+          "lag_ms_mean": 43.54,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 783,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.67,
+          "delay_steady_min_max": [
+            135.33,
+            1230.67
+          ],
+          "lag_ms_max": 76.92,
+          "lag_ms_mean": 42.77,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 803,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            132.67,
+            1229.33
+          ],
+          "lag_ms_max": 76.83,
+          "lag_ms_mean": 42.74,
+          "flush_samples": 1000
+        },
+        {
+          "chunks": 800,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            133.33,
+            1228.67
+          ],
+          "lag_ms_max": 76.79,
+          "lag_ms_mean": 42.48,
+          "flush_samples": 1000
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "MQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 1888.0,
+      "delay_max_ms": 118.0,
+      "lag_ms_max": 118.0,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143593,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            158.0,
+            1888.0
+          ],
+          "lag_ms_max": 118.0,
+          "lag_ms_mean": 64.68,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143963,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            158.0,
+            1880.0
+          ],
+          "lag_ms_max": 117.5,
+          "lag_ms_mean": 64.32,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143530,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            158.0,
+            1886.0
+          ],
+          "lag_ms_max": 117.88,
+          "lag_ms_mean": 63.39,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144295,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            158.0,
+            1884.0
+          ],
+          "lag_ms_max": 117.75,
+          "lag_ms_mean": 64.02,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143793,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            158.0,
+            1888.0
+          ],
+          "lag_ms_max": 118.0,
+          "lag_ms_mean": 63.85,
+          "flush_samples": 1312
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "MQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 1888.0,
+      "delay_max_ms": 118.0,
+      "lag_ms_max": 118.0,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            158.0,
+            1888.0
+          ],
+          "lag_ms_max": 118.0,
+          "lag_ms_mean": 64.68,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            158.0,
+            1880.0
+          ],
+          "lag_ms_max": 117.5,
+          "lag_ms_mean": 64.32,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            158.0,
+            1886.0
+          ],
+          "lag_ms_max": 117.88,
+          "lag_ms_mean": 63.39,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            158.0,
+            1884.0
+          ],
+          "lag_ms_max": 117.75,
+          "lag_ms_mean": 64.02,
+          "flush_samples": 1312
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            158.0,
+            1888.0
+          ],
+          "lag_ms_max": 118.0,
+          "lag_ms_mean": 63.85,
+          "flush_samples": 1312
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "HQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 1852.0,
+      "delay_max_ms": 115.75,
+      "lag_ms_max": 115.75,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143093,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            194.0,
+            1850.0
+          ],
+          "lag_ms_max": 115.62,
+          "lag_ms_mean": 63.5,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143509,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            194.0,
+            1852.0
+          ],
+          "lag_ms_max": 115.75,
+          "lag_ms_mean": 64.2,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143454,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            194.0,
+            1850.0
+          ],
+          "lag_ms_max": 115.62,
+          "lag_ms_mean": 64.41,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143853,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            194.0,
+            1852.0
+          ],
+          "lag_ms_max": 115.75,
+          "lag_ms_mean": 63.59,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 144018,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            196.0,
+            1848.0
+          ],
+          "lag_ms_max": 115.5,
+          "lag_ms_mean": 63.47,
+          "flush_samples": 1280
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "HQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 1852.0,
+      "delay_max_ms": 115.75,
+      "lag_ms_max": 115.75,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            194.0,
+            1850.0
+          ],
+          "lag_ms_max": 115.62,
+          "lag_ms_mean": 63.5,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            194.0,
+            1852.0
+          ],
+          "lag_ms_max": 115.75,
+          "lag_ms_mean": 64.2,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            194.0,
+            1850.0
+          ],
+          "lag_ms_max": 115.62,
+          "lag_ms_mean": 64.41,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            194.0,
+            1852.0
+          ],
+          "lag_ms_max": 115.75,
+          "lag_ms_mean": 63.59,
+          "flush_samples": 1280
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            196.0,
+            1848.0
+          ],
+          "lag_ms_max": 115.5,
+          "lag_ms_mean": 63.47,
+          "flush_samples": 1280
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "VHQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 1780.0,
+      "delay_max_ms": 111.25,
+      "lag_ms_max": 111.25,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143946,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            266.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.84,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143886,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            268.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.86,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143932,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            266.0,
+            1778.0
+          ],
+          "lag_ms_max": 111.12,
+          "lag_ms_mean": 63.16,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143626,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            270.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.83,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 143722,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            266.0,
+            1778.0
+          ],
+          "lag_ms_max": 111.12,
+          "lag_ms_mean": 63.56,
+          "flush_samples": 1640
+        }
+      ]
+    },
+    {
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "quality": "VHQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 1780.0,
+      "delay_max_ms": 111.25,
+      "lag_ms_max": 111.25,
+      "chunkings": [
+        {
+          "chunks": 786,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 560.0,
+          "delay_steady_min_max": [
+            266.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.84,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 811,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 612.0,
+          "delay_steady_min_max": [
+            268.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.86,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 784,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 236.0,
+          "delay_steady_min_max": [
+            266.0,
+            1778.0
+          ],
+          "lag_ms_max": 111.12,
+          "lag_ms_mean": 63.16,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 804,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 310.0,
+          "delay_steady_min_max": [
+            270.0,
+            1780.0
+          ],
+          "lag_ms_max": 111.25,
+          "lag_ms_mean": 63.83,
+          "flush_samples": 1640
+        },
+        {
+          "chunks": 802,
+          "len_stream": 320000,
+          "len_oneshot": 320000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 562.0,
+          "delay_steady_min_max": [
+            266.0,
+            1778.0
+          ],
+          "lag_ms_max": 111.12,
+          "lag_ms_mean": 63.56,
+          "flush_samples": 1640
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "MQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 603.33,
+      "delay_max_ms": 75.416,
+      "lag_ms_max": 75.42,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 72300,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            79.0,
+            602.0
+          ],
+          "lag_ms_max": 75.25,
+          "lag_ms_mean": 42.92,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71887,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            79.0,
+            603.33
+          ],
+          "lag_ms_max": 75.42,
+          "lag_ms_mean": 42.71,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 72231,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            79.67,
+            603.0
+          ],
+          "lag_ms_max": 75.38,
+          "lag_ms_mean": 42.75,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 72112,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            78.0,
+            603.0
+          ],
+          "lag_ms_max": 75.38,
+          "lag_ms_mean": 42.73,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71983,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            78.67,
+            603.33
+          ],
+          "lag_ms_max": 75.42,
+          "lag_ms_mean": 42.06,
+          "flush_samples": 298
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "MQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 603.33,
+      "delay_max_ms": 75.416,
+      "lag_ms_max": 75.42,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            79.0,
+            602.0
+          ],
+          "lag_ms_max": 75.25,
+          "lag_ms_mean": 42.92,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            79.0,
+            603.33
+          ],
+          "lag_ms_max": 75.42,
+          "lag_ms_mean": 42.71,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            79.67,
+            603.0
+          ],
+          "lag_ms_max": 75.38,
+          "lag_ms_mean": 42.75,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            78.0,
+            603.0
+          ],
+          "lag_ms_max": 75.38,
+          "lag_ms_mean": 42.73,
+          "flush_samples": 298
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            78.67,
+            603.33
+          ],
+          "lag_ms_max": 75.42,
+          "lag_ms_mean": 42.06,
+          "flush_samples": 298
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "HQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 585.67,
+      "delay_max_ms": 73.209,
+      "lag_ms_max": 73.21,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71894,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            97.0,
+            584.67
+          ],
+          "lag_ms_max": 73.08,
+          "lag_ms_mean": 42.65,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 72190,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            96.33,
+            585.0
+          ],
+          "lag_ms_max": 73.12,
+          "lag_ms_mean": 42.2,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71847,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            96.67,
+            584.67
+          ],
+          "lag_ms_max": 73.08,
+          "lag_ms_mean": 42.06,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71819,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            98.0,
+            584.33
+          ],
+          "lag_ms_max": 73.04,
+          "lag_ms_mean": 43.37,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 72066,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            96.67,
+            585.67
+          ],
+          "lag_ms_max": 73.21,
+          "lag_ms_mean": 41.99,
+          "flush_samples": 477
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "HQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 585.67,
+      "delay_max_ms": 73.209,
+      "lag_ms_max": 73.21,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            97.0,
+            584.67
+          ],
+          "lag_ms_max": 73.08,
+          "lag_ms_mean": 42.65,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            96.33,
+            585.0
+          ],
+          "lag_ms_max": 73.12,
+          "lag_ms_mean": 42.2,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            96.67,
+            584.67
+          ],
+          "lag_ms_max": 73.08,
+          "lag_ms_mean": 42.06,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            98.0,
+            584.33
+          ],
+          "lag_ms_max": 73.04,
+          "lag_ms_mean": 43.37,
+          "flush_samples": 477
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            96.67,
+            585.67
+          ],
+          "lag_ms_max": 73.21,
+          "lag_ms_mean": 41.99,
+          "flush_samples": 477
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "VHQ",
+      "dtype": "int16",
+      "all_identical": false,
+      "max_abs_diff": 2.0,
+      "delay_max_samples": 1232.33,
+      "delay_max_ms": 154.041,
+      "lag_ms_max": 154.04,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71771,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            133.0,
+            1231.67
+          ],
+          "lag_ms_max": 153.96,
+          "lag_ms_mean": 85.58,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71763,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            133.0,
+            1231.33
+          ],
+          "lag_ms_max": 153.92,
+          "lag_ms_mean": 85.47,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71773,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            133.67,
+            1230.0
+          ],
+          "lag_ms_max": 153.75,
+          "lag_ms_mean": 85.09,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71920,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            134.33,
+            1232.33
+          ],
+          "lag_ms_max": 154.04,
+          "lag_ms_mean": 84.87,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": false,
+          "max_abs_diff": 2.0,
+          "n_diff_samples": 71686,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            135.33,
+            1232.0
+          ],
+          "lag_ms_max": 154.0,
+          "lag_ms_mean": 84.08,
+          "flush_samples": 500
+        }
+      ]
+    },
+    {
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "quality": "VHQ",
+      "dtype": "float32",
+      "all_identical": true,
+      "max_abs_diff": 0.0,
+      "delay_max_samples": 1232.33,
+      "delay_max_ms": 154.041,
+      "lag_ms_max": 154.04,
+      "chunkings": [
+        {
+          "chunks": 784,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 280.33,
+          "delay_steady_min_max": [
+            133.0,
+            1231.67
+          ],
+          "lag_ms_max": 153.96,
+          "lag_ms_mean": 85.58,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 810,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 306.33,
+          "delay_steady_min_max": [
+            133.0,
+            1231.33
+          ],
+          "lag_ms_max": 153.92,
+          "lag_ms_mean": 85.47,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 783,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 118.33,
+          "delay_steady_min_max": [
+            133.67,
+            1230.0
+          ],
+          "lag_ms_max": 153.75,
+          "lag_ms_mean": 85.09,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 803,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 155.0,
+          "delay_steady_min_max": [
+            134.33,
+            1232.33
+          ],
+          "lag_ms_max": 154.04,
+          "lag_ms_mean": 84.87,
+          "flush_samples": 500
+        },
+        {
+          "chunks": 800,
+          "len_stream": 160000,
+          "len_oneshot": 160000,
+          "identical": true,
+          "max_abs_diff": 0.0,
+          "n_diff_samples": 0,
+          "delay_first_chunk": 281.0,
+          "delay_steady_min_max": [
+            135.33,
+            1232.0
+          ],
+          "lag_ms_max": 154.0,
+          "lag_ms_mean": 84.08,
+          "flush_samples": 500
+        }
+      ]
+    }
+  ],
+  "timing": {
+    "note": "one stream, one thread; per 20 ms input chunk",
+    "load_before": 3.24,
+    "load_wait_s": 0.0,
+    "runs": [
+      {
+        "in_rate": 24000,
+        "out_rate": 16000,
+        "quality": "MQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0073,
+          "p95": 0.0083,
+          "p99": 0.0087,
+          "max": 0.0133,
+          "mean": 0.0053
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0171,
+          "p95": 0.0176,
+          "p99": 0.0187,
+          "max": 0.0338,
+          "mean": 0.0173
+        }
+      },
+      {
+        "in_rate": 24000,
+        "out_rate": 16000,
+        "quality": "HQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0071,
+          "p95": 0.0079,
+          "p99": 0.0083,
+          "max": 0.0147,
+          "mean": 0.0054
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.018,
+          "p95": 0.0182,
+          "p99": 0.0203,
+          "max": 0.029,
+          "mean": 0.0181
+        }
+      },
+      {
+        "in_rate": 24000,
+        "out_rate": 16000,
+        "quality": "VHQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0019,
+          "p95": 0.0271,
+          "p99": 0.029,
+          "max": 0.0335,
+          "mean": 0.0091
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0216,
+          "p95": 0.022,
+          "p99": 0.0261,
+          "max": 0.0322,
+          "mean": 0.0218
+        }
+      },
+      {
+        "in_rate": 8000,
+        "out_rate": 16000,
+        "quality": "MQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0018,
+          "p95": 0.0119,
+          "p99": 0.0128,
+          "max": 0.0135,
+          "mean": 0.0036
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0163,
+          "p95": 0.0166,
+          "p99": 0.0203,
+          "max": 0.0238,
+          "mean": 0.0164
+        }
+      },
+      {
+        "in_rate": 8000,
+        "out_rate": 16000,
+        "quality": "HQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0018,
+          "p95": 0.0116,
+          "p99": 0.0125,
+          "max": 0.0129,
+          "mean": 0.0036
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.017,
+          "p95": 0.0173,
+          "p99": 0.018,
+          "max": 0.0203,
+          "mean": 0.017
+        }
+      },
+      {
+        "in_rate": 8000,
+        "out_rate": 16000,
+        "quality": "VHQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0018,
+          "p95": 0.0171,
+          "p99": 0.0192,
+          "max": 0.071,
+          "mean": 0.0051
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0137,
+          "p95": 0.0158,
+          "p99": 0.0177,
+          "max": 0.0496,
+          "mean": 0.014
+        }
+      },
+      {
+        "in_rate": 24000,
+        "out_rate": 8000,
+        "quality": "MQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0019,
+          "p95": 0.009,
+          "p99": 0.0096,
+          "max": 0.011,
+          "mean": 0.0038
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.022,
+          "p95": 0.0238,
+          "p99": 0.0377,
+          "max": 0.0693,
+          "mean": 0.0222
+        }
+      },
+      {
+        "in_rate": 24000,
+        "out_rate": 8000,
+        "quality": "HQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0022,
+          "p95": 0.0096,
+          "p99": 0.0107,
+          "max": 0.0321,
+          "mean": 0.0042
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0218,
+          "p95": 0.0245,
+          "p99": 0.041,
+          "max": 0.0647,
+          "mean": 0.0222
+        }
+      },
+      {
+        "in_rate": 24000,
+        "out_rate": 8000,
+        "quality": "VHQ",
+        "dtype": "int16",
+        "chunk_20ms": {
+          "n": 1000,
+          "p50": 0.0019,
+          "p95": 0.0323,
+          "p99": 0.0348,
+          "max": 0.0433,
+          "mean": 0.0064
+        },
+        "construct": {
+          "n": 200,
+          "p50": 0.0217,
+          "p95": 0.022,
+          "p99": 0.0232,
+          "max": 0.0419,
+          "mean": 0.0218
+        }
+      }
+    ],
+    "load_after": 3.24,
+    "load_flag": false
+  },
+  "dither_probe": {
+    "zeros_in_nonzero_out": 4245,
+    "zeros_out_samples": 16000,
+    "dc3_in_values_out": {
+      "2": 1535,
+      "3": 8954,
+      "4": 1511
+    },
+    "oneshot_repeatable": true,
+    "quality_enum": {
+      "6": 6,
+      "vhq": 6,
+      "soxr_vhq": 6,
+      "4": 4,
+      "hq": 4,
+      "soxr_hq": 4,
+      "2": 2,
+      "mq": 2,
+      "soxr_mq": 2,
+      "1": 1,
+      "lq": 1,
+      "soxr_lq": 1,
+      "0": 0,
+      "qq": 0,
+      "soxr_qq": 0
+    }
+  },
+  "latency_by_quality_20ms_chunks": [
+    {
+      "quality": "QQ",
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "lag_ms_min": 0.06,
+      "lag_ms_mean": 0.06,
+      "lag_ms_max": 0.06
+    },
+    {
+      "quality": "QQ",
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "lag_ms_min": 0.25,
+      "lag_ms_mean": 0.25,
+      "lag_ms_max": 0.25
+    },
+    {
+      "quality": "QQ",
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "lag_ms_min": 0.0,
+      "lag_ms_mean": 0.0,
+      "lag_ms_max": 0.0
+    },
+    {
+      "quality": "LQ",
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "lag_ms_min": 2.5,
+      "lag_ms_mean": 11.25,
+      "lag_ms_max": 20.0
+    },
+    {
+      "quality": "LQ",
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "lag_ms_min": 3.75,
+      "lag_ms_mean": 32.34,
+      "lag_ms_max": 61.25
+    },
+    {
+      "quality": "LQ",
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "lag_ms_min": 5.0,
+      "lag_ms_mean": 22.5,
+      "lag_ms_max": 40.0
+    },
+    {
+      "quality": "MQ",
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "lag_ms_min": 5.0,
+      "lag_ms_mean": 21.34,
+      "lag_ms_max": 37.62
+    },
+    {
+      "quality": "MQ",
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "lag_ms_min": 10.0,
+      "lag_ms_mean": 63.87,
+      "lag_ms_max": 117.5
+    },
+    {
+      "quality": "MQ",
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "lag_ms_min": 10.0,
+      "lag_ms_mean": 42.67,
+      "lag_ms_max": 75.25
+    },
+    {
+      "quality": "HQ",
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "lag_ms_min": 6.06,
+      "lag_ms_mean": 21.23,
+      "lag_ms_max": 36.56
+    },
+    {
+      "quality": "HQ",
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "lag_ms_min": 12.5,
+      "lag_ms_mean": 63.8,
+      "lag_ms_max": 115.0
+    },
+    {
+      "quality": "HQ",
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "lag_ms_min": 12.12,
+      "lag_ms_mean": 42.74,
+      "lag_ms_max": 73.12
+    },
+    {
+      "quality": "VHQ",
+      "in_rate": 24000,
+      "out_rate": 16000,
+      "lag_ms_min": 8.75,
+      "lag_ms_mean": 42.47,
+      "lag_ms_max": 76.25
+    },
+    {
+      "quality": "VHQ",
+      "in_rate": 8000,
+      "out_rate": 16000,
+      "lag_ms_min": 16.75,
+      "lag_ms_mean": 63.99,
+      "lag_ms_max": 111.25
+    },
+    {
+      "quality": "VHQ",
+      "in_rate": 24000,
+      "out_rate": 8000,
+      "lag_ms_min": 17.5,
+      "lag_ms_mean": 85.16,
+      "lag_ms_max": 152.5
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "spike": "S7.7 G.711 LUT vs audioop",
+  "env": {
+    "date": "2026-10-22T22:09:47+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "build_tables_s": 0.108,
+  "checks": [
+    {
+      "check": "ulaw encode (audioop.c algorithm) vs lin2ulaw",
+      "inputs": 65536,
+      "mismatches": 0,
+      "examples": []
+    },
+    {
+      "check": "alaw encode (audioop.c algorithm) vs lin2alaw",
+      "inputs": 65536,
+      "mismatches": 0,
+      "examples": []
+    },
+    {
+      "check": "ulaw decode (g711.c ulaw2linear) vs ulaw2lin",
+      "inputs": 256,
+      "mismatches": 0,
+      "examples": []
+    },
+    {
+      "check": "alaw decode (g711.c alaw2linear) vs alaw2lin",
+      "inputs": 256,
+      "mismatches": 0,
+      "examples": []
+    },
+    {
+      "check": "ulaw encode via lut_encode on shuffled input",
+      "inputs": 65536,
+      "mismatches": 0,
+      "examples": []
+    }
+  ],
+  "all_checks_pass": true,
+  "information_sun_16bit_variant": [
+    {
+      "check": "ulaw encode, Sun 16-bit linear2ulaw vs lin2ulaw",
+      "inputs": 65536,
+      "mismatches": 381,
+      "examples": [
+        {
+          "input": -31611,
+          "ours": 1,
+          "audioop": 0
+        },
+        {
+          "input": -31610,
+          "ours": 1,
+          "audioop": 0
+        },
+        {
+          "input": -31609,
+          "ours": 1,
+          "audioop": 0
+        },
+        {
+          "input": -30587,
+          "ours": 2,
+          "audioop": 1
+        },
+        {
+          "input": -30586,
+          "ours": 2,
+          "audioop": 1
+        },
+        {
+          "input": -30585,
+          "ours": 2,
+          "audioop": 1
+        },
+        {
+          "input": -29563,
+          "ours": 3,
+          "audioop": 2
+        },
+        {
+          "input": -29562,
+          "ours": 3,
+          "audioop": 2
+        }
+      ],
+      "mismatch_input_range": [
+        -31611,
+        -1
+      ],
+      "mismatch_inputs_negative_only": true
+    },
+    {
+      "check": "alaw encode, Sun 16-bit linear2alaw vs lin2alaw",
+      "inputs": 65536,
+      "mismatches": 896,
+      "examples": [
+        {
+          "input": -31751,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31750,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31749,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31748,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31747,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31746,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -31745,
+          "ours": 43,
+          "audioop": 42
+        },
+        {
+          "input": -30727,
+          "ours": 40,
+          "audioop": 43
+        }
+      ],
+      "mismatch_input_range": [
+        -31751,
+        -1
+      ],
+      "mismatch_inputs_negative_only": true
+    }
+  ],
+  "roundtrip_properties": {
+    "ulaw": {
+      "max_abs_roundtrip_error": 644,
+      "codes_not_fixed_points": [
+        127
+      ],
+      "decode_min_max": [
+        -32124,
+        32124
+      ]
+    },
+    "alaw": {
+      "max_abs_roundtrip_error": 512,
+      "codes_not_fixed_points": [],
+      "decode_min_max": [
+        -32256,
+        32256
+      ]
+    }
+  },
+  "timing_ms": {
+    "20ms_160": {
+      "lut_encode": {
+        "n": 1000,
+        "p50": 0.0023,
+        "p95": 0.0113,
+        "p99": 0.0184,
+        "max": 0.2507,
+        "mean": 0.0044
+      },
+      "audioop_encode": {
+        "n": 1000,
+        "p50": 0.0008,
+        "p95": 0.0032,
+        "p99": 0.0034,
+        "max": 0.0061,
+        "mean": 0.0012
+      },
+      "lut_decode": {
+        "n": 1000,
+        "p50": 0.0013,
+        "p95": 0.0061,
+        "p99": 0.0078,
+        "max": 0.4336,
+        "mean": 0.0028
+      },
+      "audioop_decode": {
+        "n": 1000,
+        "p50": 0.0003,
+        "p95": 0.0009,
+        "p99": 0.001,
+        "max": 0.044,
+        "mean": 0.0005
+      }
+    },
+    "1s_8000": {
+      "lut_encode": {
+        "n": 1000,
+        "p50": 0.0145,
+        "p95": 0.0148,
+        "p99": 0.0157,
+        "max": 0.0189,
+        "mean": 0.0145
+      },
+      "audioop_encode": {
+        "n": 1000,
+        "p50": 0.0415,
+        "p95": 0.0424,
+        "p99": 0.0447,
+        "max": 0.0478,
+        "mean": 0.0415
+      },
+      "lut_decode": {
+        "n": 1000,
+        "p50": 0.0112,
+        "p95": 0.0115,
+        "p99": 0.012,
+        "max": 0.0156,
+        "mean": 0.0113
+      },
+      "audioop_decode": {
+        "n": 1000,
+        "p50": 0.0094,
+        "p95": 0.0095,
+        "p99": 0.0096,
+        "max": 0.0119,
+        "mean": 0.0094
+      }
+    }
+  }
+}

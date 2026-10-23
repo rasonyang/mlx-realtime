@@ -1,0 +1,54 @@
+{
+ "dt": {
+  "before": {
+   "calls": 32,
+   "bypasses": 16,
+   "calls_with_bypass": 8,
+   "ending_bypassed": 1,
+   "aec3_realignments": 8,
+   "speex_realignments": 23,
+   "speex_aligned": 32,
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_aligned_at_s_max": 5.0,
+   "erle_db_p50": 8.1
+  },
+  "after": {
+   "calls": 32,
+   "bypasses": 14,
+   "calls_with_bypass": 8,
+   "ending_bypassed": 1,
+   "aec3_realignments": 6,
+   "speex_realignments": 21,
+   "speex_aligned": 32,
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_aligned_at_s_max": 5.0,
+   "erle_db_p50": 8.1
+  }
+ },
+ "bargein": {
+  "before": {
+   "calls": 32,
+   "bypasses": 0,
+   "calls_with_bypass": 0,
+   "ending_bypassed": 0,
+   "aec3_realignments": 0,
+   "speex_realignments": 7,
+   "speex_aligned": 32,
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_aligned_at_s_max": 5.0,
+   "erle_db_p50": 29.85
+  },
+  "after": {
+   "calls": 32,
+   "bypasses": 0,
+   "calls_with_bypass": 0,
+   "ending_bypassed": 0,
+   "aec3_realignments": 0,
+   "speex_realignments": 7,
+   "speex_aligned": 32,
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_aligned_at_s_max": 5.0,
+   "erle_db_p50": 29.85
+  }
+ }
+}

@@ -1,0 +1,1038 @@
+{
+ "spike": "S2.transfer",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": {
+   "pmset_custom": "Battery Power:\n Sleep On Power Button 1\n powermode            1\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                1\n tcpkeepalive         1\n disksleep            10\n",
+   "pmset_powermode_now": "powermode            0",
+   "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7274595)\t80%; AC attached; not charging present: true",
+   "iogpu_wired_limit_mb": "0",
+   "loadavg": [
+    3.05810546875,
+    3.46484375,
+    6.22607421875
+   ]
+  },
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.852341208,
+  "first_request_done_s": 2.105868583,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s2_qwen3.6_1792730445.log",
+  "concurrency": 1,
+  "warm_or_cold": "see keys",
+  "loadavg_1m_before": 2.43212890625,
+  "loadavg_1m_after": 3.05810546875,
+  "wall_s": 125.1,
+  "footprint_gb": 21.12,
+  "sampling": {
+   "temperature": 0.7,
+   "top_p": 0.8
+  },
+  "max_completion_tokens": 512
+ },
+ "data": {
+  "transfer_warm": {
+   "stats": {
+    "ttft": {
+     "n": 18,
+     "p50": 1.3544,
+     "p95": 1.7092,
+     "max": 1.7092,
+     "min": 1.211,
+     "mean": 1.3779
+    },
+    "t_first_tool_call": {
+     "n": 18,
+     "p50": 1.3544,
+     "p95": 1.7092,
+     "max": 1.7092,
+     "min": 1.211,
+     "mean": 1.3779
+    },
+    "t_done": {
+     "n": 20,
+     "p50": 1.3651,
+     "p95": 1.7092,
+     "max": 1.7092,
+     "min": 1.1819,
+     "mean": 1.3836
+    },
+    "uncached": {
+     "n": 20,
+     "p50": 64.0,
+     "p95": 91,
+     "max": 91,
+     "min": 43,
+     "mean": 61.4
+    }
+   },
+   "rows": [
+    {
+     "ttft": 1.250424834,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.250424834,
+     "t_done": 1.250436292,
+     "prompt_tokens": 1640,
+     "cached": 1596,
+     "uncached": 44,
+     "completion_tokens": 95,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了所有截图方法无效，要求转人工客服说明情况\", \"summary\": \"用户咨询手机截图方法，已尝试多种组合键均无效，要求转人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:40:50",
+     "load1": 2.4
+    },
+    {
+     "ttft": 1.597254583,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.597254583,
+     "t_done": 1.597266542,
+     "prompt_tokens": 1680,
+     "cached": 1613,
+     "uncached": 67,
+     "completion_tokens": 122,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机充电慢，已尝试更换原装充电线和充电头并清理充电口，问题未解决，要求转人工客服处理。\", \"summary\": \"用户反馈手机充电特别慢，已尝试更换原装充电头和充电线，并清理充电口，但问题仍未解决，要求转人工客服进一步处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:40:52",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.709176834,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.709176834,
+     "t_done": 1.709187959,
+     "prompt_tokens": 1741,
+     "cached": 1650,
+     "uncached": 91,
+     "completion_tokens": 127,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户反馈存储空间清理及截图操作无效，需人工客服协助解决。\", \"summary\": \"用户咨询手机存储空间清理及截图方法。已指导用户清理存储（删除应用、大文件、备份照片）及尝试截图（电源+音量减、三指下滑等），但用户表示均无效，要求转人工客服进一步处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:40:56",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.293432167,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.293432167,
+     "t_done": 1.304039,
+     "prompt_tokens": 1698,
+     "cached": 1629,
+     "uncached": 69,
+     "completion_tokens": 97,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试系统升级及常规操作无效，要求转人工解决手机问题。\", \"summary\": \"用户咨询系统升级方法，尝试后表示无效，要求转人工客服反馈情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:40:59",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.26627025,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.26627025,
+     "t_done": 1.276866166,
+     "prompt_tokens": 1648,
+     "cached": 1601,
+     "uncached": 47,
+     "completion_tokens": 97,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机自动重启问题未解决，要求转人工客服说明情况。\", \"summary\": \"用户反映手机老是自动重启，尝试过相关操作无效，要求转人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:00",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.393665542,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.393665542,
+     "t_done": 1.404334167,
+     "prompt_tokens": 1650,
+     "cached": 1599,
+     "uncached": 51,
+     "completion_tokens": 106,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了关闭自动亮度和截图的操作但未成功，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何关闭手机自动亮度及如何截图，尝试了相关操作但未成功，要求转人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:03",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.401150917,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.401150917,
+     "t_done": 1.412159958,
+     "prompt_tokens": 1730,
+     "cached": 1666,
+     "uncached": 64,
+     "completion_tokens": 107,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机发烫且截图功能失效，尝试常规方法无效，需人工协助排查或指导。\", \"summary\": \"用户咨询手机发烫是否正常，并询问截图方法。用户尝试了电源键+音量减键及三指下滑均无效，要求转人工客服说明情况。\"}"
+      ]
+     ],
+     "wall_clock": "12:41:06",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.210984,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.210984,
+     "t_done": 1.210995,
+     "prompt_tokens": 1634,
+     "cached": 1590,
+     "uncached": 44,
+     "completion_tokens": 92,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试设置来电铃声多次无效，要求转人工解决。\", \"summary\": \"用户反馈设置来电铃声多次尝试均无效，要求转接人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:07",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.526794833,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.526794833,
+     "t_done": 1.537699375,
+     "prompt_tokens": 1668,
+     "cached": 1603,
+     "uncached": 65,
+     "completion_tokens": 116,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户无法连接无线网，已尝试重启、重输密码、检查飞行模式均无效，要求转人工客服。\", \"summary\": \"用户手机连不上无线网，已尝试重启、忘记网络重连、检查飞行模式，均无效，要求转人工解决。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:10",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.32062925,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.32062925,
+     "t_done": 1.331221333,
+     "prompt_tokens": 1657,
+     "cached": 1592,
+     "uncached": 65,
+     "completion_tokens": 100,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户恢复出厂设置失败，要求转人工。\", \"summary\": \"用户询问如何恢复出厂设置，被告知会丢失数据并尝试备份后，表示操作失败，要求转人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:12",
+     "load1": 2.9
+    },
+    {
+     "ttft": 1.273176541,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.273176541,
+     "t_done": 1.284270041,
+     "prompt_tokens": 1713,
+     "cached": 1628,
+     "uncached": 85,
+     "completion_tokens": 94,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机屏幕发黄，已尝试调整设置无效，需转人工处理\", \"summary\": \"用户反馈手机屏幕发黄，已尝试调整设置无效，需转人工处理\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:15",
+     "load1": 2.9
+    },
+    {
+     "ttft": 1.388089458,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.388089458,
+     "t_done": 1.399020125,
+     "prompt_tokens": 1643,
+     "cached": 1596,
+     "uncached": 47,
+     "completion_tokens": 106,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了省电模式和截图的操作但未成功，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何开启省电模式和截图，提供了操作建议但用户表示试过后无效，要求转接人工客服详细说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:17",
+     "load1": 2.9
+    },
+    {
+     "ttft": 1.521087458,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.521087458,
+     "t_done": 1.531660208,
+     "prompt_tokens": 1656,
+     "cached": 1592,
+     "uncached": 64,
+     "completion_tokens": 116,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户蓝牙耳机连不上手机，已尝试重启和重新配对无效，需要人工客服协助。\", \"summary\": \"用户反馈蓝牙耳机无法连接手机，已尝试重启手机和耳机，以及在蓝牙设置中忽略设备后重新配对，均无效，现要求转人工客服解决。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:19",
+     "load1": 2.9
+    },
+    {
+     "ttft": 1.220274709,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.220274709,
+     "t_done": 1.220286042,
+     "prompt_tokens": 1670,
+     "cached": 1609,
+     "uncached": 61,
+     "completion_tokens": 91,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户备份照片方法无效，需要人工协助\", \"summary\": \"用户尝试了多种备份照片的方法均无效，现需要转接人工客服协助解决备份问题。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:21",
+     "load1": 2.9
+    },
+    {
+     "ttft": 1.547724541,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.547724541,
+     "t_done": 1.547735625,
+     "prompt_tokens": 1673,
+     "cached": 1609,
+     "uncached": 64,
+     "completion_tokens": 117,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机信号问题，已尝试重启、重插SIM卡、还原网络设置均无效，要求转人工。\", \"summary\": \"用户反馈手机信号不好，已指导其重启、重插SIM卡及还原网络设置，但问题仍未解决，用户要求转人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:24",
+     "load1": 2.9
+    },
+    {
+     "ttft": null,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": null,
+     "t_done": 1.558566458,
+     "prompt_tokens": 1649,
+     "cached": 1596,
+     "uncached": 53,
+     "completion_tokens": 119,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [],
+     "wall_clock": "12:41:26",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.395563291,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.395563291,
+     "t_done": 1.406176291,
+     "prompt_tokens": 1717,
+     "cached": 1647,
+     "uncached": 70,
+     "completion_tokens": 104,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"手机开不了机，用户已尝试强制重启和充电均无效，需要人工客服进一步协助。\", \"summary\": \"用户手机无法开机，已尝试强制重启和充电均无效，现要求转人工客服。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:29",
+     "load1": 2.8
+    },
+    {
+     "ttft": null,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": null,
+     "t_done": 1.181851875,
+     "prompt_tokens": 1673,
+     "cached": 1597,
+     "uncached": 76,
+     "completion_tokens": 86,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [],
+     "wall_clock": "12:41:31",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.249061333,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.249061333,
+     "t_done": 1.25990025,
+     "prompt_tokens": 1673,
+     "cached": 1615,
+     "uncached": 58,
+     "completion_tokens": 95,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"手机突然没声音，重启无效，用户要求转人工。\", \"summary\": \"用户反映手机突然没声音，已尝试重启无效，要求转接人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:33",
+     "load1": 2.8
+    },
+    {
+     "ttft": 1.237715167,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 1.237715167,
+     "t_done": 1.248437625,
+     "prompt_tokens": 1648,
+     "cached": 1605,
+     "uncached": 43,
+     "completion_tokens": 95,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户咨询指纹解锁设置失败，要求转人工客服说明情况。\", \"summary\": \"用户咨询指纹解锁设置方法，尝试后反馈无效，要求转人工客服处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:35",
+     "load1": 2.8
+    }
+   ],
+   "called_transfer": 18
+  },
+  "transfer_after_instructions_change": {
+   "stats": {
+    "ttft": {
+     "n": 20,
+     "p50": 2.4702,
+     "p95": 2.8915,
+     "max": 2.8915,
+     "min": 2.2664,
+     "mean": 2.5084
+    },
+    "t_first_tool_call": {
+     "n": 20,
+     "p50": 2.4702,
+     "p95": 2.8915,
+     "max": 2.8915,
+     "min": 2.2664,
+     "mean": 2.5084
+    },
+    "t_done": {
+     "n": 20,
+     "p50": 2.4816,
+     "p95": 2.8915,
+     "max": 2.8915,
+     "min": 2.2665,
+     "mean": 2.5157
+    },
+    "uncached": {
+     "n": 20,
+     "p50": 1622.0,
+     "p95": 1708,
+     "max": 1708,
+     "min": 1566,
+     "mean": 1621.3
+    }
+   },
+   "rows": [
+    {
+     "ttft": 2.453423375,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.453423375,
+     "t_done": 2.464753375,
+     "prompt_tokens": 1708,
+     "cached": 0,
+     "uncached": 1708,
+     "completion_tokens": 99,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户咨询手机截图方法，尝试多种方法无效，需要人工提供更详细的操作指导。\", \"summary\": \"用户咨询手机截图方法，尝试多种方法无效，需要人工提供更详细的操作指导。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:40",
+     "load1": 2.8
+    },
+    {
+     "ttft": 2.588296125,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.588296125,
+     "t_done": 2.588307417,
+     "prompt_tokens": 1617,
+     "cached": 0,
+     "uncached": 1617,
+     "completion_tokens": 112,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机充电慢，已尝试更换数据线和清理充电口，问题未解决，需要人工客服进一步协助。\", \"summary\": \"用户反馈手机充电特别慢，已尝试更换数据线和清理充电口，但问题依旧，要求转人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:43",
+     "load1": 2.8
+    },
+    {
+     "ttft": 2.677200166,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.677200166,
+     "t_done": 2.677211,
+     "prompt_tokens": 1664,
+     "cached": 0,
+     "uncached": 1664,
+     "completion_tokens": 112,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试清理手机存储空间但无效，要求转人工客服说明情况。\", \"summary\": \"用户咨询手机存储空间满如何清理，已尝试自动清理及手动删除应用、视频、备份照片等方法，但问题仍未解决。用户要求转人工客服进一步处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:48",
+     "load1": 2.9
+    },
+    {
+     "ttft": 2.377002541,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.377002541,
+     "t_done": 2.388120333,
+     "prompt_tokens": 1590,
+     "cached": 0,
+     "uncached": 1590,
+     "completion_tokens": 93,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试系统升级但无效，要求转人工客服说明情况\", \"summary\": \"用户反馈尝试过系统升级方法但无效，要求转人工客服详细说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:51",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.409068959,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.409068959,
+     "t_done": 2.420365875,
+     "prompt_tokens": 1636,
+     "cached": 0,
+     "uncached": 1636,
+     "completion_tokens": 90,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"手机自动重启问题无法解决，用户要求转人工客服说明情况。\", \"summary\": \"用户手机出现自动重启问题，已尝试重启和恢复出厂设置无效，现要求转人工客服说明情况。\"}"
+      ]
+     ],
+     "wall_clock": "12:41:56",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.49982125,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.49982125,
+     "t_done": 2.511266375,
+     "prompt_tokens": 1583,
+     "cached": 0,
+     "uncached": 1583,
+     "completion_tokens": 99,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试关闭自动亮度失败，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何关闭手机自动亮度，按指导操作后反馈无效，要求转人工客服说明具体情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:41:59",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.535689917,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.535689917,
+     "t_done": 2.547066042,
+     "prompt_tokens": 1668,
+     "cached": 0,
+     "uncached": 1668,
+     "completion_tokens": 101,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"手机异常发烫，用户已尝试常规处理方法无效，担心数据丢失，要求转人工处理。\", \"summary\": \"用户反馈手机异常发烫，已尝试关闭后台应用等方法无效，担心影响数据安全，要求转接人工客服详细说明情况并解决。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:03",
+     "load1": 2.9
+    },
+    {
+     "ttft": 2.287708291,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.287708291,
+     "t_done": 2.298442958,
+     "prompt_tokens": 1578,
+     "cached": 0,
+     "uncached": 1578,
+     "completion_tokens": 83,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试设置来电铃声失败，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何设置来电铃声，尝试操作后表示无效，要求转人工客服。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:06",
+     "load1": 2.9
+    },
+    {
+     "ttft": 2.891501459,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.891501459,
+     "t_done": 2.891512375,
+     "prompt_tokens": 1625,
+     "cached": 0,
+     "uncached": 1625,
+     "completion_tokens": 129,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机连不上无线网，已尝试重启、忘记网络、检查路由器频段均无效，需人工客服进一步排查。\", \"summary\": \"用户反馈手机无法连接无线网络，已指导用户尝试重启手机和路由器、在设置中忘记网络并重新连接、检查路由器Wi-Fi频段兼容性，但问题仍未解决，需人工技术支持介入。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:11",
+     "load1": 3.1
+    },
+    {
+     "ttft": 2.697731667,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.697731667,
+     "t_done": 2.709841167,
+     "prompt_tokens": 1583,
+     "cached": 0,
+     "uncached": 1583,
+     "completion_tokens": 112,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户无法通过自助方式恢复出厂设置，且已尝试过备份，需要人工协助处理。\", \"summary\": \"用户咨询如何恢复出厂设置，得知会丢失数据。用户表示已尝试过备份但操作无效，要求转人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:15",
+     "load1": 3.1
+    },
+    {
+     "ttft": 2.367540917,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.367540917,
+     "t_done": 2.378499125,
+     "prompt_tokens": 1656,
+     "cached": 0,
+     "uncached": 1656,
+     "completion_tokens": 90,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机屏幕发黄，已尝试调整设置无效，需要人工客服进一步协助。\", \"summary\": \"用户反馈手机屏幕发黄，尝试关闭护眼模式等设置后无效，要求转人工客服说明情况。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:19",
+     "load1": 3.1
+    },
+    {
+     "ttft": 2.48689625,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.48689625,
+     "t_done": 2.4984305,
+     "prompt_tokens": 1576,
+     "cached": 0,
+     "uncached": 1576,
+     "completion_tokens": 101,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试多种省电模式开启方法无效，要求转人工客服说明情况。\", \"summary\": \"用户咨询如何开启省电模式，尝试了多种方法均无效，要求转接人工客服进一步处理。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:22",
+     "load1": 3.1
+    },
+    {
+     "ttft": 2.853792334,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.853792334,
+     "t_done": 2.853803292,
+     "prompt_tokens": 1624,
+     "cached": 0,
+     "uncached": 1624,
+     "completion_tokens": 127,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户蓝牙耳机（iPhone 12与AirPods Pro）连接失败，已尝试重置配对、重启手机及耳机，问题仍未解决。\", \"summary\": \"用户反馈iPhone 12与AirPods Pro无法连接。已指导用户进行重置配对及重启操作，但问题依旧存在。需转接人工客服进行进一步技术支持。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:27",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.372844667,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.372844667,
+     "t_done": 2.384590584,
+     "prompt_tokens": 1627,
+     "cached": 0,
+     "uncached": 1627,
+     "completion_tokens": 91,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户无法通过语音助手指导解决手机照片备份问题，需要人工客服协助处理。\", \"summary\": \"用户询问如何备份手机照片，按照指导尝试后表示无效，要求转接人工客服说明情况。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:30",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.408999666,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.408999666,
+     "t_done": 2.420082166,
+     "prompt_tokens": 1703,
+     "cached": 0,
+     "uncached": 1703,
+     "completion_tokens": 89,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试过常规解决信号问题的方法无效，要求转人工客服详细说明情况。\", \"summary\": \"用户反馈手机信号不好，已尝试常规解决方法但无效，要求转人工客服详细咨询解决。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:35",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.451338625,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.451338625,
+     "t_done": 2.462485667,
+     "prompt_tokens": 1584,
+     "cached": 0,
+     "uncached": 1584,
+     "completion_tokens": 93,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户查看手机存储的操作无效，要求转人工咨询。\", \"summary\": \"用户咨询如何查看手机剩余存储，告知操作不会丢数据后，用户表示试过的方法都无效，要求转人工客服说明情况。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:38",
+     "load1": 2.9
+    },
+    {
+     "ttft": 2.672188042,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.672188042,
+     "t_done": 2.672198917,
+     "prompt_tokens": 1626,
+     "cached": 0,
+     "uncached": 1626,
+     "completion_tokens": 111,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"手机无法开机，用户已尝试强制重启和充电无效，要求人工客服协助处理。\", \"summary\": \"用户手机无法开机，已尝试长按电源键强制重启及连接充电器充电30分钟，均无效。用户要求转人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:43",
+     "load1": 2.8
+    },
+    {
+     "ttft": 2.517784625,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.517784625,
+     "t_done": 2.529077458,
+     "prompt_tokens": 1592,
+     "cached": 0,
+     "uncached": 1592,
+     "completion_tokens": 100,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户尝试了关闭应用通知的方法但无效，需要人工客服协助。\", \"summary\": \"用户询问如何关闭应用通知，按照建议尝试操作后表示无效，要求转人工客服说明情况。\", \"slots\": {}}"
+      ]
+     ],
+     "wall_clock": "12:42:46",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.35178325,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.35178325,
+     "t_done": 2.351795459,
+     "prompt_tokens": 1620,
+     "cached": 0,
+     "uncached": 1620,
+     "completion_tokens": 91,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户手机无声问题，已尝试重启和检查设置无效，需人工协助。\", \"summary\": \"用户反映手机突然没声音，已尝试重启和检查静音/蓝牙设置均无效，要求转人工客服处理。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:49",
+     "load1": 3.0
+    },
+    {
+     "ttft": 2.266446917,
+     "t_first_boundary": null,
+     "t_first_content": null,
+     "t_first_tool_call": 2.266446917,
+     "t_done": 2.266457792,
+     "prompt_tokens": 1566,
+     "cached": 0,
+     "uncached": 1566,
+     "completion_tokens": 87,
+     "decode_tps": null,
+     "finish_reason": "tool_calls",
+     "status": 200,
+     "content": "",
+     "tool_calls": [
+      [
+       "transfer_to_agent",
+       "{\"queue\": \"mobile_support\", \"reason\": \"用户无法通过常规方法设置指纹解锁，要求转人工客服沟通具体情况。\", \"summary\": \"用户咨询如何设置指纹解锁，表示之前尝试的方法均无效，要求转接人工客服进一步处理。\"}"
+      ]
+     ],
+     "wall_clock": "12:42:52",
+     "load1": 3.1
+    }
+   ],
+   "called_transfer": 20
+  }
+ }
+}

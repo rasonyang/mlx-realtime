@@ -1,0 +1,4327 @@
+{
+ "spike": "S3",
+ "step": "kokoro",
+ "started_at": "2026-10-23T06:26:23+08:00",
+ "loadavg1_start": 2.53,
+ "environment": {
+  "recorded_at": "2026-10-23T06:26:23+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "asr_kokoro",
+   "port": 8102,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_kokoro_062558/server.log",
+   "seconds_to_ready": 12.33
+  },
+  {
+   "name": "tts_kokoro",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_kokoro_062611/server.log",
+   "seconds_to_ready": 12.56
+  }
+ ],
+ "conditions": {
+  "kokoro": "mlx-community/Kokoro-82M-bf16",
+  "kokoro_voices": {
+   "zh": "zf_xiaobei",
+   "en": "af_heart",
+   "mix": "zf_xiaobei"
+  },
+  "kokoro_lang_code": {
+   "zh": "z",
+   "en": "a",
+   "mix": "z"
+  },
+  "qwen": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "qwen_voices": {
+   "zh": "vivian",
+   "en": "ryan",
+   "mix": "vivian"
+  },
+  "qwen_lang_code": {
+   "zh": "chinese",
+   "en": "english",
+   "mix": "chinese"
+  },
+  "qwen_streaming_interval": 0.32,
+  "voice_resolution": "Kokoro voices passed as .safetensors paths inside the mlx-community/Kokoro-82M-bf16 snapshot (offline; see b2_common.kokoro_voice_path)",
+  "back_transcription": "ASR 1.7B, no language field (auto-detect)"
+ },
+ "qwen_warmup": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 1885.14,
+   "total_ms": 3305.0,
+   "audio_s": 4.96,
+   "error": null
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "status": 200,
+   "ttfc_ms": 116.43,
+   "total_ms": 1341.03,
+   "audio_s": 4.4,
+   "error": null
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 106.61,
+   "total_ms": 1586.94,
+   "audio_s": 5.6,
+   "error": null
+  }
+ ],
+ "kokoro_cold": [
+  {
+   "lang": "en",
+   "status": 200,
+   "ttfc_ms": 2182.01,
+   "total_ms": 2182.25,
+   "audio_s": 3.925,
+   "error": null
+  },
+  {
+   "lang": "zh",
+   "status": 200,
+   "ttfc_ms": 752.98,
+   "total_ms": 753.16,
+   "audio_s": 5.65,
+   "error": null
+  }
+ ],
+ "kokoro_cold_log": [
+  "2185.3 ms: Creating new KokoroPipeline for language: z",
+  "2443.9 ms: Building prefix dict from the default dictionary ...",
+  "2444.0 ms: DEBUG:jieba:Building prefix dict from the default dictionary ...",
+  "2444.1 ms: Loading model from cache /tmp/mlxrt/scratchpad/b2/tmp/jieba.cache",
+  "2444.1 ms: DEBUG:jieba:Loading model from cache /tmp/mlxrt/scratchpad/b2/tmp/jieba.cache",
+  "2773.3 ms: Loading model cost 0.329 seconds.",
+  "2773.4 ms: DEBUG:jieba:Loading model cost 0.329 seconds.",
+  "2773.4 ms: Prefix dict has been built successfully.",
+  "2773.4 ms: DEBUG:jieba:Prefix dict has been built successfully."
+ ],
+ "records": [
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 0,
+   "text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 198.43,
+   "total_ms": 198.82,
+   "audio_s": 5.65,
+   "rtf": 0.0352,
+   "n_chunks": 1,
+   "loadavg1_before": 2.6,
+   "voiced_s": 4.19,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_00.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 1,
+   "text": "好的，我马上帮您查询一下订单状态。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 200.38,
+   "total_ms": 200.64,
+   "audio_s": 4.825,
+   "rtf": 0.0416,
+   "n_chunks": 1,
+   "loadavg1_before": 2.6,
+   "voiced_s": 3.33,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_01.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 2,
+   "text": "非常抱歉让您久等了，感谢您的耐心。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 198.05,
+   "total_ms": 198.22,
+   "audio_s": 4.95,
+   "rtf": 0.04,
+   "n_chunks": 1,
+   "loadavg1_before": 2.6,
+   "voiced_s": 3.48,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_02.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 3,
+   "text": "您的包裹已经到达配送站，今天下午会送到。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 260.08,
+   "total_ms": 260.42,
+   "audio_s": 5.65,
+   "rtf": 0.0461,
+   "n_chunks": 1,
+   "loadavg1_before": 2.6,
+   "voiced_s": 4.17,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_03.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 4,
+   "text": "请问您是想办理退货还是换货呢？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 257.5,
+   "total_ms": 257.73,
+   "audio_s": 4.6,
+   "rtf": 0.056,
+   "n_chunks": 1,
+   "loadavg1_before": 2.6,
+   "voiced_s": 3.12,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_04.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 5,
+   "text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 230.38,
+   "total_ms": 230.59,
+   "audio_s": 5.875,
+   "rtf": 0.0392,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 4.39,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_05.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 6,
+   "text": "请您保持电话畅通，稍后会有专人联系您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 234.27,
+   "total_ms": 234.46,
+   "audio_s": 5.575,
+   "rtf": 0.0421,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 4.13,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_06.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 7,
+   "text": "退款会原路返回到您的支付账户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 200.0,
+   "total_ms": 200.3,
+   "audio_s": 4.45,
+   "rtf": 0.045,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.01,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_07.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 8,
+   "text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 288.24,
+   "total_ms": 288.65,
+   "audio_s": 6.275,
+   "rtf": 0.046,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 4.77,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_08.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 9,
+   "text": "您的会员积分可以在下次购物时抵扣现金。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.47,
+   "total_ms": 175.7,
+   "audio_s": 5.575,
+   "rtf": 0.0315,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 4.12,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_09.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 10,
+   "text": "这个问题需要转接到技术部门，请您稍等。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 212.75,
+   "total_ms": 212.97,
+   "audio_s": 5.325,
+   "rtf": 0.04,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.88,
+   "asr_text": "这个问题需要转接到技术部门，请您稍等。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_10.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 11,
+   "text": "我们的工作人员会在明天上午上门安装。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 231.57,
+   "total_ms": 231.82,
+   "audio_s": 5.15,
+   "rtf": 0.045,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.69,
+   "asr_text": "我们的工作人员会在明天上午上门安装。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_11.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 12,
+   "text": "如果您对这次服务满意，请给我们一个好评。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 210.7,
+   "total_ms": 210.88,
+   "audio_s": 5.425,
+   "rtf": 0.0389,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.94,
+   "asr_text": "如果您对这次服务满意，请给我们一个好评。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_12.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 13,
+   "text": "很抱歉，这款商品目前暂时缺货。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 209.64,
+   "total_ms": 209.84,
+   "audio_s": 4.7,
+   "rtf": 0.0446,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.22,
+   "asr_text": "很抱歉，这款商品目前暂时缺货。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_13.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 14,
+   "text": "您可以在订单详情页面申请开具发票。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 227.65,
+   "total_ms": 227.82,
+   "audio_s": 5.25,
+   "rtf": 0.0434,
+   "n_chunks": 1,
+   "loadavg1_before": 3.59,
+   "voiced_s": 3.76,
+   "asr_text": "您可以在订单详情页面申请开具发票。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 16,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_14.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 15,
+   "text": "本次通话可能会被录音，以便提升服务质量。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 253.34,
+   "total_ms": 253.52,
+   "audio_s": 5.65,
+   "rtf": 0.0449,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 4.2,
+   "asr_text": "本次通话可能会被录音，以便提升服务质量。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_15.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 16,
+   "text": "请您核对一下收货地址是否正确。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 197.31,
+   "total_ms": 197.55,
+   "audio_s": 4.925,
+   "rtf": 0.0401,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 3.45,
+   "asr_text": "请您核对一下收货地址是否正确。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_16.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 17,
+   "text": "系统显示您的快递已经签收了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 208.73,
+   "total_ms": 208.94,
+   "audio_s": 4.625,
+   "rtf": 0.0452,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 3.14,
+   "asr_text": "系统显示，您的快递已经签收了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_17.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 18,
+   "text": "感谢您的来电，祝您生活愉快，再见。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 311.63,
+   "total_ms": 311.88,
+   "audio_s": 4.8,
+   "rtf": 0.065,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 3.33,
+   "asr_text": "感谢您的来电，祝您生活愉快，再见。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_18.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "zh",
+   "sentence": 19,
+   "text": "您的投诉我们已经受理，处理结果会短信通知您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 228.47,
+   "total_ms": 228.85,
+   "audio_s": 6.075,
+   "rtf": 0.0377,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 4.61,
+   "asr_text": "您的投诉我们已经受理，处理结果会短信通知您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 20,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_zh_19.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 0,
+   "text": "Hello, this is customer service. How can I help you today?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.47,
+   "total_ms": 177.64,
+   "audio_s": 3.925,
+   "rtf": 0.0453,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 3.13,
+   "asr_text": "Hello, this is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_00.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 1,
+   "text": "Sure, let me check the status of your order right away.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.07,
+   "total_ms": 168.35,
+   "audio_s": 3.375,
+   "rtf": 0.0499,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 2.58,
+   "asr_text": "Sure, let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_01.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 2,
+   "text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 179.98,
+   "total_ms": 180.19,
+   "audio_s": 3.675,
+   "rtf": 0.049,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 2.93,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_02.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 3,
+   "text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 243.97,
+   "total_ms": 244.26,
+   "audio_s": 5.175,
+   "rtf": 0.0472,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 4.34,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_03.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 4,
+   "text": "Would you like to return the item or exchange it?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 161.05,
+   "total_ms": 161.25,
+   "audio_s": 3.15,
+   "rtf": 0.0512,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 2.38,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_04.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 5,
+   "text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.26,
+   "total_ms": 189.45,
+   "audio_s": 4.425,
+   "rtf": 0.0428,
+   "n_chunks": 1,
+   "loadavg1_before": 3.95,
+   "voiced_s": 3.6,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_05.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 6,
+   "text": "Please keep your phone on. A specialist will call you back shortly.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 214.89,
+   "total_ms": 215.12,
+   "audio_s": 4.1,
+   "rtf": 0.0525,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.3,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_06.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 7,
+   "text": "The refund will go back to your original payment method.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 180.56,
+   "total_ms": 180.76,
+   "audio_s": 3.475,
+   "rtf": 0.052,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.67,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_07.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 8,
+   "text": "For your security, please never share your verification code with anyone.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 220.49,
+   "total_ms": 220.66,
+   "audio_s": 4.575,
+   "rtf": 0.0482,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.74,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_08.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 9,
+   "text": "You can use your reward points as a discount on your next purchase.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 187.48,
+   "total_ms": 187.65,
+   "audio_s": 4.175,
+   "rtf": 0.0449,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.41,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_09.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 10,
+   "text": "This needs to go to our technical team. Please hold for a moment.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 187.45,
+   "total_ms": 187.61,
+   "audio_s": 4.175,
+   "rtf": 0.0449,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.42,
+   "asr_text": "This needs to go to our technical team. Please hold for a moment.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_10.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 11,
+   "text": "Our technician will come to install it tomorrow morning.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.34,
+   "total_ms": 173.57,
+   "audio_s": 3.475,
+   "rtf": 0.0499,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.64,
+   "asr_text": "Our technician will come to install it tomorrow morning.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 9,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_11.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 12,
+   "text": "If you are happy with our service today, please leave us a good review.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 203.36,
+   "total_ms": 203.55,
+   "audio_s": 4.15,
+   "rtf": 0.049,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.36,
+   "asr_text": "If you are happy with our service today, please leave us a good review.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_12.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 13,
+   "text": "I'm sorry, this item is currently out of stock.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 159.92,
+   "total_ms": 160.16,
+   "audio_s": 3.15,
+   "rtf": 0.0508,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.36,
+   "asr_text": "I'm sorry. This item is currently out of stock.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 9,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_13.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 14,
+   "text": "You can request an invoice on the order details page.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.53,
+   "total_ms": 164.76,
+   "audio_s": 3.525,
+   "rtf": 0.0467,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.73,
+   "asr_text": "You can request an invoice on the order details page.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_14.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 15,
+   "text": "This call may be recorded to help us improve our service.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.14,
+   "total_ms": 175.34,
+   "audio_s": 3.75,
+   "rtf": 0.0468,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.96,
+   "asr_text": "This call may be recorded to help us improve our service.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_15.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 16,
+   "text": "Could you please confirm that your delivery address is correct?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.16,
+   "total_ms": 181.32,
+   "audio_s": 3.675,
+   "rtf": 0.0493,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 2.93,
+   "asr_text": "Could you please confirm that your delivery address is correct?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_16.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 17,
+   "text": "Our system shows that your parcel has already been signed for.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.05,
+   "total_ms": 195.25,
+   "audio_s": 3.975,
+   "rtf": 0.0491,
+   "n_chunks": 1,
+   "loadavg1_before": 4.83,
+   "voiced_s": 3.14,
+   "asr_text": "Our system shows that your parcel has already been signed for.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_17.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 18,
+   "text": "Thank you for calling, and have a nice day. Goodbye.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.93,
+   "total_ms": 166.14,
+   "audio_s": 3.4,
+   "rtf": 0.0489,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.59,
+   "asr_text": "Thank you for calling, and have a nice day. Goodbye.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_18.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "en",
+   "sentence": 19,
+   "text": "We have received your complaint, and we will text you the result.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.11,
+   "total_ms": 182.3,
+   "audio_s": 3.825,
+   "rtf": 0.0477,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 3.05,
+   "asr_text": "We have received your complaint, and we will text you the result.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_en_19.wav"
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 0,
+   "text": "请您打开App，在首页点击客服入口。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 210.31,
+   "total_ms": 210.62,
+   "audio_s": 4.775,
+   "rtf": 0.0441,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 3.32,
+   "asr_text": "请您打开，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 1,
+    "sub": 0,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.0714
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_00.wav",
+   "en_recall": {
+    "words": [
+     [
+      "app",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 1,
+   "text": "我们已经把确认邮件发到您的email了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 202.07,
+   "total_ms": 202.26,
+   "audio_s": 4.575,
+   "rtf": 0.0442,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 3.09,
+   "asr_text": "我们已经把确认邮件发到您的麦了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0667
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_01.wav",
+   "en_recall": {
+    "words": [
+     [
+      "email",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 2,
+   "text": "您的VIP会员下个月就要到期了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 200.34,
+   "total_ms": 200.58,
+   "audio_s": 4.15,
+   "rtf": 0.0483,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.66,
+   "asr_text": "您的会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 1,
+    "sub": 0,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.0769
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_02.wav",
+   "en_recall": {
+    "words": [
+     [
+      "vip",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 3,
+   "text": "您可以把截图发给我们的online客服。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.52,
+   "total_ms": 170.7,
+   "audio_s": 4.525,
+   "rtf": 0.0377,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 3.04,
+   "asr_text": "您可以把截图发给我们东林的客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 3,
+    "sub": 2,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.2143
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_03.wav",
+   "en_recall": {
+    "words": [
+     [
+      "online",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 4,
+   "text": "请先连接Wi-Fi再下载这个update。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.71,
+   "total_ms": 174.9,
+   "audio_s": 4.15,
+   "rtf": 0.0421,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.7,
+   "asr_text": "请先连接未在下载这股大的。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 6,
+    "sub": 4,
+    "del": 1,
+    "ins": 1,
+    "rate": 0.5
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_04.wav",
+   "en_recall": {
+    "words": [
+     [
+      "wi-fi",
+      false
+     ],
+     [
+      "update",
+      false
+     ]
+    ],
+    "n": 2,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 5,
+   "text": "您的refund申请已经审核通过了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 194.63,
+   "total_ms": 194.89,
+   "audio_s": 4.425,
+   "rtf": 0.044,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.93,
+   "asr_text": "您的这封申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1667
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_05.wav",
+   "en_recall": {
+    "words": [
+     [
+      "refund",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 6,
+   "text": "这个promotion活动只针对新用户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 190.66,
+   "total_ms": 190.85,
+   "audio_s": 4.175,
+   "rtf": 0.0457,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.73,
+   "asr_text": "这个Promo丁活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_06.wav",
+   "en_recall": {
+    "words": [
+     [
+      "promotion",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 7,
+   "text": "请您先logout，然后重新login一下。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 208.23,
+   "total_ms": 208.42,
+   "audio_s": 4.275,
+   "rtf": 0.0488,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.8,
+   "asr_text": "请您先落，然后重新轮椅一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 3,
+    "sub": 2,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.2727
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_07.wav",
+   "en_recall": {
+    "words": [
+     [
+      "logout",
+      false
+     ],
+     [
+      "login",
+      false
+     ]
+    ],
+    "n": 2,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 8,
+   "text": "您的account目前处于正常状态。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.22,
+   "total_ms": 176.41,
+   "audio_s": 4.325,
+   "rtf": 0.0408,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 2.84,
+   "asr_text": "宁达州目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 3,
+    "sub": 3,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.2727
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_08.wav",
+   "en_recall": {
+    "words": [
+     [
+      "account",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 9,
+   "text": "我们会把invoice发到您登记的邮箱。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.05,
+   "total_ms": 175.26,
+   "audio_s": 4.5,
+   "rtf": 0.0389,
+   "n_chunks": 1,
+   "loadavg1_before": 5.0,
+   "voiced_s": 3.03,
+   "asr_text": "我们会把invite发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0769
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_09.wav",
+   "en_recall": {
+    "words": [
+     [
+      "invoice",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 10,
+   "text": "这款iPhone目前有现货，可以当天发货。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 216.51,
+   "total_ms": 216.76,
+   "audio_s": 4.95,
+   "rtf": 0.0438,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.49,
+   "asr_text": "这款尼龙的目前有现货，可以当天发货。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 3,
+    "sub": 1,
+    "del": 0,
+    "ins": 2,
+    "rate": 0.2143
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_10.wav",
+   "en_recall": {
+    "words": [
+     [
+      "iphone",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 11,
+   "text": "您的order已经安排发货了，请留意物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 231.7,
+   "total_ms": 231.94,
+   "audio_s": 5.3,
+   "rtf": 0.0438,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.81,
+   "asr_text": "您多的礼金安排发货了，请留意物流信息。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 4,
+    "sub": 4,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.2353
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_11.wav",
+   "en_recall": {
+    "words": [
+     [
+      "order",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 12,
+   "text": "请问您用的是Android手机还是iPhone？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.22,
+   "total_ms": 184.45,
+   "audio_s": 4.425,
+   "rtf": 0.0417,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 2.93,
+   "asr_text": "请问您用的是Android手机还是iPhone呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0833
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_12.wav",
+   "en_recall": {
+    "words": [
+     [
+      "android",
+      true
+     ],
+     [
+      "iphone",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 13,
+   "text": "系统显示您的password已经修改成功。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.81,
+   "total_ms": 190.01,
+   "audio_s": 4.6,
+   "rtf": 0.0413,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.12,
+   "asr_text": "系统显示：您的压缩底经修改成功。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 3,
+    "sub": 2,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.2308
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_13.wav",
+   "en_recall": {
+    "words": [
+     [
+      "password",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 14,
+   "text": "您可以在settings里面关闭消息推送。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 219.99,
+   "total_ms": 220.22,
+   "audio_s": 4.7,
+   "rtf": 0.0469,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.24,
+   "asr_text": "您可以在 Settings 里面关闭消息推送。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_14.wav",
+   "en_recall": {
+    "words": [
+     [
+      "settings",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 15,
+   "text": "我们的support团队会在今天之内回复您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 227.67,
+   "total_ms": 228.01,
+   "audio_s": 5.1,
+   "rtf": 0.0447,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.66,
+   "asr_text": "我们的Super团队会在今天之内回复您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0667
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_15.wav",
+   "en_recall": {
+    "words": [
+     [
+      "support",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 16,
+   "text": "这个bug我们已经反馈给技术部门了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.2,
+   "total_ms": 182.43,
+   "audio_s": 4.275,
+   "rtf": 0.0427,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 2.8,
+   "asr_text": "这个，我们已经反馈给技术部门了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 1,
+    "sub": 0,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.0667
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_16.wav",
+   "en_recall": {
+    "words": [
+     [
+      "bug",
+      false
+     ]
+    ],
+    "n": 1,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 17,
+   "text": "您的credit card额度暂时不够，可以换一张卡试试。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 221.69,
+   "total_ms": 221.99,
+   "audio_s": 5.625,
+   "rtf": 0.0395,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 4.13,
+   "asr_text": "您的这的加德度暂时不够，可以换一张卡试试。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 4,
+    "sub": 3,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.2222
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_17.wav",
+   "en_recall": {
+    "words": [
+     [
+      "credit",
+      false
+     ],
+     [
+      "card",
+      false
+     ]
+    ],
+    "n": 2,
+    "found": 0
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 18,
+   "text": "请您在App里重新upload一下身份证照片。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 197.98,
+   "total_ms": 198.18,
+   "audio_s": 5.225,
+   "rtf": 0.0379,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.75,
+   "asr_text": "请您再比重新upload一下身份证照片。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 3,
+    "sub": 2,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.2
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_18.wav",
+   "en_recall": {
+    "words": [
+     [
+      "app",
+      false
+     ],
+     [
+      "upload",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 1
+   }
+  },
+  {
+   "engine": "kokoro",
+   "lang": "mix",
+   "sentence": 19,
+   "text": "好的，没问题，我现在帮您check一下。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 210.51,
+   "total_ms": 210.71,
+   "audio_s": 4.675,
+   "rtf": 0.0451,
+   "n_chunks": 1,
+   "loadavg1_before": 6.29,
+   "voiced_s": 3.19,
+   "asr_text": "好的，没问题，我现在帮您check一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/kokoro_mix_19.wav",
+   "en_recall": {
+    "words": [
+     [
+      "check",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 0,
+   "text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.87,
+   "total_ms": 1510.67,
+   "audio_s": 4.8,
+   "rtf": 0.3147,
+   "n_chunks": 15,
+   "loadavg1_before": 5.94,
+   "voiced_s": 4.04,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_00.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 1,
+   "text": "好的，我马上帮您查询一下订单状态。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 136.19,
+   "total_ms": 1232.24,
+   "audio_s": 3.92,
+   "rtf": 0.3143,
+   "n_chunks": 13,
+   "loadavg1_before": 5.94,
+   "voiced_s": 2.91,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_01.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 2,
+   "text": "非常抱歉让您久等了，感谢您的耐心。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 145.95,
+   "total_ms": 1393.24,
+   "audio_s": 4.56,
+   "rtf": 0.3055,
+   "n_chunks": 15,
+   "loadavg1_before": 5.94,
+   "voiced_s": 3.33,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_02.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 3,
+   "text": "您的包裹已经到达配送站，今天下午会送到。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 131.99,
+   "total_ms": 1372.14,
+   "audio_s": 4.56,
+   "rtf": 0.3009,
+   "n_chunks": 15,
+   "loadavg1_before": 5.94,
+   "voiced_s": 3.72,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_03.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 4,
+   "text": "请问您是想办理退货还是换货呢？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 191.91,
+   "total_ms": 1502.15,
+   "audio_s": 4.72,
+   "rtf": 0.3183,
+   "n_chunks": 15,
+   "loadavg1_before": 5.63,
+   "voiced_s": 3.69,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_04.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 5,
+   "text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 105.38,
+   "total_ms": 1372.72,
+   "audio_s": 4.32,
+   "rtf": 0.3178,
+   "n_chunks": 14,
+   "loadavg1_before": 5.63,
+   "voiced_s": 3.35,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_05.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 6,
+   "text": "请您保持电话畅通，稍后会有专人联系您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 139.29,
+   "total_ms": 1449.43,
+   "audio_s": 4.72,
+   "rtf": 0.3071,
+   "n_chunks": 15,
+   "loadavg1_before": 5.63,
+   "voiced_s": 3.52,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_06.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 7,
+   "text": "退款会原路返回到您的支付账户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.91,
+   "total_ms": 1067.59,
+   "audio_s": 3.36,
+   "rtf": 0.3177,
+   "n_chunks": 11,
+   "loadavg1_before": 5.5,
+   "voiced_s": 2.71,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_07.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 8,
+   "text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 146.95,
+   "total_ms": 1709.9,
+   "audio_s": 5.44,
+   "rtf": 0.3143,
+   "n_chunks": 17,
+   "loadavg1_before": 5.5,
+   "voiced_s": 4.34,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_08.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 9,
+   "text": "您的会员积分可以在下次购物时抵扣现金。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 117.55,
+   "total_ms": 1573.99,
+   "audio_s": 4.96,
+   "rtf": 0.3173,
+   "n_chunks": 16,
+   "loadavg1_before": 5.5,
+   "voiced_s": 4.08,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_09.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 10,
+   "text": "这个问题需要转接到技术部门，请您稍等。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 114.67,
+   "total_ms": 1390.84,
+   "audio_s": 4.16,
+   "rtf": 0.3343,
+   "n_chunks": 13,
+   "loadavg1_before": 5.46,
+   "voiced_s": 3.31,
+   "asr_text": "这个问题需要转接到技术部门，请您稍等。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_10.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 11,
+   "text": "我们的工作人员会在明天上午上门安装。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 105.18,
+   "total_ms": 1366.25,
+   "audio_s": 4.48,
+   "rtf": 0.305,
+   "n_chunks": 14,
+   "loadavg1_before": 5.46,
+   "voiced_s": 3.55,
+   "asr_text": "我们的工作人员会在明天上午上门安装。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_11.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 12,
+   "text": "如果您对这次服务满意，请给我们一个好评。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 134.32,
+   "total_ms": 1419.58,
+   "audio_s": 4.56,
+   "rtf": 0.3113,
+   "n_chunks": 15,
+   "loadavg1_before": 5.46,
+   "voiced_s": 3.65,
+   "asr_text": "如果您对这次服务满意，请给我们一个好评。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_12.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 13,
+   "text": "很抱歉，这款商品目前暂时缺货。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 123.93,
+   "total_ms": 1329.17,
+   "audio_s": 4.4,
+   "rtf": 0.3021,
+   "n_chunks": 14,
+   "loadavg1_before": 5.18,
+   "voiced_s": 3.19,
+   "asr_text": "很抱歉，这款商品目前暂时缺货。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_13.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 14,
+   "text": "您可以在订单详情页面申请开具发票。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.89,
+   "total_ms": 1149.15,
+   "audio_s": 3.52,
+   "rtf": 0.3265,
+   "n_chunks": 11,
+   "loadavg1_before": 5.18,
+   "voiced_s": 2.92,
+   "asr_text": "您可以在订单详情页面申请开具发票。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 16,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_14.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 15,
+   "text": "本次通话可能会被录音，以便提升服务质量。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 117.69,
+   "total_ms": 1520.71,
+   "audio_s": 4.8,
+   "rtf": 0.3168,
+   "n_chunks": 15,
+   "loadavg1_before": 5.18,
+   "voiced_s": 3.98,
+   "asr_text": "本次通话可能会被录音，以便提升服务质量。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_15.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 16,
+   "text": "请您核对一下收货地址是否正确。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 111.68,
+   "total_ms": 1098.09,
+   "audio_s": 3.6,
+   "rtf": 0.305,
+   "n_chunks": 12,
+   "loadavg1_before": 4.92,
+   "voiced_s": 2.64,
+   "asr_text": "请您核对一下收货地址是否正确。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_16.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 17,
+   "text": "系统显示您的快递已经签收了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 226.48,
+   "total_ms": 1253.17,
+   "audio_s": 3.68,
+   "rtf": 0.3405,
+   "n_chunks": 12,
+   "loadavg1_before": 4.92,
+   "voiced_s": 2.74,
+   "asr_text": "系统显示，您的快递已经签收了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_17.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 18,
+   "text": "感谢您的来电，祝您生活愉快，再见。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 130.06,
+   "total_ms": 1402.64,
+   "audio_s": 4.4,
+   "rtf": 0.3188,
+   "n_chunks": 14,
+   "loadavg1_before": 4.92,
+   "voiced_s": 3.42,
+   "asr_text": "感谢您的来电，祝您生活愉快，再见。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_18.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "zh",
+   "sentence": 19,
+   "text": "您的投诉我们已经受理，处理结果会短信通知您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 129.56,
+   "total_ms": 1946.07,
+   "audio_s": 6.16,
+   "rtf": 0.3159,
+   "n_chunks": 20,
+   "loadavg1_before": 4.85,
+   "voiced_s": 5.11,
+   "asr_text": "您的投诉我们已经受理，处理结果会短信通知您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 20,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_zh_19.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 0,
+   "text": "Hello, this is customer service. How can I help you today?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 132.08,
+   "total_ms": 1898.15,
+   "audio_s": 6.16,
+   "rtf": 0.3081,
+   "n_chunks": 20,
+   "loadavg1_before": 4.85,
+   "voiced_s": 5.16,
+   "asr_text": "Hello, this is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_00.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 1,
+   "text": "Sure, let me check the status of your order right away.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.82,
+   "total_ms": 1616.79,
+   "audio_s": 4.8,
+   "rtf": 0.3368,
+   "n_chunks": 15,
+   "loadavg1_before": 4.85,
+   "voiced_s": 3.82,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_01.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 2,
+   "text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 128.33,
+   "total_ms": 1788.6,
+   "audio_s": 5.52,
+   "rtf": 0.324,
+   "n_chunks": 18,
+   "loadavg1_before": 4.7,
+   "voiced_s": 4.64,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_02.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 3,
+   "text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 108.47,
+   "total_ms": 2556.82,
+   "audio_s": 8.32,
+   "rtf": 0.3073,
+   "n_chunks": 26,
+   "loadavg1_before": 4.7,
+   "voiced_s": 7.38,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_03.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 4,
+   "text": "Would you like to return the item or exchange it?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 160.37,
+   "total_ms": 1118.03,
+   "audio_s": 3.6,
+   "rtf": 0.3106,
+   "n_chunks": 12,
+   "loadavg1_before": 4.4,
+   "voiced_s": 2.67,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_04.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 5,
+   "text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.97,
+   "total_ms": 1577.13,
+   "audio_s": 4.8,
+   "rtf": 0.3286,
+   "n_chunks": 15,
+   "loadavg1_before": 4.4,
+   "voiced_s": 3.89,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_05.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 6,
+   "text": "Please keep your phone on. A specialist will call you back shortly.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 129.12,
+   "total_ms": 1631.58,
+   "audio_s": 5.04,
+   "rtf": 0.3237,
+   "n_chunks": 16,
+   "loadavg1_before": 4.4,
+   "voiced_s": 4.17,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_06.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 7,
+   "text": "The refund will go back to your original payment method.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 133.04,
+   "total_ms": 1349.6,
+   "audio_s": 4.24,
+   "rtf": 0.3183,
+   "n_chunks": 14,
+   "loadavg1_before": 4.37,
+   "voiced_s": 3.29,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_07.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 8,
+   "text": "For your security, please never share your verification code with anyone.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 136.47,
+   "total_ms": 1920.25,
+   "audio_s": 6.16,
+   "rtf": 0.3117,
+   "n_chunks": 20,
+   "loadavg1_before": 4.37,
+   "voiced_s": 5.27,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_08.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 9,
+   "text": "You can use your reward points as a discount on your next purchase.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 115.88,
+   "total_ms": 1517.68,
+   "audio_s": 4.72,
+   "rtf": 0.3215,
+   "n_chunks": 15,
+   "loadavg1_before": 4.37,
+   "voiced_s": 3.81,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_09.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 10,
+   "text": "This needs to go to our technical team. Please hold for a moment.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 142.03,
+   "total_ms": 2447.42,
+   "audio_s": 8.16,
+   "rtf": 0.2999,
+   "n_chunks": 26,
+   "loadavg1_before": 4.18,
+   "voiced_s": 7.18,
+   "asr_text": "This needs to go to our technical team. Please hold for a moment.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_10.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 11,
+   "text": "Our technician will come to install it tomorrow morning.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 163.36,
+   "total_ms": 1173.02,
+   "audio_s": 3.76,
+   "rtf": 0.312,
+   "n_chunks": 12,
+   "loadavg1_before": 4.18,
+   "voiced_s": 2.87,
+   "asr_text": "Our technician will come to install it tomorrow morning.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 9,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_11.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 12,
+   "text": "If you are happy with our service today, please leave us a good review.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 150.51,
+   "total_ms": 1640.23,
+   "audio_s": 5.2,
+   "rtf": 0.3154,
+   "n_chunks": 17,
+   "loadavg1_before": 4.09,
+   "voiced_s": 4.25,
+   "asr_text": "If you are happy with our service today, please leave us a good review.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_12.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 13,
+   "text": "I'm sorry, this item is currently out of stock.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 167.82,
+   "total_ms": 1322.38,
+   "audio_s": 4.08,
+   "rtf": 0.3241,
+   "n_chunks": 13,
+   "loadavg1_before": 4.09,
+   "voiced_s": 3.17,
+   "asr_text": "I'm sorry, this item is currently out of stock.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 9,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_13.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 14,
+   "text": "You can request an invoice on the order details page.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 162.53,
+   "total_ms": 1271.89,
+   "audio_s": 3.92,
+   "rtf": 0.3245,
+   "n_chunks": 13,
+   "loadavg1_before": 4.09,
+   "voiced_s": 3.01,
+   "asr_text": "You can request an invoice on the order details page.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_14.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 15,
+   "text": "This call may be recorded to help us improve our service.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 137.88,
+   "total_ms": 1326.3,
+   "audio_s": 4.24,
+   "rtf": 0.3128,
+   "n_chunks": 14,
+   "loadavg1_before": 4.08,
+   "voiced_s": 3.36,
+   "asr_text": "This call may be recorded to help us improve our service.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_15.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 16,
+   "text": "Could you please confirm that your delivery address is correct?",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 136.65,
+   "total_ms": 1440.03,
+   "audio_s": 4.56,
+   "rtf": 0.3158,
+   "n_chunks": 15,
+   "loadavg1_before": 4.08,
+   "voiced_s": 3.65,
+   "asr_text": "Could you please confirm that your delivery address is correct?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_16.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 17,
+   "text": "Our system shows that your parcel has already been signed for.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 167.35,
+   "total_ms": 1824.79,
+   "audio_s": 5.68,
+   "rtf": 0.3213,
+   "n_chunks": 18,
+   "loadavg1_before": 4.08,
+   "voiced_s": 4.72,
+   "asr_text": "Our system shows that your parcel has already been signed for.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_17.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 18,
+   "text": "Thank you for calling, and have a nice day. Goodbye.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 137.95,
+   "total_ms": 1467.14,
+   "audio_s": 4.72,
+   "rtf": 0.3108,
+   "n_chunks": 15,
+   "loadavg1_before": 3.99,
+   "voiced_s": 3.86,
+   "asr_text": "Thank you for calling, and have a nice day. Goodbye.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_18.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "en",
+   "sentence": 19,
+   "text": "We have received your complaint, and we will text you the result.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 139.75,
+   "total_ms": 1497.63,
+   "audio_s": 4.96,
+   "rtf": 0.3019,
+   "n_chunks": 16,
+   "loadavg1_before": 3.99,
+   "voiced_s": 4.05,
+   "asr_text": "We have received your complaint, and we will text you the result.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_en_19.wav"
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 0,
+   "text": "请您打开App，在首页点击客服入口。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 152.89,
+   "total_ms": 1139.88,
+   "audio_s": 3.76,
+   "rtf": 0.3032,
+   "n_chunks": 12,
+   "loadavg1_before": 3.99,
+   "voiced_s": 2.9,
+   "asr_text": "请您打开APP，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_00.wav",
+   "en_recall": {
+    "words": [
+     [
+      "app",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 1,
+   "text": "我们已经把确认邮件发到您的email了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 161.08,
+   "total_ms": 1307.2,
+   "audio_s": 4.0,
+   "rtf": 0.3268,
+   "n_chunks": 13,
+   "loadavg1_before": 3.83,
+   "voiced_s": 2.93,
+   "asr_text": "我们已经把确认邮件发到您的 email 了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_01.wav",
+   "en_recall": {
+    "words": [
+     [
+      "email",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 2,
+   "text": "您的VIP会员下个月就要到期了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 110.85,
+   "total_ms": 1053.82,
+   "audio_s": 3.36,
+   "rtf": 0.3136,
+   "n_chunks": 11,
+   "loadavg1_before": 3.83,
+   "voiced_s": 2.27,
+   "asr_text": "您的 VIP 会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_02.wav",
+   "en_recall": {
+    "words": [
+     [
+      "vip",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 3,
+   "text": "您可以把截图发给我们的online客服。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 152.36,
+   "total_ms": 1216.62,
+   "audio_s": 3.92,
+   "rtf": 0.3104,
+   "n_chunks": 13,
+   "loadavg1_before": 3.83,
+   "voiced_s": 3.16,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_03.wav",
+   "en_recall": {
+    "words": [
+     [
+      "online",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 4,
+   "text": "请先连接Wi-Fi再下载这个update。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 162.52,
+   "total_ms": 1243.79,
+   "audio_s": 4.0,
+   "rtf": 0.3109,
+   "n_chunks": 13,
+   "loadavg1_before": 3.83,
+   "voiced_s": 2.83,
+   "asr_text": "请先连接WiFi，再下载这个Update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_04.wav",
+   "en_recall": {
+    "words": [
+     [
+      "wi-fi",
+      true
+     ],
+     [
+      "update",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 5,
+   "text": "您的refund申请已经审核通过了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 137.37,
+   "total_ms": 1211.65,
+   "audio_s": 3.76,
+   "rtf": 0.3222,
+   "n_chunks": 12,
+   "loadavg1_before": 3.69,
+   "voiced_s": 2.85,
+   "asr_text": "您的 refund 的申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0833
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_05.wav",
+   "en_recall": {
+    "words": [
+     [
+      "refund",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 6,
+   "text": "这个promotion活动只针对新用户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 124.9,
+   "total_ms": 1187.92,
+   "audio_s": 3.84,
+   "rtf": 0.3094,
+   "n_chunks": 12,
+   "loadavg1_before": 3.69,
+   "voiced_s": 3.15,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_06.wav",
+   "en_recall": {
+    "words": [
+     [
+      "promotion",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 7,
+   "text": "请您先logout，然后重新login一下。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 154.36,
+   "total_ms": 1205.65,
+   "audio_s": 3.68,
+   "rtf": 0.3276,
+   "n_chunks": 12,
+   "loadavg1_before": 3.69,
+   "voiced_s": 2.84,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_07.wav",
+   "en_recall": {
+    "words": [
+     [
+      "logout",
+      true
+     ],
+     [
+      "login",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 8,
+   "text": "您的account目前处于正常状态。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 139.49,
+   "total_ms": 1148.11,
+   "audio_s": 3.6,
+   "rtf": 0.3189,
+   "n_chunks": 12,
+   "loadavg1_before": 3.63,
+   "voiced_s": 2.52,
+   "asr_text": "您的 account 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_08.wav",
+   "en_recall": {
+    "words": [
+     [
+      "account",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 9,
+   "text": "我们会把invoice发到您登记的邮箱。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 141.0,
+   "total_ms": 1133.13,
+   "audio_s": 3.68,
+   "rtf": 0.3079,
+   "n_chunks": 12,
+   "loadavg1_before": 3.63,
+   "voiced_s": 2.83,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_09.wav",
+   "en_recall": {
+    "words": [
+     [
+      "invoice",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 10,
+   "text": "这款iPhone目前有现货，可以当天发货。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.27,
+   "total_ms": 1215.44,
+   "audio_s": 3.84,
+   "rtf": 0.3165,
+   "n_chunks": 12,
+   "loadavg1_before": 3.63,
+   "voiced_s": 2.88,
+   "asr_text": "这款 iPhone 目前有现货，可以当天发货。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_10.wav",
+   "en_recall": {
+    "words": [
+     [
+      "iphone",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 11,
+   "text": "您的order已经安排发货了，请留意物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 134.94,
+   "total_ms": 1461.21,
+   "audio_s": 4.64,
+   "rtf": 0.3149,
+   "n_chunks": 15,
+   "loadavg1_before": 3.63,
+   "voiced_s": 3.73,
+   "asr_text": "您的 order 已经安排发货了，请留意物流信息。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_11.wav",
+   "en_recall": {
+    "words": [
+     [
+      "order",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 12,
+   "text": "请问您用的是Android手机还是iPhone？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 131.87,
+   "total_ms": 1082.73,
+   "audio_s": 3.28,
+   "rtf": 0.3301,
+   "n_chunks": 11,
+   "loadavg1_before": 3.58,
+   "voiced_s": 2.64,
+   "asr_text": "请问您用的是 Android 手机还是 iPhone？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_12.wav",
+   "en_recall": {
+    "words": [
+     [
+      "android",
+      true
+     ],
+     [
+      "iphone",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 13,
+   "text": "系统显示您的password已经修改成功。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 143.11,
+   "total_ms": 1217.59,
+   "audio_s": 4.0,
+   "rtf": 0.3044,
+   "n_chunks": 13,
+   "loadavg1_before": 3.58,
+   "voiced_s": 3.26,
+   "asr_text": "系统显示，您的 password 已经修改成功。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_13.wav",
+   "en_recall": {
+    "words": [
+     [
+      "password",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 14,
+   "text": "您可以在settings里面关闭消息推送。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 163.29,
+   "total_ms": 1194.67,
+   "audio_s": 3.68,
+   "rtf": 0.3246,
+   "n_chunks": 12,
+   "loadavg1_before": 3.58,
+   "voiced_s": 2.66,
+   "asr_text": "您可以在 Settings 里面关闭消息推送。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_14.wav",
+   "en_recall": {
+    "words": [
+     [
+      "settings",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 15,
+   "text": "我们的support团队会在今天之内回复您。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 122.84,
+   "total_ms": 1484.77,
+   "audio_s": 4.8,
+   "rtf": 0.3093,
+   "n_chunks": 15,
+   "loadavg1_before": 3.61,
+   "voiced_s": 3.73,
+   "asr_text": "我们的support团队会在今天之内回复您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_15.wav",
+   "en_recall": {
+    "words": [
+     [
+      "support",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 16,
+   "text": "这个bug我们已经反馈给技术部门了。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 131.46,
+   "total_ms": 1412.69,
+   "audio_s": 4.24,
+   "rtf": 0.3332,
+   "n_chunks": 14,
+   "loadavg1_before": 3.61,
+   "voiced_s": 3.2,
+   "asr_text": "这个 bug 我们已经反馈给技术部门了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_16.wav",
+   "en_recall": {
+    "words": [
+     [
+      "bug",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 17,
+   "text": "您的credit card额度暂时不够，可以换一张卡试试。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 136.63,
+   "total_ms": 1635.34,
+   "audio_s": 5.04,
+   "rtf": 0.3245,
+   "n_chunks": 16,
+   "loadavg1_before": 3.61,
+   "voiced_s": 3.97,
+   "asr_text": "您的 credit card 的额度暂时不够，可以换一张卡试试。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0556
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_17.wav",
+   "en_recall": {
+    "words": [
+     [
+      "credit",
+      true
+     ],
+     [
+      "card",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 18,
+   "text": "请您在App里重新upload一下身份证照片。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 151.32,
+   "total_ms": 1235.31,
+   "audio_s": 4.16,
+   "rtf": 0.2969,
+   "n_chunks": 13,
+   "loadavg1_before": 3.64,
+   "voiced_s": 3.17,
+   "asr_text": "请您在 app 里重新 upload 一下身份证照片。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_18.wav",
+   "en_recall": {
+    "words": [
+     [
+      "app",
+      true
+     ],
+     [
+      "upload",
+      true
+     ]
+    ],
+    "n": 2,
+    "found": 2
+   }
+  },
+  {
+   "engine": "qwen",
+   "lang": "mix",
+   "sentence": 19,
+   "text": "好的，没问题，我现在帮您check一下。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.33,
+   "total_ms": 1389.68,
+   "audio_s": 4.24,
+   "rtf": 0.3278,
+   "n_chunks": 14,
+   "loadavg1_before": 3.64,
+   "voiced_s": 3.28,
+   "asr_text": "好的，没问题。我现在帮您check一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "wav": "spikes/data/s3/d13/qwen_mix_19.wav",
+   "en_recall": {
+    "words": [
+     [
+      "check",
+      true
+     ]
+    ],
+    "n": 1,
+    "found": 1
+   }
+  }
+ ],
+ "summary": {
+  "kokoro|zh": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 329,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 220.2,
+    "p95": 289.41,
+    "max": 311.63,
+    "min": 175.47,
+    "mean": 226.73
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 220.39,
+    "p95": 289.81,
+    "max": 311.88,
+    "min": 175.7,
+    "mean": 226.98
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.04,
+    "p95": 0.06,
+    "max": 0.07,
+    "min": 0.03,
+    "mean": 0.04
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 5.29,
+    "p95": 6.08,
+    "max": 6.28,
+    "min": 4.45,
+    "mean": 5.27
+   },
+   "sentences_with_errors": 0
+  },
+  "kokoro|en": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 226,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 180.86,
+    "p95": 221.66,
+    "max": 243.97,
+    "min": 159.92,
+    "mean": 185.56
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 181.04,
+    "p95": 221.84,
+    "max": 244.26,
+    "min": 160.16,
+    "mean": 185.77
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.05,
+    "p95": 0.05,
+    "max": 0.05,
+    "min": 0.04,
+    "mean": 0.05
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 3.79,
+    "p95": 4.61,
+    "max": 5.17,
+    "min": 3.15,
+    "mean": 3.86
+   },
+   "sentences_with_errors": 0
+  },
+  "kokoro|mix": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 271,
+    "edits": 43,
+    "sub": 28,
+    "del": 5,
+    "ins": 10,
+    "rate": 0.1587
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 199.16,
+    "p95": 227.87,
+    "max": 231.7,
+    "min": 170.52,
+    "mean": 199.25
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 199.38,
+    "p95": 228.21,
+    "max": 231.94,
+    "min": 170.7,
+    "mean": 199.48
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.04,
+    "p95": 0.05,
+    "max": 0.05,
+    "min": 0.04,
+    "mean": 0.04
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 4.55,
+    "p95": 5.32,
+    "max": 5.62,
+    "min": 4.15,
+    "mean": 4.64
+   },
+   "sentences_with_errors": 18,
+   "en_word_recall": {
+    "found": 5,
+    "total": 25
+   }
+  },
+  "qwen|zh": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 329,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 133.16,
+    "p95": 193.64,
+    "max": 226.48,
+    "min": 105.18,
+    "mean": 141.32
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 1392.04,
+    "p95": 1721.71,
+    "max": 1946.07,
+    "min": 1067.59,
+    "mean": 1402.99
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.32,
+    "p95": 0.33,
+    "max": 0.34,
+    "min": 0.3,
+    "mean": 0.32
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 4.52,
+    "p95": 5.48,
+    "max": 6.16,
+    "min": 3.36,
+    "mean": 4.46
+   },
+   "sentences_with_errors": 0
+  },
+  "qwen|en": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 226,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 138.85,
+    "p95": 168.67,
+    "max": 184.82,
+    "min": 108.47,
+    "mean": 145.02
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 1547.41,
+    "p95": 2452.89,
+    "max": 2556.82,
+    "min": 1118.03,
+    "mean": 1619.27
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.32,
+    "p95": 0.33,
+    "max": 0.34,
+    "min": 0.3,
+    "mean": 0.32
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 4.8,
+    "p95": 8.17,
+    "max": 8.32,
+    "min": 3.6,
+    "mean": 5.13
+   },
+   "sentences_with_errors": 0
+  },
+  "qwen|mix": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 271,
+    "edits": 6,
+    "sub": 2,
+    "del": 1,
+    "ins": 3,
+    "rate": 0.0221
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 142.06,
+    "p95": 164.52,
+    "max": 169.33,
+    "min": 110.85,
+    "mean": 144.29
+   },
+   "total_ms": {
+    "n": 20,
+    "p50": 1216.03,
+    "p95": 1492.3,
+    "max": 1635.34,
+    "min": 1053.82,
+    "mean": 1258.86
+   },
+   "rtf": {
+    "n": 20,
+    "p50": 0.32,
+    "p95": 0.33,
+    "max": 0.33,
+    "min": 0.3,
+    "mean": 0.32
+   },
+   "audio_s": {
+    "n": 20,
+    "p50": 3.88,
+    "p95": 4.81,
+    "max": 5.04,
+    "min": 3.28,
+    "mean": 3.98
+   },
+   "sentences_with_errors": 4,
+   "en_word_recall": {
+    "found": 25,
+    "total": 25
+   }
+  }
+ },
+ "loadavg1_end": 3.64,
+ "finished_at": "2026-10-23T06:28:39+08:00",
+ "servers_end": [
+  {
+   "name": "tts_kokoro",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_kokoro_062611/server.log",
+   "seconds_to_ready": 12.56,
+   "footprint_bytes_end": 3081046992,
+   "log_interesting": [
+    "12451.7 ms: INFO:     Started server process [30063]",
+    "12451.8 ms: INFO:     Waiting for application startup.",
+    "12452.1 ms: INFO:     Application startup complete.",
+    "12452.3 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+    "15415.6 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "15601.4 ms:   Initialized encoder codebooks",
+    "15601.5 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer",
+    "22291.1 ms: Creating new KokoroPipeline for language: z",
+    "22549.7 ms: Building prefix dict from the default dictionary ...",
+    "22549.7 ms: DEBUG:jieba:Building prefix dict from the default dictionary ...",
+    "22549.9 ms: Loading model from cache /tmp/mlxrt/scratchpad/b2/tmp/jieba.cache",
+    "22549.9 ms: DEBUG:jieba:Loading model from cache /tmp/mlxrt/scratchpad/b2/tmp/jieba.cache",
+    "22879.1 ms: Loading model cost 0.329 seconds.",
+    "22879.2 ms: DEBUG:jieba:Loading model cost 0.329 seconds.",
+    "22879.2 ms: Prefix dict has been built successfully.",
+    "22879.2 ms: DEBUG:jieba:Prefix dict has been built successfully."
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  },
+  {
+   "name": "asr_kokoro",
+   "port": 8102,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_kokoro_062558/server.log",
+   "seconds_to_ready": 12.33,
+   "footprint_bytes_end": 2851310760,
+   "log_interesting": [
+    "12271.6 ms: INFO:     Started server process [29866]",
+    "12271.6 ms: INFO:     Waiting for application startup.",
+    "12271.9 ms: INFO:     Application startup complete.",
+    "12272.1 ms: INFO:     Uvicorn running on http://127.0.0.1:8102 (Press CTRL+C to quit)"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

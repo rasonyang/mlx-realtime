@@ -1,0 +1,8404 @@
+{
+ "spike": "S9",
+ "step": "score",
+ "scored_at": "2026-10-23T06:49:46+08:00",
+ "rules": {
+  "num1": [
+   [
+    "3笔",
+    "(三|3)笔"
+   ]
+  ],
+  "num2": [
+   [
+    "128人",
+    "(一百二十八|128)人"
+   ]
+  ],
+  "num3": [
+   [
+    "15600分",
+    "(一万五千六百|15600)分"
+   ]
+  ],
+  "num4": [
+   [
+    "8.5折",
+    "(八点五|8\\.5|八五)折"
+   ]
+  ],
+  "num5": [
+   [
+    "99.6%",
+    "百分之九十九点六|99\\.6%"
+   ]
+  ],
+  "num6": [
+   [
+    "第2位",
+    "第(二|2)位"
+   ]
+  ],
+  "money1": [
+   [
+    "¥1,280.50",
+    "一千[二两]百八十(点五零?元|元五角|块五)|1280\\.50?元"
+   ]
+  ],
+  "money2": [
+   [
+    "100元",
+    "(一百|100)元"
+   ]
+  ],
+  "money3": [
+   [
+    "12.5元",
+    "(十二点五|12\\.5)元"
+   ]
+  ],
+  "money4": [
+   [
+    "$29.99",
+    "(二十九点九九|29\\.99)美元"
+   ]
+  ],
+  "money5": [
+   [
+    "满200",
+    "满(二百|两百|200)"
+   ],
+   [
+    "减30",
+    "减(三十|30)"
+   ]
+  ],
+  "money6": [
+   [
+    "5%",
+    "百分之五"
+   ],
+   [
+    "2500元",
+    "(两千五百|二千五百|2500)元"
+   ]
+  ],
+  "date1": [
+   [
+    "2024年",
+    "二零二四年"
+   ],
+   [
+    "3月15日",
+    "三月十五[日号]"
+   ],
+   [
+    "2:30",
+    "下午[两二]点(三十|半)"
+   ]
+  ],
+  "date2": [
+   [
+    "12月31日",
+    "十二月三十一[日号]"
+   ],
+   [
+    "24:00",
+    "二十四点。"
+   ]
+  ],
+  "date3": [
+   [
+    "9:00",
+    "九点到"
+   ],
+   [
+    "21:00",
+    "到二十一点。"
+   ]
+  ],
+  "date4": [
+   [
+    "2025-01-01",
+    "二零二五年一月一[日号]"
+   ]
+  ],
+  "date5": [
+   [
+    "15:45",
+    "十五点四十五分?之前"
+   ]
+  ],
+  "date6": [
+   [
+    "5号",
+    "每月(五|5)号"
+   ]
+  ],
+  "phone1": [
+   [
+    "400-820-8820",
+    "热线四零零八二零八八二零。"
+   ]
+  ],
+  "phone2": [
+   [
+    "95588",
+    "电话九五五八八。"
+   ]
+  ],
+  "phone3": [
+   [
+    "138 0013 8000",
+    "手机号是[一幺1]三八零零[一幺1]三八零零零对吗"
+   ]
+  ],
+  "phone4": [
+   [
+    "5678",
+    "尾号是五六七八。"
+   ]
+  ],
+  "phone5": [
+   [
+    "010-62345678",
+    "电话是零[一幺1]零六二三四五六七八。"
+   ]
+  ],
+  "phone6": [
+   [
+    "021",
+    "回拨零二[一幺1]"
+   ],
+   [
+    "12345678",
+    "[一幺1]二三四五六七八转"
+   ],
+   [
+    "转8001",
+    "转八零零[一幺1]分机"
+   ]
+  ],
+  "phone7": [
+   [
+    "13912345678",
+    "电话是[一幺1]三九[一幺1]二三四五六七八。"
+   ]
+  ],
+  "id1": [
+   [
+    "A20241015001",
+    "A二零二四[一幺1]零[一幺1]五零零[一幺1]。"
+   ]
+  ],
+  "id2": [
+   [
+    "SF1234567890",
+    "SF[一幺1]二三四五六七八九零。"
+   ]
+  ],
+  "id3": [
+   [
+    "TK-2024-0789",
+    "TK二零二四零七八九。"
+   ]
+  ],
+  "id4": [
+   [
+    "386425",
+    "是三八六四二五五分钟"
+   ]
+  ],
+  "id5": [
+   [
+    "VIP8866",
+    "VIP八八六六。"
+   ]
+  ],
+  "id6": [
+   [
+    "RT20241102A3",
+    "RT二零二四[一幺1][一幺1]零二A三。"
+   ]
+  ],
+  "unit1": [
+   [
+    "2.5kg",
+    "二点五(千克|公斤)"
+   ]
+  ],
+  "unit2": [
+   [
+    "15GB",
+    "十五(GB|G)"
+   ]
+  ],
+  "unit3": [
+   [
+    "5km",
+    "五(公里|千米)"
+   ]
+  ],
+  "unit4": [
+   [
+    "6.1英寸",
+    "六点一英寸"
+   ]
+  ],
+  "unit5": [
+   [
+    "26℃",
+    "二十六(摄氏)?度"
+   ]
+  ],
+  "unit6": [
+   [
+    "500Mbps",
+    "五百兆"
+   ]
+  ],
+  "mix1": [
+   [
+    "App",
+    "App"
+   ]
+  ],
+  "mix2": [
+   [
+    "www.example.com",
+    "www(\\.|点|dot)*example(\\.|点|dot)*com"
+   ]
+  ],
+  "mix3": [
+   [
+    "@",
+    "@|艾特|at"
+   ],
+   [
+    "example.com",
+    "example(\\.|点|dot)com"
+   ]
+  ],
+  "mix4": [
+   [
+    "iPhone 15",
+    "iPhone(十五|15)"
+   ]
+  ],
+  "mix5": [
+   [
+    "Wi-Fi",
+    "Wi-?Fi"
+   ]
+  ],
+  "mix6": [
+   [
+    "PayPal",
+    "PayPal"
+   ],
+   [
+    "Apple Pay",
+    "ApplePay"
+   ]
+  ],
+  "en_money": [
+   [
+    "$1,280.50",
+    "onethousandtwohundred(and)?eightydollarsandfiftycents|\\$1,?280\\.50"
+   ]
+  ],
+  "en_phone": [
+   [
+    "1-800-555-0199",
+    "one(eighthundred|eightzerozero)fivefivefivezerooneninenine"
+   ]
+  ],
+  "en_date": [
+   [
+    "03/15/2024",
+    "march(fifteenth|fifteen)(twentytwentyfour|2024)"
+   ],
+   [
+    "2:30 PM",
+    "twothirtyp\\.?m"
+   ]
+  ],
+  "en_id": [
+   [
+    "A20241015001",
+    "atwozerotwofouronezeroonefivezerozeroone"
+   ]
+  ],
+  "en_unit": [
+   [
+    "2.5 kg",
+    "(2\\.5|twopointfive)kilograms?"
+   ]
+  ],
+  "en_percent": [
+   [
+    "15%",
+    "15%|fifteenpercent"
+   ],
+   [
+    "$200",
+    "\\$200|twohundreddollars"
+   ]
+  ]
+ },
+ "checks": {
+  "spoken_not_correct": [],
+  "alt_items_matching_intended": [
+   [
+    "date1",
+    [
+     "3月15日"
+    ]
+   ],
+   [
+    "date2",
+    [
+     "12月31日"
+    ]
+   ]
+  ],
+  "auto_vs_lang_disagreements": 0
+ },
+ "per_category_runs": {
+  "zh|number|asr_auto": {
+   "correct": 15,
+   "partial": 0,
+   "wrong": 3
+  },
+  "zh|number|asr_lang": {
+   "correct": 15,
+   "partial": 0,
+   "wrong": 3
+  },
+  "zh|money|asr_auto": {
+   "correct": 18,
+   "partial": 0,
+   "wrong": 0
+  },
+  "zh|money|asr_lang": {
+   "correct": 18,
+   "partial": 0,
+   "wrong": 0
+  },
+  "zh|datetime|asr_auto": {
+   "correct": 17,
+   "partial": 1,
+   "wrong": 0
+  },
+  "zh|datetime|asr_lang": {
+   "correct": 17,
+   "partial": 1,
+   "wrong": 0
+  },
+  "zh|phone|asr_auto": {
+   "correct": 8,
+   "partial": 3,
+   "wrong": 10
+  },
+  "zh|phone|asr_lang": {
+   "correct": 8,
+   "partial": 3,
+   "wrong": 10
+  },
+  "zh|id|asr_auto": {
+   "correct": 12,
+   "partial": 0,
+   "wrong": 6
+  },
+  "zh|id|asr_lang": {
+   "correct": 12,
+   "partial": 0,
+   "wrong": 6
+  },
+  "zh|unit|asr_auto": {
+   "correct": 17,
+   "partial": 0,
+   "wrong": 1
+  },
+  "zh|unit|asr_lang": {
+   "correct": 17,
+   "partial": 0,
+   "wrong": 1
+  },
+  "zh|mixed|asr_auto": {
+   "correct": 15,
+   "partial": 2,
+   "wrong": 1
+  },
+  "zh|mixed|asr_lang": {
+   "correct": 15,
+   "partial": 2,
+   "wrong": 1
+  },
+  "en|money|asr_auto": {
+   "correct": 1,
+   "partial": 0,
+   "wrong": 2
+  },
+  "en|money|asr_lang": {
+   "correct": 1,
+   "partial": 0,
+   "wrong": 2
+  },
+  "en|phone|asr_auto": {
+   "correct": 2,
+   "partial": 0,
+   "wrong": 1
+  },
+  "en|phone|asr_lang": {
+   "correct": 2,
+   "partial": 0,
+   "wrong": 1
+  },
+  "en|datetime|asr_auto": {
+   "correct": 0,
+   "partial": 2,
+   "wrong": 1
+  },
+  "en|datetime|asr_lang": {
+   "correct": 0,
+   "partial": 2,
+   "wrong": 1
+  },
+  "en|id|asr_auto": {
+   "correct": 0,
+   "partial": 0,
+   "wrong": 3
+  },
+  "en|id|asr_lang": {
+   "correct": 0,
+   "partial": 0,
+   "wrong": 3
+  },
+  "en|unit|asr_auto": {
+   "correct": 3,
+   "partial": 0,
+   "wrong": 0
+  },
+  "en|unit|asr_lang": {
+   "correct": 3,
+   "partial": 0,
+   "wrong": 0
+  },
+  "en|number|asr_auto": {
+   "correct": 3,
+   "partial": 0,
+   "wrong": 0
+  },
+  "en|number|asr_lang": {
+   "correct": 3,
+   "partial": 0,
+   "wrong": 0
+  }
+ },
+ "per_category_sentences": {
+  "zh|number": {
+   "correct": 5,
+   "mixed": 0,
+   "wrong": 1
+  },
+  "zh|money": {
+   "correct": 6,
+   "mixed": 0,
+   "wrong": 0
+  },
+  "zh|datetime": {
+   "correct": 5,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "zh|phone": {
+   "correct": 1,
+   "mixed": 4,
+   "wrong": 2
+  },
+  "zh|id": {
+   "correct": 3,
+   "mixed": 2,
+   "wrong": 1
+  },
+  "zh|unit": {
+   "correct": 5,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "zh|mixed": {
+   "correct": 5,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "en|money": {
+   "correct": 0,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "en|phone": {
+   "correct": 0,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "en|datetime": {
+   "correct": 0,
+   "mixed": 1,
+   "wrong": 0
+  },
+  "en|id": {
+   "correct": 0,
+   "mixed": 0,
+   "wrong": 1
+  },
+  "en|unit": {
+   "correct": 1,
+   "mixed": 0,
+   "wrong": 0
+  },
+  "en|number": {
+   "correct": 1,
+   "mixed": 0,
+   "wrong": 0
+  }
+ },
+ "per_sentence": {
+  "num1": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "num2": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "num3": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "wrong",
+    "wrong",
+    "wrong"
+   ],
+   "summary": "wrong"
+  },
+  "num4": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "num5": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "num6": {
+   "set": "zh",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money1": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money2": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money3": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money4": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money5": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "money6": {
+   "set": "zh",
+   "cat": "money",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "date1": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "date2": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "date3": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "partial",
+    "correct",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "date4": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "date5": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "date6": {
+   "set": "zh",
+   "cat": "datetime",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "phone1": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "wrong",
+    "wrong",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "phone2": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "wrong",
+    "correct",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "phone3": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "wrong",
+    "wrong",
+    "wrong"
+   ],
+   "summary": "wrong"
+  },
+  "phone4": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "wrong",
+    "wrong",
+    "wrong"
+   ],
+   "summary": "wrong"
+  },
+  "phone5": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "phone6": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "partial",
+    "partial",
+    "partial"
+   ],
+   "summary": "mixed"
+  },
+  "phone7": {
+   "set": "zh",
+   "cat": "phone",
+   "runs": [
+    "correct",
+    "wrong",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "id1": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "correct",
+    "correct",
+    "wrong"
+   ],
+   "summary": "mixed"
+  },
+  "id2": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "id3": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "wrong",
+    "wrong",
+    "wrong"
+   ],
+   "summary": "wrong"
+  },
+  "id4": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "id5": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "id6": {
+   "set": "zh",
+   "cat": "id",
+   "runs": [
+    "wrong",
+    "correct",
+    "wrong"
+   ],
+   "summary": "mixed"
+  },
+  "unit1": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "unit2": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "unit3": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "unit4": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "unit5": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "wrong",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "unit6": {
+   "set": "zh",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "mix1": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "mix2": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "mix3": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "wrong",
+    "partial",
+    "partial"
+   ],
+   "summary": "mixed"
+  },
+  "mix4": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "mix5": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "mix6": {
+   "set": "zh",
+   "cat": "mixed",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "en_money": {
+   "set": "en",
+   "cat": "money",
+   "runs": [
+    "wrong",
+    "correct",
+    "wrong"
+   ],
+   "summary": "mixed"
+  },
+  "en_phone": {
+   "set": "en",
+   "cat": "phone",
+   "runs": [
+    "correct",
+    "wrong",
+    "correct"
+   ],
+   "summary": "mixed"
+  },
+  "en_date": {
+   "set": "en",
+   "cat": "datetime",
+   "runs": [
+    "partial",
+    "wrong",
+    "partial"
+   ],
+   "summary": "mixed"
+  },
+  "en_id": {
+   "set": "en",
+   "cat": "id",
+   "runs": [
+    "wrong",
+    "wrong",
+    "wrong"
+   ],
+   "summary": "wrong"
+  },
+  "en_unit": {
+   "set": "en",
+   "cat": "unit",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  },
+  "en_percent": {
+   "set": "en",
+   "cat": "number",
+   "runs": [
+    "correct",
+    "correct",
+    "correct"
+   ],
+   "summary": "correct"
+  }
+ },
+ "results": [
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "你本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "你本月一共有三笔订单待处理。",
+   "items": [
+    [
+     "3笔",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "当前排队人数为一百二十八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "当前排队人数为一二八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "当前排队人数为一二八人，请您耐心等待。",
+   "items": [
+    [
+     "128人",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的积分余额是一千五百六十分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的积分余额是一千五百六十分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的积分余额是一千五百六十分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的积分余额是一千五百六十分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的积分余额是一圈五百分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的积分余额是一圈五百分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的积分余额是一万五千六百分。",
+   "items": [
+    [
+     "15600分",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的积分余额是一万五千六百分。",
+   "items": [
+    [
+     "15600分",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的积分余额是一五六零零分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的积分余额是一五六零零分。",
+   "items": [
+    [
+     "15600分",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "本次活动全场八点五折。",
+   "items": [
+    [
+     "8.5折",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的好评率达到了百分之九十九点六。",
+   "items": [
+    [
+     "99.6%",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您是今天第二位来电的客户。",
+   "items": [
+    [
+     "第2位",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您本期账单应还金额为一千二百八十点五零元。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您本期账单应还金额为一千二百八十元五角。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您本期账单应还金额为一千二百八十元五角。",
+   "items": [
+    [
+     "¥1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您充值的一百元已经到账。",
+   "items": [
+    [
+     "100元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "这单的运费是十二点五元。",
+   "items": [
+    [
+     "12.5元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "该套餐的月费为二十九点九九美元。",
+   "items": [
+    [
+     "$29.99",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您有一张满两百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您有一张满二百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您有一张满二百减三十的优惠券。",
+   "items": [
+    [
+     "满200",
+     true
+    ],
+    [
+     "减30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "违约金为合同金额的百分之五，计两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "违约金为合同金额的百分之五，计两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "违约金为合同金额的百分之五，即两千五百元。",
+   "items": [
+    [
+     "5%",
+     true
+    ],
+    [
+     "2500元",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的预约时间是二零二四年三月十五日下午二点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的预约时间是二零二四年三月十五日下午二点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+   "items": [
+    [
+     "2024年",
+     true
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的预约时间是两千零二十四年三月十五日下午二比三十。",
+   "items": [
+    [
+     "2024年",
+     false
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的预约时间是两千零二十四年三月十五日下午二比三十。",
+   "items": [
+    [
+     "2024年",
+     false
+    ],
+    [
+     "3月15日",
+     true
+    ],
+    [
+     "2:30",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "活动截止到十二月三十一日二十四点。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "活动截止到十二月三十一日二十四比零零。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "活动截止到十二月三十一日二十四比零零。",
+   "items": [
+    [
+     "12月31日",
+     true
+    ],
+    [
+     "24:00",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的服务时间是每天九点到二十一点零。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的服务时间是每天九点到二十一点零。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     false
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的服务时间是每天九点到二十一点。",
+   "items": [
+    [
+     "9:00",
+     true
+    ],
+    [
+     "21:00",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的服务时间是每天九比零零到二十一比零零。",
+   "items": [
+    [
+     "9:00",
+     false
+    ],
+    [
+     "21:00",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的服务时间是每天九比零零到二十一比零零。",
+   "items": [
+    [
+     "9:00",
+     false
+    ],
+    [
+     "21:00",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的新套餐将于二零二五年一月一日生效。",
+   "items": [
+    [
+     "2025-01-01",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的新套餐将于二零二五减零一减零一生效。",
+   "items": [
+    [
+     "2025-01-01",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的新套餐将于二零二五减零一减零一生效。",
+   "items": [
+    [
+     "2025-01-01",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请在今天十五点四十五分之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请在今天十五比四十五之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请在今天十五比四十五之前完成支付。",
+   "items": [
+    [
+     "15:45",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的账单日是每月五号。",
+   "items": [
+    [
+     "5号",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您可以拨打我们的客服热线四零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您可以拨打我们的客服热线四零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您可以拨打我们的客服热线四零八二零八八二零零零八，就会被动笔下载的。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您可以拨打我们的客服热线四零八二零八八二零零零八，就会被动笔下载的。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您可以拨打我们的客服热线四零零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您可以拨打我们的客服热线四零零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您可以拨打我们的客服热线四零零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您可以拨打我们的客服热线四零零八二零八八二零。",
+   "items": [
+    [
+     "400-820-8820",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您可以拨打我们的客服热线四百八百二十八千八百二十。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您可以拨打我们的客服热线四百八百二十八千八百二十。",
+   "items": [
+    [
+     "400-820-8820",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请拨打银行客服电话九五八八。",
+   "items": [
+    [
+     "95588",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请拨打银行客服电话九五八八。",
+   "items": [
+    [
+     "95588",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请拨打银行客服电话九五五八八。",
+   "items": [
+    [
+     "95588",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请拨打银行客服电话九万五千五百八十八。",
+   "items": [
+    [
+     "95588",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请拨打银行客服电话九万五千五百八十八。",
+   "items": [
+    [
+     "95588",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您登记的手机号是十三八零零一三八零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您登记的手机号是十三八零零一三八零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您登记的手机号是幺三八零零一三八零零一三八零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您登记的手机号是幺三八零零一三八零零一三八零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您登记的手机号是R三八零零一三八零零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您登记的手机号是R三八零零一三八零零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您登记的手机号是幺三八零零幺三八零零零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您登记的手机号是幺三八零零幺三八零零零，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您登记的手机号是一百三十八十三八千，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您登记的手机号是一百三十八十三八千，对吗？",
+   "items": [
+    [
+     "138 0013 8000",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的手机号码尾号是五车六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的手机号码尾号是五车六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的手机号码尾号是五九六七八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的手机号码尾号是五九六七八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的手机号码尾号是五千六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的手机号码尾号是五千六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的手机号码尾号是五六七八。",
+   "items": [
+    [
+     "5678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的手机号码尾号是五六七八。",
+   "items": [
+    [
+     "5678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "林的手机号码尾号是五千六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "林的手机号码尾号是五千六百七十八。",
+   "items": [
+    [
+     "5678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "我们的办公电话是零一零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的办公电话是零幺零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的办公电话是零幺零六二三四五六七八。",
+   "items": [
+    [
+     "010-62345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的办公电话是十六千二百三十四万五千六百七十八。",
+   "items": [
+    [
+     "010-62345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的办公电话是十六千二百三十四万五千六百七十八。",
+   "items": [
+    [
+     "010-62345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请回拨零二一年十二万三千活奶七十八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请回拨零二一年十二万三千活奶七十八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请回拨零二幺幺二三四五六七八转八零零幺分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     true
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请回拨零二幺幺二三四五六七八转八零零幺分机。",
+   "items": [
+    [
+     "021",
+     true
+    ],
+    [
+     "12345678",
+     true
+    ],
+    [
+     "转8001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请回拨二十一，一千二百三十四万五千六百七十八，转八千零一分机。",
+   "items": [
+    [
+     "021",
+     false
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请回拨二十一，一千二百三十四万五千六百七十八，转八千零一分机。",
+   "items": [
+    [
+     "021",
+     false
+    ],
+    [
+     "12345678",
+     false
+    ],
+    [
+     "转8001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您留的联系电话是一三九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您留的联系电话是一三九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您留的联系电话是：直三弯九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您留的联系电话是：直三弯九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您留的联系电话是一三九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您留的联系电话是一三九一二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您留的联系电话是幺三九幺二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您留的联系电话是幺三九幺二三四五六七八。",
+   "items": [
+    [
+     "13912345678",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您留的联系电话是一百三十九亿一千二百三十四万五千六百七十八。",
+   "items": [
+    [
+     "13912345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您留的联系电话是一百三十九亿一千二百三十四万五千六百七十八。",
+   "items": [
+    [
+     "13912345678",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的订单号是A二零二四一零幺五零零一。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的订单号是 A 二零二四一零幺五零零一。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的订单号是A二零二四幺零幺五零零幺。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的订单号是A二零二四幺零幺五零零幺。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的订单号是A二零二四幺零幺五零幺。",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的订单号是A二零二四幺零幺五零幺。",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的订单号是A二零二四幺零幺五零零幺。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的订单号是A二零二四幺零幺五零零幺。",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的订单号是 A 两百零二亿四千一百零一万五千零一。",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的订单号是 A 两百零二亿四千一百零一万五千零一。",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的快递单号是 S F 幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的快递单号是 S F 幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的快递单号是 S F 一二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的快递单号是 S F 一二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的快递单号是 S F 幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的快递单号是 S F 幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的快递单号是S F幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的快递单号是S F幺二三四五六七八九零。",
+   "items": [
+    [
+     "SF1234567890",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的快递单号是 S F 十二亿三千四百五十六万七千八百九十。",
+   "items": [
+    [
+     "SF1234567890",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的快递单号是 S F 十二亿三千四百五十六万七千八百九十。",
+   "items": [
+    [
+     "SF1234567890",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的工单编号为 T K 二零二四年七万九八九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的工单编号为 T K 二零二四年七万九八九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的工单编号为 T K 二零二四年七万九十万。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的工单编号为 T K 二零二四年七万九十万。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的工单编号为 T K 二零二四年七八九十八。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的工单编号为 T K 二零二四年七八九十八。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的工单编号为TK二零二四零七八九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的工单编号为TK二零二四零七八九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的工单编号为 TK 两千零二十四七百八十九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的工单编号为 TK 两千零二十四七百八十九。",
+   "items": [
+    [
+     "TK-2024-0789",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的验证码是三八六四二五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的验证码是三十八万六千四百二十五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的验证码是三十八万六千四百二十五，五分钟内有效。",
+   "items": [
+    [
+     "386425",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请提供您的会员卡号，VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请提供您的会员卡号，VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请提供您的会员卡号，VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请提供您的会员卡号，VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请提供您的会员卡号：VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请提供您的会员卡号：VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请提供您的会员卡号：VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请提供您的会员卡号：VIP八八六六。",
+   "items": [
+    [
+     "VIP8866",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请提供您的会员卡号VIP八千八百六十六。",
+   "items": [
+    [
+     "VIP8866",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请提供您的会员卡号VIP八千八百六十六。",
+   "items": [
+    [
+     "VIP8866",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "退货单号是RT二零二四一幺零二I三。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "退货单号是RT二零二四一幺零二I三。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "退货单号是 R T 二零二四一一零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "退货单号是 R T 二零二四一一零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "退货单号是参是两千两，二参限千载，A三还限交百两，二A三载。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "退货单号是参是两千两，二参限千载，A三还限交百两，二A三载。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "退货单号是 R T 二零二四幺幺零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "退货单号是 R T 二零二四幺幺零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "退货单号是 R T 两千零二十四万一千一百零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "退货单号是 R T 两千零二十四万一千一百零二 A 三。",
+   "items": [
+    [
+     "RT20241102A3",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "包裹重量为二点五千克。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "包裹重量为二点五公斤。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "包裹重量为二点五公斤。",
+   "items": [
+    [
+     "2.5kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您本月的流量已经用了十五GB。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您本月的流量已经用了十五GB。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您本月的流量已经用了十五 G B。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您本月的流量已经用了十五 G B。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您本月的流量已经用了十五GB。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您本月的流量已经用了十五GB。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您本月的流量已经用了十五 G B。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您本月的流量已经用了十五 G B。",
+   "items": [
+    [
+     "15GB",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "我们的配送范围是五千米以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "我们的配送范围是五千米以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们的配送范围是五公里以内。",
+   "items": [
+    [
+     "5km",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "这款手机的屏幕是六点一英寸。",
+   "items": [
+    [
+     "6.1英寸",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "阿舅里头的是肯建的中转口，中央的料子球窝铁，没清洗的那么。",
+   "items": [
+    [
+     "26℃",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "阿舅里头的是肯建的中转口，中央里聊着球窝，甜美清晰的呢吗？",
+   "items": [
+    [
+     "26℃",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "空调温度建议设定在二十六摄氏度。",
+   "items": [
+    [
+     "26℃",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您家的宽带速率是五百兆位每秒。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您家的宽带速率是五百兆。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您家的宽带速率是五百兆。",
+   "items": [
+    [
+     "500Mbps",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请在App里点击“我的订单”，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请在App里点击我的订单，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请在App里点击我的订单，查看物流信息。",
+   "items": [
+    [
+     "App",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您可以登录官网 www.example.com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您可以登录官网 www.点 example.点 com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您可以登录官网 www.点 example.点 com 查询。",
+   "items": [
+    [
+     "www.example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请把截图发到我们的邮箱 service example 正康。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请把截图发到我们的邮箱 service example 正康。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请把截图发到我们的邮箱 service example dot com。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请把截图发到我们的邮箱 service example dot com。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请把截图发到我们的邮箱 service example.com。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请把截图发到我们的邮箱 service example.com。",
+   "items": [
+    [
+     "@",
+     false
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请把截图发到我们的邮箱 service@example.com。",
+   "items": [
+    [
+     "@",
+     true
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请把截图发到我们的邮箱 service@example.com。",
+   "items": [
+    [
+     "@",
+     true
+    ],
+    [
+     "example.com",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的iPhone十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的iPhone十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "您的 iPhone 十五需要送修吗？",
+   "items": [
+    [
+     "iPhone 15",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "请先连接WiFi，再下载更新包。",
+   "items": [
+    [
+     "Wi-Fi",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "我们支持PayPal和ApplePay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "我们支持PayPal和Apple Pay付款。",
+   "items": [
+    [
+     "PayPal",
+     true
+    ],
+    [
+     "Apple Pay",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your order total is one million two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your order total is one million two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "Your order total is one ed's two hundred and eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "Your order total is one ed's two hundred and eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+   "items": [
+    [
+     "$1,280.50",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "Please call us at one eight five five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "Please call us at one eight five five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Please call us at one eight hundred five five five zero one nine nine.",
+   "items": [
+    [
+     "1-800-555-0199",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your appointment is on zero three fifteen space twenty twenty four at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your appointment is on zero three fifteen space twenty twenty four at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "Your appointment is on zero three fifteen twenty twenty four at two o thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "Your appointment is on zero three fifteen twenty twenty four at two o thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "Your appointment is on zero three fifteen one sworthy one swor up at mind twenty four at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "Your appointment is on zero three fifteen one sworthy one swor up at mind twenty four at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     false
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "partial"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your appointment is on March fifteenth, twenty twenty-four, at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     true
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your appointment is on March fifteenth, twenty twenty-four, at two thirty p.m.",
+   "items": [
+    [
+     "03/15/2024",
+     true
+    ],
+    [
+     "2:30 PM",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your order number is A two M two four one L one thou O one V V one O one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your order number is A two M two four one L one thou O one V V one O one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "Your order number is a twenty twenty four one billion one pray son son one son fowls Andre one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "Your order number is a twenty twenty four one billion one pray son son one son fowls Andre one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "Your order number is a two two four one sesh one sesh one sesh one one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "Your order number is A two two four one sesh one sesh one sesh one one.",
+   "items": [
+    [
+     "A20241015001",
+     false
+    ]
+   ],
+   "verdict": "wrong"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "Your order number is A two zero two four one zero one five zero zero one.",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "Your order number is A two zero two four one zero one five zero zero one.",
+   "items": [
+    [
+     "A20241015001",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "The package weighs 2.5 kilograms.",
+   "items": [
+    [
+     "2.5 kg",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "You get 15% off orders over $200.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "You get 15% off orders over $200.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_auto",
+   "hyp": "You get fifteen percent off orders over two hundred dollars.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "asr": "asr_lang",
+   "hyp": "You get fifteen percent off orders over two hundred dollars.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_auto",
+   "hyp": "You get 15% off orders over $200.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "asr": "asr_lang",
+   "hyp": "You get 15% off orders over $200.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_auto",
+   "hyp": "You get fifteen percent off orders over two hundred dollars.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "asr": "asr_lang",
+   "hyp": "You get fifteen percent off orders over two hundred dollars.",
+   "items": [
+    [
+     "15%",
+     true
+    ],
+    [
+     "$200",
+     true
+    ]
+   ],
+   "verdict": "correct"
+  }
+ ]
+}

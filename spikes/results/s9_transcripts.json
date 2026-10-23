@@ -1,0 +1,6598 @@
+{
+ "spike": "S9",
+ "step": "synth",
+ "started_at": "2026-10-23T06:37:07+08:00",
+ "loadavg1_start": 2.68,
+ "environment": {
+  "recorded_at": "2026-10-23T06:37:07+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  }
+ },
+ "servers": [
+  {
+   "name": "asr_s9",
+   "port": 8102,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_s9_063628/server.log",
+   "seconds_to_ready": 13.53
+  },
+  {
+   "name": "tts_s9",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_s9_063642/server.log",
+   "seconds_to_ready": 25.37
+  }
+ ],
+ "conditions": {
+  "zh": {
+   "voice": "vivian",
+   "lang_code": "chinese"
+  },
+  "en_extra": {
+   "voice": "ryan",
+   "lang_code": "english"
+  },
+  "streaming_interval": 0.32,
+  "raw_runs": 3,
+  "spoken_runs": 1,
+  "sampling": "server defaults (generation_config.json: temperature 0.9, top_k 50, top_p 1.0, repetition_penalty 1.05)",
+  "asr": "verbose_json, once without language and once with the language name"
+ },
+ "records": [
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您本月一共有3笔订单待处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 115.09,
+   "total_ms": 937.79,
+   "audio_s": 3.04,
+   "wav": "spikes/data/s9/num1_raw0.wav",
+   "asr_auto": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您本月一共有3笔订单待处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 192.62,
+   "total_ms": 984.26,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/num1_raw1.wav",
+   "asr_auto": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您本月一共有3笔订单待处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.26,
+   "total_ms": 1173.45,
+   "audio_s": 3.6,
+   "wav": "spikes/data/s9/num1_raw2.wav",
+   "asr_auto": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num1",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您本月一共有三笔订单待处理。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.5,
+   "total_ms": 1108.4,
+   "audio_s": 3.52,
+   "wav": "spikes/data/s9/num1_spoken.wav",
+   "asr_auto": {
+    "text": "你本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "你本月一共有三笔订单待处理。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "当前排队人数为128人，请您耐心等待。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 158.84,
+   "total_ms": 1478.39,
+   "audio_s": 5.04,
+   "wav": "spikes/data/s9/num2_raw0.wav",
+   "asr_auto": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "当前排队人数为128人，请您耐心等待。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.21,
+   "total_ms": 1418.33,
+   "audio_s": 4.72,
+   "wav": "spikes/data/s9/num2_raw1.wav",
+   "asr_auto": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "当前排队人数为128人，请您耐心等待。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.98,
+   "total_ms": 1507.81,
+   "audio_s": 4.8,
+   "wav": "spikes/data/s9/num2_raw2.wav",
+   "asr_auto": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "当前排队人数为一百二十八人，请您耐心等待。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.7,
+   "total_ms": 1590.84,
+   "audio_s": 5.44,
+   "wav": "spikes/data/s9/num2_spoken.wav",
+   "asr_auto": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "当前排队人数为一百二十八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num2",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "当前排队人数为一二八人，请您耐心等待。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.06,
+   "total_ms": 1488.31,
+   "audio_s": 4.72,
+   "wav": "spikes/data/s9/num2_alt.wav",
+   "asr_auto": {
+    "text": "当前排队人数为一二八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "当前排队人数为一二八人，请您耐心等待。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的积分余额是15600分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 167.06,
+   "total_ms": 1191.53,
+   "audio_s": 4.0,
+   "wav": "spikes/data/s9/num3_raw0.wav",
+   "asr_auto": {
+    "text": "您的积分余额是一千五百六十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的积分余额是一千五百六十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的积分余额是15600分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.06,
+   "total_ms": 1217.07,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/num3_raw1.wav",
+   "asr_auto": {
+    "text": "您的积分余额是一千五百六十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的积分余额是一千五百六十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的积分余额是15600分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 172.5,
+   "total_ms": 1260.47,
+   "audio_s": 4.0,
+   "wav": "spikes/data/s9/num3_raw2.wav",
+   "asr_auto": {
+    "text": "您的积分余额是一圈五百分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的积分余额是一圈五百分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的积分余额是一万五千六百分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 156.46,
+   "total_ms": 1137.26,
+   "audio_s": 3.68,
+   "wav": "spikes/data/s9/num3_spoken.wav",
+   "asr_auto": {
+    "text": "您的积分余额是一万五千六百分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的积分余额是一万五千六百分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num3",
+   "cat": "number",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的积分余额是一五六零零分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.84,
+   "total_ms": 998.43,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/num3_alt.wav",
+   "asr_auto": {
+    "text": "您的积分余额是一五六零零分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的积分余额是一五六零零分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "本次活动全场8.5折。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.96,
+   "total_ms": 987.88,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/num4_raw0.wav",
+   "asr_auto": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "本次活动全场8.5折。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.53,
+   "total_ms": 1007.62,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/num4_raw1.wav",
+   "asr_auto": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "本次活动全场8.5折。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.79,
+   "total_ms": 1040.44,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/num4_raw2.wav",
+   "asr_auto": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num4",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "本次活动全场八点五折。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 162.95,
+   "total_ms": 1152.93,
+   "audio_s": 3.84,
+   "wav": "spikes/data/s9/num4_spoken.wav",
+   "asr_auto": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "本次活动全场八点五折。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的好评率达到了99.6%。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 160.1,
+   "total_ms": 1414.75,
+   "audio_s": 4.0,
+   "wav": "spikes/data/s9/num5_raw0.wav",
+   "asr_auto": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的好评率达到了99.6%。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 149.29,
+   "total_ms": 1802.78,
+   "audio_s": 3.76,
+   "wav": "spikes/data/s9/num5_raw1.wav",
+   "asr_auto": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的好评率达到了99.6%。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 193.67,
+   "total_ms": 2140.75,
+   "audio_s": 4.16,
+   "wav": "spikes/data/s9/num5_raw2.wav",
+   "asr_auto": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num5",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的好评率达到了百分之九十九点六。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 201.57,
+   "total_ms": 2064.25,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/num5_spoken.wav",
+   "asr_auto": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的好评率达到了百分之九十九点六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您是今天第2位来电的客户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.3,
+   "total_ms": 1552.72,
+   "audio_s": 2.96,
+   "wav": "spikes/data/s9/num6_raw0.wav",
+   "asr_auto": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您是今天第2位来电的客户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 190.04,
+   "total_ms": 1918.95,
+   "audio_s": 3.68,
+   "wav": "spikes/data/s9/num6_raw1.wav",
+   "asr_auto": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您是今天第2位来电的客户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.85,
+   "total_ms": 1633.46,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/num6_raw2.wav",
+   "asr_auto": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "num6",
+   "cat": "number",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您是今天第二位来电的客户。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.71,
+   "total_ms": 1496.74,
+   "audio_s": 2.88,
+   "wav": "spikes/data/s9/num6_spoken.wav",
+   "asr_auto": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您是今天第二位来电的客户。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您本期账单应还金额为¥1,280.50。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.72,
+   "total_ms": 1912.05,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/money1_raw0.wav",
+   "asr_auto": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您本期账单应还金额为¥1,280.50。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 193.31,
+   "total_ms": 1982.62,
+   "audio_s": 6.24,
+   "wav": "spikes/data/s9/money1_raw1.wav",
+   "asr_auto": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您本期账单应还金额为¥1,280.50。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.79,
+   "total_ms": 1626.76,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/money1_raw2.wav",
+   "asr_auto": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本期账单应还金额为一千二百八十点五零元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money1",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您本期账单应还金额为一千二百八十元五角。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 187.22,
+   "total_ms": 1537.3,
+   "audio_s": 4.88,
+   "wav": "spikes/data/s9/money1_spoken.wav",
+   "asr_auto": {
+    "text": "您本期账单应还金额为一千二百八十元五角。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本期账单应还金额为一千二百八十元五角。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您充值的100元已经到账。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.12,
+   "total_ms": 1266.2,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/money2_raw0.wav",
+   "asr_auto": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您充值的100元已经到账。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 160.31,
+   "total_ms": 819.57,
+   "audio_s": 2.56,
+   "wav": "spikes/data/s9/money2_raw1.wav",
+   "asr_auto": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您充值的100元已经到账。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.39,
+   "total_ms": 1038.3,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/money2_raw2.wav",
+   "asr_auto": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money2",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您充值的一百元已经到账。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.18,
+   "total_ms": 1081.72,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/money2_spoken.wav",
+   "asr_auto": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您充值的一百元已经到账。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "这单的运费是12.5元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.43,
+   "total_ms": 1093.42,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/money3_raw0.wav",
+   "asr_auto": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "这单的运费是12.5元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.47,
+   "total_ms": 1041.1,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/money3_raw1.wav",
+   "asr_auto": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "这单的运费是12.5元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.69,
+   "total_ms": 1110.49,
+   "audio_s": 3.52,
+   "wav": "spikes/data/s9/money3_raw2.wav",
+   "asr_auto": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money3",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "这单的运费是十二点五元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.1,
+   "total_ms": 996.21,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/money3_spoken.wav",
+   "asr_auto": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这单的运费是十二点五元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "该套餐的月费为$29.99。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.29,
+   "total_ms": 1467.64,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/money4_raw0.wav",
+   "asr_auto": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "该套餐的月费为$29.99。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.7,
+   "total_ms": 1404.13,
+   "audio_s": 4.24,
+   "wav": "spikes/data/s9/money4_raw1.wav",
+   "asr_auto": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "该套餐的月费为$29.99。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.82,
+   "total_ms": 1437.89,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/money4_raw2.wav",
+   "asr_auto": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money4",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "该套餐的月费为二十九点九九美元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.16,
+   "total_ms": 1645.71,
+   "audio_s": 4.8,
+   "wav": "spikes/data/s9/money4_spoken.wav",
+   "asr_auto": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "该套餐的月费为二十九点九九美元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您有一张满200减30的优惠券。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.82,
+   "total_ms": 1360.84,
+   "audio_s": 3.84,
+   "wav": "spikes/data/s9/money5_raw0.wav",
+   "asr_auto": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您有一张满200减30的优惠券。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 194.92,
+   "total_ms": 1301.14,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/money5_raw1.wav",
+   "asr_auto": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您有一张满200减30的优惠券。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.58,
+   "total_ms": 1117.73,
+   "audio_s": 3.68,
+   "wav": "spikes/data/s9/money5_raw2.wav",
+   "asr_auto": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您有一张满两百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money5",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您有一张满二百减三十的优惠券。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.56,
+   "total_ms": 1397.33,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/money5_spoken.wav",
+   "asr_auto": {
+    "text": "您有一张满二百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您有一张满二百减三十的优惠券。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "违约金为合同金额的5%，即2500元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.06,
+   "total_ms": 1378.04,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/money6_raw0.wav",
+   "asr_auto": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "违约金为合同金额的5%，即2500元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 200.98,
+   "total_ms": 1648.83,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/money6_raw1.wav",
+   "asr_auto": {
+    "text": "违约金为合同金额的百分之五，计两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "违约金为合同金额的百分之五，计两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "违约金为合同金额的5%，即2500元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.33,
+   "total_ms": 1691.15,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/money6_raw2.wav",
+   "asr_auto": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "money6",
+   "cat": "money",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "违约金为合同金额的百分之五，即两千五百元。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.1,
+   "total_ms": 1527.27,
+   "audio_s": 5.12,
+   "wav": "spikes/data/s9/money6_spoken.wav",
+   "asr_auto": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "违约金为合同金额的百分之五，即两千五百元。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的预约时间是2024年3月15日下午2:30。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.16,
+   "total_ms": 1670.14,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/date1_raw0.wav",
+   "asr_auto": {
+    "text": "您的预约时间是二零二四年三月十五日下午二点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的预约时间是二零二四年三月十五日下午二点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的预约时间是2024年3月15日下午2:30。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.01,
+   "total_ms": 1638.68,
+   "audio_s": 5.44,
+   "wav": "spikes/data/s9/date1_raw1.wav",
+   "asr_auto": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的预约时间是2024年3月15日下午2:30。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.03,
+   "total_ms": 1770.87,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/date1_raw2.wav",
+   "asr_auto": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 167.16,
+   "total_ms": 1831.7,
+   "audio_s": 5.76,
+   "wav": "spikes/data/s9/date1_spoken.wav",
+   "asr_auto": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的预约时间是二零二四年三月十五日下午两点三十分。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date1",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的预约时间是两千零二十四年三月十五日下午二比三十。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.65,
+   "total_ms": 2122.22,
+   "audio_s": 6.88,
+   "wav": "spikes/data/s9/date1_alt.wav",
+   "asr_auto": {
+    "text": "您的预约时间是两千零二十四年三月十五日下午二比三十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的预约时间是两千零二十四年三月十五日下午二比三十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "活动截止到12月31日24:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.39,
+   "total_ms": 1079.55,
+   "audio_s": 3.6,
+   "wav": "spikes/data/s9/date2_raw0.wav",
+   "asr_auto": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "活动截止到12月31日24:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.86,
+   "total_ms": 1004.86,
+   "audio_s": 3.2,
+   "wav": "spikes/data/s9/date2_raw1.wav",
+   "asr_auto": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "活动截止到12月31日24:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.54,
+   "total_ms": 1177.82,
+   "audio_s": 3.6,
+   "wav": "spikes/data/s9/date2_raw2.wav",
+   "asr_auto": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "活动截止到十二月三十一日二十四点。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.02,
+   "total_ms": 1460.16,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/date2_spoken.wav",
+   "asr_auto": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "活动截止到十二月三十一日二十四点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date2",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "活动截止到十二月三十一日二十四比零零。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.26,
+   "total_ms": 1359.7,
+   "audio_s": 4.56,
+   "wav": "spikes/data/s9/date2_alt.wav",
+   "asr_auto": {
+    "text": "活动截止到十二月三十一日二十四比零零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "活动截止到十二月三十一日二十四比零零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "我们的服务时间是每天9:00到21:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.0,
+   "total_ms": 1423.27,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/date3_raw0.wav",
+   "asr_auto": {
+    "text": "我们的服务时间是每天九点到二十一点零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的服务时间是每天九点到二十一点零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "我们的服务时间是每天9:00到21:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 205.38,
+   "total_ms": 1440.24,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/date3_raw1.wav",
+   "asr_auto": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "我们的服务时间是每天9:00到21:00。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.28,
+   "total_ms": 1493.51,
+   "audio_s": 4.0,
+   "wav": "spikes/data/s9/date3_raw2.wav",
+   "asr_auto": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "我们的服务时间是每天九点到二十一点。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.13,
+   "total_ms": 1412.08,
+   "audio_s": 4.56,
+   "wav": "spikes/data/s9/date3_spoken.wav",
+   "asr_auto": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的服务时间是每天九点到二十一点。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date3",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "我们的服务时间是每天九比零零到二十一比零零。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.02,
+   "total_ms": 1683.76,
+   "audio_s": 5.44,
+   "wav": "spikes/data/s9/date3_alt.wav",
+   "asr_auto": {
+    "text": "我们的服务时间是每天九比零零到二十一比零零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的服务时间是每天九比零零到二十一比零零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的新套餐将于2025-01-01生效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.25,
+   "total_ms": 1784.3,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/date4_raw0.wav",
+   "asr_auto": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的新套餐将于2025-01-01生效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 172.19,
+   "total_ms": 1440.82,
+   "audio_s": 4.8,
+   "wav": "spikes/data/s9/date4_raw1.wav",
+   "asr_auto": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的新套餐将于2025-01-01生效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 191.42,
+   "total_ms": 1392.2,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/date4_raw2.wav",
+   "asr_auto": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的新套餐将于二零二五年一月一日生效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.01,
+   "total_ms": 1384.61,
+   "audio_s": 4.56,
+   "wav": "spikes/data/s9/date4_spoken.wav",
+   "asr_auto": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的新套餐将于二零二五年一月一日生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date4",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的新套餐将于二零二五减零一减零一生效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.59,
+   "total_ms": 1704.53,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/date4_alt.wav",
+   "asr_auto": {
+    "text": "您的新套餐将于二零二五减零一减零一生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的新套餐将于二零二五减零一减零一生效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请在今天15:45之前完成支付。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.87,
+   "total_ms": 1132.12,
+   "audio_s": 3.76,
+   "wav": "spikes/data/s9/date5_raw0.wav",
+   "asr_auto": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请在今天15:45之前完成支付。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.63,
+   "total_ms": 1412.58,
+   "audio_s": 4.48,
+   "wav": "spikes/data/s9/date5_raw1.wav",
+   "asr_auto": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请在今天15:45之前完成支付。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.57,
+   "total_ms": 1320.72,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/date5_raw2.wav",
+   "asr_auto": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请在今天十五点四十五分之前完成支付。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.5,
+   "total_ms": 1434.82,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/date5_spoken.wav",
+   "asr_auto": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在今天十五点四十五分之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date5",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "请在今天十五比四十五之前完成支付。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.92,
+   "total_ms": 1303.98,
+   "audio_s": 4.16,
+   "wav": "spikes/data/s9/date5_alt.wav",
+   "asr_auto": {
+    "text": "请在今天十五比四十五之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在今天十五比四十五之前完成支付。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的账单日是每月5号。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.18,
+   "total_ms": 931.74,
+   "audio_s": 2.96,
+   "wav": "spikes/data/s9/date6_raw0.wav",
+   "asr_auto": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的账单日是每月5号。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.98,
+   "total_ms": 1117.86,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/date6_raw1.wav",
+   "asr_auto": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的账单日是每月5号。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.91,
+   "total_ms": 1057.98,
+   "audio_s": 3.2,
+   "wav": "spikes/data/s9/date6_raw2.wav",
+   "asr_auto": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "date6",
+   "cat": "datetime",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的账单日是每月五号。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.67,
+   "total_ms": 989.24,
+   "audio_s": 2.8,
+   "wav": "spikes/data/s9/date6_spoken.wav",
+   "asr_auto": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的账单日是每月五号。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您可以拨打我们的客服热线400-820-8820。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.03,
+   "total_ms": 1616.72,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/phone1_raw0.wav",
+   "asr_auto": {
+    "text": "您可以拨打我们的客服热线四零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以拨打我们的客服热线四零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您可以拨打我们的客服热线400-820-8820。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 172.3,
+   "total_ms": 2650.06,
+   "audio_s": 8.16,
+   "wav": "spikes/data/s9/phone1_raw1.wav",
+   "asr_auto": {
+    "text": "您可以拨打我们的客服热线四零八二零八八二零零零八，就会被动笔下载的。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以拨打我们的客服热线四零八二零八八二零零零八，就会被动笔下载的。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您可以拨打我们的客服热线400-820-8820。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 179.15,
+   "total_ms": 1775.97,
+   "audio_s": 5.52,
+   "wav": "spikes/data/s9/phone1_raw2.wav",
+   "asr_auto": {
+    "text": "您可以拨打我们的客服热线四零零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以拨打我们的客服热线四零零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您可以拨打我们的客服热线四零零，八二零，八八二零。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.21,
+   "total_ms": 2172.63,
+   "audio_s": 6.56,
+   "wav": "spikes/data/s9/phone1_spoken.wav",
+   "asr_auto": {
+    "text": "您可以拨打我们的客服热线四零零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以拨打我们的客服热线四零零八二零八八二零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone1",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您可以拨打我们的客服热线四百，八百二十，八千八百二十。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.43,
+   "total_ms": 1654.33,
+   "audio_s": 5.12,
+   "wav": "spikes/data/s9/phone1_alt.wav",
+   "asr_auto": {
+    "text": "您可以拨打我们的客服热线四百八百二十八千八百二十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以拨打我们的客服热线四百八百二十八千八百二十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请拨打银行客服电话95588。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 172.09,
+   "total_ms": 1158.48,
+   "audio_s": 3.76,
+   "wav": "spikes/data/s9/phone2_raw0.wav",
+   "asr_auto": {
+    "text": "请拨打银行客服电话九五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请拨打银行客服电话九五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请拨打银行客服电话95588。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.57,
+   "total_ms": 1297.68,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/phone2_raw1.wav",
+   "asr_auto": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请拨打银行客服电话95588。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.7,
+   "total_ms": 1084.1,
+   "audio_s": 3.52,
+   "wav": "spikes/data/s9/phone2_raw2.wav",
+   "asr_auto": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请拨打银行客服电话九五五八八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.43,
+   "total_ms": 1280.85,
+   "audio_s": 4.24,
+   "wav": "spikes/data/s9/phone2_spoken.wav",
+   "asr_auto": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请拨打银行客服电话九五五八八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone2",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "请拨打银行客服电话九万五千五百八十八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 193.95,
+   "total_ms": 1539.84,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/phone2_alt.wav",
+   "asr_auto": {
+    "text": "请拨打银行客服电话九万五千五百八十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请拨打银行客服电话九万五千五百八十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您登记的手机号是138 0013 8000，对吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 180.1,
+   "total_ms": 1653.28,
+   "audio_s": 5.28,
+   "wav": "spikes/data/s9/phone3_raw0.wav",
+   "asr_auto": {
+    "text": "您登记的手机号是十三八零零一三八零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您登记的手机号是十三八零零一三八零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您登记的手机号是138 0013 8000，对吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 192.66,
+   "total_ms": 2000.51,
+   "audio_s": 6.4,
+   "wav": "spikes/data/s9/phone3_raw1.wav",
+   "asr_auto": {
+    "text": "您登记的手机号是幺三八零零一三八零零一三八零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您登记的手机号是幺三八零零一三八零零一三八零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您登记的手机号是138 0013 8000，对吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.53,
+   "total_ms": 2020.86,
+   "audio_s": 6.32,
+   "wav": "spikes/data/s9/phone3_raw2.wav",
+   "asr_auto": {
+    "text": "您登记的手机号是R三八零零一三八零零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您登记的手机号是R三八零零一三八零零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您登记的手机号是幺三八，零零幺三，八零零零，对吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.2,
+   "total_ms": 2288.17,
+   "audio_s": 7.28,
+   "wav": "spikes/data/s9/phone3_spoken.wav",
+   "asr_auto": {
+    "text": "您登记的手机号是幺三八零零幺三八零零零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您登记的手机号是幺三八零零幺三八零零零，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone3",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您登记的手机号是一百三十八，十三，八千，对吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 154.72,
+   "total_ms": 2067.29,
+   "audio_s": 6.4,
+   "wav": "spikes/data/s9/phone3_alt.wav",
+   "asr_auto": {
+    "text": "您登记的手机号是一百三十八十三八千，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您登记的手机号是一百三十八十三八千，对吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的手机号码尾号是5678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.74,
+   "total_ms": 1587.73,
+   "audio_s": 4.88,
+   "wav": "spikes/data/s9/phone4_raw0.wav",
+   "asr_auto": {
+    "text": "您的手机号码尾号是五车六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的手机号码尾号是五车六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的手机号码尾号是5678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.46,
+   "total_ms": 1207.12,
+   "audio_s": 3.84,
+   "wav": "spikes/data/s9/phone4_raw1.wav",
+   "asr_auto": {
+    "text": "您的手机号码尾号是五九六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的手机号码尾号是五九六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的手机号码尾号是5678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.11,
+   "total_ms": 1324.09,
+   "audio_s": 4.16,
+   "wav": "spikes/data/s9/phone4_raw2.wav",
+   "asr_auto": {
+    "text": "您的手机号码尾号是五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的手机号码尾号是五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的手机号码尾号是五六七八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.53,
+   "total_ms": 1166.47,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/phone4_spoken.wav",
+   "asr_auto": {
+    "text": "您的手机号码尾号是五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的手机号码尾号是五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone4",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的手机号码尾号是五千六百七十八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 196.24,
+   "total_ms": 1360.59,
+   "audio_s": 4.32,
+   "wav": "spikes/data/s9/phone4_alt.wav",
+   "asr_auto": {
+    "text": "林的手机号码尾号是五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "林的手机号码尾号是五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "我们的办公电话是010-62345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.47,
+   "total_ms": 1762.88,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/phone5_raw0.wav",
+   "asr_auto": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "我们的办公电话是010-62345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.63,
+   "total_ms": 1840.8,
+   "audio_s": 6.0,
+   "wav": "spikes/data/s9/phone5_raw1.wav",
+   "asr_auto": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "我们的办公电话是010-62345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 166.47,
+   "total_ms": 1848.17,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/phone5_raw2.wav",
+   "asr_auto": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的办公电话是零一零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "我们的办公电话是零幺零，六二三四五六七八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.75,
+   "total_ms": 1664.61,
+   "audio_s": 5.12,
+   "wav": "spikes/data/s9/phone5_spoken.wav",
+   "asr_auto": {
+    "text": "我们的办公电话是零幺零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的办公电话是零幺零六二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone5",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "我们的办公电话是十，六千二百三十四万五千六百七十八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.63,
+   "total_ms": 2195.31,
+   "audio_s": 7.04,
+   "wav": "spikes/data/s9/phone5_alt.wav",
+   "asr_auto": {
+    "text": "我们的办公电话是十六千二百三十四万五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的办公电话是十六千二百三十四万五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请回拨021-12345678转8001分机。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 193.71,
+   "total_ms": 2195.48,
+   "audio_s": 6.8,
+   "wav": "spikes/data/s9/phone6_raw0.wav",
+   "asr_auto": {
+    "text": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请回拨021-12345678转8001分机。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 169.39,
+   "total_ms": 2179.53,
+   "audio_s": 7.12,
+   "wav": "spikes/data/s9/phone6_raw1.wav",
+   "asr_auto": {
+    "text": "请回拨零二一年十二万三千活奶七十八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请回拨零二一年十二万三千活奶七十八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请回拨021-12345678转8001分机。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.67,
+   "total_ms": 2595.13,
+   "audio_s": 7.92,
+   "wav": "spikes/data/s9/phone6_raw2.wav",
+   "asr_auto": {
+    "text": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请回拨零二一聂十二万三四五六七八转八零零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请回拨零二幺，幺二三四五六七八，转八零零幺分机。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 278.37,
+   "total_ms": 2347.75,
+   "audio_s": 7.12,
+   "wav": "spikes/data/s9/phone6_spoken.wav",
+   "asr_auto": {
+    "text": "请回拨零二幺幺二三四五六七八转八零零幺分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请回拨零二幺幺二三四五六七八转八零零幺分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone6",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "请回拨二十一，一千二百三十四万五千六百七十八，转八千零一分机。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 191.16,
+   "total_ms": 2843.79,
+   "audio_s": 9.12,
+   "wav": "spikes/data/s9/phone6_alt.wav",
+   "asr_auto": {
+    "text": "请回拨二十一，一千二百三十四万五千六百七十八，转八千零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请回拨二十一，一千二百三十四万五千六百七十八，转八千零一分机。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您留的联系电话是13912345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 172.58,
+   "total_ms": 1985.11,
+   "audio_s": 6.24,
+   "wav": "spikes/data/s9/phone7_raw0.wav",
+   "asr_auto": {
+    "text": "您留的联系电话是一三九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您留的联系电话是一三九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您留的联系电话是13912345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.5,
+   "total_ms": 1740.7,
+   "audio_s": 5.44,
+   "wav": "spikes/data/s9/phone7_raw1.wav",
+   "asr_auto": {
+    "text": "您留的联系电话是：直三弯九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您留的联系电话是：直三弯九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您留的联系电话是13912345678。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.06,
+   "total_ms": 1771.76,
+   "audio_s": 5.28,
+   "wav": "spikes/data/s9/phone7_raw2.wav",
+   "asr_auto": {
+    "text": "您留的联系电话是一三九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您留的联系电话是一三九一二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您留的联系电话是幺三九，幺二三四，五六七八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.35,
+   "total_ms": 1856.89,
+   "audio_s": 5.92,
+   "wav": "spikes/data/s9/phone7_spoken.wav",
+   "asr_auto": {
+    "text": "您留的联系电话是幺三九幺二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您留的联系电话是幺三九幺二三四五六七八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "phone7",
+   "cat": "phone",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您留的联系电话是一百三十九亿一千二百三十四万五千六百七十八。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.01,
+   "total_ms": 2352.46,
+   "audio_s": 7.52,
+   "wav": "spikes/data/s9/phone7_alt.wav",
+   "asr_auto": {
+    "text": "您留的联系电话是一百三十九亿一千二百三十四万五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您留的联系电话是一百三十九亿一千二百三十四万五千六百七十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的订单号是A20241015001。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 155.33,
+   "total_ms": 1825.77,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/id1_raw0.wav",
+   "asr_auto": {
+    "text": "您的订单号是A二零二四一零幺五零零一。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的订单号是 A 二零二四一零幺五零零一。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的订单号是A20241015001。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.74,
+   "total_ms": 1875.9,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/id1_raw1.wav",
+   "asr_auto": {
+    "text": "您的订单号是A二零二四幺零幺五零零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的订单号是A二零二四幺零幺五零零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的订单号是A20241015001。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.23,
+   "total_ms": 1838.29,
+   "audio_s": 5.76,
+   "wav": "spikes/data/s9/id1_raw2.wav",
+   "asr_auto": {
+    "text": "您的订单号是A二零二四幺零幺五零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的订单号是A二零二四幺零幺五零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的订单号是A，二零二四，幺零幺五，零零幺。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.7,
+   "total_ms": 1925.82,
+   "audio_s": 6.0,
+   "wav": "spikes/data/s9/id1_spoken.wav",
+   "asr_auto": {
+    "text": "您的订单号是A二零二四幺零幺五零零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的订单号是A二零二四幺零幺五零零幺。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id1",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的订单号是A两百零二亿四千一百零一万五千零一。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.89,
+   "total_ms": 2212.68,
+   "audio_s": 7.04,
+   "wav": "spikes/data/s9/id1_alt.wav",
+   "asr_auto": {
+    "text": "您的订单号是 A 两百零二亿四千一百零一万五千零一。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的订单号是 A 两百零二亿四千一百零一万五千零一。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的快递单号是SF1234567890。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.01,
+   "total_ms": 1466.09,
+   "audio_s": 4.72,
+   "wav": "spikes/data/s9/id2_raw0.wav",
+   "asr_auto": {
+    "text": "您的快递单号是 S F 幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的快递单号是 S F 幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的快递单号是SF1234567890。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.16,
+   "total_ms": 1870.62,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/id2_raw1.wav",
+   "asr_auto": {
+    "text": "您的快递单号是 S F 一二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的快递单号是 S F 一二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的快递单号是SF1234567890。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.84,
+   "total_ms": 1718.31,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/id2_raw2.wav",
+   "asr_auto": {
+    "text": "您的快递单号是 S F 幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的快递单号是 S F 幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的快递单号是S F，幺二三四，五六七八，九零。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.76,
+   "total_ms": 1921.68,
+   "audio_s": 6.08,
+   "wav": "spikes/data/s9/id2_spoken.wav",
+   "asr_auto": {
+    "text": "您的快递单号是S F幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的快递单号是S F幺二三四五六七八九零。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id2",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的快递单号是SF十二亿三千四百五十六万七千八百九十。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 161.32,
+   "total_ms": 2779.72,
+   "audio_s": 8.96,
+   "wav": "spikes/data/s9/id2_alt.wav",
+   "asr_auto": {
+    "text": "您的快递单号是 S F 十二亿三千四百五十六万七千八百九十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的快递单号是 S F 十二亿三千四百五十六万七千八百九十。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的工单编号为TK-2024-0789。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 180.51,
+   "total_ms": 1965.77,
+   "audio_s": 6.16,
+   "wav": "spikes/data/s9/id3_raw0.wav",
+   "asr_auto": {
+    "text": "您的工单编号为 T K 二零二四年七万九八九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的工单编号为 T K 二零二四年七万九八九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的工单编号为TK-2024-0789。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 170.02,
+   "total_ms": 1874.89,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/id3_raw1.wav",
+   "asr_auto": {
+    "text": "您的工单编号为 T K 二零二四年七万九十万。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的工单编号为 T K 二零二四年七万九十万。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的工单编号为TK-2024-0789。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.76,
+   "total_ms": 1618.65,
+   "audio_s": 5.28,
+   "wav": "spikes/data/s9/id3_raw2.wav",
+   "asr_auto": {
+    "text": "您的工单编号为 T K 二零二四年七八九十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的工单编号为 T K 二零二四年七八九十八。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的工单编号为T K，二零二四，零七八九。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.27,
+   "total_ms": 1435.69,
+   "audio_s": 4.56,
+   "wav": "spikes/data/s9/id3_spoken.wav",
+   "asr_auto": {
+    "text": "您的工单编号为TK二零二四零七八九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的工单编号为TK二零二四零七八九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id3",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的工单编号为TK，两千零二十四，七百八十九。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.28,
+   "total_ms": 1949.45,
+   "audio_s": 6.0,
+   "wav": "spikes/data/s9/id3_alt.wav",
+   "asr_auto": {
+    "text": "您的工单编号为 TK 两千零二十四七百八十九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的工单编号为 TK 两千零二十四七百八十九。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的验证码是386425，五分钟内有效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 186.19,
+   "total_ms": 1581.68,
+   "audio_s": 4.88,
+   "wav": "spikes/data/s9/id4_raw0.wav",
+   "asr_auto": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的验证码是386425，五分钟内有效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.99,
+   "total_ms": 1716.28,
+   "audio_s": 5.52,
+   "wav": "spikes/data/s9/id4_raw1.wav",
+   "asr_auto": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的验证码是386425，五分钟内有效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.37,
+   "total_ms": 2099.02,
+   "audio_s": 6.56,
+   "wav": "spikes/data/s9/id4_raw2.wav",
+   "asr_auto": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的验证码是三八六，四二五，五分钟内有效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 146.97,
+   "total_ms": 1909.39,
+   "audio_s": 5.44,
+   "wav": "spikes/data/s9/id4_spoken.wav",
+   "asr_auto": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的验证码是三八六四二五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id4",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "您的验证码是三十八万六千四百二十五，五分钟内有效。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 165.25,
+   "total_ms": 1819.47,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/id4_alt.wav",
+   "asr_auto": {
+    "text": "您的验证码是三十八万六千四百二十五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的验证码是三十八万六千四百二十五，五分钟内有效。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请提供您的会员卡号VIP8866。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 179.97,
+   "total_ms": 1421.51,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/id5_raw0.wav",
+   "asr_auto": {
+    "text": "请提供您的会员卡号，VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请提供您的会员卡号，VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请提供您的会员卡号VIP8866。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.12,
+   "total_ms": 1493.52,
+   "audio_s": 4.72,
+   "wav": "spikes/data/s9/id5_raw1.wav",
+   "asr_auto": {
+    "text": "请提供您的会员卡号，VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请提供您的会员卡号，VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请提供您的会员卡号VIP8866。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 198.0,
+   "total_ms": 1661.76,
+   "audio_s": 5.12,
+   "wav": "spikes/data/s9/id5_raw2.wav",
+   "asr_auto": {
+    "text": "请提供您的会员卡号：VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请提供您的会员卡号：VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请提供您的会员卡号V I P，八八六六。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.64,
+   "total_ms": 1997.28,
+   "audio_s": 6.24,
+   "wav": "spikes/data/s9/id5_spoken.wav",
+   "asr_auto": {
+    "text": "请提供您的会员卡号：VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请提供您的会员卡号：VIP八八六六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id5",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "请提供您的会员卡号VIP八千八百六十六。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.46,
+   "total_ms": 1638.76,
+   "audio_s": 4.96,
+   "wav": "spikes/data/s9/id5_alt.wav",
+   "asr_auto": {
+    "text": "请提供您的会员卡号VIP八千八百六十六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请提供您的会员卡号VIP八千八百六十六。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "退货单号是RT20241102A3。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.52,
+   "total_ms": 2198.17,
+   "audio_s": 6.56,
+   "wav": "spikes/data/s9/id6_raw0.wav",
+   "asr_auto": {
+    "text": "退货单号是RT二零二四一幺零二I三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "退货单号是RT二零二四一幺零二I三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "退货单号是RT20241102A3。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 163.3,
+   "total_ms": 1886.64,
+   "audio_s": 6.16,
+   "wav": "spikes/data/s9/id6_raw1.wav",
+   "asr_auto": {
+    "text": "退货单号是 R T 二零二四一一零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "退货单号是 R T 二零二四一一零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "退货单号是RT20241102A3。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.04,
+   "total_ms": 3192.06,
+   "audio_s": 10.0,
+   "wav": "spikes/data/s9/id6_raw2.wav",
+   "asr_auto": {
+    "text": "退货单号是参是两千两，二参限千载，A三还限交百两，二A三载。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "退货单号是参是两千两，二参限千载，A三还限交百两，二A三载。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "退货单号是R T，二零二四，幺幺零二，A，三。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 167.87,
+   "total_ms": 2270.54,
+   "audio_s": 7.28,
+   "wav": "spikes/data/s9/id6_spoken.wav",
+   "asr_auto": {
+    "text": "退货单号是 R T 二零二四幺幺零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "退货单号是 R T 二零二四幺幺零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "id6",
+   "cat": "id",
+   "set": "zh",
+   "variant": "alt",
+   "run": 0,
+   "input": "退货单号是RT两千零二十四万一千一百零二A三。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 164.52,
+   "total_ms": 2214.48,
+   "audio_s": 7.04,
+   "wav": "spikes/data/s9/id6_alt.wav",
+   "asr_auto": {
+    "text": "退货单号是 R T 两千零二十四万一千一百零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "退货单号是 R T 两千零二十四万一千一百零二 A 三。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "包裹重量为2.5kg。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.79,
+   "total_ms": 1072.14,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/unit1_raw0.wav",
+   "asr_auto": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "包裹重量为2.5kg。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.1,
+   "total_ms": 1117.96,
+   "audio_s": 3.12,
+   "wav": "spikes/data/s9/unit1_raw1.wav",
+   "asr_auto": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "包裹重量为2.5kg。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 168.91,
+   "total_ms": 1247.7,
+   "audio_s": 3.68,
+   "wav": "spikes/data/s9/unit1_raw2.wav",
+   "asr_auto": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "包裹重量为二点五千克。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit1",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "包裹重量为二点五公斤。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.04,
+   "total_ms": 889.34,
+   "audio_s": 2.88,
+   "wav": "spikes/data/s9/unit1_spoken.wav",
+   "asr_auto": {
+    "text": "包裹重量为二点五公斤。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "包裹重量为二点五公斤。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您本月的流量已经用了15GB。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.14,
+   "total_ms": 1122.27,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/unit2_raw0.wav",
+   "asr_auto": {
+    "text": "您本月的流量已经用了十五GB。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月的流量已经用了十五GB。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您本月的流量已经用了15GB。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.25,
+   "total_ms": 1128.74,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/unit2_raw1.wav",
+   "asr_auto": {
+    "text": "您本月的流量已经用了十五 G B。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月的流量已经用了十五 G B。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您本月的流量已经用了15GB。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.11,
+   "total_ms": 1174.28,
+   "audio_s": 3.6,
+   "wav": "spikes/data/s9/unit2_raw2.wav",
+   "asr_auto": {
+    "text": "您本月的流量已经用了十五GB。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月的流量已经用了十五GB。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit2",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您本月的流量已经用了十五G B。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.1,
+   "total_ms": 996.69,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/unit2_spoken.wav",
+   "asr_auto": {
+    "text": "您本月的流量已经用了十五 G B。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您本月的流量已经用了十五 G B。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "我们的配送范围是5km以内。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.17,
+   "total_ms": 1227.56,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/unit3_raw0.wav",
+   "asr_auto": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "我们的配送范围是5km以内。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 175.3,
+   "total_ms": 1193.87,
+   "audio_s": 3.6,
+   "wav": "spikes/data/s9/unit3_raw1.wav",
+   "asr_auto": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "我们的配送范围是5km以内。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.07,
+   "total_ms": 987.93,
+   "audio_s": 3.04,
+   "wav": "spikes/data/s9/unit3_raw2.wav",
+   "asr_auto": {
+    "text": "我们的配送范围是五千米以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的配送范围是五千米以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit3",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "我们的配送范围是五公里以内。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 186.07,
+   "total_ms": 1071.41,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/unit3_spoken.wav",
+   "asr_auto": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们的配送范围是五公里以内。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "这款手机的屏幕是6.1英寸。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.58,
+   "total_ms": 1065.16,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/unit4_raw0.wav",
+   "asr_auto": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "这款手机的屏幕是6.1英寸。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 188.28,
+   "total_ms": 1359.14,
+   "audio_s": 4.0,
+   "wav": "spikes/data/s9/unit4_raw1.wav",
+   "asr_auto": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "这款手机的屏幕是6.1英寸。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 146.34,
+   "total_ms": 1640.53,
+   "audio_s": 3.44,
+   "wav": "spikes/data/s9/unit4_raw2.wav",
+   "asr_auto": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit4",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "这款手机的屏幕是六点一英寸。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 196.79,
+   "total_ms": 1958.82,
+   "audio_s": 3.76,
+   "wav": "spikes/data/s9/unit4_spoken.wav",
+   "asr_auto": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "这款手机的屏幕是六点一英寸。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "空调温度建议设定在26℃。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.99,
+   "total_ms": 2108.42,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/unit5_raw0.wav",
+   "asr_auto": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "空调温度建议设定在26℃。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 174.24,
+   "total_ms": 2899.3,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/unit5_raw1.wav",
+   "asr_auto": {
+    "text": "阿舅里头的是肯建的中转口，中央的料子球窝铁，没清洗的那么。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "阿舅里头的是肯建的中转口，中央里聊着球窝，甜美清晰的呢吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "空调温度建议设定在26℃。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 180.27,
+   "total_ms": 2223.61,
+   "audio_s": 4.32,
+   "wav": "spikes/data/s9/unit5_raw2.wav",
+   "asr_auto": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit5",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "空调温度建议设定在二十六摄氏度。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.77,
+   "total_ms": 2121.8,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/unit5_spoken.wav",
+   "asr_auto": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "空调温度建议设定在二十六摄氏度。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您家的宽带速率是500Mbps。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.55,
+   "total_ms": 2150.83,
+   "audio_s": 3.68,
+   "wav": "spikes/data/s9/unit6_raw0.wav",
+   "asr_auto": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您家的宽带速率是500Mbps。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.2,
+   "total_ms": 2098.89,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/unit6_raw1.wav",
+   "asr_auto": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您家的宽带速率是500Mbps。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.72,
+   "total_ms": 2038.28,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/unit6_raw2.wav",
+   "asr_auto": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您家的宽带速率是五百兆位每秒。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "unit6",
+   "cat": "unit",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您家的宽带速率是五百兆。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 187.91,
+   "total_ms": 1713.23,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/unit6_spoken.wav",
+   "asr_auto": {
+    "text": "您家的宽带速率是五百兆。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您家的宽带速率是五百兆。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请在App里点击“我的订单”查看物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 199.03,
+   "total_ms": 2598.63,
+   "audio_s": 5.04,
+   "wav": "spikes/data/s9/mix1_raw0.wav",
+   "asr_auto": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请在App里点击“我的订单”查看物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.94,
+   "total_ms": 2238.12,
+   "audio_s": 4.32,
+   "wav": "spikes/data/s9/mix1_raw1.wav",
+   "asr_auto": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请在App里点击“我的订单”查看物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 180.17,
+   "total_ms": 2447.94,
+   "audio_s": 4.8,
+   "wav": "spikes/data/s9/mix1_raw2.wav",
+   "asr_auto": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在App里点击“我的订单”，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix1",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请在App里点击我的订单查看物流信息。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.09,
+   "total_ms": 2323.26,
+   "audio_s": 4.08,
+   "wav": "spikes/data/s9/mix1_spoken.wav",
+   "asr_auto": {
+    "text": "请在App里点击我的订单，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请在App里点击我的订单，查看物流信息。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您可以登录官网www.example.com查询。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 177.07,
+   "total_ms": 2568.88,
+   "audio_s": 5.04,
+   "wav": "spikes/data/s9/mix2_raw0.wav",
+   "asr_auto": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您可以登录官网www.example.com查询。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.35,
+   "total_ms": 2834.12,
+   "audio_s": 5.52,
+   "wav": "spikes/data/s9/mix2_raw1.wav",
+   "asr_auto": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您可以登录官网www.example.com查询。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 184.24,
+   "total_ms": 2667.38,
+   "audio_s": 5.2,
+   "wav": "spikes/data/s9/mix2_raw2.wav",
+   "asr_auto": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以登录官网 www.example.com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix2",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您可以登录官网三W点example点com查询。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.39,
+   "total_ms": 2547.98,
+   "audio_s": 4.96,
+   "wav": "spikes/data/s9/mix2_spoken.wav",
+   "asr_auto": {
+    "text": "您可以登录官网 www.点 example.点 com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您可以登录官网 www.点 example.点 com 查询。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请把截图发到我们的邮箱service@example.com。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.16,
+   "total_ms": 2269.01,
+   "audio_s": 4.4,
+   "wav": "spikes/data/s9/mix3_raw0.wav",
+   "asr_auto": {
+    "text": "请把截图发到我们的邮箱 service example 正康。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请把截图发到我们的邮箱 service example 正康。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请把截图发到我们的邮箱service@example.com。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.66,
+   "total_ms": 2714.51,
+   "audio_s": 5.28,
+   "wav": "spikes/data/s9/mix3_raw1.wav",
+   "asr_auto": {
+    "text": "请把截图发到我们的邮箱 service example dot com。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请把截图发到我们的邮箱 service example dot com。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请把截图发到我们的邮箱service@example.com。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.27,
+   "total_ms": 2408.99,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/mix3_raw2.wav",
+   "asr_auto": {
+    "text": "请把截图发到我们的邮箱 service example.com。",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请把截图发到我们的邮箱 service example.com。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix3",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请把截图发到我们的邮箱service艾特example点com。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 193.25,
+   "total_ms": 2758.36,
+   "audio_s": 5.36,
+   "wav": "spikes/data/s9/mix3_spoken.wav",
+   "asr_auto": {
+    "text": "请把截图发到我们的邮箱 service@example.com。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请把截图发到我们的邮箱 service@example.com。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "您的iPhone 15需要送修吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.61,
+   "total_ms": 1593.13,
+   "audio_s": 3.04,
+   "wav": "spikes/data/s9/mix4_raw0.wav",
+   "asr_auto": {
+    "text": "您的iPhone十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的iPhone十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "您的iPhone 15需要送修吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 195.23,
+   "total_ms": 1764.52,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/mix4_raw1.wav",
+   "asr_auto": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "您的iPhone 15需要送修吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 182.63,
+   "total_ms": 1711.41,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/mix4_raw2.wav",
+   "asr_auto": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix4",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "您的iPhone十五需要送修吗？",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 192.48,
+   "total_ms": 1725.84,
+   "audio_s": 3.28,
+   "wav": "spikes/data/s9/mix4_spoken.wav",
+   "asr_auto": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "您的 iPhone 十五需要送修吗？",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "请先连接Wi-Fi再下载更新包。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 190.55,
+   "total_ms": 1988.94,
+   "audio_s": 3.84,
+   "wav": "spikes/data/s9/mix5_raw0.wav",
+   "asr_auto": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "请先连接Wi-Fi再下载更新包。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.78,
+   "total_ms": 1581.95,
+   "audio_s": 3.04,
+   "wav": "spikes/data/s9/mix5_raw1.wav",
+   "asr_auto": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "请先连接Wi-Fi再下载更新包。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 196.67,
+   "total_ms": 1602.82,
+   "audio_s": 3.04,
+   "wav": "spikes/data/s9/mix5_raw2.wav",
+   "asr_auto": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix5",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "请先连接Wi-Fi再下载更新包。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.72,
+   "total_ms": 2353.09,
+   "audio_s": 4.56,
+   "wav": "spikes/data/s9/mix5_spoken.wav",
+   "asr_auto": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "请先连接WiFi，再下载更新包。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 0,
+   "input": "我们支持PayPal和Apple Pay付款。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 190.52,
+   "total_ms": 1754.99,
+   "audio_s": 3.36,
+   "wav": "spikes/data/s9/mix6_raw0.wav",
+   "asr_auto": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 1,
+   "input": "我们支持PayPal和Apple Pay付款。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 191.29,
+   "total_ms": 1665.17,
+   "audio_s": 3.2,
+   "wav": "spikes/data/s9/mix6_raw1.wav",
+   "asr_auto": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "raw",
+   "run": 2,
+   "input": "我们支持PayPal和Apple Pay付款。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 199.81,
+   "total_ms": 2265.39,
+   "audio_s": 4.32,
+   "wav": "spikes/data/s9/mix6_raw2.wav",
+   "asr_auto": {
+    "text": "我们支持PayPal和ApplePay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "mix6",
+   "cat": "mixed",
+   "set": "zh",
+   "variant": "spoken",
+   "run": 0,
+   "input": "我们支持PayPal和Apple Pay付款。",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.4,
+   "total_ms": 2038.44,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/mix6_spoken.wav",
+   "asr_auto": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "我们支持PayPal和Apple Pay付款。",
+    "language": [
+     "Chinese"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "Your order total is $1,280.50.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 191.79,
+   "total_ms": 2939.93,
+   "audio_s": 5.68,
+   "wav": "spikes/data/s9/en_money_raw0.wav",
+   "asr_auto": {
+    "text": "Your order total is one million two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order total is one million two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "Your order total is $1,280.50.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.89,
+   "total_ms": 2879.57,
+   "audio_s": 5.6,
+   "wav": "spikes/data/s9/en_money_raw1.wav",
+   "asr_auto": {
+    "text": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "Your order total is $1,280.50.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.51,
+   "total_ms": 2403.76,
+   "audio_s": 4.64,
+   "wav": "spikes/data/s9/en_money_raw2.wav",
+   "asr_auto": {
+    "text": "Your order total is one ed's two hundred and eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order total is one ed's two hundred and eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_money",
+   "cat": "money",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 186.9,
+   "total_ms": 2751.03,
+   "audio_s": 5.36,
+   "wav": "spikes/data/s9/en_money_spoken.wav",
+   "asr_auto": {
+    "text": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order total is one thousand two hundred eighty dollars and fifty cents.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "Please call us at 1-800-555-0199.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 181.41,
+   "total_ms": 4245.78,
+   "audio_s": 8.32,
+   "wav": "spikes/data/s9/en_phone_raw0.wav",
+   "asr_auto": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "Please call us at 1-800-555-0199.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 189.77,
+   "total_ms": 3885.83,
+   "audio_s": 7.6,
+   "wav": "spikes/data/s9/en_phone_raw1.wav",
+   "asr_auto": {
+    "text": "Please call us at one eight five five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Please call us at one eight five five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "Please call us at 1-800-555-0199.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.07,
+   "total_ms": 3214.4,
+   "audio_s": 6.32,
+   "wav": "spikes/data/s9/en_phone_raw2.wav",
+   "asr_auto": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_phone",
+   "cat": "phone",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "Please call us at one, eight hundred, five five five, zero one nine nine.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.96,
+   "total_ms": 3378.56,
+   "audio_s": 6.64,
+   "wav": "spikes/data/s9/en_phone_spoken.wav",
+   "asr_auto": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Please call us at one eight hundred five five five zero one nine nine.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "Your appointment is on 03/15/2024 at 2:30 PM.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 200.33,
+   "total_ms": 4882.93,
+   "audio_s": 9.52,
+   "wav": "spikes/data/s9/en_date_raw0.wav",
+   "asr_auto": {
+    "text": "Your appointment is on zero three fifteen space twenty twenty four at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your appointment is on zero three fifteen space twenty twenty four at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "Your appointment is on 03/15/2024 at 2:30 PM.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.64,
+   "total_ms": 4557.26,
+   "audio_s": 8.64,
+   "wav": "spikes/data/s9/en_date_raw1.wav",
+   "asr_auto": {
+    "text": "Your appointment is on zero three fifteen twenty twenty four at two o thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your appointment is on zero three fifteen twenty twenty four at two o thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "Your appointment is on 03/15/2024 at 2:30 PM.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.32,
+   "total_ms": 6441.83,
+   "audio_s": 12.16,
+   "wav": "spikes/data/s9/en_date_raw2.wav",
+   "asr_auto": {
+    "text": "Your appointment is on zero three fifteen one sworthy one swor up at mind twenty four at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your appointment is on zero three fifteen one sworthy one swor up at mind twenty four at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_date",
+   "cat": "datetime",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "Your appointment is on March fifteenth, twenty twenty-four, at two thirty PM.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 178.68,
+   "total_ms": 3504.59,
+   "audio_s": 6.4,
+   "wav": "spikes/data/s9/en_date_spoken.wav",
+   "asr_auto": {
+    "text": "Your appointment is on March fifteenth, twenty twenty-four, at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your appointment is on March fifteenth, twenty twenty-four, at two thirty p.m.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "Your order number is A20241015001.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 171.27,
+   "total_ms": 8561.17,
+   "audio_s": 16.8,
+   "wav": "spikes/data/s9/en_id_raw0.wav",
+   "asr_auto": {
+    "text": "Your order number is A two M two four one L one thou O one V V one O one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order number is A two M two four one L one thou O one V V one O one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "Your order number is A20241015001.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 176.99,
+   "total_ms": 6309.8,
+   "audio_s": 12.0,
+   "wav": "spikes/data/s9/en_id_raw1.wav",
+   "asr_auto": {
+    "text": "Your order number is a twenty twenty four one billion one pray son son one son fowls Andre one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order number is a twenty twenty four one billion one pray son son one son fowls Andre one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "Your order number is A20241015001.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 173.36,
+   "total_ms": 6829.95,
+   "audio_s": 13.28,
+   "wav": "spikes/data/s9/en_id_raw2.wav",
+   "asr_auto": {
+    "text": "Your order number is a two two four one sesh one sesh one sesh one one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order number is A two two four one sesh one sesh one sesh one one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_id",
+   "cat": "id",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "Your order number is A, two zero two four, one zero one five, zero zero one.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 183.6,
+   "total_ms": 5617.87,
+   "audio_s": 10.72,
+   "wav": "spikes/data/s9/en_id_spoken.wav",
+   "asr_auto": {
+    "text": "Your order number is A two zero two four one zero one five zero zero one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "Your order number is A two zero two four one zero one five zero zero one.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "The package weighs 2.5 kg.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 157.46,
+   "total_ms": 2092.95,
+   "audio_s": 4.16,
+   "wav": "spikes/data/s9/en_unit_raw0.wav",
+   "asr_auto": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "The package weighs 2.5 kg.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 190.5,
+   "total_ms": 2244.06,
+   "audio_s": 4.32,
+   "wav": "spikes/data/s9/en_unit_raw1.wav",
+   "asr_auto": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "The package weighs 2.5 kg.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 186.96,
+   "total_ms": 2041.87,
+   "audio_s": 3.92,
+   "wav": "spikes/data/s9/en_unit_raw2.wav",
+   "asr_auto": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_unit",
+   "cat": "unit",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "The package weighs two point five kilograms.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 212.97,
+   "total_ms": 2298.7,
+   "audio_s": 4.4,
+   "wav": "spikes/data/s9/en_unit_spoken.wav",
+   "asr_auto": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "The package weighs 2.5 kilograms.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 0,
+   "input": "You get 15% off orders over $200.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 205.01,
+   "total_ms": 2483.09,
+   "audio_s": 4.72,
+   "wav": "spikes/data/s9/en_percent_raw0.wav",
+   "asr_auto": {
+    "text": "You get 15% off orders over $200.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "You get 15% off orders over $200.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 1,
+   "input": "You get 15% off orders over $200.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 185.41,
+   "total_ms": 2944.49,
+   "audio_s": 5.76,
+   "wav": "spikes/data/s9/en_percent_raw1.wav",
+   "asr_auto": {
+    "text": "You get fifteen percent off orders over two hundred dollars.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "You get fifteen percent off orders over two hundred dollars.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "raw",
+   "run": 2,
+   "input": "You get 15% off orders over $200.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 186.38,
+   "total_ms": 2477.35,
+   "audio_s": 4.8,
+   "wav": "spikes/data/s9/en_percent_raw2.wav",
+   "asr_auto": {
+    "text": "You get 15% off orders over $200.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "You get 15% off orders over $200.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  },
+  {
+   "id": "en_percent",
+   "cat": "number",
+   "set": "en",
+   "variant": "spoken",
+   "run": 0,
+   "input": "You get fifteen percent off orders over two hundred dollars.",
+   "status": 200,
+   "error": null,
+   "ttfc_ms": 205.13,
+   "total_ms": 3102.93,
+   "audio_s": 6.0,
+   "wav": "spikes/data/s9/en_percent_spoken.wav",
+   "asr_auto": {
+    "text": "You get fifteen percent off orders over two hundred dollars.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   },
+   "asr_lang": {
+    "text": "You get fifteen percent off orders over two hundred dollars.",
+    "language": [
+     "English"
+    ],
+    "status": 200,
+    "error": null
+   }
+  }
+ ],
+ "loadavg1_end": 2.69,
+ "finished_at": "2026-10-23T06:46:05+08:00",
+ "server_logs": {
+  "tts_s9": [
+   "25224.5 ms: INFO:     Started server process [41020]",
+   "25224.5 ms: INFO:     Waiting for application startup.",
+   "25224.9 ms: INFO:     Application startup complete.",
+   "25225.1 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+   "27008.8 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+   "27194.4 ms:   Initialized encoder codebooks",
+   "27194.5 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+  ],
+  "asr_s9": [
+   "13418.7 ms: INFO:     Started server process [40517]",
+   "13418.7 ms: INFO:     Waiting for application startup.",
+   "13419.0 ms: INFO:     Application startup complete.",
+   "13419.3 ms: INFO:     Uvicorn running on http://127.0.0.1:8102 (Press CTRL+C to quit)"
+  ]
+ }
+}

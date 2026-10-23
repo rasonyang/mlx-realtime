@@ -1,0 +1,237 @@
+{
+ "spike": "S2.sustained",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": {
+   "pmset_custom": "Battery Power:\n Sleep On Power Button 1\n powermode            1\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                1\n tcpkeepalive         1\n disksleep            10\n",
+   "pmset_powermode_now": "powermode            0",
+   "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7274595)\t77%; AC attached; not charging present: true",
+   "iogpu_wired_limit_mb": "0",
+   "loadavg": [
+    23.333984375,
+    18.02978515625,
+    18.35302734375
+   ]
+  },
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.837680417,
+  "first_request_done_s": 2.22029925,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s2_qwen3.6_1792725019.log",
+  "concurrency": 1,
+  "warm_or_cold": "see keys",
+  "loadavg_1m_before": 12.41162109375,
+  "loadavg_1m_after": 23.333984375,
+  "wall_s": 183.9,
+  "footprint_gb": 21.49,
+  "sampling": {
+   "temperature": 0.7,
+   "top_p": 0.8
+  },
+  "max_completion_tokens": 512
+ },
+ "data": {
+  "rows": [
+   {
+    "t": 5.4,
+    "decode_tps": 75.63538402879,
+    "ttft": 0.120190209,
+    "completion_tokens": 400
+   },
+   {
+    "t": 10.5,
+    "decode_tps": 77.9455931355855,
+    "ttft": 0.031223375,
+    "completion_tokens": 400
+   },
+   {
+    "t": 15.7,
+    "decode_tps": 77.6432988576693,
+    "ttft": 0.027332333,
+    "completion_tokens": 400
+   },
+   {
+    "t": 21.2,
+    "decode_tps": 73.82499837016513,
+    "ttft": 0.052487208,
+    "completion_tokens": 400
+   },
+   {
+    "t": 27.2,
+    "decode_tps": 66.68858792421642,
+    "ttft": 0.053287834,
+    "completion_tokens": 400
+   },
+   {
+    "t": 32.5,
+    "decode_tps": 75.49118581280334,
+    "ttft": 0.0276895,
+    "completion_tokens": 400
+   },
+   {
+    "t": 41.2,
+    "decode_tps": 46.46164424424921,
+    "ttft": 0.049659292,
+    "completion_tokens": 400
+   },
+   {
+    "t": 46.9,
+    "decode_tps": 70.14944652856751,
+    "ttft": 0.035660667,
+    "completion_tokens": 400
+   },
+   {
+    "t": 52.8,
+    "decode_tps": 68.20036438053077,
+    "ttft": 0.033396958,
+    "completion_tokens": 400
+   },
+   {
+    "t": 58.5,
+    "decode_tps": 69.65117591347125,
+    "ttft": 0.052161167,
+    "completion_tokens": 400
+   },
+   {
+    "t": 64.8,
+    "decode_tps": 64.39705730619451,
+    "ttft": 0.054276667,
+    "completion_tokens": 400
+   },
+   {
+    "t": 71.0,
+    "decode_tps": 64.38040829223318,
+    "ttft": 0.054133667,
+    "completion_tokens": 400
+   },
+   {
+    "t": 81.2,
+    "decode_tps": 39.71332569370641,
+    "ttft": 0.073651959,
+    "completion_tokens": 400
+   },
+   {
+    "t": 88.9,
+    "decode_tps": 52.21830429681061,
+    "ttft": 0.054167917,
+    "completion_tokens": 400
+   },
+   {
+    "t": 94.6,
+    "decode_tps": 70.54682191960813,
+    "ttft": 0.031382541,
+    "completion_tokens": 400
+   },
+   {
+    "t": 100.7,
+    "decode_tps": 65.21010916419222,
+    "ttft": 0.05921375,
+    "completion_tokens": 400
+   },
+   {
+    "t": 106.7,
+    "decode_tps": 67.38285769221103,
+    "ttft": 0.02991375,
+    "completion_tokens": 400
+   },
+   {
+    "t": 112.9,
+    "decode_tps": 64.63144914671874,
+    "ttft": 0.036830417,
+    "completion_tokens": 400
+   },
+   {
+    "t": 119.7,
+    "decode_tps": 59.00793427812581,
+    "ttft": 0.0566635,
+    "completion_tokens": 400
+   },
+   {
+    "t": 125.9,
+    "decode_tps": 64.2762842782182,
+    "ttft": 0.027246791,
+    "completion_tokens": 400
+   },
+   {
+    "t": 132.1,
+    "decode_tps": 65.12608562873093,
+    "ttft": 0.042327875,
+    "completion_tokens": 400
+   },
+   {
+    "t": 140.6,
+    "decode_tps": 47.70494479877131,
+    "ttft": 0.093930917,
+    "completion_tokens": 400
+   },
+   {
+    "t": 147.4,
+    "decode_tps": 58.873767335697664,
+    "ttft": 0.038814125,
+    "completion_tokens": 400
+   },
+   {
+    "t": 153.8,
+    "decode_tps": 62.694353073941315,
+    "ttft": 0.035779959,
+    "completion_tokens": 400
+   },
+   {
+    "t": 159.9,
+    "decode_tps": 66.00492638636564,
+    "ttft": 0.092302792,
+    "completion_tokens": 400
+   },
+   {
+    "t": 165.9,
+    "decode_tps": 66.91229263713859,
+    "ttft": 0.05354075,
+    "completion_tokens": 400
+   },
+   {
+    "t": 171.9,
+    "decode_tps": 66.97529623986799,
+    "ttft": 0.037278875,
+    "completion_tokens": 400
+   },
+   {
+    "t": 177.7,
+    "decode_tps": 69.92071104222292,
+    "ttft": 0.046452167,
+    "completion_tokens": 400
+   },
+   {
+    "t": 183.9,
+    "decode_tps": 64.88558051931598,
+    "ttft": 0.027369,
+    "completion_tokens": 400
+   }
+  ],
+  "decode_tps": {
+   "n": 29,
+   "p50": 66.0049,
+   "p95": 77.6433,
+   "max": 77.9456,
+   "min": 39.7133,
+   "mean": 64.9157
+  },
+  "first_fifth_mean": 74.34757246328527,
+  "last_fifth_mean": 66.93976136498222,
+  "ratio_last_first": 0.9003624348063116
+ }
+}

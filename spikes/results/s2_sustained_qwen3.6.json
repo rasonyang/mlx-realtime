@@ -1,0 +1,279 @@
+{
+ "spike": "S2.sustained",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": {
+   "pmset_custom": "Battery Power:\n Sleep On Power Button 1\n powermode            1\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                1\n tcpkeepalive         1\n disksleep            10\n",
+   "pmset_powermode_now": "powermode            0",
+   "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7274595)\t75%; charging; 2:58 remaining present: true",
+   "iogpu_wired_limit_mb": "0",
+   "loadavg": [
+    23.32470703125,
+    19.1962890625,
+    14.0693359375
+   ]
+  },
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.836933542,
+  "first_request_done_s": 2.127589334,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s2_qwen3.6_1792729222.log",
+  "concurrency": 1,
+  "warm_or_cold": "see keys",
+  "loadavg_1m_before": 23.59765625,
+  "loadavg_1m_after": 23.32470703125,
+  "wall_s": 182.4,
+  "footprint_gb": 20.84,
+  "sampling": {
+   "temperature": 0.7,
+   "top_p": 0.8
+  },
+  "max_completion_tokens": 512
+ },
+ "data": {
+  "rows": [
+   {
+    "t": 5.1,
+    "decode_tps": 79.63310361952468,
+    "ttft": 0.112057792,
+    "completion_tokens": 400
+   },
+   {
+    "t": 10.3,
+    "decode_tps": 78.18918549502426,
+    "ttft": 0.034741083,
+    "completion_tokens": 400
+   },
+   {
+    "t": 15.3,
+    "decode_tps": 79.29367026850049,
+    "ttft": 0.032137667,
+    "completion_tokens": 400
+   },
+   {
+    "t": 20.7,
+    "decode_tps": 75.08538315998105,
+    "ttft": 0.031070875,
+    "completion_tokens": 400
+   },
+   {
+    "t": 26.4,
+    "decode_tps": 70.38408615572114,
+    "ttft": 0.037252291,
+    "completion_tokens": 400
+   },
+   {
+    "t": 31.9,
+    "decode_tps": 72.92522258642187,
+    "ttft": 0.037168208,
+    "completion_tokens": 400
+   },
+   {
+    "t": 37.0,
+    "decode_tps": 79.15237526557706,
+    "ttft": 0.046655333,
+    "completion_tokens": 400
+   },
+   {
+    "t": 42.0,
+    "decode_tps": 79.33256131523991,
+    "ttft": 0.029348417,
+    "completion_tokens": 400
+   },
+   {
+    "t": 47.2,
+    "decode_tps": 77.53325394557723,
+    "ttft": 0.032828042,
+    "completion_tokens": 400
+   },
+   {
+    "t": 52.2,
+    "decode_tps": 79.86677261524498,
+    "ttft": 0.028009708,
+    "completion_tokens": 400
+   },
+   {
+    "t": 57.2,
+    "decode_tps": 80.12528127116485,
+    "ttft": 0.03013825,
+    "completion_tokens": 400
+   },
+   {
+    "t": 62.3,
+    "decode_tps": 79.84275180145208,
+    "ttft": 0.029048625,
+    "completion_tokens": 400
+   },
+   {
+    "t": 67.3,
+    "decode_tps": 79.81412243852687,
+    "ttft": 0.046249542,
+    "completion_tokens": 400
+   },
+   {
+    "t": 72.3,
+    "decode_tps": 80.48251790868396,
+    "ttft": 0.029152209,
+    "completion_tokens": 400
+   },
+   {
+    "t": 77.3,
+    "decode_tps": 80.59070496710282,
+    "ttft": 0.03010625,
+    "completion_tokens": 400
+   },
+   {
+    "t": 82.3,
+    "decode_tps": 80.10248970216095,
+    "ttft": 0.029246167,
+    "completion_tokens": 400
+   },
+   {
+    "t": 87.3,
+    "decode_tps": 79.51997438619772,
+    "ttft": 0.029719,
+    "completion_tokens": 400
+   },
+   {
+    "t": 92.3,
+    "decode_tps": 80.27469572746227,
+    "ttft": 0.028317917,
+    "completion_tokens": 400
+   },
+   {
+    "t": 97.4,
+    "decode_tps": 79.69601463250787,
+    "ttft": 0.047245375,
+    "completion_tokens": 400
+   },
+   {
+    "t": 102.4,
+    "decode_tps": 79.96236625542467,
+    "ttft": 0.031306292,
+    "completion_tokens": 400
+   },
+   {
+    "t": 107.5,
+    "decode_tps": 79.32132422122325,
+    "ttft": 0.031117416,
+    "completion_tokens": 400
+   },
+   {
+    "t": 112.6,
+    "decode_tps": 79.14128401554024,
+    "ttft": 0.029483625,
+    "completion_tokens": 400
+   },
+   {
+    "t": 117.6,
+    "decode_tps": 80.1441288713575,
+    "ttft": 0.031679875,
+    "completion_tokens": 400
+   },
+   {
+    "t": 122.6,
+    "decode_tps": 79.06403181155706,
+    "ttft": 0.029996084,
+    "completion_tokens": 400
+   },
+   {
+    "t": 127.7,
+    "decode_tps": 79.28895951937922,
+    "ttft": 0.047477833,
+    "completion_tokens": 400
+   },
+   {
+    "t": 132.7,
+    "decode_tps": 80.45490899332383,
+    "ttft": 0.035149709,
+    "completion_tokens": 400
+   },
+   {
+    "t": 137.6,
+    "decode_tps": 81.36654257474292,
+    "ttft": 0.028250708,
+    "completion_tokens": 400
+   },
+   {
+    "t": 142.6,
+    "decode_tps": 80.99782895794385,
+    "ttft": 0.028101583,
+    "completion_tokens": 400
+   },
+   {
+    "t": 147.6,
+    "decode_tps": 80.57215315827317,
+    "ttft": 0.028283667,
+    "completion_tokens": 400
+   },
+   {
+    "t": 152.6,
+    "decode_tps": 80.3435717944465,
+    "ttft": 0.028377625,
+    "completion_tokens": 400
+   },
+   {
+    "t": 157.5,
+    "decode_tps": 81.22601818989497,
+    "ttft": 0.046558542,
+    "completion_tokens": 400
+   },
+   {
+    "t": 162.6,
+    "decode_tps": 79.5242351299422,
+    "ttft": 0.033005833,
+    "completion_tokens": 400
+   },
+   {
+    "t": 167.6,
+    "decode_tps": 80.29043472233234,
+    "ttft": 0.03230475,
+    "completion_tokens": 400
+   },
+   {
+    "t": 172.5,
+    "decode_tps": 81.91380344030695,
+    "ttft": 0.027945583,
+    "completion_tokens": 400
+   },
+   {
+    "t": 177.4,
+    "decode_tps": 81.13478348695914,
+    "ttft": 0.029194042,
+    "completion_tokens": 400
+   },
+   {
+    "t": 182.4,
+    "decode_tps": 81.62800891141525,
+    "ttft": 0.030846875,
+    "completion_tokens": 400
+   }
+  ],
+  "decode_tps": {
+   "n": 36,
+   "p50": 79.8548,
+   "p95": 81.628,
+   "max": 81.9138,
+   "min": 70.3841,
+   "mean": 79.395
+  },
+  "first_fifth_mean": 76.38043236439295,
+  "last_fifth_mean": 80.86583652504248,
+  "ratio_last_first": 1.0587245191183356
+ }
+}

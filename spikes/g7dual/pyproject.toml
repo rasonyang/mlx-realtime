@@ -1,0 +1,15 @@
+[project]
+name = "g7dual"
+version = "0.1.0"
+description = "G7 dual path: double-talk dCER of the gateway's ASR input (speex, aec3, raw) and the cancellers' CPU"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "mlx-realtime",
+]
+
+[tool.uv.sources]
+mlx-realtime = { path = "../../", editable = true }
+
+[tool.uv]
+required-version = ">=0.13.5"
+build-constraint-dependencies = ["setuptools==84.0.0"]

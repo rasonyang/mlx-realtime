@@ -1,0 +1,6077 @@
+{
+ "spike": "S3",
+ "step": "speakers",
+ "started_at": "2026-10-23T06:12:38+08:00",
+ "loadavg1_start": 2.33,
+ "environment": {
+  "recorded_at": "2026-10-23T06:12:38+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "asr_speakers",
+   "port": 8102,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_speakers_061202/server.log",
+   "seconds_to_ready": 24.13
+  },
+  {
+   "name": "tts_speakers",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_speakers_061226/server.log",
+   "seconds_to_ready": 12.05
+  }
+ ],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "streaming_interval": 0.32,
+  "runs_per_sentence": 2,
+  "back_transcription": "ASR 1.7B, no language field (auto-detect)",
+  "note": "dylan and eric are left out: with lang_code chinese/auto, mlx-audio switches them to their dialect language id (beijing_dialect / sichuan_dialect)"
+ },
+ "warmup": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 1911.52,
+   "total_ms": 3367.84,
+   "audio_s": 5.04,
+   "error": null
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "status": 200,
+   "ttfc_ms": 123.59,
+   "total_ms": 2217.24,
+   "audio_s": 6.64,
+   "error": null
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 129.61,
+   "total_ms": 2171.17,
+   "audio_s": 6.56,
+   "error": null
+  }
+ ],
+ "records": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 139.22,
+   "total_ms": 1717.27,
+   "audio_s": 4.88,
+   "voiced_s": 3.86,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 180.72,
+   "total_ms": 1430.5,
+   "audio_s": 4.0,
+   "voiced_s": 3.32,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 118.38,
+   "total_ms": 1630.24,
+   "audio_s": 4.72,
+   "voiced_s": 3.52,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 114.82,
+   "total_ms": 1386.34,
+   "audio_s": 4.16,
+   "voiced_s": 3.24,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 123.75,
+   "total_ms": 1352.25,
+   "audio_s": 4.24,
+   "voiced_s": 3.29,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 150.23,
+   "total_ms": 1481.51,
+   "audio_s": 4.8,
+   "voiced_s": 3.96,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 132.79,
+   "total_ms": 1559.24,
+   "audio_s": 5.04,
+   "voiced_s": 4.03,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 133.07,
+   "total_ms": 1179.48,
+   "audio_s": 3.6,
+   "voiced_s": 2.52,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 147.81,
+   "total_ms": 1788.8,
+   "audio_s": 5.52,
+   "voiced_s": 4.53,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 110.03,
+   "total_ms": 1332.19,
+   "audio_s": 3.92,
+   "voiced_s": 2.74,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 129.71,
+   "total_ms": 1271.9,
+   "audio_s": 4.08,
+   "voiced_s": 3.57,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 146.43,
+   "total_ms": 1165.27,
+   "audio_s": 3.76,
+   "voiced_s": 3.19,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 181.12,
+   "total_ms": 1241.32,
+   "audio_s": 3.76,
+   "voiced_s": 3.26,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 140.04,
+   "total_ms": 1284.32,
+   "audio_s": 4.08,
+   "voiced_s": 3.53,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 180.33,
+   "total_ms": 958.92,
+   "audio_s": 2.96,
+   "voiced_s": 2.41,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 126.61,
+   "total_ms": 1204.98,
+   "audio_s": 3.84,
+   "voiced_s": 3.31,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 138.11,
+   "total_ms": 1357.93,
+   "audio_s": 4.24,
+   "voiced_s": 3.71,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 146.34,
+   "total_ms": 951.57,
+   "audio_s": 2.88,
+   "voiced_s": 2.3,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 144.66,
+   "total_ms": 1561.63,
+   "audio_s": 4.8,
+   "voiced_s": 4.25,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 148.9,
+   "total_ms": 1147.69,
+   "audio_s": 3.44,
+   "voiced_s": 2.96,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 123.84,
+   "total_ms": 1960.51,
+   "audio_s": 5.76,
+   "voiced_s": 4.67,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 116.4,
+   "total_ms": 1320.31,
+   "audio_s": 3.76,
+   "voiced_s": 2.99,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 131.29,
+   "total_ms": 1562.33,
+   "audio_s": 4.72,
+   "voiced_s": 3.86,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 152.6,
+   "total_ms": 2404.49,
+   "audio_s": 7.44,
+   "voiced_s": 6.41,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 141.94,
+   "total_ms": 1415.85,
+   "audio_s": 4.4,
+   "voiced_s": 3.55,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 140.07,
+   "total_ms": 1858.52,
+   "audio_s": 5.92,
+   "voiced_s": 4.22,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 136.01,
+   "total_ms": 1801.56,
+   "audio_s": 5.6,
+   "voiced_s": 4.44,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 173.92,
+   "total_ms": 1428.74,
+   "audio_s": 4.32,
+   "voiced_s": 3.08,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 127.8,
+   "total_ms": 1506.27,
+   "audio_s": 4.88,
+   "voiced_s": 3.96,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 141.16,
+   "total_ms": 1572.92,
+   "audio_s": 4.96,
+   "voiced_s": 4.3,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 100.32,
+   "total_ms": 1592.85,
+   "audio_s": 5.04,
+   "voiced_s": 4.13,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 152.19,
+   "total_ms": 1720.3,
+   "audio_s": 5.36,
+   "voiced_s": 4.36,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 141.52,
+   "total_ms": 1575.73,
+   "audio_s": 4.96,
+   "voiced_s": 3.94,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 142.96,
+   "total_ms": 1339.89,
+   "audio_s": 4.16,
+   "voiced_s": 3.22,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 139.26,
+   "total_ms": 1451.45,
+   "audio_s": 4.4,
+   "voiced_s": 3.54,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 127.88,
+   "total_ms": 2298.3,
+   "audio_s": 7.44,
+   "voiced_s": 7.31,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 161.13,
+   "total_ms": 1663.3,
+   "audio_s": 5.36,
+   "voiced_s": 4.41,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 141.75,
+   "total_ms": 1429.66,
+   "audio_s": 4.48,
+   "voiced_s": 3.48,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 137.83,
+   "total_ms": 2001.9,
+   "audio_s": 6.4,
+   "voiced_s": 5.31,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 137.91,
+   "total_ms": 3440.77,
+   "audio_s": 10.72,
+   "voiced_s": 9.84,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 131.85,
+   "total_ms": 1499.61,
+   "audio_s": 4.32,
+   "voiced_s": 3.87,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 142.26,
+   "total_ms": 1345.55,
+   "audio_s": 3.52,
+   "voiced_s": 3.07,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 212.92,
+   "total_ms": 1428.14,
+   "audio_s": 4.16,
+   "voiced_s": 3.63,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 155.79,
+   "total_ms": 1390.18,
+   "audio_s": 4.4,
+   "voiced_s": 3.53,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 157.05,
+   "total_ms": 1684.81,
+   "audio_s": 5.28,
+   "voiced_s": 4.75,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 159.93,
+   "total_ms": 1322.14,
+   "audio_s": 3.84,
+   "voiced_s": 3.35,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 133.21,
+   "total_ms": 1473.24,
+   "audio_s": 4.08,
+   "voiced_s": 3.61,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 145.0,
+   "total_ms": 1390.68,
+   "audio_s": 4.0,
+   "voiced_s": 3.5,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 155.22,
+   "total_ms": 1452.7,
+   "audio_s": 4.0,
+   "voiced_s": 3.51,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 182.34,
+   "total_ms": 1490.63,
+   "audio_s": 4.16,
+   "voiced_s": 3.63,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 172.29,
+   "total_ms": 1893.76,
+   "audio_s": 5.12,
+   "voiced_s": 4.23,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 176.51,
+   "total_ms": 1550.11,
+   "audio_s": 4.4,
+   "voiced_s": 3.45,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 184.67,
+   "total_ms": 1620.87,
+   "audio_s": 4.32,
+   "voiced_s": 3.14,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 129.63,
+   "total_ms": 1551.38,
+   "audio_s": 4.16,
+   "voiced_s": 3.14,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 224.28,
+   "total_ms": 1647.7,
+   "audio_s": 4.24,
+   "voiced_s": 3.04,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 164.96,
+   "total_ms": 1792.52,
+   "audio_s": 5.04,
+   "voiced_s": 3.97,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 143.18,
+   "total_ms": 1875.11,
+   "audio_s": 5.2,
+   "voiced_s": 4.14,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 149.95,
+   "total_ms": 1169.03,
+   "audio_s": 3.52,
+   "voiced_s": 2.83,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 149.39,
+   "total_ms": 1738.48,
+   "audio_s": 5.28,
+   "voiced_s": 4.36,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 115.28,
+   "total_ms": 1253.45,
+   "audio_s": 3.92,
+   "voiced_s": 3.32,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 158.96,
+   "total_ms": 1196.44,
+   "audio_s": 3.68,
+   "voiced_s": 3.21,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 162.41,
+   "total_ms": 1150.48,
+   "audio_s": 3.44,
+   "voiced_s": 2.88,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 135.43,
+   "total_ms": 1061.06,
+   "audio_s": 3.36,
+   "voiced_s": 2.88,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 195.19,
+   "total_ms": 1286.84,
+   "audio_s": 3.76,
+   "voiced_s": 3.21,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 145.8,
+   "total_ms": 995.48,
+   "audio_s": 3.04,
+   "voiced_s": 2.57,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 148.35,
+   "total_ms": 1645.88,
+   "audio_s": 5.2,
+   "voiced_s": 4.7,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 144.99,
+   "total_ms": 1345.1,
+   "audio_s": 4.4,
+   "voiced_s": 3.93,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 194.2,
+   "total_ms": 1009.28,
+   "audio_s": 3.2,
+   "voiced_s": 2.73,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 171.9,
+   "total_ms": 1493.67,
+   "audio_s": 4.4,
+   "voiced_s": 3.92,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 126.7,
+   "total_ms": 1081.42,
+   "audio_s": 3.36,
+   "voiced_s": 2.94,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 160.58,
+   "total_ms": 1963.38,
+   "audio_s": 6.16,
+   "voiced_s": 5.59,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 158.6,
+   "total_ms": 1164.76,
+   "audio_s": 3.6,
+   "voiced_s": 2.82,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 163.82,
+   "total_ms": 1527.61,
+   "audio_s": 4.64,
+   "voiced_s": 3.43,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 160.08,
+   "total_ms": 1720.38,
+   "audio_s": 5.36,
+   "voiced_s": 3.66,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 167.86,
+   "total_ms": 2100.67,
+   "audio_s": 6.88,
+   "voiced_s": 5.46,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 162.68,
+   "total_ms": 1554.55,
+   "audio_s": 4.96,
+   "voiced_s": 3.58,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 204.84,
+   "total_ms": 1562.49,
+   "audio_s": 4.72,
+   "voiced_s": 3.82,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 143.01,
+   "total_ms": 1517.91,
+   "audio_s": 4.96,
+   "voiced_s": 3.64,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 177.84,
+   "total_ms": 2391.68,
+   "audio_s": 7.6,
+   "voiced_s": 6.87,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "uncle_fu",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 181.37,
+   "total_ms": 1476.8,
+   "audio_s": 4.8,
+   "voiced_s": 3.69,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 153.17,
+   "total_ms": 1396.29,
+   "audio_s": 4.32,
+   "voiced_s": 3.41,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 149.18,
+   "total_ms": 1695.46,
+   "audio_s": 5.36,
+   "voiced_s": 5.21,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 152.61,
+   "total_ms": 1652.03,
+   "audio_s": 5.2,
+   "voiced_s": 4.26,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 149.85,
+   "total_ms": 3783.94,
+   "audio_s": 12.08,
+   "voiced_s": 11.04,
+   "units": 18,
+   "asr_text": "嗯嗯，那您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 3,
+    "sub": 0,
+    "del": 0,
+    "ins": 3,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 172.23,
+   "total_ms": 1350.22,
+   "audio_s": 4.4,
+   "voiced_s": 3.44,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 151.76,
+   "total_ms": 2119.45,
+   "audio_s": 6.56,
+   "voiced_s": 5.54,
+   "units": 19,
+   "asr_text": "嗯，您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0526
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 126.86,
+   "total_ms": 1537.4,
+   "audio_s": 4.56,
+   "voiced_s": 3.64,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 134.19,
+   "total_ms": 1590.07,
+   "audio_s": 4.8,
+   "voiced_s": 3.88,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 111.55,
+   "total_ms": 2270.17,
+   "audio_s": 7.2,
+   "voiced_s": 6.23,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "ryan",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 149.13,
+   "total_ms": 1437.31,
+   "audio_s": 4.56,
+   "voiced_s": 3.61,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 140.12,
+   "total_ms": 1662.94,
+   "audio_s": 5.04,
+   "voiced_s": 4.54,
+   "units": 18,
+   "asr_text": "您好，这里是客服中心，请问有什么可以帮您？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 139.08,
+   "total_ms": 1116.4,
+   "audio_s": 3.36,
+   "voiced_s": 2.85,
+   "units": 15,
+   "asr_text": "好的，我马上帮您查询一下订单状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 163.98,
+   "total_ms": 1526.95,
+   "audio_s": 4.72,
+   "voiced_s": 4.15,
+   "units": 15,
+   "asr_text": "非常抱歉让您久等了，感谢您的耐心。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 126.45,
+   "total_ms": 1177.86,
+   "audio_s": 3.84,
+   "voiced_s": 3.33,
+   "units": 18,
+   "asr_text": "您的包裹已经到达配送站，今天下午会送到。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 162.19,
+   "total_ms": 1607.56,
+   "audio_s": 4.72,
+   "voiced_s": 4.18,
+   "units": 14,
+   "asr_text": "请问您是想办理退货还是换货呢？",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 100.65,
+   "total_ms": 1561.81,
+   "audio_s": 4.8,
+   "voiced_s": 4.25,
+   "units": 19,
+   "asr_text": "您反映的问题我已经记录下来了，会尽快处理。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 19,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 153.17,
+   "total_ms": 1510.17,
+   "audio_s": 4.72,
+   "voiced_s": 4.19,
+   "units": 17,
+   "asr_text": "请您保持电话畅通，稍后会有专人联系您。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 17,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 116.0,
+   "total_ms": 970.83,
+   "audio_s": 3.04,
+   "voiced_s": 2.59,
+   "units": 14,
+   "asr_text": "退款会原路返回到您的支付账户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 169.9,
+   "total_ms": 1444.46,
+   "audio_s": 4.48,
+   "voiced_s": 3.99,
+   "units": 21,
+   "asr_text": "为了保障您的账户安全，请不要向他人透露验证码。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 21,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "zh",
+   "speaker": "aiden",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 132.15,
+   "total_ms": 1333.9,
+   "audio_s": 4.16,
+   "voiced_s": 3.68,
+   "units": 18,
+   "asr_text": "您的会员积分可以在下次购物时抵扣现金。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 18,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 144.61,
+   "total_ms": 2168.52,
+   "audio_s": 6.88,
+   "voiced_s": 5.92,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 146.37,
+   "total_ms": 1744.06,
+   "audio_s": 5.44,
+   "voiced_s": 4.48,
+   "units": 11,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 139.01,
+   "total_ms": 1771.26,
+   "audio_s": 5.2,
+   "voiced_s": 4.34,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 117.05,
+   "total_ms": 2290.8,
+   "audio_s": 6.96,
+   "voiced_s": 6.07,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 122.33,
+   "total_ms": 1417.86,
+   "audio_s": 4.56,
+   "voiced_s": 3.64,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 156.54,
+   "total_ms": 2228.9,
+   "audio_s": 6.96,
+   "voiced_s": 6.02,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 177.32,
+   "total_ms": 1609.36,
+   "audio_s": 4.88,
+   "voiced_s": 3.97,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 147.27,
+   "total_ms": 1345.08,
+   "audio_s": 3.92,
+   "voiced_s": 2.94,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 137.35,
+   "total_ms": 1617.19,
+   "audio_s": 5.04,
+   "voiced_s": 4.09,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 174.65,
+   "total_ms": 1370.19,
+   "audio_s": 4.24,
+   "voiced_s": 3.32,
+   "units": 13,
+   "asr_text": "You can use your award points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0769
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 146.19,
+   "total_ms": 1341.0,
+   "audio_s": 4.0,
+   "voiced_s": 3.58,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 138.44,
+   "total_ms": 1156.52,
+   "audio_s": 3.36,
+   "voiced_s": 2.92,
+   "units": 11,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 163.12,
+   "total_ms": 1077.38,
+   "audio_s": 3.2,
+   "voiced_s": 2.74,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 166.79,
+   "total_ms": 1594.31,
+   "audio_s": 4.8,
+   "voiced_s": 4.37,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 123.42,
+   "total_ms": 988.51,
+   "audio_s": 2.96,
+   "voiced_s": 2.5,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 168.69,
+   "total_ms": 1519.55,
+   "audio_s": 4.48,
+   "voiced_s": 4.07,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 153.51,
+   "total_ms": 1309.02,
+   "audio_s": 4.0,
+   "voiced_s": 3.52,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 160.33,
+   "total_ms": 1146.01,
+   "audio_s": 3.28,
+   "voiced_s": 2.78,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 163.34,
+   "total_ms": 1844.09,
+   "audio_s": 5.36,
+   "voiced_s": 4.9,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 198.38,
+   "total_ms": 1374.31,
+   "audio_s": 4.16,
+   "voiced_s": 3.65,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 156.56,
+   "total_ms": 1744.65,
+   "audio_s": 5.2,
+   "voiced_s": 4.24,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 144.47,
+   "total_ms": 1484.53,
+   "audio_s": 4.32,
+   "voiced_s": 3.31,
+   "units": 11,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 140.28,
+   "total_ms": 1362.9,
+   "audio_s": 4.16,
+   "voiced_s": 3.37,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 162.68,
+   "total_ms": 1938.26,
+   "audio_s": 6.08,
+   "voiced_s": 5.08,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 156.77,
+   "total_ms": 1047.52,
+   "audio_s": 3.12,
+   "voiced_s": 2.51,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 144.64,
+   "total_ms": 1543.07,
+   "audio_s": 4.64,
+   "voiced_s": 3.73,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 143.01,
+   "total_ms": 1356.28,
+   "audio_s": 4.16,
+   "voiced_s": 3.37,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 141.02,
+   "total_ms": 1269.33,
+   "audio_s": 3.76,
+   "voiced_s": 3.0,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 158.85,
+   "total_ms": 1865.56,
+   "audio_s": 5.84,
+   "voiced_s": 4.98,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 164.65,
+   "total_ms": 1390.05,
+   "audio_s": 4.24,
+   "voiced_s": 3.6,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 161.24,
+   "total_ms": 1679.49,
+   "audio_s": 5.12,
+   "voiced_s": 4.63,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 163.31,
+   "total_ms": 1403.6,
+   "audio_s": 4.4,
+   "voiced_s": 3.9,
+   "units": 11,
+   "asr_text": "Sure, let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 167.94,
+   "total_ms": 1330.99,
+   "audio_s": 4.0,
+   "voiced_s": 3.48,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 145.03,
+   "total_ms": 1979.89,
+   "audio_s": 5.52,
+   "voiced_s": 5.0,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 217.49,
+   "total_ms": 1280.3,
+   "audio_s": 3.52,
+   "voiced_s": 3.03,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 111.0,
+   "total_ms": 1694.49,
+   "audio_s": 4.96,
+   "voiced_s": 4.48,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 147.82,
+   "total_ms": 1597.6,
+   "audio_s": 4.72,
+   "voiced_s": 4.19,
+   "units": 12,
+   "asr_text": "Please keep your phone on. Specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.0833
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 125.93,
+   "total_ms": 1405.77,
+   "audio_s": 4.16,
+   "voiced_s": 3.69,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 127.56,
+   "total_ms": 1597.63,
+   "audio_s": 5.2,
+   "voiced_s": 4.73,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 162.75,
+   "total_ms": 1582.13,
+   "audio_s": 4.96,
+   "voiced_s": 4.5,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 146.62,
+   "total_ms": 4019.51,
+   "audio_s": 12.32,
+   "voiced_s": 11.39,
+   "units": 11,
+   "asr_text": "Hello, this is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 147.45,
+   "total_ms": 1479.25,
+   "audio_s": 4.72,
+   "voiced_s": 3.89,
+   "units": 11,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 160.82,
+   "total_ms": 1365.15,
+   "audio_s": 4.16,
+   "voiced_s": 3.29,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 149.75,
+   "total_ms": 1980.32,
+   "audio_s": 6.0,
+   "voiced_s": 5.04,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 176.18,
+   "total_ms": 1125.36,
+   "audio_s": 3.6,
+   "voiced_s": 2.68,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 172.71,
+   "total_ms": 2042.34,
+   "audio_s": 6.32,
+   "voiced_s": 5.39,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 166.26,
+   "total_ms": 2083.89,
+   "audio_s": 6.56,
+   "voiced_s": 5.64,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 168.19,
+   "total_ms": 1268.61,
+   "audio_s": 3.84,
+   "voiced_s": 2.87,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 148.64,
+   "total_ms": 1743.27,
+   "audio_s": 5.2,
+   "voiced_s": 4.28,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 132.36,
+   "total_ms": 1749.99,
+   "audio_s": 5.2,
+   "voiced_s": 4.18,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 154.0,
+   "total_ms": 1322.16,
+   "audio_s": 4.08,
+   "voiced_s": 3.63,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 149.14,
+   "total_ms": 1299.85,
+   "audio_s": 3.92,
+   "voiced_s": 3.44,
+   "units": 11,
+   "asr_text": "Sure, let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 176.63,
+   "total_ms": 1394.21,
+   "audio_s": 4.24,
+   "voiced_s": 3.81,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 160.1,
+   "total_ms": 1648.57,
+   "audio_s": 5.12,
+   "voiced_s": 4.66,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 145.21,
+   "total_ms": 1307.49,
+   "audio_s": 3.76,
+   "voiced_s": 3.3,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 121.6,
+   "total_ms": 1479.77,
+   "audio_s": 4.0,
+   "voiced_s": 3.54,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 188.82,
+   "total_ms": 1637.57,
+   "audio_s": 4.48,
+   "voiced_s": 4.06,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 232.09,
+   "total_ms": 1373.99,
+   "audio_s": 3.36,
+   "voiced_s": 2.84,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 213.67,
+   "total_ms": 1847.1,
+   "audio_s": 4.72,
+   "voiced_s": 4.28,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "aiden",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 179.82,
+   "total_ms": 1547.6,
+   "audio_s": 3.84,
+   "voiced_s": 3.33,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 137.88,
+   "total_ms": 2054.36,
+   "audio_s": 5.28,
+   "voiced_s": 4.34,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 136.71,
+   "total_ms": 1680.85,
+   "audio_s": 4.48,
+   "voiced_s": 3.5,
+   "units": 11,
+   "asr_text": "Sure, let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 153.24,
+   "total_ms": 1666.42,
+   "audio_s": 4.64,
+   "voiced_s": 3.77,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 166.67,
+   "total_ms": 1753.76,
+   "audio_s": 5.04,
+   "voiced_s": 4.3,
+   "units": 14,
+   "asr_text": "Your package has arrived at the local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 133.79,
+   "total_ms": 1193.26,
+   "audio_s": 3.76,
+   "voiced_s": 2.97,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 160.52,
+   "total_ms": 1894.5,
+   "audio_s": 5.84,
+   "voiced_s": 5.19,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 136.37,
+   "total_ms": 1539.08,
+   "audio_s": 4.8,
+   "voiced_s": 3.79,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 139.35,
+   "total_ms": 1408.94,
+   "audio_s": 4.48,
+   "voiced_s": 3.54,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 170.84,
+   "total_ms": 1829.74,
+   "audio_s": 5.76,
+   "voiced_s": 4.69,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 159.55,
+   "total_ms": 1503.87,
+   "audio_s": 4.64,
+   "voiced_s": 3.79,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 140.62,
+   "total_ms": 1375.34,
+   "audio_s": 4.4,
+   "voiced_s": 3.83,
+   "units": 11,
+   "asr_text": "Hello. This is customer service. How can I help you today?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 154.3,
+   "total_ms": 1335.22,
+   "audio_s": 4.0,
+   "voiced_s": 3.52,
+   "units": 11,
+   "asr_text": "Sure. Let me check the status of your order right away.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 140.37,
+   "total_ms": 1316.39,
+   "audio_s": 3.92,
+   "voiced_s": 3.43,
+   "units": 11,
+   "asr_text": "I'm sorry to keep you waiting. Thank you for your patience.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 163.75,
+   "total_ms": 1680.22,
+   "audio_s": 5.36,
+   "voiced_s": 4.91,
+   "units": 14,
+   "asr_text": "Your package has arrived at a local depot and will be delivered this afternoon.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0714
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 156.1,
+   "total_ms": 1034.59,
+   "audio_s": 3.44,
+   "voiced_s": 2.96,
+   "units": 10,
+   "asr_text": "Would you like to return the item or exchange it?",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 166.02,
+   "total_ms": 1767.45,
+   "audio_s": 5.2,
+   "voiced_s": 4.69,
+   "units": 14,
+   "asr_text": "I have recorded your issue, and we will handle it as soon as possible.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 156.41,
+   "total_ms": 1630.72,
+   "audio_s": 4.96,
+   "voiced_s": 4.51,
+   "units": 12,
+   "asr_text": "Please keep your phone on. A specialist will call you back shortly.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 180.19,
+   "total_ms": 1200.81,
+   "audio_s": 3.84,
+   "voiced_s": 3.32,
+   "units": 10,
+   "asr_text": "The refund will go back to your original payment method.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 10,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 151.82,
+   "total_ms": 1655.91,
+   "audio_s": 5.04,
+   "voiced_s": 4.52,
+   "units": 11,
+   "asr_text": "For your security, please never share your verification code with anyone.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "en",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 141.31,
+   "total_ms": 1515.45,
+   "audio_s": 4.72,
+   "voiced_s": 4.17,
+   "units": 13,
+   "asr_text": "You can use your reward points as a discount on your next purchase.",
+   "asr_language": [
+    "English"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 145.85,
+   "total_ms": 1616.22,
+   "audio_s": 4.96,
+   "voiced_s": 3.77,
+   "units": 14,
+   "asr_text": "请您打开App，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 133.7,
+   "total_ms": 1099.62,
+   "audio_s": 3.44,
+   "voiced_s": 2.56,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的 email 了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 155.97,
+   "total_ms": 1313.19,
+   "audio_s": 4.0,
+   "voiced_s": 2.95,
+   "units": 13,
+   "asr_text": "您的VIP会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 122.11,
+   "total_ms": 1119.21,
+   "audio_s": 3.52,
+   "voiced_s": 2.69,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 166.04,
+   "total_ms": 1164.68,
+   "audio_s": 3.68,
+   "voiced_s": 2.78,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 162.78,
+   "total_ms": 1264.96,
+   "audio_s": 3.6,
+   "voiced_s": 2.8,
+   "units": 12,
+   "asr_text": "你那 refund 的申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 3,
+    "sub": 2,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.25
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 110.03,
+   "total_ms": 1198.85,
+   "audio_s": 3.6,
+   "voiced_s": 2.68,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 135.68,
+   "total_ms": 1215.57,
+   "audio_s": 3.92,
+   "voiced_s": 3.23,
+   "units": 11,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 169.02,
+   "total_ms": 961.5,
+   "audio_s": 3.04,
+   "voiced_s": 2.34,
+   "units": 11,
+   "asr_text": "您的 account 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 160.91,
+   "total_ms": 1296.09,
+   "audio_s": 3.68,
+   "voiced_s": 2.85,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 114.33,
+   "total_ms": 1339.2,
+   "audio_s": 3.76,
+   "voiced_s": 3.3,
+   "units": 14,
+   "asr_text": "请您打开App，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 124.91,
+   "total_ms": 1017.92,
+   "audio_s": 3.2,
+   "voiced_s": 2.74,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的email了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 162.98,
+   "total_ms": 925.1,
+   "audio_s": 2.8,
+   "voiced_s": 2.25,
+   "units": 13,
+   "asr_text": "您的VIP会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 145.64,
+   "total_ms": 999.82,
+   "audio_s": 3.04,
+   "voiced_s": 2.52,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 185.29,
+   "total_ms": 906.81,
+   "audio_s": 2.72,
+   "voiced_s": 2.18,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个Update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 140.03,
+   "total_ms": 978.01,
+   "audio_s": 3.04,
+   "voiced_s": 2.54,
+   "units": 12,
+   "asr_text": "您的 refund 申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 172.62,
+   "total_ms": 1134.98,
+   "audio_s": 3.52,
+   "voiced_s": 3.06,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 173.99,
+   "total_ms": 1226.09,
+   "audio_s": 3.6,
+   "voiced_s": 3.04,
+   "units": 11,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 130.25,
+   "total_ms": 928.11,
+   "audio_s": 2.88,
+   "voiced_s": 2.35,
+   "units": 11,
+   "asr_text": "您的 account 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 158.96,
+   "total_ms": 1103.71,
+   "audio_s": 3.44,
+   "voiced_s": 2.94,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 0,
+   "rep": 0,
+   "ttfc_ms": 166.6,
+   "total_ms": 1327.17,
+   "audio_s": 4.0,
+   "voiced_s": 3.47,
+   "units": 14,
+   "asr_text": "请您打开App，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 1,
+   "rep": 0,
+   "ttfc_ms": 132.75,
+   "total_ms": 1674.89,
+   "audio_s": 5.04,
+   "voiced_s": 2.7,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的 email 了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 2,
+   "rep": 0,
+   "ttfc_ms": 131.97,
+   "total_ms": 1831.14,
+   "audio_s": 5.52,
+   "voiced_s": 3.41,
+   "units": 13,
+   "asr_text": "您的 VIP 会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 3,
+   "rep": 0,
+   "ttfc_ms": 143.51,
+   "total_ms": 1147.52,
+   "audio_s": 3.52,
+   "voiced_s": 2.82,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 4,
+   "rep": 0,
+   "ttfc_ms": 160.43,
+   "total_ms": 1365.12,
+   "audio_s": 4.16,
+   "voiced_s": 3.23,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个Update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 5,
+   "rep": 0,
+   "ttfc_ms": 133.77,
+   "total_ms": 1204.59,
+   "audio_s": 3.84,
+   "voiced_s": 3.06,
+   "units": 12,
+   "asr_text": "您的 refund 的申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0833
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 6,
+   "rep": 0,
+   "ttfc_ms": 135.8,
+   "total_ms": 1563.9,
+   "audio_s": 4.56,
+   "voiced_s": 3.5,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 7,
+   "rep": 0,
+   "ttfc_ms": 101.12,
+   "total_ms": 1500.44,
+   "audio_s": 4.32,
+   "voiced_s": 3.56,
+   "units": 11,
+   "asr_text": "请您先 logout，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 8,
+   "rep": 0,
+   "ttfc_ms": 108.73,
+   "total_ms": 1443.71,
+   "audio_s": 4.56,
+   "voiced_s": 3.17,
+   "units": 11,
+   "asr_text": "您的 Cont 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0909
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 9,
+   "rep": 0,
+   "ttfc_ms": 133.12,
+   "total_ms": 1141.64,
+   "audio_s": 3.6,
+   "voiced_s": 3.11,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 139.59,
+   "total_ms": 1347.21,
+   "audio_s": 4.08,
+   "voiced_s": 3.05,
+   "units": 14,
+   "asr_text": "请您打开APP，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 127.29,
+   "total_ms": 1722.7,
+   "audio_s": 3.92,
+   "voiced_s": 2.62,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的 email 了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 193.58,
+   "total_ms": 1795.27,
+   "audio_s": 3.44,
+   "voiced_s": 2.69,
+   "units": 13,
+   "asr_text": "您的VIP会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 196.8,
+   "total_ms": 1990.69,
+   "audio_s": 3.84,
+   "voiced_s": 2.89,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 197.01,
+   "total_ms": 1884.12,
+   "audio_s": 3.6,
+   "voiced_s": 2.66,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 206.33,
+   "total_ms": 1927.03,
+   "audio_s": 3.68,
+   "voiced_s": 2.75,
+   "units": 12,
+   "asr_text": "您的 refund 的申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0833
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 213.84,
+   "total_ms": 2009.16,
+   "audio_s": 3.84,
+   "voiced_s": 2.94,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 203.13,
+   "total_ms": 2156.65,
+   "audio_s": 4.16,
+   "voiced_s": 3.32,
+   "units": 11,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 191.06,
+   "total_ms": 1783.64,
+   "audio_s": 3.44,
+   "voiced_s": 2.24,
+   "units": 11,
+   "asr_text": "您的 account 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 203.32,
+   "total_ms": 1836.44,
+   "audio_s": 3.52,
+   "voiced_s": 2.89,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 198.9,
+   "total_ms": 1827.67,
+   "audio_s": 3.52,
+   "voiced_s": 3.08,
+   "units": 14,
+   "asr_text": "请您打开App，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 202.4,
+   "total_ms": 1672.56,
+   "audio_s": 3.2,
+   "voiced_s": 2.77,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的email了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 198.39,
+   "total_ms": 1644.96,
+   "audio_s": 3.12,
+   "voiced_s": 2.61,
+   "units": 13,
+   "asr_text": "您的VIP会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 197.08,
+   "total_ms": 1506.56,
+   "audio_s": 2.88,
+   "voiced_s": 2.4,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 197.45,
+   "total_ms": 1634.4,
+   "audio_s": 3.12,
+   "voiced_s": 2.58,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个Update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 215.22,
+   "total_ms": 1681.43,
+   "audio_s": 3.2,
+   "voiced_s": 2.66,
+   "units": 12,
+   "asr_text": "您的refund申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 197.08,
+   "total_ms": 1506.78,
+   "audio_s": 2.88,
+   "voiced_s": 2.45,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 199.47,
+   "total_ms": 1564.66,
+   "audio_s": 2.96,
+   "voiced_s": 2.46,
+   "units": 11,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 197.04,
+   "total_ms": 1720.02,
+   "audio_s": 3.28,
+   "voiced_s": 2.8,
+   "units": 11,
+   "asr_text": "您的 account 目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "serena",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 206.9,
+   "total_ms": 1608.51,
+   "audio_s": 3.04,
+   "voiced_s": 2.52,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 0,
+   "rep": 1,
+   "ttfc_ms": 196.28,
+   "total_ms": 2692.96,
+   "audio_s": 5.2,
+   "voiced_s": 4.21,
+   "units": 14,
+   "asr_text": "请您打开APP，在首页点击客服入口。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 1,
+   "rep": 1,
+   "ttfc_ms": 192.0,
+   "total_ms": 2627.33,
+   "audio_s": 5.12,
+   "voiced_s": 3.52,
+   "units": 15,
+   "asr_text": "我们已经把确认邮件发到您的 email 了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 15,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 2,
+   "rep": 1,
+   "ttfc_ms": 196.07,
+   "total_ms": 2520.82,
+   "audio_s": 4.88,
+   "voiced_s": 4.14,
+   "units": 13,
+   "asr_text": "您的 V I P 会员下个月就要到期了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 3,
+    "sub": 1,
+    "del": 0,
+    "ins": 2,
+    "rate": 0.2308
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 3,
+   "rep": 1,
+   "ttfc_ms": 189.18,
+   "total_ms": 2137.48,
+   "audio_s": 4.16,
+   "voiced_s": 3.43,
+   "units": 14,
+   "asr_text": "您可以把截图发给我们的 online 客服。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 14,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 4,
+   "rep": 1,
+   "ttfc_ms": 187.76,
+   "total_ms": 2227.62,
+   "audio_s": 4.32,
+   "voiced_s": 3.37,
+   "units": 12,
+   "asr_text": "请先连接WiFi，再下载这个update。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.1667
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 5,
+   "rep": 1,
+   "ttfc_ms": 201.46,
+   "total_ms": 1767.16,
+   "audio_s": 3.36,
+   "voiced_s": 2.87,
+   "units": 12,
+   "asr_text": "您的 refund 的申请已经审核通过了。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 12,
+    "edits": 1,
+    "sub": 0,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.0833
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 6,
+   "rep": 1,
+   "ttfc_ms": 199.36,
+   "total_ms": 2563.35,
+   "audio_s": 4.96,
+   "voiced_s": 3.59,
+   "units": 11,
+   "asr_text": "这个 promotion 活动只针对新用户。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 7,
+   "rep": 1,
+   "ttfc_ms": 198.15,
+   "total_ms": 1992.91,
+   "audio_s": 3.84,
+   "voiced_s": 2.86,
+   "units": 11,
+   "asr_text": "请您先 log out，然后重新 login 一下。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 8,
+   "rep": 1,
+   "ttfc_ms": 195.34,
+   "total_ms": 1878.66,
+   "audio_s": 3.6,
+   "voiced_s": 2.63,
+   "units": 11,
+   "asr_text": "您的康的目前处于正常状态。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 11,
+    "edits": 2,
+    "sub": 1,
+    "del": 0,
+    "ins": 1,
+    "rate": 0.1818
+   }
+  },
+  {
+   "lang": "mix",
+   "speaker": "uncle_fu",
+   "sentence": 9,
+   "rep": 1,
+   "ttfc_ms": 194.15,
+   "total_ms": 2249.08,
+   "audio_s": 4.32,
+   "voiced_s": 2.88,
+   "units": 13,
+   "asr_text": "我们会把 invoice 发到您登记的邮箱。",
+   "asr_language": [
+    "Chinese"
+   ],
+   "err": {
+    "ref": 13,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   }
+  }
+ ],
+ "summary": {
+  "zh|vivian": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 338,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 145.5,
+    "p95": 186.65,
+    "max": 224.28,
+    "min": 110.03,
+    "mean": 148.05
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 4.72,
+    "p95": 5.77,
+    "max": 6.57,
+    "min": 4.11,
+    "mean": 4.84
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "zh|serena": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 338,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 146.38,
+    "p95": 194.25,
+    "max": 195.19,
+    "min": 126.61,
+    "mean": 153.31
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 5.21,
+    "p95": 6.09,
+    "max": 6.12,
+    "min": 4.04,
+    "mean": 5.24
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "zh|uncle_fu": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 338,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 155.6,
+    "p95": 182.54,
+    "max": 204.84,
+    "min": 116.4,
+    "mean": 153.29
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 4.28,
+    "p95": 5.31,
+    "max": 5.32,
+    "min": 2.56,
+    "mean": 4.19
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "zh|ryan": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 338,
+    "edits": 4,
+    "sub": 0,
+    "del": 0,
+    "ins": 4,
+    "rate": 0.0118
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 142.36,
+    "p95": 161.69,
+    "max": 172.23,
+    "min": 100.32,
+    "mean": 141.66
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 3.83,
+    "p95": 5.29,
+    "max": 5.59,
+    "min": 1.63,
+    "mean": 3.74
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "zh|aiden": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 338,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 149.08,
+    "p95": 183.87,
+    "max": 212.92,
+    "min": 100.65,
+    "mean": 148.96
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 4.8,
+    "p95": 5.69,
+    "max": 5.98,
+    "min": 2.95,
+    "mean": 4.64
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "en|ryan": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 234,
+    "edits": 1,
+    "sub": 1,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0043
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 148.04,
+    "p95": 176.24,
+    "max": 177.32,
+    "min": 117.05,
+    "mean": 151.57
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 2.72,
+    "p95": 3.74,
+    "max": 3.92,
+    "min": 0.97,
+    "mean": 2.74
+   },
+   "asr_language_counts": {
+    "['English']": 0
+   }
+  },
+  "en|aiden": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 234,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 161.73,
+    "p95": 214.59,
+    "max": 232.09,
+    "min": 121.6,
+    "mean": 165.16
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 3.31,
+    "p95": 4.0,
+    "max": 4.01,
+    "min": 2.24,
+    "mean": 3.32
+   },
+   "asr_language_counts": {
+    "['English']": 0
+   }
+  },
+  "en|vivian": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 234,
+    "edits": 0,
+    "sub": 0,
+    "del": 0,
+    "ins": 0,
+    "rate": 0.0
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 148.94,
+    "p95": 166.88,
+    "max": 170.84,
+    "min": 133.79,
+    "mean": 150.39
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 3.21,
+    "p95": 3.76,
+    "max": 3.98,
+    "min": 2.21,
+    "mean": 3.1
+   },
+   "asr_language_counts": {
+    "['English']": 0
+   }
+  },
+  "en|serena": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 234,
+    "edits": 2,
+    "sub": 1,
+    "del": 1,
+    "ins": 0,
+    "rate": 0.0085
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 155.2,
+    "p95": 182.06,
+    "max": 217.49,
+    "min": 111.0,
+    "mean": 154.05
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 2.88,
+    "p95": 3.3,
+    "max": 3.38,
+    "min": 2.33,
+    "mean": 2.9
+   },
+   "asr_language_counts": {
+    "['English']": 0
+   }
+  },
+  "mix|vivian": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 252,
+    "edits": 12,
+    "sub": 6,
+    "del": 2,
+    "ins": 4,
+    "rate": 0.0476
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 164.41,
+    "p95": 206.71,
+    "max": 213.84,
+    "min": 110.03,
+    "mean": 166.7
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 4.5,
+    "p95": 5.73,
+    "max": 5.86,
+    "min": 3.31,
+    "mean": 4.49
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "mix|serena": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 252,
+    "edits": 8,
+    "sub": 4,
+    "del": 2,
+    "ins": 2,
+    "rate": 0.0317
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 191.16,
+    "p95": 207.32,
+    "max": 215.22,
+    "min": 114.33,
+    "mean": 175.95
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 4.67,
+    "p95": 5.78,
+    "max": 5.83,
+    "min": 3.59,
+    "mean": 4.78
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  },
+  "mix|uncle_fu": {
+   "error": {
+    "n_utts": 20,
+    "ref_tokens": 252,
+    "edits": 14,
+    "sub": 6,
+    "del": 2,
+    "ins": 6,
+    "rate": 0.0556
+   },
+   "ttfc_ms": {
+    "n": 20,
+    "p50": 177.18,
+    "p95": 199.47,
+    "max": 201.46,
+    "min": 101.12,
+    "mean": 164.88
+   },
+   "units_per_voiced_s": {
+    "n": 20,
+    "p50": 3.88,
+    "p95": 4.99,
+    "max": 5.56,
+    "min": 3.06,
+    "mean": 3.9
+   },
+   "asr_language_counts": {
+    "['Chinese']": 0
+   }
+  }
+ },
+ "loadavg1_end": 2.99,
+ "finished_at": "2026-10-23T06:20:01+08:00",
+ "servers_end": [
+  {
+   "name": "tts_speakers",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_speakers_061226/server.log",
+   "seconds_to_ready": 12.05,
+   "footprint_bytes_end": 2458749472,
+   "log_interesting": [
+    "11977.7 ms: INFO:     Started server process [14528]",
+    "11977.8 ms: INFO:     Waiting for application startup.",
+    "11978.1 ms: INFO:     Application startup complete.",
+    "11978.3 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+    "13695.4 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "13881.9 ms:   Initialized encoder codebooks",
+    "13882.0 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  },
+  {
+   "name": "asr_speakers",
+   "port": 8102,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_speakers_061202/server.log",
+   "seconds_to_ready": 24.13,
+   "footprint_bytes_end": 2861157520,
+   "log_interesting": [
+    "23872.8 ms: INFO:     Started server process [14333]",
+    "23872.8 ms: INFO:     Waiting for application startup.",
+    "23873.1 ms: INFO:     Application startup complete.",
+    "23873.3 ms: INFO:     Uvicorn running on http://127.0.0.1:8102 (Press CTRL+C to quit)"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

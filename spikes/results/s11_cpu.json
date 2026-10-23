@@ -1,0 +1,932 @@
+{
+ "spike": "S11 part 2",
+ "part": "cpu",
+ "environment": {
+  "date": "2026-10-23T02:30:53+0800",
+  "python": "3.12.12",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "cpu": "Apple M3 Max",
+  "cores_perf": "12",
+  "cores_eff": "4",
+  "versions": {
+   "numpy": "2.5.4",
+   "livekit": "1.1.21",
+   "pywebrtc-audio": "0.2.0",
+   "onnxruntime": "1.31.0",
+   "soxr": "1.1.0",
+   "protobuf": "7.36.2"
+  },
+  "speexdsp_lib": "/opt/homebrew/opt/speexdsp/lib/libspeexdsp.1.dylib",
+  "speexdsp_version": "1.2.1 (Homebrew Cellar)",
+  "threads_env": {
+   "VECLIB_MAXIMUM_THREADS": "2",
+   "OMP_NUM_THREADS": "2",
+   "OPENBLAS_NUM_THREADS": "2"
+  },
+  "loadavg_1_5_15": [
+   3.57,
+   4.39,
+   4.66
+  ],
+  "aicc_source": "ai-native-callcenter @8fabadc (read-only): voice/rtp.go Run, media/resample.go, aicall/framer.go",
+  "g168_source": "spikes/data/echo/g168_paths.json"
+ },
+ "call": "core_m4_e10_d120",
+ "protocol": ", in its own child process:\n  - single session: 200 warm-up frames (discarded), then 6000 timed frames; per frame\n    time.thread_time_ns (CPU) and perf_counter_ns (wall); CPU per audio second = sum(thread time) /\n    60 s, cross-checked with time.process_time_ns over the loop;\n  - concurrency: N sessions (own engine instance each) on ThreadPoolExecutor(N), N = 1 and 8, each\n    processing the same 6000 frames; throughput = N x 60 s / wall; scaling = throughput(8) / throughput(1).\nAlso measured: the 3.8 kHz pre-filter alone (two streaming FIRs) and the GCC-PHAT tracker over the call.\nNumerical threads are capped at 2 (s11_common). The 1/5/15-minute load averages are recorded before and\nafter each measurement; other agents may be running.",
+ "engines": {
+  "lk": {
+   "engine": "lk",
+   "description": "AEC3 via livekit 1.1.21",
+   "load_before": [
+    3.57,
+    4.39,
+    4.66
+   ],
+   "single": {
+    "wall_s": 0.543277125,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 8.988,
+    "cpu_ms_per_audio_s_process": 9.029,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 87.75,
+     "p95": 139.67,
+     "p99": 148.21,
+     "max": 361.25,
+     "min": 55.46,
+     "mean": 89.88
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 87.29,
+     "p95": 138.79,
+     "p99": 147.83,
+     "max": 1377.92,
+     "min": 55.0,
+     "mean": 89.56
+    }
+   },
+   "load_after_single": [
+    3.57,
+    4.39,
+    4.66
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.566,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 106.0,
+     "per_session_wall_s": [
+      0.552
+     ],
+     "load_after": [
+      3.57,
+      4.39,
+      4.66
+     ]
+    },
+    "8": {
+     "wall_s": 2.516,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 190.8,
+     "per_session_wall_s": [
+      2.395,
+      2.389,
+      2.433,
+      2.438,
+      2.423,
+      2.433,
+      2.426,
+      2.429
+     ],
+     "load_after": [
+      3.69,
+      4.4,
+      4.66
+     ]
+    },
+    "scaling_8_vs_1": 1.8
+   }
+  },
+  "lknd": {
+   "engine": "lknd",
+   "description": "",
+   "load_before": [
+    3.69,
+    4.4,
+    4.66
+   ],
+   "single": {
+    "wall_s": 0.518100625,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 8.595,
+    "cpu_ms_per_audio_s_process": 8.634,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 80.04,
+     "p95": 131.88,
+     "p99": 153.79,
+     "max": 295.67,
+     "min": 55.42,
+     "mean": 85.95
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 79.5,
+     "p95": 131.25,
+     "p99": 153.08,
+     "max": 301.54,
+     "min": 55.0,
+     "mean": 85.38
+    }
+   },
+   "load_after_single": [
+    3.69,
+    4.4,
+    4.66
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.448,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 134.0,
+     "per_session_wall_s": [
+      0.435
+     ],
+     "load_after": [
+      3.69,
+      4.4,
+      4.66
+     ]
+    },
+    "8": {
+     "wall_s": 1.779,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 269.8,
+     "per_session_wall_s": [
+      1.712,
+      1.718,
+      1.722,
+      1.723,
+      1.708,
+      1.714,
+      1.717,
+      1.702
+     ],
+     "load_after": [
+      3.69,
+      4.4,
+      4.66
+     ]
+    },
+    "scaling_8_vs_1": 2.01
+   }
+  },
+  "pw": {
+   "engine": "pw",
+   "description": "AEC3 via pywebrtc-audio 0.2.0",
+   "load_before": [
+    3.69,
+    4.4,
+    4.66
+   ],
+   "single": {
+    "wall_s": 0.470773167,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 7.789,
+    "cpu_ms_per_audio_s_process": 7.823,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 76.67,
+     "p95": 111.71,
+     "p99": 118.67,
+     "max": 238.75,
+     "min": 51.88,
+     "mean": 77.89
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 76.29,
+     "p95": 111.38,
+     "p99": 120.26,
+     "max": 326.5,
+     "min": 51.54,
+     "mean": 77.71
+    }
+   },
+   "load_after_single": [
+    3.69,
+    4.4,
+    4.66
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.466,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 128.8,
+     "per_session_wall_s": [
+      0.453
+     ],
+     "load_after": [
+      3.69,
+      4.4,
+      4.66
+     ]
+    },
+    "8": {
+     "wall_s": 0.566,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 848.1,
+     "per_session_wall_s": [
+      0.541,
+      0.544,
+      0.548,
+      0.546,
+      0.543,
+      0.544,
+      0.545,
+      0.543
+     ],
+     "load_after": [
+      4.11,
+      4.48,
+      4.68
+     ]
+    },
+    "scaling_8_vs_1": 6.58
+   }
+  },
+  "lk_pf": {
+   "engine": "lk_pf",
+   "description": "AEC3 via livekit 1.1.21 + 3.8 kHz pre-filter",
+   "load_before": [
+    4.11,
+    4.48,
+    4.68
+   ],
+   "single": {
+    "wall_s": 0.550213125,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 9.134,
+    "cpu_ms_per_audio_s_process": 9.169,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 91.29,
+     "p95": 115.54,
+     "p99": 119.42,
+     "max": 207.42,
+     "min": 73.46,
+     "mean": 91.34
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 90.79,
+     "p95": 115.04,
+     "p99": 118.96,
+     "max": 213.58,
+     "min": 73.0,
+     "mean": 90.87
+    }
+   },
+   "load_after_single": [
+    4.11,
+    4.48,
+    4.68
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.559,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 107.3,
+     "per_session_wall_s": [
+      0.542
+     ],
+     "load_after": [
+      4.11,
+      4.48,
+      4.68
+     ]
+    },
+    "8": {
+     "wall_s": 2.865,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 167.6,
+     "per_session_wall_s": [
+      2.745,
+      2.741,
+      2.737,
+      2.755,
+      2.699,
+      2.747,
+      2.77,
+      2.716
+     ],
+     "load_after": [
+      4.11,
+      4.48,
+      4.68
+     ]
+    },
+    "scaling_8_vs_1": 1.56
+   }
+  },
+  "sx1024_pf": {
+   "engine": "sx1024_pf",
+   "description": "SpeexDSP MDF 1024 taps (64 ms) + pre-filter",
+   "load_before": [
+    4.11,
+    4.48,
+    4.68
+   ],
+   "single": {
+    "wall_s": 0.267107166,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 4.42,
+    "cpu_ms_per_audio_s_process": 4.452,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 43.5,
+     "p95": 44.92,
+     "p99": 59.17,
+     "max": 375.08,
+     "min": 42.75,
+     "mean": 44.2
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 43.08,
+     "p95": 44.54,
+     "p99": 58.75,
+     "max": 374.5,
+     "min": 42.38,
+     "mean": 43.81
+    }
+   },
+   "load_after_single": [
+    4.11,
+    4.48,
+    4.68
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.273,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 220.2,
+     "per_session_wall_s": [
+      0.264
+     ],
+     "load_after": [
+      3.86,
+      4.42,
+      4.66
+     ]
+    },
+    "8": {
+     "wall_s": 1.931,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 248.6,
+     "per_session_wall_s": [
+      1.863,
+      1.827,
+      1.861,
+      1.863,
+      1.844,
+      1.851,
+      1.856,
+      1.869
+     ],
+     "load_after": [
+      3.86,
+      4.42,
+      4.66
+     ]
+    },
+    "scaling_8_vs_1": 1.13
+   }
+  },
+  "sx2048_pf": {
+   "engine": "sx2048_pf",
+   "description": "SpeexDSP MDF 2048 taps (128 ms) + pre-filter",
+   "load_before": [
+    3.86,
+    4.42,
+    4.66
+   ],
+   "single": {
+    "wall_s": 0.312794334,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 5.181,
+    "cpu_ms_per_audio_s_process": 5.213,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 50.92,
+     "p95": 53.79,
+     "p99": 66.75,
+     "max": 386.38,
+     "min": 45.75,
+     "mean": 51.81
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 50.5,
+     "p95": 53.42,
+     "p99": 66.38,
+     "max": 385.79,
+     "min": 45.29,
+     "mean": 51.39
+    }
+   },
+   "load_after_single": [
+    3.86,
+    4.42,
+    4.66
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.32,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 187.7,
+     "per_session_wall_s": [
+      0.31
+     ],
+     "load_after": [
+      3.86,
+      4.42,
+      4.66
+     ]
+    },
+    "8": {
+     "wall_s": 1.923,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 249.7,
+     "per_session_wall_s": [
+      1.847,
+      1.831,
+      1.856,
+      1.849,
+      1.842,
+      1.826,
+      1.86,
+      1.841
+     ],
+     "load_after": [
+      3.86,
+      4.42,
+      4.66
+     ]
+    },
+    "scaling_8_vs_1": 1.33
+   }
+  },
+  "sx1024pp_pf": {
+   "engine": "sx1024pp_pf",
+   "description": "SpeexDSP MDF 1024 + preprocessor (residual echo suppression) + pre-filter",
+   "load_before": [
+    3.86,
+    4.42,
+    4.66
+   ],
+   "single": {
+    "wall_s": 0.337864791,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 5.598,
+    "cpu_ms_per_audio_s_process": 5.631,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 55.12,
+     "p95": 57.04,
+     "p99": 103.46,
+     "max": 394.12,
+     "min": 54.04,
+     "mean": 55.98
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 54.71,
+     "p95": 56.59,
+     "p99": 102.96,
+     "max": 393.62,
+     "min": 53.58,
+     "mean": 55.57
+    }
+   },
+   "load_after_single": [
+    3.63,
+    4.36,
+    4.64
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.347,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 172.9,
+     "per_session_wall_s": [
+      0.336
+     ],
+     "load_after": [
+      3.63,
+      4.36,
+      4.64
+     ]
+    },
+    "8": {
+     "wall_s": 2.479,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 193.6,
+     "per_session_wall_s": [
+      2.375,
+      2.36,
+      2.364,
+      2.38,
+      2.384,
+      2.389,
+      2.387,
+      2.382
+     ],
+     "load_after": [
+      3.63,
+      4.36,
+      4.64
+     ]
+    },
+    "scaling_8_vs_1": 1.12
+   }
+  },
+  "sx1024ppd_pf": {
+   "engine": "sx1024ppd_pf",
+   "description": "SpeexDSP MDF 1024 + preprocessor with denoise on (residual echo suppression active) + pre-filter",
+   "load_before": [
+    3.63,
+    4.36,
+    4.64
+   ],
+   "single": {
+    "wall_s": 0.337684084,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 5.595,
+    "cpu_ms_per_audio_s_process": 5.628,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 55.0,
+     "p95": 58.13,
+     "p99": 102.71,
+     "max": 353.75,
+     "min": 53.96,
+     "mean": 55.95
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 54.62,
+     "p95": 57.75,
+     "p99": 102.29,
+     "max": 353.25,
+     "min": 53.5,
+     "mean": 55.56
+    }
+   },
+   "load_after_single": [
+    3.63,
+    4.36,
+    4.64
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.355,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 169.2,
+     "per_session_wall_s": [
+      0.343
+     ],
+     "load_after": [
+      3.63,
+      4.36,
+      4.64
+     ]
+    },
+    "8": {
+     "wall_s": 2.458,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 195.3,
+     "per_session_wall_s": [
+      2.365,
+      2.374,
+      2.37,
+      2.379,
+      2.366,
+      2.36,
+      2.374,
+      2.375
+     ],
+     "load_after": [
+      3.66,
+      4.35,
+      4.64
+     ]
+    },
+    "scaling_8_vs_1": 1.15
+   }
+  },
+  "sx2048ppd_pf": {
+   "engine": "sx2048ppd_pf",
+   "description": "SpeexDSP MDF 2048 + preprocessor with denoise on (residual echo suppression active) + pre-filter",
+   "load_before": [
+    3.66,
+    4.35,
+    4.64
+   ],
+   "single": {
+    "wall_s": 0.381705167,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 6.313,
+    "cpu_ms_per_audio_s_process": 6.347,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 61.96,
+     "p95": 65.12,
+     "p99": 110.88,
+     "max": 403.42,
+     "min": 56.92,
+     "mean": 63.13
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 61.54,
+     "p95": 64.71,
+     "p99": 110.54,
+     "max": 1189.38,
+     "min": 56.54,
+     "mean": 62.87
+    }
+   },
+   "load_after_single": [
+    3.66,
+    4.35,
+    4.64
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.389,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 154.4,
+     "per_session_wall_s": [
+      0.377
+     ],
+     "load_after": [
+      3.66,
+      4.35,
+      4.64
+     ]
+    },
+    "8": {
+     "wall_s": 2.44,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 196.7,
+     "per_session_wall_s": [
+      2.337,
+      2.322,
+      2.352,
+      2.349,
+      2.357,
+      2.354,
+      2.355,
+      2.348
+     ],
+     "load_after": [
+      3.66,
+      4.35,
+      4.64
+     ]
+    },
+    "scaling_8_vs_1": 1.27
+   }
+  },
+  "bl03_pf": {
+   "engine": "bl03_pf",
+   "description": "numpy PBFDAF + Geigel, mu 0.3, 130 ms + pre-filter",
+   "load_before": [
+    3.66,
+    4.35,
+    4.64
+   ],
+   "single": {
+    "wall_s": 0.546999,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 9.076,
+    "cpu_ms_per_audio_s_process": 9.113,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 110.96,
+     "p95": 112.88,
+     "p99": 117.71,
+     "max": 194.71,
+     "min": 55.12,
+     "mean": 90.76
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 110.46,
+     "p95": 112.29,
+     "p99": 117.33,
+     "max": 197.88,
+     "min": 54.62,
+     "mean": 90.29
+    }
+   },
+   "load_after_single": [
+    3.77,
+    4.36,
+    4.64
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.559,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 107.3,
+     "per_session_wall_s": [
+      0.541
+     ],
+     "load_after": [
+      3.77,
+      4.36,
+      4.64
+     ]
+    },
+    "8": {
+     "wall_s": 7.543,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 63.6,
+     "per_session_wall_s": [
+      7.291,
+      7.196,
+      7.293,
+      7.258,
+      7.233,
+      7.292,
+      7.244,
+      7.302
+     ],
+     "load_after": [
+      3.87,
+      4.37,
+      4.64
+     ]
+    },
+    "scaling_8_vs_1": 0.59
+   }
+  },
+  "bl05_pf": {
+   "engine": "bl05_pf",
+   "description": "numpy PBFDAF + Geigel, mu 0.5, 130 ms + pre-filter",
+   "load_before": [
+    3.87,
+    4.37,
+    4.64
+   ],
+   "single": {
+    "wall_s": 0.5546745,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 9.206,
+    "cpu_ms_per_audio_s_process": 9.243,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 111.12,
+     "p95": 121.5,
+     "p99": 134.63,
+     "max": 350.33,
+     "min": 55.21,
+     "mean": 92.06
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 110.62,
+     "p95": 121.0,
+     "p99": 134.04,
+     "max": 354.79,
+     "min": 54.71,
+     "mean": 91.56
+    }
+   },
+   "load_after_single": [
+    3.87,
+    4.37,
+    4.64
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.711,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 84.3,
+     "per_session_wall_s": [
+      0.686
+     ],
+     "load_after": [
+      3.87,
+      4.37,
+      4.64
+     ]
+    },
+    "8": {
+     "wall_s": 6.594,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 72.8,
+     "per_session_wall_s": [
+      6.389,
+      6.375,
+      6.373,
+      6.403,
+      6.384,
+      6.395,
+      6.362,
+      6.401
+     ],
+     "load_after": [
+      3.81,
+      4.35,
+      4.63
+     ]
+    },
+    "scaling_8_vs_1": 0.86
+   }
+  },
+  "none_pf": {
+   "engine": "none_pf",
+   "description": "",
+   "load_before": [
+    3.81,
+    4.35,
+    4.63
+   ],
+   "single": {
+    "wall_s": 0.105347667,
+    "frames": 6000,
+    "cpu_ms_per_audio_s_thread": 1.722,
+    "cpu_ms_per_audio_s_process": 1.755,
+    "frame_cpu_us": {
+     "n": 6000,
+     "p50": 17.0,
+     "p95": 17.62,
+     "p99": 19.29,
+     "max": 182.21,
+     "min": 16.38,
+     "mean": 17.22
+    },
+    "frame_wall_us": {
+     "n": 6000,
+     "p50": 16.67,
+     "p95": 17.29,
+     "p99": 18.83,
+     "max": 206.08,
+     "min": 16.0,
+     "mean": 16.89
+    }
+   },
+   "load_after_single": [
+    3.81,
+    4.35,
+    4.63
+   ],
+   "concurrency": {
+    "1": {
+     "wall_s": 0.102,
+     "audio_s": 60.0,
+     "throughput_x_realtime": 589.0,
+     "per_session_wall_s": [
+      0.098
+     ],
+     "load_after": [
+      3.81,
+      4.35,
+      4.63
+     ]
+    },
+    "8": {
+     "wall_s": 1.015,
+     "audio_s": 480.0,
+     "throughput_x_realtime": 472.9,
+     "per_session_wall_s": [
+      0.677,
+      0.841,
+      0.946,
+      0.969,
+      0.971,
+      0.97,
+      0.929,
+      0.915
+     ],
+     "load_after": [
+      3.81,
+      4.35,
+      4.63
+     ]
+    },
+    "scaling_8_vs_1": 0.8
+   },
+   "gcc_phat": {
+    "cpu_ms_per_audio_s_thread": 1.395,
+    "cpu_ms_per_audio_s_process": 1.395,
+    "windows": 117,
+    "note": "one 32768-point rfft pair + irfft per 0.5 s hop"
+   }
+  }
+ }
+}

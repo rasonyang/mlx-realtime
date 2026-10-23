@@ -1,0 +1,377 @@
+{
+  "work_package": "M0 A2 - test audio, telephone copies, manifest, echo material",
+  "generated_utc": "2026-10-22T14:39:23Z",
+  "script": "spikes/datasets/a2_data.py",
+  "environment": {
+    "python": "3.12.12",
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "libsndfile": "1.2.2",
+    "pyarrow": "26.0.0",
+    "pdfplumber": "0.11.10",
+    "huggingface_hub": "2.2.0"
+  },
+  "manifest": {
+    "path": "spikes/data/manifest.jsonl",
+    "versioned_copy": "spikes/datasets/manifest.jsonl",
+    "rows": 126
+  },
+  "sets": {
+    "zh": {
+      "count": 42,
+      "duration": {
+        "n": 42,
+        "total_s": 316.34,
+        "min_s": 4.74,
+        "p25_s": 6.71,
+        "median_s": 7.53,
+        "mean_s": 7.53,
+        "p75_s": 8.79,
+        "max_s": 9.72
+      },
+      "has_number": 10,
+      "codec_8k": {
+        "ulaw": 28,
+        "alaw": 14
+      },
+      "speakers": {
+        "female": 25,
+        "male": 17
+      },
+      "source": "FLEURS",
+      "source_repo": "google/fleurs",
+      "config": "cmn_hans_cn",
+      "split": "test",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": [
+        "CC-BY-4.0"
+      ],
+      "url": "https://huggingface.co/datasets/google/fleurs",
+      "level": {
+        "target_active_dbov": -26.0,
+        "active_dbov_min": -29.13,
+        "active_dbov_median": -26.0,
+        "active_dbov_max": -25.61,
+        "gain_db_min": -4.42,
+        "gain_db_max": 19.13,
+        "peak_limited": 2,
+        "source_active_dbov_min": -45.13,
+        "source_active_dbov_median": -40.23,
+        "source_active_dbov_max": -21.58
+      },
+      "clipped_samples_total": 0
+    },
+    "en": {
+      "count": 42,
+      "duration": {
+        "n": 42,
+        "total_s": 287.8,
+        "min_s": 4.32,
+        "p25_s": 5.64,
+        "median_s": 6.81,
+        "mean_s": 6.85,
+        "p75_s": 8.35,
+        "max_s": 9.9
+      },
+      "has_number": 13,
+      "codec_8k": {
+        "ulaw": 28,
+        "alaw": 14
+      },
+      "speakers": {
+        "female": 30,
+        "male": 12
+      },
+      "source": "FLEURS",
+      "source_repo": "google/fleurs",
+      "config": "en_us",
+      "split": "test",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": [
+        "CC-BY-4.0"
+      ],
+      "url": "https://huggingface.co/datasets/google/fleurs",
+      "level": {
+        "target_active_dbov": -26.0,
+        "active_dbov_min": -26.49,
+        "active_dbov_median": -26.0,
+        "active_dbov_max": -25.88,
+        "gain_db_min": -6.52,
+        "gain_db_max": 42.23,
+        "peak_limited": 0,
+        "source_active_dbov_min": -68.23,
+        "source_active_dbov_median": -61.405,
+        "source_active_dbov_max": -19.48
+      },
+      "clipped_samples_total": 0
+    },
+    "mix": {
+      "count": 42,
+      "duration": {
+        "n": 42,
+        "total_s": 177.37,
+        "min_s": 1.65,
+        "p25_s": 2.4,
+        "median_s": 3.8,
+        "mean_s": 4.22,
+        "p75_s": 5.89,
+        "max_s": 8.62
+      },
+      "has_number": 2,
+      "codec_8k": {
+        "ulaw": 28,
+        "alaw": 14
+      },
+      "speakers": {
+        "spk17/ses2": 1,
+        "spk17/ses3": 8,
+        "spk17/ses4": 13,
+        "spk3/ses1": 11,
+        "spk3/ses3": 9
+      },
+      "source": "ASCEND",
+      "source_repo": "CAiRE/ASCEND",
+      "config": "main",
+      "split": "test",
+      "revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": [
+        "CC-BY-SA-4.0"
+      ],
+      "url": "https://huggingface.co/datasets/CAiRE/ASCEND",
+      "level": {
+        "target_active_dbov": -26.0,
+        "active_dbov_min": -26.23,
+        "active_dbov_median": -26.0,
+        "active_dbov_max": -25.9,
+        "gain_db_min": -16.44,
+        "gain_db_max": 6.83,
+        "peak_limited": 0,
+        "source_active_dbov_min": -32.83,
+        "source_active_dbov_median": -22.0,
+        "source_active_dbov_max": -9.56
+      },
+      "clipped_samples_total": 0
+    }
+  },
+  "total": {
+    "count": 126,
+    "duration": {
+      "n": 126,
+      "total_s": 781.51,
+      "min_s": 1.65,
+      "p25_s": 4.79,
+      "median_s": 6.46,
+      "mean_s": 6.2,
+      "p75_s": 7.92,
+      "max_s": 9.9
+    },
+    "codec_8k": {
+      "ulaw": 84,
+      "alaw": 42
+    }
+  },
+  "level_normalization": "Each utterance gets one gain, applied to the original samples before PCM16 conversion: active speech level (ITU-T P.56 method B, sv56-style) to -26.0 dBov, limited so the peak stays at or below -1.0 dBFS. Both the 16 kHz and the telephone copy carry it; originals stay in raw/.",
+  "telephone_copy": {
+    "chain": "16 kHz PCM16 (level-normalized) -> soxr.resample(16000->8000, quality='HQ') -> round/clip to int16 -> G.711 encode (u-law, or A-law for every 3rd utterance per set) -> decode -> soxr.resample(8000->16000, 'HQ') -> int16",
+    "g711_implementation": "Python 3.12 stdlib audioop (lin2ulaw/ulaw2lin, lin2alaw/alaw2lin, width 2); deprecated since 3.11 (PEP 594) and removed in 3.13",
+    "no_telephone_bandpass": "No 300-3400 Hz (G.712) filter: band-limiting comes only from the 8 kHz resampler",
+    "byte_streams": "asr/tel8k/<id>.ulaw|.alaw: headerless G.711, 8000 Hz, 1 byte per sample"
+  },
+  "downloads": {
+    "fleurs": {
+      "cmn_hans_cn": {
+        "archive_bytes": 525346466,
+        "compressed_bytes_read": 73596928,
+        "members_read": 137,
+        "tsv_bytes": 491487
+      },
+      "en_us": {
+        "archive_bytes": 289851356,
+        "compressed_bytes_read": 57212928,
+        "members_read": 135,
+        "tsv_bytes": 367864
+      }
+    },
+    "ascend": {
+      "parquet_bytes": 105756434,
+      "row_groups_read": [
+        4,
+        9,
+        11
+      ],
+      "audio_column_bytes_read": 23339389
+    }
+  },
+  "licenses": {
+    "FLEURS": "CC-BY-4.0 (https://huggingface.co/datasets/google/fleurs); attribution required",
+    "ASCEND": "CC-BY-SA-4.0 (https://huggingface.co/datasets/CAiRE/ASCEND); attribution + share-alike: derived audio (telephone copies) may only be redistributed under CC-BY-SA-4.0",
+    "ITU-T G.168": "free download, (c) ITU all rights reserved; coefficients kept in git-ignored spikes/data",
+    "AEC-Challenge": "code MIT; data: Provided 'under the original terms that Microsoft received such datasets' (repo README): clean speech from LibriVox (public domain) and the Edinburgh 56-speaker noisy speech DB (CC-BY-4.0, DataShare 10283/2791); noise from AudioSet (CC-BY-4.0), Freesound (CC0 only) and DEMAND (CC-BY-SA-3.0).",
+    "non_commercial_or_nd_used": false
+  },
+  "echo": {
+    "g168": {
+      "file": "spikes/data/echo/g168_paths.json",
+      "edition": "04/2015 (edition 8.0), in force",
+      "also_checked": "G.168 (2015) Cor. 1 (12/2022) (edition 8.1), in force; full reprint, 'reference error corrections'",
+      "annex": "Annex D - Echo-path models for testing of speech echo cancellers (integral part of the Recommendation)",
+      "sample_rate_hz": 8000,
+      "n_models": 8,
+      "models": [
+        {
+          "name": "m1",
+          "table": "Table D.2",
+          "printed_page": "88",
+          "origin": "network hybrid simulator",
+          "length_samples": 64,
+          "length_ms": 8.0,
+          "K_css": 1.39e-05,
+          "min_erl_css_db": 6.0,
+          "K_tone": 1.22e-05,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m2",
+          "table": "Table D.3",
+          "printed_page": "89",
+          "origin": "network hybrid simulator",
+          "length_samples": 96,
+          "length_ms": 12.0,
+          "K_css": 1.44e-05,
+          "min_erl_css_db": 6.55,
+          "K_tone": 6.78e-06,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m3",
+          "table": "Table D.4",
+          "printed_page": "90",
+          "origin": "network hybrid simulator",
+          "length_samples": 96,
+          "length_ms": 12.0,
+          "K_css": 1.52e-05,
+          "min_erl_css_db": 6.0,
+          "K_tone": 9.66e-06,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m4",
+          "table": "Table D.5",
+          "printed_page": "91",
+          "origin": "network hybrid simulator",
+          "length_samples": 128,
+          "length_ms": 16.0,
+          "K_css": 1.77e-05,
+          "min_erl_css_db": 6.0,
+          "K_tone": 1.07e-05,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m5",
+          "table": "Table D.6",
+          "printed_page": "93",
+          "origin": "measured, North American network",
+          "length_samples": 96,
+          "length_ms": 12.0,
+          "K_css": 9.33e-06,
+          "min_erl_css_db": 6.0,
+          "K_tone": 7.05e-06,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m6",
+          "table": "Table D.7",
+          "printed_page": "94",
+          "origin": "measured, North American network",
+          "length_samples": 120,
+          "length_ms": 15.0,
+          "K_css": 1.51e-05,
+          "min_erl_css_db": 6.0,
+          "K_tone": 8.6e-06,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m7",
+          "table": "Table D.8",
+          "printed_page": "95",
+          "origin": "measured, North American network",
+          "length_samples": 96,
+          "length_ms": 12.0,
+          "K_css": 2.33e-05,
+          "min_erl_css_db": 11.06,
+          "K_tone": 6.58e-06,
+          "K_tone_check_ok": true
+        },
+        {
+          "name": "m8",
+          "table": "Table D.9",
+          "printed_page": "96",
+          "origin": "measured, North American network",
+          "length_samples": 99,
+          "length_ms": 12.375,
+          "K_css": 1.33e-05,
+          "min_erl_css_db": 9.27,
+          "K_tone": 4.58e-06,
+          "K_tone_check_ok": true
+        }
+      ],
+      "extraction": {
+        "tool": "pdfplumber word coordinates (column clustering), validated by recomputing K_tone (Eq. D-2/D-3) for every model and comparing with Table D.1b; repeated on the Cor. 1 (12/2022) reprint. Also cross-checked once (2026-10-22, by hand) against poppler `pdftotext -layout`: all 8 identical.",
+        "all_K_tone_match": true,
+        "all_identical_in_cor1": true
+      }
+    },
+    "aec_challenge": {
+      "dir": "spikes/data/echo/aec_challenge/",
+      "n_examples": 20,
+      "files_per_example": [
+        "farend_speech",
+        "echo_signal",
+        "nearend_speech",
+        "nearend_mic_signal"
+      ],
+      "sample_rate_hz": 16000,
+      "duration_s_each": 10.0,
+      "linear": 10,
+      "nonlinear": 10,
+      "ser_db": [
+        -10,
+        -10,
+        -8,
+        -7,
+        -5,
+        -5,
+        -4,
+        -3,
+        -1,
+        -1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        8,
+        9
+      ],
+      "repo": "microsoft/AEC-Challenge",
+      "commit": "8f861f0f8ffca26a3d1d16f17f2594ea89abe7ac",
+      "code_license": "MIT",
+      "data_license": "Provided 'under the original terms that Microsoft received such datasets' (repo README): clean speech from LibriVox (public domain) and the Edinburgh 56-speaker noisy speech DB (CC-BY-4.0, DataShare 10283/2791); noise from AudioSet (CC-BY-4.0), Freesound (CC0 only) and DEMAND (CC-BY-SA-3.0).",
+      "bytes_downloaded": 28857624
+    }
+  },
+  "caveats": [
+    "FLEURS test has no clip under 3.6 s; the shortest zh/en picks are 4.74 s / 4.32 s. Short utterances come from ASCEND (min 1.65 s).",
+    "ASCEND's test split has only two speakers: {'spk17/ses2': 1, 'spk17/ses3': 8, 'spk17/ses4': 13, 'spk3/ses1': 11, 'spk3/ses3': 9}.",
+    "FLEURS en in-range utterances are mostly female; selected genders: {'female': 30, 'male': 12}.",
+    "text_norm does not verbalize numbers (FLEURS zh writes '1990 年'); score has_number rows separately or apply ITN.",
+    "ASCEND references keep fillers (呃, 嗯, um, uh) and letter-by-letter spellings.",
+    "Telephone copies have no 300-3400 Hz G.712 filter; only the 8 kHz resampler band-limits them.",
+    "Source levels differ by about 50 dB (P.56 active level median: zh -40.23, en -61.405, mix -22.0 dBov); all copies are normalized to -26.0 dBov (gain_db per row). Use raw/ for source levels.",
+    "AEC Challenge material is acoustic (loudspeaker-to-mic) echo of English LibriVox speech, not line echo."
+  ]
+}

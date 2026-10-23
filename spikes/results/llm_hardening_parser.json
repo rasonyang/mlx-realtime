@@ -1,0 +1,1490 @@
+{
+ "spike": "LLM hardening: the lenient tool-call parser on B1's transfer probe",
+ "conditions": {
+  "server": "uv run --locked --project backends/llm python -m mlxrt_llm.serve --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "server_flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "log": "/tmp/mlxrt/scratchpad/logs/llm_hardening_llm_1792748958.log"
+ },
+ "runs": {
+  "b1_sampling_0.7": {
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8
+   },
+   "n": 60,
+   "called_transfer": 60,
+   "dropped": 0,
+   "recovered": 4,
+   "parse_failures": 0,
+   "rows": [
+    {
+     "i": 0,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.220268584,
+     "content": ""
+    },
+    {
+     "i": 1,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.64226075,
+     "content": ""
+    },
+    {
+     "i": 2,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.85443975,
+     "content": ""
+    },
+    {
+     "i": 3,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.224671291,
+     "content": ""
+    },
+    {
+     "i": 4,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.365433958,
+     "content": ""
+    },
+    {
+     "i": 5,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.902096792,
+     "content": ""
+    },
+    {
+     "i": 6,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.538714166,
+     "content": ""
+    },
+    {
+     "i": 7,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.252912042,
+     "content": ""
+    },
+    {
+     "i": 8,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.492139583,
+     "content": ""
+    },
+    {
+     "i": 9,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.208066334,
+     "content": ""
+    },
+    {
+     "i": 10,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.313023,
+     "content": ""
+    },
+    {
+     "i": 11,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.812198,
+     "content": ""
+    },
+    {
+     "i": 12,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.437983708,
+     "content": ""
+    },
+    {
+     "i": 13,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.505487916,
+     "content": ""
+    },
+    {
+     "i": 14,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 1,
+     "parse_failures_in_log": 0,
+     "t_done": 1.612814083,
+     "content": ""
+    },
+    {
+     "i": 15,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.266530541,
+     "content": ""
+    },
+    {
+     "i": 16,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.23356125,
+     "content": ""
+    },
+    {
+     "i": 17,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.423645417,
+     "content": ""
+    },
+    {
+     "i": 18,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 1,
+     "parse_failures_in_log": 0,
+     "t_done": 1.472192,
+     "content": ""
+    },
+    {
+     "i": 19,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.416144542,
+     "content": ""
+    },
+    {
+     "i": 20,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.297522125,
+     "content": ""
+    },
+    {
+     "i": 21,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.609445458,
+     "content": ""
+    },
+    {
+     "i": 22,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.838128875,
+     "content": ""
+    },
+    {
+     "i": 23,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.580459333,
+     "content": ""
+    },
+    {
+     "i": 24,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.563895084,
+     "content": ""
+    },
+    {
+     "i": 25,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.428138917,
+     "content": ""
+    },
+    {
+     "i": 26,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.621797584,
+     "content": ""
+    },
+    {
+     "i": 27,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.428446167,
+     "content": ""
+    },
+    {
+     "i": 28,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.835624583,
+     "content": ""
+    },
+    {
+     "i": 29,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.608062584,
+     "content": ""
+    },
+    {
+     "i": 30,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.641558125,
+     "content": ""
+    },
+    {
+     "i": 31,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.572134416,
+     "content": ""
+    },
+    {
+     "i": 32,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.661663541,
+     "content": ""
+    },
+    {
+     "i": 33,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.63153325,
+     "content": ""
+    },
+    {
+     "i": 34,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.630625917,
+     "content": ""
+    },
+    {
+     "i": 35,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 1,
+     "parse_failures_in_log": 0,
+     "t_done": 1.634705208,
+     "content": ""
+    },
+    {
+     "i": 36,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.540992167,
+     "content": ""
+    },
+    {
+     "i": 37,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.358734084,
+     "content": ""
+    },
+    {
+     "i": 38,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.961587,
+     "content": ""
+    },
+    {
+     "i": 39,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.922150083,
+     "content": ""
+    },
+    {
+     "i": 40,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.591540625,
+     "content": ""
+    },
+    {
+     "i": 41,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 2.077656917,
+     "content": ""
+    },
+    {
+     "i": 42,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.545505709,
+     "content": ""
+    },
+    {
+     "i": 43,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.697911917,
+     "content": ""
+    },
+    {
+     "i": 44,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.563722375,
+     "content": ""
+    },
+    {
+     "i": 45,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.540888166,
+     "content": ""
+    },
+    {
+     "i": 46,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.760180833,
+     "content": ""
+    },
+    {
+     "i": 47,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.404372,
+     "content": ""
+    },
+    {
+     "i": 48,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.948340792,
+     "content": ""
+    },
+    {
+     "i": 49,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.726734708,
+     "content": ""
+    },
+    {
+     "i": 50,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.721171916,
+     "content": ""
+    },
+    {
+     "i": 51,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.672774,
+     "content": ""
+    },
+    {
+     "i": 52,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.815786708,
+     "content": ""
+    },
+    {
+     "i": 53,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.534234292,
+     "content": ""
+    },
+    {
+     "i": 54,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.816549417,
+     "content": ""
+    },
+    {
+     "i": 55,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.460182916,
+     "content": ""
+    },
+    {
+     "i": 56,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.873785125,
+     "content": ""
+    },
+    {
+     "i": 57,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 1,
+     "parse_failures_in_log": 0,
+     "t_done": 1.306642875,
+     "content": ""
+    },
+    {
+     "i": 58,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.64741225,
+     "content": ""
+    },
+    {
+     "i": 59,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.817107459,
+     "content": ""
+    }
+   ]
+  },
+  "g2_tool_sampling_0": {
+   "sampling": {
+    "temperature": 0.0,
+    "top_p": 1.0
+   },
+   "n": 60,
+   "called_transfer": 60,
+   "dropped": 0,
+   "recovered": 0,
+   "parse_failures": 0,
+   "rows": [
+    {
+     "i": 0,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.519345292,
+     "content": ""
+    },
+    {
+     "i": 1,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 2.010634,
+     "content": ""
+    },
+    {
+     "i": 2,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.575847833,
+     "content": ""
+    },
+    {
+     "i": 3,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.589020959,
+     "content": ""
+    },
+    {
+     "i": 4,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.645044042,
+     "content": ""
+    },
+    {
+     "i": 5,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.703903083,
+     "content": ""
+    },
+    {
+     "i": 6,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.51148425,
+     "content": ""
+    },
+    {
+     "i": 7,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 2.054951583,
+     "content": ""
+    },
+    {
+     "i": 8,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.693076583,
+     "content": ""
+    },
+    {
+     "i": 9,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.571649291,
+     "content": ""
+    },
+    {
+     "i": 10,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.675040459,
+     "content": ""
+    },
+    {
+     "i": 11,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.452150292,
+     "content": ""
+    },
+    {
+     "i": 12,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.35816375,
+     "content": ""
+    },
+    {
+     "i": 13,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.549390792,
+     "content": ""
+    },
+    {
+     "i": 14,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.609503292,
+     "content": ""
+    },
+    {
+     "i": 15,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.277215375,
+     "content": ""
+    },
+    {
+     "i": 16,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.701056791,
+     "content": ""
+    },
+    {
+     "i": 17,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.421867625,
+     "content": ""
+    },
+    {
+     "i": 18,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.625960708,
+     "content": ""
+    },
+    {
+     "i": 19,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.413515875,
+     "content": ""
+    },
+    {
+     "i": 20,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.686211333,
+     "content": ""
+    },
+    {
+     "i": 21,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.672533083,
+     "content": ""
+    },
+    {
+     "i": 22,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.51408125,
+     "content": ""
+    },
+    {
+     "i": 23,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.607382,
+     "content": ""
+    },
+    {
+     "i": 24,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.342374084,
+     "content": ""
+    },
+    {
+     "i": 25,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.658606833,
+     "content": ""
+    },
+    {
+     "i": 26,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.821292791,
+     "content": ""
+    },
+    {
+     "i": 27,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 2.065262084,
+     "content": ""
+    },
+    {
+     "i": 28,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.469309792,
+     "content": ""
+    },
+    {
+     "i": 29,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.671442083,
+     "content": ""
+    },
+    {
+     "i": 30,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.332502166,
+     "content": ""
+    },
+    {
+     "i": 31,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.634319375,
+     "content": ""
+    },
+    {
+     "i": 32,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.390394667,
+     "content": ""
+    },
+    {
+     "i": 33,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.353432833,
+     "content": ""
+    },
+    {
+     "i": 34,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.654546333,
+     "content": ""
+    },
+    {
+     "i": 35,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.51141625,
+     "content": ""
+    },
+    {
+     "i": 36,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.346857166,
+     "content": ""
+    },
+    {
+     "i": 37,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.365355541,
+     "content": ""
+    },
+    {
+     "i": 38,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.299038,
+     "content": ""
+    },
+    {
+     "i": 39,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.232954084,
+     "content": ""
+    },
+    {
+     "i": 40,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.324219041,
+     "content": ""
+    },
+    {
+     "i": 41,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.673001042,
+     "content": ""
+    },
+    {
+     "i": 42,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.572287417,
+     "content": ""
+    },
+    {
+     "i": 43,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.540113833,
+     "content": ""
+    },
+    {
+     "i": 44,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.300672041,
+     "content": ""
+    },
+    {
+     "i": 45,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.569418292,
+     "content": ""
+    },
+    {
+     "i": 46,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.479790417,
+     "content": ""
+    },
+    {
+     "i": 47,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.635413291,
+     "content": ""
+    },
+    {
+     "i": 48,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.506364375,
+     "content": ""
+    },
+    {
+     "i": 49,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.578045125,
+     "content": ""
+    },
+    {
+     "i": 50,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.931518375,
+     "content": ""
+    },
+    {
+     "i": 51,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.370954958,
+     "content": ""
+    },
+    {
+     "i": 52,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.671724167,
+     "content": ""
+    },
+    {
+     "i": 53,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.280355417,
+     "content": ""
+    },
+    {
+     "i": 54,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.52950375,
+     "content": ""
+    },
+    {
+     "i": 55,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.289526584,
+     "content": ""
+    },
+    {
+     "i": 56,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.33064025,
+     "content": ""
+    },
+    {
+     "i": 57,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.165459625,
+     "content": ""
+    },
+    {
+     "i": 58,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.3907395,
+     "content": ""
+    },
+    {
+     "i": 59,
+     "finish_reason": "tool_calls",
+     "calls": [
+      "transfer_to_agent"
+     ],
+     "dropped": false,
+     "recovered_in_log": 0,
+     "parse_failures_in_log": 0,
+     "t_done": 1.491892875,
+     "content": ""
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,4819 @@
+{
+ "meta": {
+  "started": "2026-10-23T22:17:44+0800",
+  "target": "ws://127.0.0.1:8000/v1/realtime",
+  "concurrency": 1,
+  "codec": "pcm",
+  "silence_duration_ms": 500,
+  "overlap": false,
+  "input": "spikes/data/manifest.jsonl",
+  "variant": "tel8k"
+ },
+ "counts": {
+  "utterances": 126,
+  "answered": 126,
+  "no_audio": 0,
+  "no_turn": 0,
+  "timeout": 0,
+  "split_turns": 5
+ },
+ "latency": {
+  "speech_stopped": {
+   "n": 126,
+   "p50_ms": 522.1,
+   "p95_ms": 523.9
+  },
+  "turn_confirmed": {
+   "n": 126,
+   "p50_ms": 68.6,
+   "p95_ms": 2494.6
+  },
+  "asr_done": {
+   "n": 126,
+   "p50_ms": 218.3,
+   "p95_ms": 298.1
+  },
+  "llm_first_token": {
+   "n": 126,
+   "p50_ms": 297.9,
+   "p95_ms": 316.2
+  },
+  "first_sentence_ready": {
+   "n": 126,
+   "p50_ms": 84.2,
+   "p95_ms": 195.7
+  },
+  "tts_first_chunk": {
+   "n": 126,
+   "p50_ms": 77.0,
+   "p95_ms": 80.1
+  },
+  "first_audio_sent": {
+   "n": 126,
+   "p50_ms": 103.9,
+   "p95_ms": 160.7
+  },
+  "e2e_server": {
+   "n": 126,
+   "p50_ms": 1392.5,
+   "p95_ms": 3797.3
+  },
+  "e2e_client": {
+   "n": 126,
+   "p50_ms": 1346.9,
+   "p95_ms": 3902.3
+  }
+ },
+ "windows": {
+  "responses": 131,
+  "statuses": {
+   "cancelled": 5,
+   "completed": 126
+  },
+  "first_audio": {
+   "limit_ms": 3000.0,
+   "n": 126,
+   "p50_ms": 787.0,
+   "p95_ms": 954.5,
+   "max_ms": 1046.8,
+   "over": 0
+  },
+  "delta_gap": {
+   "limit_ms": 2000.0,
+   "n": 126,
+   "p50_ms": 135.4,
+   "p95_ms": 199.9,
+   "max_ms": 243.5,
+   "over": 0
+  },
+  "tail": {
+   "limit_ms": 2000.0,
+   "n": 126,
+   "p50_ms": 0.1,
+   "p95_ms": 0.2,
+   "max_ms": 0.8,
+   "over": 0
+  },
+  "no_audio_done": {
+   "limit_ms": 3000.0,
+   "n": 5,
+   "p50_ms": 207.6,
+   "p95_ms": 274.6,
+   "max_ms": 277.3,
+   "over": 0
+  }
+ },
+ "asr": {
+  "en": {
+   "without_numbers": {
+    "kind": "wer",
+    "utterances": 29,
+    "ref_tokens": 469,
+    "edits": 17,
+    "sub": 13,
+    "dels": 2,
+    "ins": 2,
+    "rate": 0.0362
+   },
+   "with_numbers": {
+    "kind": "wer",
+    "utterances": 13,
+    "ref_tokens": 237,
+    "edits": 19,
+    "sub": 13,
+    "dels": 1,
+    "ins": 5,
+    "rate": 0.0802
+   },
+   "all": {
+    "kind": "wer",
+    "utterances": 42,
+    "ref_tokens": 706,
+    "edits": 36,
+    "sub": 26,
+    "dels": 3,
+    "ins": 7,
+    "rate": 0.051
+   }
+  },
+  "mix": {
+   "without_numbers": {
+    "kind": "mer",
+    "utterances": 40,
+    "ref_tokens": 639,
+    "edits": 84,
+    "sub": 48,
+    "dels": 12,
+    "ins": 24,
+    "rate": 0.1315
+   },
+   "with_numbers": {
+    "kind": "mer",
+    "utterances": 2,
+    "ref_tokens": 30,
+    "edits": 3,
+    "sub": 2,
+    "dels": 0,
+    "ins": 1,
+    "rate": 0.1
+   },
+   "all": {
+    "kind": "mer",
+    "utterances": 42,
+    "ref_tokens": 669,
+    "edits": 87,
+    "sub": 50,
+    "dels": 12,
+    "ins": 25,
+    "rate": 0.13
+   }
+  },
+  "zh": {
+   "without_numbers": {
+    "kind": "cer",
+    "utterances": 32,
+    "ref_tokens": 871,
+    "edits": 51,
+    "sub": 19,
+    "dels": 26,
+    "ins": 6,
+    "rate": 0.0586
+   },
+   "with_numbers": {
+    "kind": "cer",
+    "utterances": 10,
+    "ref_tokens": 299,
+    "edits": 69,
+    "sub": 30,
+    "dels": 37,
+    "ins": 2,
+    "rate": 0.2308
+   },
+   "all": {
+    "kind": "cer",
+    "utterances": 42,
+    "ref_tokens": 1170,
+    "edits": 120,
+    "sub": 49,
+    "dels": 63,
+    "ins": 8,
+    "rate": 0.1026
+   }
+  },
+  "all": {
+   "without_numbers": {
+    "kind": "mer",
+    "utterances": 101,
+    "ref_tokens": 1958,
+    "edits": 134,
+    "sub": 80,
+    "dels": 22,
+    "ins": 32,
+    "rate": 0.0684
+   },
+   "with_numbers": {
+    "kind": "mer",
+    "utterances": 25,
+    "ref_tokens": 508,
+    "edits": 60,
+    "sub": 28,
+    "dels": 6,
+    "ins": 26,
+    "rate": 0.1181
+   },
+   "all": {
+    "kind": "mer",
+    "utterances": 126,
+    "ref_tokens": 2466,
+    "edits": 194,
+    "sub": 108,
+    "dels": 28,
+    "ins": 58,
+    "rate": 0.0787
+   }
+  }
+ },
+ "turns": [
+  {
+   "utterance_id": "zh_001",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "但鸟类还是有很多地方跟恐龙相似",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_9x297p9quktuee9g"
+   ],
+   "transcript": "但鸟类还是有很多地方和恐龙相似。",
+   "client_e2e_ms": 1363.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.2,
+    "turn_confirmed": 83.1,
+    "asr_done": 162.9,
+    "llm_first_token": 257.9,
+    "first_sentence_ready": 48.3,
+    "tts_first_chunk": 76.4,
+    "first_audio_sent": 91.4
+   },
+   "server_e2e_ms": 1242.1,
+   "response_status": "completed",
+   "duration_ms": 4740,
+   "responses": [
+    {
+     "response_id": "resp_ysswb6p55gw9w5ym",
+     "status": "completed",
+     "first_audio_ms": 636.9,
+     "max_gap_ms": 117.0,
+     "tail_ms": 0.1,
+     "done_ms": 1901.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_002",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "电视报道显示有白烟从工厂里冒出",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_kbwvz4jakw9du3hg"
+   ],
+   "transcript": "电视报道显示，有白烟从工厂里冒出。",
+   "client_e2e_ms": 1178.9,
+   "server_stages_ms": {
+    "speech_stopped": 523.4,
+    "turn_confirmed": 67.7,
+    "asr_done": 174.6,
+    "llm_first_token": 298.2,
+    "first_sentence_ready": 107.5,
+    "tts_first_chunk": 77.1,
+    "first_audio_sent": 88.4
+   },
+   "server_e2e_ms": 1336.9,
+   "response_status": "completed",
+   "duration_ms": 4860,
+   "responses": [
+    {
+     "response_id": "resp_nik2s6inf7jegkcc",
+     "status": "completed",
+     "first_audio_ms": 745.9,
+     "max_gap_ms": 170.6,
+     "tail_ms": 0.1,
+     "done_ms": 2797.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_003",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "他随后被转送到剑桥的阿登布鲁克医院",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_t3o4w14mfsdguft9"
+   ],
+   "transcript": "他随后被转转送到剑桥的阿登布鲁克医院。",
+   "client_e2e_ms": 1101.0,
+   "server_stages_ms": {
+    "speech_stopped": 521.3,
+    "turn_confirmed": 84.5,
+    "asr_done": 204.1,
+    "llm_first_token": 286.4,
+    "first_sentence_ready": 120.0,
+    "tts_first_chunk": 64.1,
+    "first_audio_sent": 78.1
+   },
+   "server_e2e_ms": 1358.5,
+   "response_status": "completed",
+   "duration_ms": 5040,
+   "responses": [
+    {
+     "response_id": "resp_zqrfu3r5kd0a0lo3",
+     "status": "completed",
+     "first_audio_ms": 752.7,
+     "max_gap_ms": 157.3,
+     "tail_ms": 0.1,
+     "done_ms": 1860.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_004",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "巴黎人是出了名的以自我中心粗鲁和傲慢",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_pjy1h7gshql363cd"
+   ],
+   "transcript": "巴黎人是出了名的以自我为中心、粗鲁和傲慢。",
+   "client_e2e_ms": 609.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 81.1,
+    "asr_done": 197.8,
+    "llm_first_token": 288.7,
+    "first_sentence_ready": 48.1,
+    "tts_first_chunk": 77.3,
+    "first_audio_sent": 130.4
+   },
+   "server_e2e_ms": 1346.3,
+   "response_status": "completed",
+   "duration_ms": 5100,
+   "responses": [
+    {
+     "response_id": "resp_n2l52ghl739c6l4l",
+     "status": "completed",
+     "first_audio_ms": 742.3,
+     "max_gap_ms": 101.2,
+     "tail_ms": 0.1,
+     "done_ms": 2226.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_005",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "卷心菜汁的颜色将根据化学物质的酸碱性发生变化",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_ugchcts25r7dsiuf"
+   ],
+   "transcript": "卷心菜汁的颜色将根据化学物质的酸碱性发生变化。",
+   "client_e2e_ms": 899.9,
+   "server_stages_ms": {
+    "speech_stopped": 523.3,
+    "turn_confirmed": 85.0,
+    "asr_done": 202.4,
+    "llm_first_token": 286.0,
+    "first_sentence_ready": 50.1,
+    "tts_first_chunk": 78.7,
+    "first_audio_sent": 92.0
+   },
+   "server_e2e_ms": 1317.6,
+   "response_status": "completed",
+   "duration_ms": 5220,
+   "responses": [
+    {
+     "response_id": "resp_rd5hcqr7hcyn958g",
+     "status": "completed",
+     "first_audio_ms": 709.3,
+     "max_gap_ms": 132.7,
+     "tail_ms": 0.1,
+     "done_ms": 2290.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_006",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "沧龙是那个时代的顶级掠食者除了同类它什么都不怕",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_i2hntrdo9wkzerjy"
+   ],
+   "transcript": "沧龙是那个时代的顶级掠食者，除了同类，它什么都不怕。",
+   "client_e2e_ms": 914.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 67.8,
+    "asr_done": 209.9,
+    "llm_first_token": 294.1,
+    "first_sentence_ready": 48.9,
+    "tts_first_chunk": 77.5,
+    "first_audio_sent": 130.5
+   },
+   "server_e2e_ms": 1351.0,
+   "response_status": "completed",
+   "duration_ms": 5580,
+   "responses": [
+    {
+     "response_id": "resp_uu3o59rk29yo3y3j",
+     "status": "completed",
+     "first_audio_ms": 760.8,
+     "max_gap_ms": 132.5,
+     "tail_ms": 0.1,
+     "done_ms": 1950.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_007",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "福克兰群岛的官方货币是福克兰英镑与英镑等值",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_02mncy6ph87d2iub"
+   ],
+   "transcript": "弗兰克群岛的官方货币是弗兰克英镑，与英镑等值。",
+   "client_e2e_ms": 1592.2,
+   "server_stages_ms": {
+    "speech_stopped": 521.5,
+    "turn_confirmed": 54.6,
+    "asr_done": 210.4,
+    "llm_first_token": 314.7,
+    "first_sentence_ready": 170.7,
+    "tts_first_chunk": 79.3,
+    "first_audio_sent": 98.0
+   },
+   "server_e2e_ms": 1449.1,
+   "response_status": "completed",
+   "duration_ms": 6300,
+   "responses": [
+    {
+     "response_id": "resp_rvtxr943obqlzhw3",
+     "status": "completed",
+     "first_audio_ms": 873.0,
+     "max_gap_ms": 173.7,
+     "tail_ms": 0.1,
+     "done_ms": 3121.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_008",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "执政党西南非洲人民组织swapo也在议会选举中保持了多数席位",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_y47slojp36ugqmq6"
+   ],
+   "transcript": "执政党西南非洲人民组织也在议会选举中保住了多数席位。",
+   "client_e2e_ms": 1161.1,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 65.7,
+    "asr_done": 214.8,
+    "llm_first_token": 296.7,
+    "first_sentence_ready": 48.3,
+    "tts_first_chunk": 76.9,
+    "first_audio_sent": 53.3
+   },
+   "server_e2e_ms": 1278.6,
+   "response_status": "completed",
+   "duration_ms": 6360,
+   "responses": [
+    {
+     "response_id": "resp_xt15zbeck87p9s3m",
+     "status": "completed",
+     "first_audio_ms": 689.9,
+     "max_gap_ms": 194.6,
+     "tail_ms": 0.1,
+     "done_ms": 2144.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_009",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "战争结束两年后曾经的盟友如今成了敌人冷战随即开始",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_ihl3g65ums2jcbgg"
+   ],
+   "transcript": "战争结束两年后，曾经的盟友如今成了敌人，冷战随即开始。",
+   "client_e2e_ms": 857.2,
+   "server_stages_ms": {
+    "speech_stopped": 480.4,
+    "turn_confirmed": 43.5,
+    "asr_done": 236.0,
+    "llm_first_token": 297.2,
+    "first_sentence_ready": 48.3,
+    "tts_first_chunk": 78.0,
+    "first_audio_sent": 91.0
+   },
+   "server_e2e_ms": 1274.4,
+   "response_status": "completed",
+   "duration_ms": 6480,
+   "responses": [
+    {
+     "response_id": "resp_h7rotoplich8qgof",
+     "status": "completed",
+     "first_audio_ms": 750.4,
+     "max_gap_ms": 134.7,
+     "tail_ms": 0.1,
+     "done_ms": 2155.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_010",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "罗兰多门多萨rolando mendoza架起他的m16步枪对游客扫射",
+   "outcome": "answered",
+   "session_id": "sess_rdy5fld9sxc765sx",
+   "items": [
+    "item_75e86do31s1eh8j7"
+   ],
+   "transcript": "罗兰多·门多萨架起他的M十六步枪，对游客扫射。",
+   "client_e2e_ms": 1347.1,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 84.1,
+    "asr_done": 234.2,
+    "llm_first_token": 298.2,
+    "first_sentence_ready": 108.5,
+    "tts_first_chunk": 77.8,
+    "first_audio_sent": 98.4
+   },
+   "server_e2e_ms": 1424.1,
+   "response_status": "completed",
+   "duration_ms": 6600,
+   "responses": [
+    {
+     "response_id": "resp_1un6xn4cl3teie4y",
+     "status": "completed",
+     "first_audio_ms": 817.1,
+     "max_gap_ms": 173.9,
+     "tail_ms": 0.1,
+     "done_ms": 2884.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_011",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "跳羚队以五连败收官",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_7t4ln6cscwhehhu6"
+   ],
+   "transcript": "跳羚队以五连败收官。",
+   "client_e2e_ms": 1352.4,
+   "server_stages_ms": {
+    "speech_stopped": 483.8,
+    "turn_confirmed": 81.9,
+    "asr_done": 156.8,
+    "llm_first_token": 258.7,
+    "first_sentence_ready": 47.9,
+    "tts_first_chunk": 75.8,
+    "first_audio_sent": 104.3
+   },
+   "server_e2e_ms": 1209.2,
+   "response_status": "completed",
+   "duration_ms": 6740,
+   "responses": [
+    {
+     "response_id": "resp_3kccub0f7vdneime",
+     "status": "completed",
+     "first_audio_ms": 643.6,
+     "max_gap_ms": 198.2,
+     "tail_ms": 0.1,
+     "done_ms": 3144.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_012",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "这里几乎都是沙滩游泳很安全大部分地方都有新西兰圣诞树的树荫",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_yy7f62pityg02qz8"
+   ],
+   "transcript": "这里几乎都是沙滩，游泳很安全。大部分地方都有新西兰圣诞树的树荫。",
+   "client_e2e_ms": 725.0,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 67.6,
+    "asr_done": 231.0,
+    "llm_first_token": 296.3,
+    "first_sentence_ready": 133.4,
+    "tts_first_chunk": 78.6,
+    "first_audio_sent": 91.8
+   },
+   "server_e2e_ms": 1421.7,
+   "response_status": "completed",
+   "duration_ms": 6840,
+   "responses": [
+    {
+     "response_id": "resp_bjsunch6a0hfhwto",
+     "status": "completed",
+     "first_audio_ms": 831.2,
+     "max_gap_ms": 159.1,
+     "tail_ms": 0.1,
+     "done_ms": 2756.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_013",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "具体说来据说可以通过正确解读微表情来判断一个人是否在撒谎",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_spp5xrwj1m2pgch7"
+   ],
+   "transcript": "具体说来，据说可以通过正确解读微表情来判断一个人是否在撒谎。",
+   "client_e2e_ms": 1475.5,
+   "server_stages_ms": {
+    "speech_stopped": 522.5,
+    "turn_confirmed": 80.8,
+    "asr_done": 224.1,
+    "llm_first_token": 296.9,
+    "first_sentence_ready": 158.4,
+    "tts_first_chunk": 83.7,
+    "first_audio_sent": 127.4
+   },
+   "server_e2e_ms": 1493.8,
+   "response_status": "completed",
+   "duration_ms": 6900,
+   "responses": [
+    {
+     "response_id": "resp_nyp0hwm7ua82tsc5",
+     "status": "completed",
+     "first_audio_ms": 890.5,
+     "max_gap_ms": 197.8,
+     "tail_ms": 0.1,
+     "done_ms": 3209.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_014",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "起初他被送往位于大雅茅斯的詹姆斯佩吉特医院进行救治",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_c6rgdlbuf3edvhq5"
+   ],
+   "transcript": "起初，他被送往位于大雅茅斯的詹姆斯·佩吉特医院进行救治。",
+   "client_e2e_ms": 786.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.3,
+    "turn_confirmed": 68.1,
+    "asr_done": 237.5,
+    "llm_first_token": 296.2,
+    "first_sentence_ready": 92.5,
+    "tts_first_chunk": 80.3,
+    "first_audio_sent": 86.7
+   },
+   "server_e2e_ms": 1383.5,
+   "response_status": "completed",
+   "duration_ms": 6960,
+   "responses": [
+    {
+     "response_id": "resp_kj8hru9fsmazywws",
+     "status": "completed",
+     "first_audio_ms": 793.1,
+     "max_gap_ms": 127.0,
+     "tail_ms": 0.1,
+     "done_ms": 2426.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_015",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "在中东温暖的气候中房子并不是多重要",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_f1k3p5n3und4axpf"
+   ],
+   "transcript": "在中东温暖的气候中，房子并不是多重要。",
+   "client_e2e_ms": 1456.3,
+   "server_stages_ms": {
+    "speech_stopped": 505.8,
+    "turn_confirmed": 74.0,
+    "asr_done": 178.4,
+    "llm_first_token": 285.1,
+    "first_sentence_ready": 95.9,
+    "tts_first_chunk": 78.2,
+    "first_audio_sent": 97.1
+   },
+   "server_e2e_ms": 1314.5,
+   "response_status": "completed",
+   "duration_ms": 6960,
+   "responses": [
+    {
+     "response_id": "resp_6jtmpyx98zvw1jj7",
+     "status": "completed",
+     "first_audio_ms": 734.4,
+     "max_gap_ms": 156.0,
+     "tail_ms": 0.1,
+     "done_ms": 2372.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_016",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "州长办公室表示伤者中有十九人是警察",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_xzk2b50yg6obunrm"
+   ],
+   "transcript": "州长办公室表示，伤者中有十九人是警察。",
+   "client_e2e_ms": 1482.3,
+   "server_stages_ms": {
+    "speech_stopped": 522.3,
+    "turn_confirmed": 73.4,
+    "asr_done": 196.1,
+    "llm_first_token": 296.4,
+    "first_sentence_ready": 84.4,
+    "tts_first_chunk": 78.2,
+    "first_audio_sent": 87.7
+   },
+   "server_e2e_ms": 1338.6,
+   "response_status": "completed",
+   "duration_ms": 7020,
+   "responses": [
+    {
+     "response_id": "resp_hby4an7pabya1w19",
+     "status": "completed",
+     "first_audio_ms": 742.8,
+     "max_gap_ms": 158.6,
+     "tail_ms": 0.1,
+     "done_ms": 2675.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_017",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "二十世纪的研究表明基因变异有两种库显性和隐性",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_js6khk3ia7lo1gp8"
+   ],
+   "transcript": "二十世纪的研究表明，基因变异有有两种库：显性和隐性。",
+   "client_e2e_ms": 1518.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 60.9,
+    "asr_done": 214.3,
+    "llm_first_token": 286.7,
+    "first_sentence_ready": 96.7,
+    "tts_first_chunk": 77.6,
+    "first_audio_sent": 137.3
+   },
+   "server_e2e_ms": 1396.4,
+   "response_status": "completed",
+   "duration_ms": 7140,
+   "responses": [
+    {
+     "response_id": "resp_xx3zh0de7p0mcfnq",
+     "status": "completed",
+     "first_audio_ms": 812.6,
+     "max_gap_ms": 160.6,
+     "tail_ms": 0.2,
+     "done_ms": 2890.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_018",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "1940年8月15日盟军攻入法国南部这次进攻被称为龙骑兵行动",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_oxte99hmevwgsvzi"
+   ],
+   "transcript": "一九四零年八月十五日，盟军攻入法国南部。这次进攻被称为“龙骑兵行动”。",
+   "client_e2e_ms": 855.5,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 69.1,
+    "asr_done": 271.5,
+    "llm_first_token": 299.1,
+    "first_sentence_ready": 96.4,
+    "tts_first_chunk": 77.4,
+    "first_audio_sent": 96.2
+   },
+   "server_e2e_ms": 1431.8,
+   "response_status": "completed",
+   "duration_ms": 7200,
+   "responses": [
+    {
+     "response_id": "resp_jq7u1yvqpb1hv0re",
+     "status": "completed",
+     "first_audio_ms": 840.6,
+     "max_gap_ms": 152.9,
+     "tail_ms": 0.2,
+     "done_ms": 2730.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_019",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "当所有可用的资源在一个组织的职能部门之间得到有效利用时创造力和独创性就会发生",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_47wz9pni6he7rmf7"
+   ],
+   "transcript": "当所有可用的资源在一个组织的职能部门之间得到有效利用时，创造力和独创性就会发生。",
+   "client_e2e_ms": 1540.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.2,
+    "turn_confirmed": 68.2,
+    "asr_done": 253.3,
+    "llm_first_token": 302.8,
+    "first_sentence_ready": 97.3,
+    "tts_first_chunk": 78.1,
+    "first_audio_sent": 174.5
+   },
+   "server_e2e_ms": 1496.4,
+   "response_status": "completed",
+   "duration_ms": 7260,
+   "responses": [
+    {
+     "response_id": "resp_3v9qflnh9pw5u3fb",
+     "status": "completed",
+     "first_audio_ms": 905.8,
+     "max_gap_ms": 133.4,
+     "tail_ms": 0.1,
+     "done_ms": 3019.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_020",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "1990年由于沙漠的威胁它被列入了濒危世界遗产名录",
+   "outcome": "answered",
+   "session_id": "sess_1ig8thu4bxkhd6lt",
+   "items": [
+    "item_qqt2tf5n32bd246y"
+   ],
+   "transcript": "一九九零年，由于沙漠的威胁，它被列列入了濒危世界遗产名录。",
+   "client_e2e_ms": 1531.0,
+   "server_stages_ms": {
+    "speech_stopped": 521.5,
+    "turn_confirmed": 65.1,
+    "asr_done": 248.8,
+    "llm_first_token": 306.9,
+    "first_sentence_ready": 122.5,
+    "tts_first_chunk": 79.4,
+    "first_audio_sent": 83.4
+   },
+   "server_e2e_ms": 1427.6,
+   "response_status": "completed",
+   "duration_ms": 7260,
+   "responses": [
+    {
+     "response_id": "resp_myk9c09lryz2k20x",
+     "status": "completed",
+     "first_audio_ms": 840.8,
+     "max_gap_ms": 155.5,
+     "tail_ms": 0.2,
+     "done_ms": 2916.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_021",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "事故发生后吉布森被送往医院但很快就一命呜呼",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_cfgwnv2y4mvsp408"
+   ],
+   "transcript": "事故发生后，吉布森被送往医院，但很快就一命呜呼。",
+   "client_e2e_ms": 1554.3,
+   "server_stages_ms": {
+    "speech_stopped": 501.8,
+    "turn_confirmed": 54.8,
+    "asr_done": 219.6,
+    "llm_first_token": 276.9,
+    "first_sentence_ready": 72.6,
+    "tts_first_chunk": 77.7,
+    "first_audio_sent": 228.0
+   },
+   "server_e2e_ms": 1431.3,
+   "response_status": "completed",
+   "duration_ms": 7500,
+   "responses": [
+    {
+     "response_id": "resp_00zapljr9v20oslt",
+     "status": "completed",
+     "first_audio_ms": 874.8,
+     "max_gap_ms": 156.3,
+     "tail_ms": 0.1,
+     "done_ms": 3153.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_022",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "摩尔多瓦的首都是基希讷乌当地语言是罗马尼亚语但俄语也被广泛使用",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_nfcpre1hiyj114kw"
+   ],
+   "transcript": "摩尔多瓦的首都是新基纳乌，当地的语言是罗马尼亚语，但俄语也被广泛使用。",
+   "client_e2e_ms": 693.9,
+   "server_stages_ms": {
+    "speech_stopped": 480.5,
+    "turn_confirmed": 43.4,
+    "asr_done": 272.6,
+    "llm_first_token": 310.7,
+    "first_sentence_ready": 24.8,
+    "tts_first_chunk": 77.3,
+    "first_audio_sent": 161.9
+   },
+   "server_e2e_ms": 1371.2,
+   "response_status": "completed",
+   "duration_ms": 7560,
+   "responses": [
+    {
+     "response_id": "resp_snpz5308vsypjpj2",
+     "status": "completed",
+     "first_audio_ms": 847.3,
+     "max_gap_ms": 100.6,
+     "tail_ms": 0.1,
+     "done_ms": 2813.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_023",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "scotturb 403路公共汽车定期发车前往辛特拉sintra在罗卡角停靠",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_kcz2ptf2g82d0ol2"
+   ],
+   "transcript": "Scoturb四零三路公交汽车定期发车，前往新特拉，在罗卡角停靠。",
+   "client_e2e_ms": 1024.2,
+   "server_stages_ms": {
+    "speech_stopped": 524.0,
+    "turn_confirmed": 66.9,
+    "asr_done": 261.6,
+    "llm_first_token": 304.0,
+    "first_sentence_ready": 171.9,
+    "tts_first_chunk": 80.1,
+    "first_audio_sent": 134.0
+   },
+   "server_e2e_ms": 1542.5,
+   "response_status": "completed",
+   "duration_ms": 7620,
+   "responses": [
+    {
+     "response_id": "resp_n6lum0oshvw3h0on",
+     "status": "completed",
+     "first_audio_ms": 951.6,
+     "max_gap_ms": 132.5,
+     "tail_ms": 0.1,
+     "done_ms": 3188.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_024",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "他没有设定削减数额只是表示将根据中国的经济产出来决定数额",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_yong2tf9kqse4w8f"
+   ],
+   "transcript": "它没有设定削减数额，只是表示将根据中国的经济产出来决定数额。",
+   "client_e2e_ms": 1682.1,
+   "server_stages_ms": {
+    "speech_stopped": 524.4,
+    "turn_confirmed": 85.0,
+    "asr_done": 218.9,
+    "llm_first_token": 301.3,
+    "first_sentence_ready": 143.9,
+    "tts_first_chunk": 79.2,
+    "first_audio_sent": 88.1
+   },
+   "server_e2e_ms": 1440.8,
+   "response_status": "completed",
+   "duration_ms": 7740,
+   "responses": [
+    {
+     "response_id": "resp_rs1h192mqlm2pxib",
+     "status": "completed",
+     "first_audio_ms": 831.4,
+     "max_gap_ms": 155.5,
+     "tail_ms": 0.1,
+     "done_ms": 3098.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_025",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "大脑病理和行为之间的相关性可以为科学家们的研究提供支持",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_slcynyc84iqmn1ys"
+   ],
+   "transcript": "大脑病理和行为之间的相关性，可为科学家们的研究提供支持。",
+   "client_e2e_ms": 1641.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 85.4,
+    "asr_done": 215.1,
+    "llm_first_token": 291.2,
+    "first_sentence_ready": 24.0,
+    "tts_first_chunk": 76.5,
+    "first_audio_sent": 103.9
+   },
+   "server_e2e_ms": 1318.3,
+   "response_status": "completed",
+   "duration_ms": 7920,
+   "responses": [
+    {
+     "response_id": "resp_n3awlwjr1105ihap",
+     "status": "completed",
+     "first_audio_ms": 710.8,
+     "max_gap_ms": 174.8,
+     "tail_ms": 0.1,
+     "done_ms": 2879.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_026",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "这并不是告别这是一个篇章的结束也是新篇章的开始",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_xomixgfd4hynngce"
+   ],
+   "transcript": "这并不是告别，这是一个篇章的结束，也是新篇章的开始。",
+   "client_e2e_ms": 1429.8,
+   "server_stages_ms": {
+    "speech_stopped": 521.9,
+    "turn_confirmed": 69.4,
+    "asr_done": 199.0,
+    "llm_first_token": 293.0,
+    "first_sentence_ready": 37.3,
+    "tts_first_chunk": 77.0,
+    "first_audio_sent": 108.2
+   },
+   "server_e2e_ms": 1306.0,
+   "response_status": "completed",
+   "duration_ms": 7920,
+   "responses": [
+    {
+     "response_id": "resp_soum3rlqlqasu86b",
+     "status": "completed",
+     "first_audio_ms": 714.8,
+     "max_gap_ms": 135.3,
+     "tail_ms": 0.1,
+     "done_ms": 2383.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_027",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "你也可以咨询除贵国以外其他政府的建议但他们的建议是为他们的公民而制定的",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_1gg4hlmj3flbnj2u"
+   ],
+   "transcript": "你也可以咨询除贵国以外其他政府的建议，但他们的建议是为他们的公民而制定的。",
+   "client_e2e_ms": 736.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.3,
+    "turn_confirmed": 83.3,
+    "asr_done": 262.9,
+    "llm_first_token": 304.8,
+    "first_sentence_ready": 133.3,
+    "tts_first_chunk": 80.0,
+    "first_audio_sent": 127.2
+   },
+   "server_e2e_ms": 1513.8,
+   "response_status": "completed",
+   "duration_ms": 8160,
+   "responses": [
+    {
+     "response_id": "resp_pjaoqyxmkv138blj",
+     "status": "completed",
+     "first_audio_ms": 908.1,
+     "max_gap_ms": 195.8,
+     "tail_ms": 0.1,
+     "done_ms": 2986.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_028",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "因此一个组织在共同努力克服障碍的过程中往往会带来新的创新流程以满足客户的需求",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_shnlslw9olx6s5lz"
+   ],
+   "transcript": "因此，一个组织在共同努力克服障碍的过程中，往往会带来新的创新流程，以满足客户的需求。",
+   "client_e2e_ms": 1422.4,
+   "server_stages_ms": {
+    "speech_stopped": 481.1,
+    "turn_confirmed": 83.6,
+    "asr_done": 264.3,
+    "llm_first_token": 304.0,
+    "first_sentence_ready": 24.1,
+    "tts_first_chunk": 74.8,
+    "first_audio_sent": 146.8
+   },
+   "server_e2e_ms": 1378.7,
+   "response_status": "completed",
+   "duration_ms": 8220,
+   "responses": [
+    {
+     "response_id": "resp_f4jqb805wrs6dg4q",
+     "status": "completed",
+     "first_audio_ms": 813.9,
+     "max_gap_ms": 117.9,
+     "tail_ms": 0.1,
+     "done_ms": 2687.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_029",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "该大学的研究人员表示这两种化合物相互作用形成的晶体可能会造成肾脏功能障碍",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_8nykxsjy3nit2hs5"
+   ],
+   "transcript": "该大学的研究人员表示，这两种化合物相互作用形成的晶体可能会造成肾脏功能障碍。",
+   "client_e2e_ms": 901.5,
+   "server_stages_ms": {
+    "speech_stopped": 521.9,
+    "turn_confirmed": 49.0,
+    "asr_done": 236.4,
+    "llm_first_token": 308.7,
+    "first_sentence_ready": 60.9,
+    "tts_first_chunk": 77.1,
+    "first_audio_sent": 105.0
+   },
+   "server_e2e_ms": 1359.0,
+   "response_status": "completed",
+   "duration_ms": 8220,
+   "responses": [
+    {
+     "response_id": "resp_50bsiuqy49zfq18z",
+     "status": "completed",
+     "first_audio_ms": 788.2,
+     "max_gap_ms": 135.9,
+     "tail_ms": 0.1,
+     "done_ms": 3001.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_030",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "钙钾等元素属于金属银和金等元素当然也是金属",
+   "outcome": "answered",
+   "session_id": "sess_f7ym5s7hz9cgoe4y",
+   "items": [
+    "item_8rps1vu0xd4a62ev"
+   ],
+   "transcript": "钙、钾等元素属于金属，银和金等元素当然也是金属。",
+   "client_e2e_ms": 1498.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 69.2,
+    "asr_done": 221.9,
+    "llm_first_token": 294.3,
+    "first_sentence_ready": 25.2,
+    "tts_first_chunk": 77.6,
+    "first_audio_sent": 105.1
+   },
+   "server_e2e_ms": 1315.7,
+   "response_status": "completed",
+   "duration_ms": 8280,
+   "responses": [
+    {
+     "response_id": "resp_n7cabdiookh7dmjk",
+     "status": "completed",
+     "first_audio_ms": 724.1,
+     "max_gap_ms": 134.8,
+     "tail_ms": 0.1,
+     "done_ms": 2336.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_031",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "ph值以被测化学品中的氢ph中的h离子数量表示",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_z864732lkrf28m8z",
+    "item_udme46btb4ku3o3n"
+   ],
+   "transcript": "pH值被测化学。品中的氢pH中的H离子数量表示。",
+   "client_e2e_ms": 715.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 91.5,
+    "asr_done": 180.4,
+    "llm_first_token": 276.8,
+    "first_sentence_ready": 156.3,
+    "tts_first_chunk": 64.9,
+    "first_audio_sent": 119.6
+   },
+   "server_e2e_ms": 1412.3,
+   "response_status": "completed",
+   "duration_ms": 8460,
+   "responses": [
+    {
+     "response_id": "resp_zscsj6k1r8jxefsc",
+     "status": "cancelled",
+     "first_audio_ms": null,
+     "max_gap_ms": null,
+     "tail_ms": null,
+     "done_ms": 166.3
+    },
+    {
+     "response_id": "resp_6osw1pf4pijlzmc0",
+     "status": "completed",
+     "first_audio_ms": 798.0,
+     "max_gap_ms": 134.4,
+     "tail_ms": 0.1,
+     "done_ms": 2272.4
+    }
+   ],
+   "split": true
+  },
+  {
+   "utterance_id": "zh_032",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "这被称为化学物质的ph值你可以使用红甘蓝汁制作指示剂",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_ip4anba9nc7y01ug",
+    "item_5xmj7q3eb7rwg0rr"
+   ],
+   "transcript": "这被称为化学物质的pH值。你可以用红甘蓝汁制作。指示剂。",
+   "client_e2e_ms": 1423.4,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 69.3,
+    "asr_done": 131.2,
+    "llm_first_token": 303.0,
+    "first_sentence_ready": 131.2,
+    "tts_first_chunk": 64.7,
+    "first_audio_sent": 78.4
+   },
+   "server_e2e_ms": 1300.6,
+   "response_status": "completed",
+   "duration_ms": 8760,
+   "responses": [
+    {
+     "response_id": "resp_er83brmtxiwc2h31",
+     "status": "cancelled",
+     "first_audio_ms": null,
+     "max_gap_ms": null,
+     "tail_ms": null,
+     "done_ms": 207.6
+    },
+    {
+     "response_id": "resp_05pb4i4b5m5ih1ar",
+     "status": "completed",
+     "first_audio_ms": 708.6,
+     "max_gap_ms": 100.6,
+     "tail_ms": 0.1,
+     "done_ms": 1971.8
+    }
+   ],
+   "split": true
+  },
+  {
+   "utterance_id": "zh_033",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "一夜之间印刷了150到200份就是现在众所周知的邓拉普宽边dunlap broadsides版",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_rtvsrxi88cibb2xe"
+   ],
+   "transcript": "一夜之间印刷了一百五十到两百份，就是现在众所周知的邓拉普宽边版。",
+   "client_e2e_ms": 1598.4,
+   "server_stages_ms": {
+    "speech_stopped": 523.4,
+    "turn_confirmed": 84.2,
+    "asr_done": 248.7,
+    "llm_first_token": 309.6,
+    "first_sentence_ready": 119.6,
+    "tts_first_chunk": 78.0,
+    "first_audio_sent": 92.1
+   },
+   "server_e2e_ms": 1455.5,
+   "response_status": "completed",
+   "duration_ms": 8880,
+   "responses": [
+    {
+     "response_id": "resp_m07815vptc41vy37",
+     "status": "completed",
+     "first_audio_ms": 848.0,
+     "max_gap_ms": 133.8,
+     "tail_ms": 0.1,
+     "done_ms": 2728.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_034",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "中国古代的不同时期各有特点中国的每个时期或每个执掌天下的家族都是一个特点鲜明的王朝",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_xbe0opmqrmmb8zti"
+   ],
+   "transcript": "中国的古代的不同时期各有特点。中国的每个时期或每个执掌天下的家族，都是一个鲜明特点的王朝。",
+   "client_e2e_ms": 1411.0,
+   "server_stages_ms": {
+    "speech_stopped": 521.3,
+    "turn_confirmed": 70.2,
+    "asr_done": 286.5,
+    "llm_first_token": 305.5,
+    "first_sentence_ready": 60.0,
+    "tts_first_chunk": 77.0,
+    "first_audio_sent": 87.5
+   },
+   "server_e2e_ms": 1408.0,
+   "response_status": "completed",
+   "duration_ms": 9000,
+   "responses": [
+    {
+     "response_id": "resp_qxyaizoz4m8tksi7",
+     "status": "completed",
+     "first_audio_ms": 816.4,
+     "max_gap_ms": 131.8,
+     "tail_ms": 0.1,
+     "done_ms": 1842.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_035",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "因此很可能这个符号只是作为一个标签添加的",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_11az6qbp9r5tgh22"
+   ],
+   "transcript": "因此，很可能这个符号只是作为一个标签添加的。",
+   "client_e2e_ms": 1329.7,
+   "server_stages_ms": {
+    "speech_stopped": 481.8,
+    "turn_confirmed": 82.6,
+    "asr_done": 167.4,
+    "llm_first_token": 297.4,
+    "first_sentence_ready": 107.7,
+    "tts_first_chunk": 75.8,
+    "first_audio_sent": 154.0
+   },
+   "server_e2e_ms": 1366.7,
+   "response_status": "completed",
+   "duration_ms": 9180,
+   "responses": [
+    {
+     "response_id": "resp_puycry7nu8pp3gda",
+     "status": "completed",
+     "first_audio_ms": 802.5,
+     "max_gap_ms": 174.9,
+     "tail_ms": 0.1,
+     "done_ms": 3245.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_036",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "你手上的水分会与外层发生反应这样会形成一层类似外壳的东西感觉十分有趣",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_1myylbfg5pe4p1dm"
+   ],
+   "transcript": "你手上的水分层会与外层发生反应，这会形成一层类似外壳的东西，感觉十分有趣。",
+   "client_e2e_ms": 718.9,
+   "server_stages_ms": {
+    "speech_stopped": 501.9,
+    "turn_confirmed": 66.0,
+    "asr_done": 279.8,
+    "llm_first_token": 299.6,
+    "first_sentence_ready": 95.7,
+    "tts_first_chunk": 77.3,
+    "first_audio_sent": 95.8
+   },
+   "server_e2e_ms": 1416.1,
+   "response_status": "completed",
+   "duration_ms": 9180,
+   "responses": [
+    {
+     "response_id": "resp_sdgj3coshu9cddy5",
+     "status": "completed",
+     "first_audio_ms": 848.2,
+     "max_gap_ms": 127.3,
+     "tail_ms": 0.1,
+     "done_ms": 2981.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_037",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "昨天马尔泰利在由9名成员组成的新临时选举委员会cep中宣誓就职",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_mqpujbvd36heizql"
+   ],
+   "transcript": "昨天，马尔泰利在由九名成员组成的新临时选举委员会（CEP）中宣誓就职。",
+   "client_e2e_ms": 4121.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 2518.9,
+    "asr_done": 319.5,
+    "llm_first_token": 305.2,
+    "first_sentence_ready": 131.6,
+    "tts_first_chunk": 78.6,
+    "first_audio_sent": 122.0
+   },
+   "server_e2e_ms": 3998.5,
+   "response_status": "completed",
+   "duration_ms": 9360,
+   "responses": [
+    {
+     "response_id": "resp_xk7tk34ycc7etn1d",
+     "status": "completed",
+     "first_audio_ms": 955.5,
+     "max_gap_ms": 172.3,
+     "tail_ms": 0.1,
+     "done_ms": 2564.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_038",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "研究该疾病的联合国专家丹妮尔拉塔涅danielle lantagne表示疫情爆发很可能是由维和人员引起的",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_rmnmokomszx3lvck"
+   ],
+   "transcript": "研究该疾病的联合国专家丹尼尔·拉塔涅表示，疫情爆发很可能是由维和人员引起的。",
+   "client_e2e_ms": 1322.9,
+   "server_stages_ms": {
+    "speech_stopped": 523.2,
+    "turn_confirmed": 81.3,
+    "asr_done": 279.3,
+    "llm_first_token": 300.3,
+    "first_sentence_ready": 96.5,
+    "tts_first_chunk": 77.7,
+    "first_audio_sent": 122.4
+   },
+   "server_e2e_ms": 1480.7,
+   "response_status": "completed",
+   "duration_ms": 9420,
+   "responses": [
+    {
+     "response_id": "resp_so098ou8hjrmacnz",
+     "status": "completed",
+     "first_audio_ms": 876.1,
+     "max_gap_ms": 154.7,
+     "tail_ms": 0.1,
+     "done_ms": 2543.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_039",
+   "set": "zh",
+   "has_number": true,
+   "text_norm": "如果只是在乘船游览的情况下登岸则不需要单独的签证规定截至2009年",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_bj69ma04kaxl3ekl"
+   ],
+   "transcript": "如果只是在乘船游览的情况下登岸，则不需要单独的签证。规定截至二零零九年。",
+   "client_e2e_ms": 1585.6,
+   "server_stages_ms": {
+    "speech_stopped": 523.0,
+    "turn_confirmed": 63.5,
+    "asr_done": 261.9,
+    "llm_first_token": 293.2,
+    "first_sentence_ready": 119.9,
+    "tts_first_chunk": 78.1,
+    "first_audio_sent": 82.7
+   },
+   "server_e2e_ms": 1422.3,
+   "response_status": "completed",
+   "duration_ms": 9480,
+   "responses": [
+    {
+     "response_id": "resp_hmp2sk0o33yutseq",
+     "status": "completed",
+     "first_audio_ms": 835.7,
+     "max_gap_ms": 172.5,
+     "tail_ms": 0.1,
+     "done_ms": 2663.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_040",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "自由派人士对重建工作的批判主要集中在把重建合同授予了视为华盛顿内部人士的这一做法",
+   "outcome": "answered",
+   "session_id": "sess_f148kmcurbxg3di9",
+   "items": [
+    "item_bau0qrcwn1hp22cs"
+   ],
+   "transcript": "自由派人士对重建工作的批判，主要集中在把重建合同授予视为华盛顿内部人士的这一做法。",
+   "client_e2e_ms": 639.1,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 64.8,
+    "asr_done": 264.6,
+    "llm_first_token": 305.8,
+    "first_sentence_ready": 97.7,
+    "tts_first_chunk": 79.1,
+    "first_audio_sent": 121.6
+   },
+   "server_e2e_ms": 1456.3,
+   "response_status": "completed",
+   "duration_ms": 9540,
+   "responses": [
+    {
+     "response_id": "resp_6xjd4uuot4y2bpd6",
+     "status": "completed",
+     "first_audio_ms": 868.7,
+     "max_gap_ms": 132.1,
+     "tail_ms": 0.1,
+     "done_ms": 2295.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_041",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "这座城市与该国其他城市形成了鲜明对比因为它更多的是阿拉伯风格而不是非洲风格",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_8cn65br2ggcxuhmh"
+   ],
+   "transcript": "这座城市与该国其他城市形成了鲜明的对比，因为它更多的是阿拉伯风格，而不是非洲风格。",
+   "client_e2e_ms": 1495.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 82.3,
+    "asr_done": 249.8,
+    "llm_first_token": 274.6,
+    "first_sentence_ready": 24.0,
+    "tts_first_chunk": 75.0,
+    "first_audio_sent": 103.9
+   },
+   "server_e2e_ms": 1332.0,
+   "response_status": "completed",
+   "duration_ms": 9660,
+   "responses": [
+    {
+     "response_id": "resp_we37bg52d0fh1i98",
+     "status": "completed",
+     "first_audio_ms": 727.3,
+     "max_gap_ms": 158.7,
+     "tail_ms": 0.1,
+     "done_ms": 2817.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "zh_042",
+   "set": "zh",
+   "has_number": false,
+   "text_norm": "宇宙中的一切都由物质构成而所有的物质都由被称为原子的微小粒子组成",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_fs4ha9txbkdr7v6w"
+   ],
+   "transcript": "宇宙中的一切都由物质构成，而所有的物质都由被称为原子的微小颗粒组成。",
+   "client_e2e_ms": 1485.8,
+   "server_stages_ms": {
+    "speech_stopped": 523.5,
+    "turn_confirmed": 68.1,
+    "asr_done": 246.3,
+    "llm_first_token": 293.8,
+    "first_sentence_ready": 24.1,
+    "tts_first_chunk": 77.2,
+    "first_audio_sent": 90.9
+   },
+   "server_e2e_ms": 1323.7,
+   "response_status": "completed",
+   "duration_ms": 9720,
+   "responses": [
+    {
+     "response_id": "resp_jqpg1avq6o0wrkbc",
+     "status": "completed",
+     "first_audio_ms": 732.2,
+     "max_gap_ms": 116.0,
+     "tail_ms": 0.1,
+     "done_ms": 2043.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_001",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "many people don't think about them as dinosaurs because they have feathers and can fly",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_8jvwo8nr6u0wy9w9"
+   ],
+   "transcript": "Many people don't think about them as dinosaurs because they have feathers and can fly.",
+   "client_e2e_ms": 803.6,
+   "server_stages_ms": {
+    "speech_stopped": 521.7,
+    "turn_confirmed": 69.2,
+    "asr_done": 212.3,
+    "llm_first_token": 295.3,
+    "first_sentence_ready": 24.2,
+    "tts_first_chunk": 76.7,
+    "first_audio_sent": 0.4
+   },
+   "server_e2e_ms": 1199.8,
+   "response_status": "completed",
+   "duration_ms": 4320,
+   "responses": [
+    {
+     "response_id": "resp_z7q9i8q1tri5kvbi",
+     "status": "completed",
+     "first_audio_ms": 609.0,
+     "max_gap_ms": 171.8,
+     "tail_ms": 0.1,
+     "done_ms": 2006.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_002",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the scenes are displayed on the pyramids and the different pyramids are lit up",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_fe04o4hmn6g8a8pa"
+   ],
+   "transcript": "The scenes are displayed on the pyramids, and the different pyramids are lit up.",
+   "client_e2e_ms": 871.7,
+   "server_stages_ms": {
+    "speech_stopped": 481.2,
+    "turn_confirmed": 51.4,
+    "asr_done": 220.2,
+    "llm_first_token": 303.5,
+    "first_sentence_ready": 24.5,
+    "tts_first_chunk": 75.6,
+    "first_audio_sent": 151.7
+   },
+   "server_e2e_ms": 1308.1,
+   "response_status": "completed",
+   "duration_ms": 4320,
+   "responses": [
+    {
+     "response_id": "resp_1iygppi20tdv0f2c",
+     "status": "completed",
+     "first_audio_ms": 775.7,
+     "max_gap_ms": 119.9,
+     "tail_ms": 0.1,
+     "done_ms": 2571.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_003",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "this is an important way to distinguish between some verbs and objects",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_75qcy64745p28b0q"
+   ],
+   "transcript": "This is an important way to distinguish between some verbs and objects.",
+   "client_e2e_ms": 825.7,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 71.3,
+    "asr_done": 184.8,
+    "llm_first_token": 301.1,
+    "first_sentence_ready": 24.3,
+    "tts_first_chunk": 76.3,
+    "first_audio_sent": 102.4
+   },
+   "server_e2e_ms": 1282.4,
+   "response_status": "completed",
+   "duration_ms": 4500,
+   "responses": [
+    {
+     "response_id": "resp_slr0idnxanpjfylr",
+     "status": "completed",
+     "first_audio_ms": 689.0,
+     "max_gap_ms": 116.5,
+     "tail_ms": 0.1,
+     "done_ms": 2166.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_004",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the find also grants insight into the evolution of feathers in birds",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_mlbknza6l5zoc2su"
+   ],
+   "transcript": "The find also grabs insight into the evolution of feathers and birds.",
+   "client_e2e_ms": 909.7,
+   "server_stages_ms": {
+    "speech_stopped": 522.6,
+    "turn_confirmed": 99.9,
+    "asr_done": 177.4,
+    "llm_first_token": 287.4,
+    "first_sentence_ready": 24.0,
+    "tts_first_chunk": 74.9,
+    "first_audio_sent": 101.9
+   },
+   "server_e2e_ms": 1288.0,
+   "response_status": "completed",
+   "duration_ms": 4620,
+   "responses": [
+    {
+     "response_id": "resp_732v8t7ci0xfrsaz",
+     "status": "completed",
+     "first_audio_ms": 665.5,
+     "max_gap_ms": 133.4,
+     "tail_ms": 0.1,
+     "done_ms": 2396.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_005",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "through the night between 150 and 200 copies were made now known as dunlap broadsides",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_ss23qooxblg2mrw6"
+   ],
+   "transcript": "Of the night, between one fifty and two hundred copies remained. Now known as Dunlap broadsides.",
+   "client_e2e_ms": 907.7,
+   "server_stages_ms": {
+    "speech_stopped": 503.3,
+    "turn_confirmed": 67.3,
+    "asr_done": 246.7,
+    "llm_first_token": 295.4,
+    "first_sentence_ready": 24.0,
+    "tts_first_chunk": 76.5,
+    "first_audio_sent": 52.4
+   },
+   "server_e2e_ms": 1265.6,
+   "response_status": "completed",
+   "duration_ms": 4800,
+   "responses": [
+    {
+     "response_id": "resp_88k06ygj6cwe3scr",
+     "status": "completed",
+     "first_audio_ms": 695.1,
+     "max_gap_ms": 136.9,
+     "tail_ms": 0.1,
+     "done_ms": 2338.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_006",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "it has brought us the train the car and many other transportation devices",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_h0j147ec482vgkha"
+   ],
+   "transcript": "It has brought us the train, the car, and many other transportation devices.",
+   "client_e2e_ms": 1187.3,
+   "server_stages_ms": {
+    "speech_stopped": 519.5,
+    "turn_confirmed": 68.2,
+    "asr_done": 210.0,
+    "llm_first_token": 295.3,
+    "first_sentence_ready": 24.2,
+    "tts_first_chunk": 75.6,
+    "first_audio_sent": 129.9
+   },
+   "server_e2e_ms": 1322.5,
+   "response_status": "completed",
+   "duration_ms": 4860,
+   "responses": [
+    {
+     "response_id": "resp_lznxoveobelqej8f",
+     "status": "completed",
+     "first_audio_ms": 734.9,
+     "max_gap_ms": 99.9,
+     "tail_ms": 0.1,
+     "done_ms": 2285.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_007",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "for the springboks it ended a five match losing streak",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_jmwkfr7fy66759n8"
+   ],
+   "transcript": "For the Springboks, it ended a five-match losing streak.",
+   "client_e2e_ms": 729.6,
+   "server_stages_ms": {
+    "speech_stopped": 482.5,
+    "turn_confirmed": 65.6,
+    "asr_done": 183.4,
+    "llm_first_token": 293.0,
+    "first_sentence_ready": 25.1,
+    "tts_first_chunk": 78.4,
+    "first_audio_sent": 98.9
+   },
+   "server_e2e_ms": 1226.8,
+   "response_status": "completed",
+   "duration_ms": 4980,
+   "responses": [
+    {
+     "response_id": "resp_zyyu54pj93yjls5z",
+     "status": "completed",
+     "first_audio_ms": 678.7,
+     "max_gap_ms": 156.3,
+     "tail_ms": 0.1,
+     "done_ms": 2325.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_008",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "television reports show white smoke coming from the plant",
+   "outcome": "answered",
+   "session_id": "sess_09z6oc37yzmok5w7",
+   "items": [
+    "item_fvv12gwmeginckvp"
+   ],
+   "transcript": "Television reports show white smoke coming from the plant.",
+   "client_e2e_ms": -17.0,
+   "server_stages_ms": {
+    "speech_stopped": 501.9,
+    "turn_confirmed": 64.4,
+    "asr_done": 169.0,
+    "llm_first_token": 287.1,
+    "first_sentence_ready": 24.4,
+    "tts_first_chunk": 77.6,
+    "first_audio_sent": 155.0
+   },
+   "server_e2e_ms": 1279.6,
+   "response_status": "completed",
+   "duration_ms": 5040,
+   "responses": [
+    {
+     "response_id": "resp_u039gsn41k7tspjx",
+     "status": "completed",
+     "first_audio_ms": 713.1,
+     "max_gap_ms": 173.2,
+     "tail_ms": 0.1,
+     "done_ms": 2985.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_009",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "but there are a lot of things about birds that still look like a dinosaur",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_t3ykfwekbwmfxofd"
+   ],
+   "transcript": "But there are a lot of things about birds that still look like a dinosaur.",
+   "client_e2e_ms": 3775.4,
+   "server_stages_ms": {
+    "speech_stopped": 521.5,
+    "turn_confirmed": 2520.7,
+    "asr_done": 238.3,
+    "llm_first_token": 266.3,
+    "first_sentence_ready": 59.9,
+    "tts_first_chunk": 75.6,
+    "first_audio_sent": 129.8
+   },
+   "server_e2e_ms": 3812.2,
+   "response_status": "completed",
+   "duration_ms": 5360,
+   "responses": [
+    {
+     "response_id": "resp_kvl19nalrgb3yme3",
+     "status": "completed",
+     "first_audio_ms": 769.1,
+     "max_gap_ms": 154.3,
+     "tail_ms": 0.1,
+     "done_ms": 2009.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_010",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "in some areas boiling water for a minute is enough in others several minutes are needed",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_pc1rx717zblvs1xw"
+   ],
+   "transcript": "In some areas, boiling water for a minute is enough, and in others, several minutes are needed.",
+   "client_e2e_ms": 381.8,
+   "server_stages_ms": {
+    "speech_stopped": 521.4,
+    "turn_confirmed": 83.6,
+    "asr_done": 241.6,
+    "llm_first_token": 292.7,
+    "first_sentence_ready": 39.1,
+    "tts_first_chunk": 76.8,
+    "first_audio_sent": 103.7
+   },
+   "server_e2e_ms": 1358.9,
+   "response_status": "completed",
+   "duration_ms": 5640,
+   "responses": [
+    {
+     "response_id": "resp_wfh7295v90ttb6jv",
+     "status": "completed",
+     "first_audio_ms": 754.0,
+     "max_gap_ms": 100.2,
+     "tail_ms": 0.1,
+     "done_ms": 2539.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_011",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "virtual teams are held to the same standards of excellence as conventional teams but there are subtle differences",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_d0ei5zmaxy3u5p1q"
+   ],
+   "transcript": "Virtual teams are held to the same standard of excellence as conventional teams, but there are subtle differences.",
+   "client_e2e_ms": 934.9,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 69.2,
+    "asr_done": 233.8,
+    "llm_first_token": 302.4,
+    "first_sentence_ready": 37.0,
+    "tts_first_chunk": 76.1,
+    "first_audio_sent": 151.4
+   },
+   "server_e2e_ms": 1391.9,
+   "response_status": "completed",
+   "duration_ms": 5640,
+   "responses": [
+    {
+     "response_id": "resp_gv2n618e3vg8k5gw",
+     "status": "completed",
+     "first_audio_ms": 800.7,
+     "max_gap_ms": 100.9,
+     "tail_ms": 0.1,
+     "done_ms": 2464.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_012",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the internet combines elements of both mass and interpersonal communication",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_dda2u58knq8uzz39"
+   ],
+   "transcript": "The internet combines elements of both mass and interpersonal communication.",
+   "client_e2e_ms": 1448.4,
+   "server_stages_ms": {
+    "speech_stopped": 508.6,
+    "turn_confirmed": 77.5,
+    "asr_done": 177.8,
+    "llm_first_token": 292.3,
+    "first_sentence_ready": 36.0,
+    "tts_first_chunk": 74.8,
+    "first_audio_sent": 98.4
+   },
+   "server_e2e_ms": 1265.5,
+   "response_status": "completed",
+   "duration_ms": 5720,
+   "responses": [
+    {
+     "response_id": "resp_92cu2sbkxb5ocht2",
+     "status": "completed",
+     "first_audio_ms": 679.5,
+     "max_gap_ms": 117.7,
+     "tail_ms": 0.1,
+     "done_ms": 1991.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_013",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the cabbage juice changes color depending on how acidic or basic alkaline the chemical is",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_78hc9emniaffqudm"
+   ],
+   "transcript": "The cabbage juice changes color depending on how acidic, basic, alkaline the chemical is.",
+   "client_e2e_ms": 920.3,
+   "server_stages_ms": {
+    "speech_stopped": 521.5,
+    "turn_confirmed": 84.7,
+    "asr_done": 222.4,
+    "llm_first_token": 311.4,
+    "first_sentence_ready": 36.4,
+    "tts_first_chunk": 78.7,
+    "first_audio_sent": 142.1
+   },
+   "server_e2e_ms": 1397.1,
+   "response_status": "completed",
+   "duration_ms": 5760,
+   "responses": [
+    {
+     "response_id": "resp_z3e9xx9gg1cppn0l",
+     "status": "completed",
+     "first_audio_ms": 790.9,
+     "max_gap_ms": 116.5,
+     "tail_ms": 0.1,
+     "done_ms": 2217.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_014",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "this is called a chemical's ph you can make an indicator using red cabbage juice",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_hm2mbuhctpgnonx0"
+   ],
+   "transcript": "This is called the chemicals pH. You can make an indicator using red cabbage juice.",
+   "client_e2e_ms": 242.2,
+   "server_stages_ms": {
+    "speech_stopped": 521.3,
+    "turn_confirmed": 67.3,
+    "asr_done": 214.7,
+    "llm_first_token": 297.3,
+    "first_sentence_ready": 37.6,
+    "tts_first_chunk": 74.3,
+    "first_audio_sent": 106.1
+   },
+   "server_e2e_ms": 1318.6,
+   "response_status": "completed",
+   "duration_ms": 5880,
+   "responses": [
+    {
+     "response_id": "resp_ekckc1z4op3ee0ue",
+     "status": "completed",
+     "first_audio_ms": 730.0,
+     "max_gap_ms": 99.9,
+     "tail_ms": 0.1,
+     "done_ms": 2908.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_015",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "rolando mendoza fired his m16 rifle at the tourists",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_yw3x9ciftkczay6l"
+   ],
+   "transcript": "Rolando Mendoza fired his M16 rifle at the tourist.",
+   "client_e2e_ms": 710.0,
+   "server_stages_ms": {
+    "speech_stopped": 520.5,
+    "turn_confirmed": 60.4,
+    "asr_done": 200.0,
+    "llm_first_token": 299.5,
+    "first_sentence_ready": 143.4,
+    "tts_first_chunk": 63.1,
+    "first_audio_sent": 79.7
+   },
+   "server_e2e_ms": 1366.6,
+   "response_status": "completed",
+   "duration_ms": 6000,
+   "responses": [
+    {
+     "response_id": "resp_zo9jdxyn5xx2vrjm",
+     "status": "completed",
+     "first_audio_ms": 785.7,
+     "max_gap_ms": 117.5,
+     "tail_ms": 0.1,
+     "done_ms": 1690.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_016",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "scientists hope to understand how planets form especially how the earth formed since comets collided with the earth long ago",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_7svn56rczk70tekd"
+   ],
+   "transcript": "Scientists hope to understand how planets form, especially how the Earth formed, since comets collided with the Earth long ago.",
+   "client_e2e_ms": 977.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.2,
+    "turn_confirmed": 84.6,
+    "asr_done": 254.9,
+    "llm_first_token": 314.3,
+    "first_sentence_ready": 36.0,
+    "tts_first_chunk": 74.1,
+    "first_audio_sent": 108.1
+   },
+   "server_e2e_ms": 1394.2,
+   "response_status": "completed",
+   "duration_ms": 6180,
+   "responses": [
+    {
+     "response_id": "resp_juh6muodabqcsbfd",
+     "status": "completed",
+     "first_audio_ms": 787.5,
+     "max_gap_ms": 118.9,
+     "tail_ms": 0.1,
+     "done_ms": 2847.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_017",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "danielle lantagne a un expert on the disease stated the outbreak was likely caused by the peacekeepers",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_2rqj91b89ddgwycf"
+   ],
+   "transcript": "Daniel Lentigui, a UN expert on the disease, stated that the outbreak was likely caused by the peacekeepers.",
+   "client_e2e_ms": 916.5,
+   "server_stages_ms": {
+    "speech_stopped": 523.2,
+    "turn_confirmed": 64.0,
+    "asr_done": 268.1,
+    "llm_first_token": 304.6,
+    "first_sentence_ready": 60.6,
+    "tts_first_chunk": 75.2,
+    "first_audio_sent": 138.8
+   },
+   "server_e2e_ms": 1434.7,
+   "response_status": "completed",
+   "duration_ms": 6300,
+   "responses": [
+    {
+     "response_id": "resp_hjuoasqfatjlint3",
+     "status": "completed",
+     "first_audio_ms": 847.6,
+     "max_gap_ms": 101.0,
+     "tail_ms": 0.1,
+     "done_ms": 2355.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_018",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the hot chocolate is up to belgian standards fruit juices are pricey but excellent",
+   "outcome": "answered",
+   "session_id": "sess_ri54jdsus81d38oh",
+   "items": [
+    "item_nwqpm2asqkp8fdk5"
+   ],
+   "transcript": "The hot chocolate is up to Belgian standards. Fruit juices are pricey but excellent.",
+   "client_e2e_ms": 837.6,
+   "server_stages_ms": {
+    "speech_stopped": 501.1,
+    "turn_confirmed": 67.5,
+    "asr_done": 216.7,
+    "llm_first_token": 297.9,
+    "first_sentence_ready": 37.0,
+    "tts_first_chunk": 74.8,
+    "first_audio_sent": 99.2
+   },
+   "server_e2e_ms": 1294.2,
+   "response_status": "completed",
+   "duration_ms": 6420,
+   "responses": [
+    {
+     "response_id": "resp_pb6dh5e3wxfbx2gv",
+     "status": "completed",
+     "first_audio_ms": 725.5,
+     "max_gap_ms": 101.1,
+     "tail_ms": 0.1,
+     "done_ms": 2034.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_019",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "everything in the universe is made of matter all matter is made of tiny particles called atoms",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_el0vrj63f2otcvjb"
+   ],
+   "transcript": "Everything in the universe is made of matter. All matter is made of tiny particles called atoms.",
+   "client_e2e_ms": 759.1,
+   "server_stages_ms": {
+    "speech_stopped": 523.5,
+    "turn_confirmed": 84.8,
+    "asr_done": 234.7,
+    "llm_first_token": 269.9,
+    "first_sentence_ready": 72.9,
+    "tts_first_chunk": 75.8,
+    "first_audio_sent": 95.5
+   },
+   "server_e2e_ms": 1357.2,
+   "response_status": "completed",
+   "duration_ms": 6420,
+   "responses": [
+    {
+     "response_id": "resp_2y1i9cefgeckryu4",
+     "status": "completed",
+     "first_audio_ms": 749.0,
+     "max_gap_ms": 101.2,
+     "tail_ms": 0.1,
+     "done_ms": 2075.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_020",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "one bomb exploded outside the governor general's office",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_5ef3oj4t8am1kk6i"
+   ],
+   "transcript": "One bomb exploded outside the governor general's office.",
+   "client_e2e_ms": 911.0,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 82.0,
+    "asr_done": 183.5,
+    "llm_first_token": 287.3,
+    "first_sentence_ready": 83.8,
+    "tts_first_chunk": 76.7,
+    "first_audio_sent": 52.3
+   },
+   "server_e2e_ms": 1287.7,
+   "response_status": "completed",
+   "duration_ms": 6640,
+   "responses": [
+    {
+     "response_id": "resp_r3zfoak7vvuaf2s1",
+     "status": "completed",
+     "first_audio_ms": 683.6,
+     "max_gap_ms": 128.4,
+     "tail_ms": 0.1,
+     "done_ms": 2987.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_021",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "if you have watched the movie national treasure you may think a treasure map was written on the back of the declaration of independence",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_delnb04fmnn9jsp0"
+   ],
+   "transcript": "If you have watched the movie National Treasure, you may think a treasure map was written on the back of the Declaration of Independence.",
+   "client_e2e_ms": 1050.1,
+   "server_stages_ms": {
+    "speech_stopped": 521.6,
+    "turn_confirmed": 68.9,
+    "asr_done": 280.4,
+    "llm_first_token": 305.1,
+    "first_sentence_ready": 59.9,
+    "tts_first_chunk": 75.7,
+    "first_audio_sent": 135.7
+   },
+   "server_e2e_ms": 1447.3,
+   "response_status": "completed",
+   "duration_ms": 6780,
+   "responses": [
+    {
+     "response_id": "resp_fpgbicv9nnuv5j8p",
+     "status": "completed",
+     "first_audio_ms": 856.9,
+     "max_gap_ms": 115.9,
+     "tail_ms": 0.1,
+     "done_ms": 2122.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_022",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "he was subsequently relocated to addenbrooke's hospital in cambridge",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_a7ms2qcj452uyep9"
+   ],
+   "transcript": "He was subsequently relocated to Addenbrooke's Hospital in Cambridge.",
+   "client_e2e_ms": -484.6,
+   "server_stages_ms": {
+    "speech_stopped": 521.8,
+    "turn_confirmed": 67.7,
+    "asr_done": 194.1,
+    "llm_first_token": 305.7,
+    "first_sentence_ready": 72.4,
+    "tts_first_chunk": 77.2,
+    "first_audio_sent": 93.8
+   },
+   "server_e2e_ms": 1332.6,
+   "response_status": "completed",
+   "duration_ms": 6840,
+   "responses": [
+    {
+     "response_id": "resp_1mlmzid3vzojtj17",
+     "status": "completed",
+     "first_audio_ms": 743.2,
+     "max_gap_ms": 100.6,
+     "tail_ms": 0.1,
+     "done_ms": 2010.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_023",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "most modern research telescopes are enormous facilities in remote areas with favorable atmospheric conditions",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_ybh5b0bi2r929usb"
+   ],
+   "transcript": "Most modern research telescopes are enormous facilities in remote areas with favorable atmospheric conditions.",
+   "client_e2e_ms": 949.7,
+   "server_stages_ms": {
+    "speech_stopped": 522.7,
+    "turn_confirmed": 72.4,
+    "asr_done": 219.0,
+    "llm_first_token": 310.1,
+    "first_sentence_ready": 72.0,
+    "tts_first_chunk": 76.0,
+    "first_audio_sent": 94.4
+   },
+   "server_e2e_ms": 1366.5,
+   "response_status": "completed",
+   "duration_ms": 6840,
+   "responses": [
+    {
+     "response_id": "resp_qm2pgkjqd7cg47lq",
+     "status": "completed",
+     "first_audio_ms": 771.4,
+     "max_gap_ms": 132.6,
+     "tail_ms": 0.1,
+     "done_ms": 2053.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_024",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "these couples may choose to make an adoption plan for their baby",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_jt8sijf8a65ujv18"
+   ],
+   "transcript": "These couples may choose to make an adoption plan for their baby.",
+   "client_e2e_ms": 1077.7,
+   "server_stages_ms": {
+    "speech_stopped": 519.5,
+    "turn_confirmed": 43.3,
+    "asr_done": 196.5,
+    "llm_first_token": 294.5,
+    "first_sentence_ready": 134.1,
+    "tts_first_chunk": 77.9,
+    "first_audio_sent": 88.2
+   },
+   "server_e2e_ms": 1354.0,
+   "response_status": "completed",
+   "duration_ms": 6840,
+   "responses": [
+    {
+     "response_id": "resp_g5pbnifa6viq2umb",
+     "status": "completed",
+     "first_audio_ms": 791.1,
+     "max_gap_ms": 160.6,
+     "tail_ms": 0.1,
+     "done_ms": 3079.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_025",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_fwccbut0nsq5ui27"
+   ],
+   "transcript": "Twentieth-century research has shown that there are two pools of genetic variation, hidden and expressed.",
+   "client_e2e_ms": 449.4,
+   "server_stages_ms": {
+    "speech_stopped": 523.3,
+    "turn_confirmed": 84.7,
+    "asr_done": 234.5,
+    "llm_first_token": 301.5,
+    "first_sentence_ready": 72.3,
+    "tts_first_chunk": 76.3,
+    "first_audio_sent": 134.0
+   },
+   "server_e2e_ms": 1426.6,
+   "response_status": "completed",
+   "duration_ms": 6960,
+   "responses": [
+    {
+     "response_id": "resp_8hhgdk3j4ytc778v",
+     "status": "completed",
+     "first_audio_ms": 818.6,
+     "max_gap_ms": 136.7,
+     "tail_ms": 0.1,
+     "done_ms": 2093.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_026",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "also after the revolution occupations were open to all male applicants allowing the most ambitious and successful to succeed",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_lyf8kpnbypn3vfel"
+   ],
+   "transcript": "Also, after the revolution, occupations were open to all male applicants, allowing the most ambitious and successful to succeed.",
+   "client_e2e_ms": 1066.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 66.4,
+    "asr_done": 263.7,
+    "llm_first_token": 302.0,
+    "first_sentence_ready": 75.2,
+    "tts_first_chunk": 78.3,
+    "first_audio_sent": 96.1
+   },
+   "server_e2e_ms": 1404.0,
+   "response_status": "completed",
+   "duration_ms": 7020,
+   "responses": [
+    {
+     "response_id": "resp_1iuph7xir0dm42j0",
+     "status": "completed",
+     "first_audio_ms": 815.1,
+     "max_gap_ms": 132.7,
+     "tail_ms": 0.1,
+     "done_ms": 2162.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_027",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "travellers are strongly advised to be aware of any risk of severe weather affecting their area as they may affect any travel plans",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_kthz1x05iueyw7l1"
+   ],
+   "transcript": "Travelers are strongly advised to be aware of any risk of severe weather affecting their area, as it may affect any travel plans.",
+   "client_e2e_ms": 1052.0,
+   "server_stages_ms": {
+    "speech_stopped": 524.0,
+    "turn_confirmed": 84.1,
+    "asr_done": 283.0,
+    "llm_first_token": 303.9,
+    "first_sentence_ready": 84.5,
+    "tts_first_chunk": 77.8,
+    "first_audio_sent": 52.2
+   },
+   "server_e2e_ms": 1409.5,
+   "response_status": "completed",
+   "duration_ms": 7320,
+   "responses": [
+    {
+     "response_id": "resp_6v4olpdoec9zfg98",
+     "status": "completed",
+     "first_audio_ms": 801.5,
+     "max_gap_ms": 133.7,
+     "tail_ms": 0.1,
+     "done_ms": 2149.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_028",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "in 1990 it was added to the list of world heritage sites in danger due to the threat of desert sands",
+   "outcome": "answered",
+   "session_id": "sess_0q76pzkufpf0685r",
+   "items": [
+    "item_xd18u7b1w35nbd64"
+   ],
+   "transcript": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+   "client_e2e_ms": 739.2,
+   "server_stages_ms": {
+    "speech_stopped": 524.2,
+    "turn_confirmed": 64.3,
+    "asr_done": 293.3,
+    "llm_first_token": 312.9,
+    "first_sentence_ready": 145.1,
+    "tts_first_chunk": 78.1,
+    "first_audio_sent": 118.2
+   },
+   "server_e2e_ms": 1536.2,
+   "response_status": "completed",
+   "duration_ms": 7320,
+   "responses": [
+    {
+     "response_id": "resp_urch8jydtr98n9g7",
+     "status": "completed",
+     "first_audio_ms": 947.6,
+     "max_gap_ms": 134.5,
+     "tail_ms": 0.1,
+     "done_ms": 3072.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_029",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "as a result two fish species have become extinct and two others have become endangered including the humpback chub",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_419j3gd06pjyo9lo"
+   ],
+   "transcript": "As a result, two fish species have become extinct, and two others have become endangered, including the humpback chub.",
+   "client_e2e_ms": 1220.2,
+   "server_stages_ms": {
+    "speech_stopped": 520.7,
+    "turn_confirmed": 43.4,
+    "asr_done": 283.3,
+    "llm_first_token": 285.9,
+    "first_sentence_ready": 196.6,
+    "tts_first_chunk": 80.5,
+    "first_audio_sent": 87.5
+   },
+   "server_e2e_ms": 1497.8,
+   "response_status": "completed",
+   "duration_ms": 7560,
+   "responses": [
+    {
+     "response_id": "resp_hs650vhk2f97p9q3",
+     "status": "completed",
+     "first_audio_ms": 933.8,
+     "max_gap_ms": 213.1,
+     "tail_ms": 0.1,
+     "done_ms": 3322.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_030",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "hydrogen ions are protons that had their electrons stripped off them since hydrogen atoms consist of one proton and one electron",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_mfj72rq4cu6gxgwa"
+   ],
+   "transcript": "Hydrogen ions are protons that have their electrons stripped off them. Since hydrogen atoms consist of one proton and one electron.",
+   "client_e2e_ms": 1146.1,
+   "server_stages_ms": {
+    "speech_stopped": 523.1,
+    "turn_confirmed": 67.1,
+    "asr_done": 288.4,
+    "llm_first_token": 309.9,
+    "first_sentence_ready": 214.5,
+    "tts_first_chunk": 63.7,
+    "first_audio_sent": 117.5
+   },
+   "server_e2e_ms": 1584.1,
+   "response_status": "completed",
+   "duration_ms": 7680,
+   "responses": [
+    {
+     "response_id": "resp_f91wicrhl10ctzhx",
+     "status": "completed",
+     "first_audio_ms": 994.0,
+     "max_gap_ms": 157.0,
+     "tail_ms": 0.1,
+     "done_ms": 2579.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_031",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "first most riders wear riding boots with a heel and a smooth quite narrow sole",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_0o1wy2ohx1ht2li4"
+   ],
+   "transcript": "First, most riders wearing riding boots with a heel and a smooth, quite narrow sole.",
+   "client_e2e_ms": 362.5,
+   "server_stages_ms": {
+    "speech_stopped": 522.7,
+    "turn_confirmed": 66.8,
+    "asr_done": 224.4,
+    "llm_first_token": 297.7,
+    "first_sentence_ready": 245.2,
+    "tts_first_chunk": 63.7,
+    "first_audio_sent": 39.4
+   },
+   "server_e2e_ms": 1460.0,
+   "response_status": "completed",
+   "duration_ms": 7860,
+   "responses": [
+    {
+     "response_id": "resp_46l5vfngbcn3gibc",
+     "status": "completed",
+     "first_audio_ms": 870.6,
+     "max_gap_ms": 100.0,
+     "tail_ms": 0.1,
+     "done_ms": 2461.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_032",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "the pyramid sound and light show is one of the most interesting things in the area for kids",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_03igbeathg8cdp7g"
+   ],
+   "transcript": "The Pyramid Sound and Light Show is one of the most interesting things in the area for kids.",
+   "client_e2e_ms": 1188.1,
+   "server_stages_ms": {
+    "speech_stopped": 523.0,
+    "turn_confirmed": 69.5,
+    "asr_done": 243.2,
+    "llm_first_token": 317.2,
+    "first_sentence_ready": 73.0,
+    "tts_first_chunk": 76.0,
+    "first_audio_sent": 104.2
+   },
+   "server_e2e_ms": 1406.1,
+   "response_status": "completed",
+   "duration_ms": 8340,
+   "responses": [
+    {
+     "response_id": "resp_cq9qhgdpdhc0kd8h",
+     "status": "completed",
+     "first_audio_ms": 813.6,
+     "max_gap_ms": 117.6,
+     "tail_ms": 0.1,
+     "done_ms": 2864.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_033",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "alloys are basically a mixture of two or more metals don't forget that there are many elements on the periodic table",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_uc28fi16dsdrq04h"
+   ],
+   "transcript": "Alloys are basically a mixture of two or more metals. Don't forget, there are many elements on the periodic table.",
+   "client_e2e_ms": 1154.2,
+   "server_stages_ms": {
+    "speech_stopped": 520.0,
+    "turn_confirmed": 64.4,
+    "asr_done": 279.9,
+    "llm_first_token": 316.6,
+    "first_sentence_ready": 85.4,
+    "tts_first_chunk": 78.8,
+    "first_audio_sent": 105.7
+   },
+   "server_e2e_ms": 1450.8,
+   "response_status": "completed",
+   "duration_ms": 8380,
+   "responses": [
+    {
+     "response_id": "resp_oxj4wno40evaebng",
+     "status": "completed",
+     "first_audio_ms": 866.4,
+     "max_gap_ms": 158.6,
+     "tail_ms": 0.2,
+     "done_ms": 3249.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_034",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "all nouns alongside the word sie for you always begin with a capital letter even in the middle of a sentence",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_oo3jyeznqxe2y9mj"
+   ],
+   "transcript": "Nouns alongside the words say for you always begin with a capital letter, even in the middle of a sentence.",
+   "client_e2e_ms": 1003.8,
+   "server_stages_ms": {
+    "speech_stopped": 521.1,
+    "turn_confirmed": 63.9,
+    "asr_done": 270.5,
+    "llm_first_token": 307.3,
+    "first_sentence_ready": 95.9,
+    "tts_first_chunk": 77.2,
+    "first_audio_sent": 104.5
+   },
+   "server_e2e_ms": 1440.5,
+   "response_status": "completed",
+   "duration_ms": 8760,
+   "responses": [
+    {
+     "response_id": "resp_ixw7l8driheg2ayx",
+     "status": "completed",
+     "first_audio_ms": 855.4,
+     "max_gap_ms": 134.2,
+     "tail_ms": 0.1,
+     "done_ms": 3487.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_035",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "throughout 1960s brzezinski worked for john f kennedy as his advisor and then the lyndon b johnson administration",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_2u4xeefsmx18xn3j"
+   ],
+   "transcript": "Throughout nineteen sixty s, Brzezinski worked for John F. Kennedy as his advisor, and then the Lyndon B. Johnson administration.",
+   "client_e2e_ms": 41.4,
+   "server_stages_ms": {
+    "speech_stopped": 480.7,
+    "turn_confirmed": 50.7,
+    "asr_done": 303.2,
+    "llm_first_token": 312.0,
+    "first_sentence_ready": 255.6,
+    "tts_first_chunk": 79.5,
+    "first_audio_sent": 96.6
+   },
+   "server_e2e_ms": 1578.2,
+   "response_status": "completed",
+   "duration_ms": 8760,
+   "responses": [
+    {
+     "response_id": "resp_u2x5a6glch1oggjw",
+     "status": "completed",
+     "first_audio_ms": 1046.8,
+     "max_gap_ms": 134.1,
+     "tail_ms": 0.2,
+     "done_ms": 3916.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_036",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "the aspect ratio of this format dividing by twelve to obtain the simplest whole number ratio is therefore said to be 3 2",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_l7bmf2t6hm4x584h"
+   ],
+   "transcript": "The aspect ratio of this format, dividing by twelve, to obtain the simplest whole number ratio, is therefore said to be three to two.",
+   "client_e2e_ms": 478.6,
+   "server_stages_ms": {
+    "speech_stopped": 521.2,
+    "turn_confirmed": 60.3,
+    "asr_done": 297.7,
+    "llm_first_token": 323.2,
+    "first_sentence_ready": 79.7,
+    "tts_first_chunk": 80.5,
+    "first_audio_sent": 53.0
+   },
+   "server_e2e_ms": 1415.6,
+   "response_status": "completed",
+   "duration_ms": 8760,
+   "responses": [
+    {
+     "response_id": "resp_fgtbqqe9eikwrsvn",
+     "status": "completed",
+     "first_audio_ms": 834.1,
+     "max_gap_ms": 169.6,
+     "tail_ms": 0.1,
+     "done_ms": 3007.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_037",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "the u s corps of engineers estimated that 6 inches of rainfall could breach the previously damaged levees",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_0yjarey590llpe7q"
+   ],
+   "transcript": "The U.S. Corps of Engineers estimated that six inches of rainfall could breach the previously damaged levees.",
+   "client_e2e_ms": 323.0,
+   "server_stages_ms": {
+    "speech_stopped": 523.5,
+    "turn_confirmed": 68.7,
+    "asr_done": 250.8,
+    "llm_first_token": 303.6,
+    "first_sentence_ready": 110.3,
+    "tts_first_chunk": 79.8,
+    "first_audio_sent": 105.0
+   },
+   "server_e2e_ms": 1441.7,
+   "response_status": "completed",
+   "duration_ms": 8760,
+   "responses": [
+    {
+     "response_id": "resp_ak8ipire3yqvh9n8",
+     "status": "completed",
+     "first_audio_ms": 849.4,
+     "max_gap_ms": 129.9,
+     "tail_ms": 0.1,
+     "done_ms": 3384.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_038",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "last week meti announced that apple had informed it of 34 additional overheating incidents which the company called non serious",
+   "outcome": "answered",
+   "session_id": "sess_bwrw0gx90y8wk2oo",
+   "items": [
+    "item_8uuwhu6zv0yzcmjo"
+   ],
+   "transcript": "Last week, Medi announced that Apple had informed it of 34 additional overheating incidents, which the company called non-serious.",
+   "client_e2e_ms": 610.8,
+   "server_stages_ms": {
+    "speech_stopped": 519.5,
+    "turn_confirmed": 43.3,
+    "asr_done": 298.3,
+    "llm_first_token": 313.7,
+    "first_sentence_ready": 72.6,
+    "tts_first_chunk": 76.3,
+    "first_audio_sent": 103.8
+   },
+   "server_e2e_ms": 1427.4,
+   "response_status": "completed",
+   "duration_ms": 9120,
+   "responses": [
+    {
+     "response_id": "resp_u3lu5mbytfufi489",
+     "status": "completed",
+     "first_audio_ms": 864.6,
+     "max_gap_ms": 133.8,
+     "tail_ms": 0.1,
+     "done_ms": 3231.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_039",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "cuomo 53 began his governorship earlier this year and signed a bill last month legalizing same sex marriage",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_gn0i1z79a0nqp6rv"
+   ],
+   "transcript": "Cuomo 53 began his governorship earlier this year and signed a bill last month legalizing same-sex marriage.",
+   "client_e2e_ms": 43.1,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 83.5,
+    "asr_done": 276.6,
+    "llm_first_token": 270.5,
+    "first_sentence_ready": 47.8,
+    "tts_first_chunk": 75.6,
+    "first_audio_sent": 103.3
+   },
+   "server_e2e_ms": 1380.1,
+   "response_status": "completed",
+   "duration_ms": 9420,
+   "responses": [
+    {
+     "response_id": "resp_cfchvs9jm8ljwgh2",
+     "status": "completed",
+     "first_audio_ms": 774.1,
+     "max_gap_ms": 176.6,
+     "tail_ms": 0.8,
+     "done_ms": 5637.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_040",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "in the north the region is bounded by the sahel and in the south and west by the atlantic ocean",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_3s0cvkuydchbbzho"
+   ],
+   "transcript": "In the north, the region is bounded by the Sahel, and in the south and west by the Atlantic Ocean.",
+   "client_e2e_ms": 1548.1,
+   "server_stages_ms": {
+    "speech_stopped": 520.9,
+    "turn_confirmed": 62.4,
+    "asr_done": 273.0,
+    "llm_first_token": 342.6,
+    "first_sentence_ready": 62.7,
+    "tts_first_chunk": 78.4,
+    "first_audio_sent": 104.6
+   },
+   "server_e2e_ms": 1444.6,
+   "response_status": "completed",
+   "duration_ms": 9580,
+   "responses": [
+    {
+     "response_id": "resp_1no1mxg3q5sz32bm",
+     "status": "completed",
+     "first_audio_ms": 861.5,
+     "max_gap_ms": 202.3,
+     "tail_ms": 0.1,
+     "done_ms": 3681.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_041",
+   "set": "en",
+   "has_number": true,
+   "text_norm": "it was ruled by the vichy french these were french people who had made peace with the germans in 1940 and worked with the invaders instead of fighting them",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_i3zpjtsaz5dp69r0"
+   ],
+   "transcript": "It was ruled by the Vichy French. These were French people who had made peace with the Germans in nineteen forty and worked with the invaders instead of fighting them.",
+   "client_e2e_ms": 293.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.9,
+    "turn_confirmed": 66.0,
+    "asr_done": 341.2,
+    "llm_first_token": 331.9,
+    "first_sentence_ready": 73.4,
+    "tts_first_chunk": 78.3,
+    "first_audio_sent": 157.1
+   },
+   "server_e2e_ms": 1570.8,
+   "response_status": "completed",
+   "duration_ms": 9600,
+   "responses": [
+    {
+     "response_id": "resp_ddmxgtl7pnv288c3",
+     "status": "completed",
+     "first_audio_ms": 981.9,
+     "max_gap_ms": 154.5,
+     "tail_ms": 0.1,
+     "done_ms": 4884.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "en_042",
+   "set": "en",
+   "has_number": false,
+   "text_norm": "as light pollution in their heyday was not the kind of problem it is today they are usually located in cities or at campuses easier to reach than those built in modern times",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_gh0bhm402z5iqyh5"
+   ],
+   "transcript": "As light pollution in their heyday was not the kind of problem it is today, they are usually located in cities or at campuses, easier to reach than those built in modern times.",
+   "client_e2e_ms": 679.5,
+   "server_stages_ms": {
+    "speech_stopped": 521.4,
+    "turn_confirmed": 83.1,
+    "asr_done": 357.4,
+    "llm_first_token": 336.4,
+    "first_sentence_ready": 53.5,
+    "tts_first_chunk": 76.0,
+    "first_audio_sent": 208.5
+   },
+   "server_e2e_ms": 1636.2,
+   "response_status": "completed",
+   "duration_ms": 9900,
+   "responses": [
+    {
+     "response_id": "resp_kd8gharqq451bkq6",
+     "status": "completed",
+     "first_audio_ms": 1030.5,
+     "max_gap_ms": 237.4,
+     "tail_ms": 0.3,
+     "done_ms": 8112.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_001",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就是感觉很fancy",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_dp2sqplvfbis7oah"
+   ],
+   "transcript": "是不是感觉很fancy？",
+   "client_e2e_ms": 1451.4,
+   "server_stages_ms": {
+    "speech_stopped": 523.0,
+    "turn_confirmed": 68.1,
+    "asr_done": 137.7,
+    "llm_first_token": 308.7,
+    "first_sentence_ready": 168.4,
+    "tts_first_chunk": 78.1,
+    "first_audio_sent": 104.7
+   },
+   "server_e2e_ms": 1388.7,
+   "response_status": "completed",
+   "duration_ms": 1650,
+   "responses": [
+    {
+     "response_id": "resp_p11o6n3fr0ny9jv7",
+     "status": "completed",
+     "first_audio_ms": 797.6,
+     "max_gap_ms": 177.6,
+     "tail_ms": 0.1,
+     "done_ms": 3766.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_002",
+   "set": "mix",
+   "has_number": true,
+   "text_norm": "三件套mac吗",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_rppsj4f977nku0uh"
+   ],
+   "transcript": "三件套，Mac嘛。",
+   "client_e2e_ms": 1520.7,
+   "server_stages_ms": {
+    "speech_stopped": 521.9,
+    "turn_confirmed": 68.5,
+    "asr_done": 142.1,
+    "llm_first_token": 304.6,
+    "first_sentence_ready": 194.6,
+    "tts_first_chunk": 80.6,
+    "first_audio_sent": 105.9
+   },
+   "server_e2e_ms": 1418.2,
+   "response_status": "completed",
+   "duration_ms": 1660,
+   "responses": [
+    {
+     "response_id": "resp_8keex0nmdzi6u9er",
+     "status": "completed",
+     "first_audio_ms": 827.7,
+     "max_gap_ms": 200.5,
+     "tail_ms": 0.6,
+     "done_ms": 6132.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_003",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "ai最近这么火",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_1tjj3ijsgf8th0fr"
+   ],
+   "transcript": "A.I.最近这么火。",
+   "client_e2e_ms": 1462.9,
+   "server_stages_ms": {
+    "speech_stopped": 522.2,
+    "turn_confirmed": 84.2,
+    "asr_done": 140.8,
+    "llm_first_token": 321.1,
+    "first_sentence_ready": 74.8,
+    "tts_first_chunk": 79.6,
+    "first_audio_sent": 136.8
+   },
+   "server_e2e_ms": 1359.6,
+   "response_status": "completed",
+   "duration_ms": 1700,
+   "responses": [
+    {
+     "response_id": "resp_yvf3y48aywliyq03",
+     "status": "completed",
+     "first_audio_ms": 753.0,
+     "max_gap_ms": 168.1,
+     "tail_ms": 0.1,
+     "done_ms": 3003.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_004",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "然后一直在考虑budget的问题",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_jfbhe06djuif5vo3"
+   ],
+   "transcript": "然后一直在考虑 budget 的问题。",
+   "client_e2e_ms": 3804.6,
+   "server_stages_ms": {
+    "speech_stopped": 523.6,
+    "turn_confirmed": 2481.2,
+    "asr_done": 179.9,
+    "llm_first_token": 290.5,
+    "first_sentence_ready": 48.3,
+    "tts_first_chunk": 75.3,
+    "first_audio_sent": 144.1
+   },
+   "server_e2e_ms": 3742.9,
+   "response_status": "completed",
+   "duration_ms": 1760,
+   "responses": [
+    {
+     "response_id": "resp_q238tck4o5szjdug",
+     "status": "completed",
+     "first_audio_ms": 735.4,
+     "max_gap_ms": 134.1,
+     "tail_ms": 0.1,
+     "done_ms": 2441.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_005",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "也是那个hardware",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_bysze1jk6t5nxizz"
+   ],
+   "transcript": "也是那个hardware。",
+   "client_e2e_ms": 1180.4,
+   "server_stages_ms": {
+    "speech_stopped": 520.0,
+    "turn_confirmed": 43.2,
+    "asr_done": 122.5,
+    "llm_first_token": 276.0,
+    "first_sentence_ready": 48.4,
+    "tts_first_chunk": 74.8,
+    "first_audio_sent": 192.1
+   },
+   "server_e2e_ms": 1277.1,
+   "response_status": "completed",
+   "duration_ms": 1800,
+   "responses": [
+    {
+     "response_id": "resp_vr0ta8i61pchmze3",
+     "status": "completed",
+     "first_audio_ms": 713.7,
+     "max_gap_ms": 136.4,
+     "tail_ms": 0.2,
+     "done_ms": 2801.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_006",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "你觉得mac和windows比哪个",
+   "outcome": "answered",
+   "session_id": "sess_pgjjz5xhwtr8e9cz",
+   "items": [
+    "item_s57duetm459xjgwz"
+   ],
+   "transcript": "你觉得 Mac 跟 Windows 比哪个？",
+   "client_e2e_ms": 1488.8,
+   "server_stages_ms": {
+    "speech_stopped": 521.4,
+    "turn_confirmed": 65.5,
+    "asr_done": 166.0,
+    "llm_first_token": 298.8,
+    "first_sentence_ready": 61.4,
+    "tts_first_chunk": 76.5,
+    "first_audio_sent": 155.7
+   },
+   "server_e2e_ms": 1345.3,
+   "response_status": "completed",
+   "duration_ms": 2120,
+   "responses": [
+    {
+     "response_id": "resp_opzm75psuz8iuhq1",
+     "status": "completed",
+     "first_audio_ms": 758.5,
+     "max_gap_ms": 164.2,
+     "tail_ms": 0.1,
+     "done_ms": 3419.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_007",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "也不是也不完全是ai",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_70sap01y4dcny29j"
+   ],
+   "transcript": "也不是，也不完全是A I。",
+   "client_e2e_ms": 1240.5,
+   "server_stages_ms": {
+    "speech_stopped": 502.6,
+    "turn_confirmed": 84.2,
+    "asr_done": 142.9,
+    "llm_first_token": 260.8,
+    "first_sentence_ready": 24.0,
+    "tts_first_chunk": 75.9,
+    "first_audio_sent": 86.9
+   },
+   "server_e2e_ms": 1177.3,
+   "response_status": "completed",
+   "duration_ms": 2120,
+   "responses": [
+    {
+     "response_id": "resp_1sqza52saxciy8r5",
+     "status": "completed",
+     "first_audio_ms": 590.5,
+     "max_gap_ms": 157.5,
+     "tail_ms": 0.1,
+     "done_ms": 1939.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_008",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "is too risky我们不能",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_lypplezdlmw995bw"
+   ],
+   "transcript": "It's too risky. We cannot.",
+   "client_e2e_ms": 3872.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.8,
+    "turn_confirmed": 2479.8,
+    "asr_done": 174.6,
+    "llm_first_token": 272.4,
+    "first_sentence_ready": 95.7,
+    "tts_first_chunk": 81.1,
+    "first_audio_sent": 104.0
+   },
+   "server_e2e_ms": 3730.2,
+   "response_status": "completed",
+   "duration_ms": 2200,
+   "responses": [
+    {
+     "response_id": "resp_udsjeqkcwasp2093",
+     "status": "completed",
+     "first_audio_ms": 726.3,
+     "max_gap_ms": 116.2,
+     "tail_ms": 0.1,
+     "done_ms": 2463.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_009",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就是still long way to go",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_h4owz9u8xl1ecauy"
+   ],
+   "transcript": "就是Still a long way to go。",
+   "client_e2e_ms": 1456.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.2,
+    "turn_confirmed": 65.4,
+    "asr_done": 147.8,
+    "llm_first_token": 283.6,
+    "first_sentence_ready": 213.9,
+    "tts_first_chunk": 63.1,
+    "first_audio_sent": 78.2
+   },
+   "server_e2e_ms": 1374.2,
+   "response_status": "completed",
+   "duration_ms": 2320,
+   "responses": [
+    {
+     "response_id": "resp_8o7m23w8oppiwf5u",
+     "status": "completed",
+     "first_audio_ms": 786.6,
+     "max_gap_ms": 136.0,
+     "tail_ms": 0.1,
+     "done_ms": 2380.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_010",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就是说给一些data set然后你",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_91ik017996wp3uit"
+   ],
+   "transcript": "比如说，给一些data set，然后你。",
+   "client_e2e_ms": 1357.7,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 82.7,
+    "asr_done": 159.0,
+    "llm_first_token": 293.2,
+    "first_sentence_ready": 95.6,
+    "tts_first_chunk": 63.3,
+    "first_audio_sent": 78.5
+   },
+   "server_e2e_ms": 1294.5,
+   "response_status": "completed",
+   "duration_ms": 2330,
+   "responses": [
+    {
+     "response_id": "resp_mucx7xq6wj7c3m8x",
+     "status": "completed",
+     "first_audio_ms": 689.7,
+     "max_gap_ms": 100.8,
+     "tail_ms": 0.1,
+     "done_ms": 1535.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_011",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "ai做出了一个错误的判断",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_79aae80rfaec1iwi"
+   ],
+   "transcript": "A.I.做出了一个错误的判断。",
+   "client_e2e_ms": 1406.4,
+   "server_stages_ms": {
+    "speech_stopped": 522.3,
+    "turn_confirmed": 61.4,
+    "asr_done": 151.6,
+    "llm_first_token": 282.7,
+    "first_sentence_ready": 60.0,
+    "tts_first_chunk": 75.4,
+    "first_audio_sent": 130.6
+   },
+   "server_e2e_ms": 1284.0,
+   "response_status": "completed",
+   "duration_ms": 2420,
+   "responses": [
+    {
+     "response_id": "resp_q6tnac0u4j3ceorz",
+     "status": "completed",
+     "first_audio_ms": 700.3,
+     "max_gap_ms": 155.4,
+     "tail_ms": 0.1,
+     "done_ms": 2406.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_012",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "能就是帮人类做很多work",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_84ayk00ewwp2r2d5"
+   ],
+   "transcript": "能就是帮人类做很多work。",
+   "client_e2e_ms": 1346.8,
+   "server_stages_ms": {
+    "speech_stopped": 520.6,
+    "turn_confirmed": 68.5,
+    "asr_done": 148.5,
+    "llm_first_token": 273.6,
+    "first_sentence_ready": 96.2,
+    "tts_first_chunk": 75.3,
+    "first_audio_sent": 81.3
+   },
+   "server_e2e_ms": 1264.1,
+   "response_status": "completed",
+   "duration_ms": 2760,
+   "responses": [
+    {
+     "response_id": "resp_43bnwrhbz0sqbt06",
+     "status": "completed",
+     "first_audio_ms": 674.9,
+     "max_gap_ms": 195.8,
+     "tail_ms": 0.1,
+     "done_ms": 2458.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_013",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "呃work shop学校应该也有统一的的work shop",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_gc78lckofr36pb5w"
+   ],
+   "transcript": "呃，workshop学校应该也有统一的workshop。",
+   "client_e2e_ms": 1426.5,
+   "server_stages_ms": {
+    "speech_stopped": 522.5,
+    "turn_confirmed": 67.2,
+    "asr_done": 173.6,
+    "llm_first_token": 283.8,
+    "first_sentence_ready": 96.2,
+    "tts_first_chunk": 77.0,
+    "first_audio_sent": 122.8
+   },
+   "server_e2e_ms": 1343.1,
+   "response_status": "completed",
+   "duration_ms": 2890,
+   "responses": [
+    {
+     "response_id": "resp_yfb3sl45lc24zro0",
+     "status": "completed",
+     "first_audio_ms": 753.4,
+     "max_gap_ms": 127.7,
+     "tail_ms": 0.1,
+     "done_ms": 2339.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_014",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "哦那个是那个是wind好像是做",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_sig4lwgigw4re25j"
+   ],
+   "transcript": "哦，那个是那个是Windows，好像是做。",
+   "client_e2e_ms": 3895.7,
+   "server_stages_ms": {
+    "speech_stopped": 523.6,
+    "turn_confirmed": 2499.0,
+    "asr_done": 189.8,
+    "llm_first_token": 304.3,
+    "first_sentence_ready": 112.1,
+    "tts_first_chunk": 65.5,
+    "first_audio_sent": 78.7
+   },
+   "server_e2e_ms": 3773.0,
+   "response_status": "completed",
+   "duration_ms": 2940,
+   "responses": [
+    {
+     "response_id": "resp_9u3tlgko1plkjs8a",
+     "status": "completed",
+     "first_audio_ms": 749.1,
+     "max_gap_ms": 119.2,
+     "tail_ms": 0.1,
+     "done_ms": 1695.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_015",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "我们的department其实hardware跟software其实是各半",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_a7okc3vpdscqtk3d"
+   ],
+   "transcript": "那么我们的department其实hardware跟software其实就是各半。",
+   "client_e2e_ms": 1415.1,
+   "server_stages_ms": {
+    "speech_stopped": 521.9,
+    "turn_confirmed": 67.8,
+    "asr_done": 164.9,
+    "llm_first_token": 290.7,
+    "first_sentence_ready": 25.2,
+    "tts_first_chunk": 77.4,
+    "first_audio_sent": 143.6
+   },
+   "server_e2e_ms": 1291.5,
+   "response_status": "completed",
+   "duration_ms": 3160,
+   "responses": [
+    {
+     "response_id": "resp_ny42zm3ats7ndzl1",
+     "status": "completed",
+     "first_audio_ms": 701.8,
+     "max_gap_ms": 159.8,
+     "tail_ms": 0.1,
+     "done_ms": 2501.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_016",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "我认为现在的ai比如说在",
+   "outcome": "answered",
+   "session_id": "sess_6a7t773l1ghvd0uv",
+   "items": [
+    "item_qysdna2ok8ht5d6n"
+   ],
+   "transcript": "我认为现在的AI，比如说在。",
+   "client_e2e_ms": 3924.3,
+   "server_stages_ms": {
+    "speech_stopped": 524.0,
+    "turn_confirmed": 2520.2,
+    "asr_done": 191.4,
+    "llm_first_token": 276.3,
+    "first_sentence_ready": 147.0,
+    "tts_first_chunk": 65.7,
+    "first_audio_sent": 78.3
+   },
+   "server_e2e_ms": 3803.0,
+   "response_status": "completed",
+   "duration_ms": 3320,
+   "responses": [
+    {
+     "response_id": "resp_6vdhijrrhih8apql",
+     "status": "completed",
+     "first_audio_ms": 756.1,
+     "max_gap_ms": 175.5,
+     "tail_ms": 0.1,
+     "done_ms": 1956.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_017",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "self driving方面自动驾驶方面",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_v7yxk6ze32cta48j"
+   ],
+   "transcript": "self driving方面，自动驾驶方面。",
+   "client_e2e_ms": 1361.0,
+   "server_stages_ms": {
+    "speech_stopped": 519.4,
+    "turn_confirmed": 61.5,
+    "asr_done": 142.9,
+    "llm_first_token": 268.2,
+    "first_sentence_ready": 83.4,
+    "tts_first_chunk": 76.9,
+    "first_audio_sent": 85.7
+   },
+   "server_e2e_ms": 1238.0,
+   "response_status": "completed",
+   "duration_ms": 3340,
+   "responses": [
+    {
+     "response_id": "resp_ojdm8ln4no8cx4v0",
+     "status": "completed",
+     "first_audio_ms": 657.1,
+     "max_gap_ms": 212.4,
+     "tail_ms": 0.1,
+     "done_ms": 2745.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_018",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就之前运用到的一些都是一些现存的package",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_vhvaotinred5rmsg"
+   ],
+   "transcript": "就之前运用到的一些，都是一些现成的package。",
+   "client_e2e_ms": 1634.6,
+   "server_stages_ms": {
+    "speech_stopped": 521.7,
+    "turn_confirmed": 83.9,
+    "asr_done": 187.1,
+    "llm_first_token": 298.7,
+    "first_sentence_ready": 215.7,
+    "tts_first_chunk": 64.9,
+    "first_audio_sent": 119.8
+   },
+   "server_e2e_ms": 1491.8,
+   "response_status": "completed",
+   "duration_ms": 3380,
+   "responses": [
+    {
+     "response_id": "resp_b87sh0p89zx201b3",
+     "status": "completed",
+     "first_audio_ms": 886.2,
+     "max_gap_ms": 160.8,
+     "tail_ms": 0.1,
+     "done_ms": 2897.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_019",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "然后再建一个model去optimization这样",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_xy8nhysg0izlwo3p"
+   ],
+   "transcript": "然后再建一个model去optimization，这样。",
+   "client_e2e_ms": 3898.2,
+   "server_stages_ms": {
+    "speech_stopped": 521.0,
+    "turn_confirmed": 2501.5,
+    "asr_done": 185.5,
+    "llm_first_token": 289.2,
+    "first_sentence_ready": 109.1,
+    "tts_first_chunk": 77.3,
+    "first_audio_sent": 91.6
+   },
+   "server_e2e_ms": 3775.2,
+   "response_status": "completed",
+   "duration_ms": 3490,
+   "responses": [
+    {
+     "response_id": "resp_7xfbv7jw6hkipc44",
+     "status": "completed",
+     "first_audio_ms": 751.7,
+     "max_gap_ms": 243.5,
+     "tail_ms": 0.1,
+     "done_ms": 2843.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_020",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "对反正我们就只能做一些这种比较entry level的东西",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_h47z9w2454tatcjw"
+   ],
+   "transcript": "对，反正我们就只能做一些这种比较原始、低落的东西。",
+   "client_e2e_ms": 1414.7,
+   "server_stages_ms": {
+    "speech_stopped": 521.3,
+    "turn_confirmed": 70.4,
+    "asr_done": 188.7,
+    "llm_first_token": 291.4,
+    "first_sentence_ready": 131.9,
+    "tts_first_chunk": 77.2,
+    "first_audio_sent": 90.9
+   },
+   "server_e2e_ms": 1371.8,
+   "response_status": "completed",
+   "duration_ms": 3510,
+   "responses": [
+    {
+     "response_id": "resp_r4o5ghkcexqmt8yt",
+     "status": "completed",
+     "first_audio_ms": 780.1,
+     "max_gap_ms": 213.3,
+     "tail_ms": 0.1,
+     "done_ms": 3338.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_021",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "我并不是要做n l p的对我并不是要做natural language processing",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_inu9ae4lua4fect2"
+   ],
+   "transcript": "我并不是要做NLP的，就我并不是要做natural language processing。",
+   "client_e2e_ms": 1560.6,
+   "server_stages_ms": {
+    "speech_stopped": 542.8,
+    "turn_confirmed": 55.1,
+    "asr_done": 193.2,
+    "llm_first_token": 293.2,
+    "first_sentence_ready": 84.1,
+    "tts_first_chunk": 78.4,
+    "first_audio_sent": 132.2
+   },
+   "server_e2e_ms": 1378.9,
+   "response_status": "completed",
+   "duration_ms": 3670,
+   "responses": [
+    {
+     "response_id": "resp_gatm8x21owdgo4ap",
+     "status": "completed",
+     "first_audio_ms": 781.0,
+     "max_gap_ms": 132.5,
+     "tail_ms": 0.1,
+     "done_ms": 2708.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_022",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "不过后来就是focus在先把g p a提高吗",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_aeswaymn9yqdv38v"
+   ],
+   "transcript": "不过后来就是focus在先把GPA提高嘛。",
+   "client_e2e_ms": 1496.7,
+   "server_stages_ms": {
+    "speech_stopped": 520.8,
+    "turn_confirmed": 67.3,
+    "asr_done": 176.4,
+    "llm_first_token": 292.8,
+    "first_sentence_ready": 194.0,
+    "tts_first_chunk": 65.1,
+    "first_audio_sent": 117.3
+   },
+   "server_e2e_ms": 1433.8,
+   "response_status": "completed",
+   "duration_ms": 3920,
+   "responses": [
+    {
+     "response_id": "resp_i6rixdxca5dpfxiy",
+     "status": "completed",
+     "first_audio_ms": 845.6,
+     "max_gap_ms": 158.3,
+     "tail_ms": 0.1,
+     "done_ms": 2345.9
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_023",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "那图像识别其实上学上个semester我们",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_mgw0xdferhi0nrtk"
+   ],
+   "transcript": "那图像识别，其实上学上个semester我们。",
+   "client_e2e_ms": 1439.6,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 76.8,
+    "asr_done": 183.1,
+    "llm_first_token": 299.8,
+    "first_sentence_ready": 119.8,
+    "tts_first_chunk": 78.0,
+    "first_audio_sent": 96.7
+   },
+   "server_e2e_ms": 1376.6,
+   "response_status": "completed",
+   "duration_ms": 4010,
+   "responses": [
+    {
+     "response_id": "resp_t04i4hpnp6ozmc93",
+     "status": "completed",
+     "first_audio_ms": 777.2,
+     "max_gap_ms": 135.5,
+     "tail_ms": 0.2,
+     "done_ms": 3136.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_024",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "感觉还不错robotics就是robotics mix with language application",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_yl4ixx7n1py751q5"
+   ],
+   "transcript": "感觉还不错，Robotics就是Robotics mixed with language application.",
+   "client_e2e_ms": 1668.3,
+   "server_stages_ms": {
+    "speech_stopped": 509.8,
+    "turn_confirmed": 65.9,
+    "asr_done": 194.7,
+    "llm_first_token": 299.9,
+    "first_sentence_ready": 196.0,
+    "tts_first_chunk": 65.2,
+    "first_audio_sent": 121.1
+   },
+   "server_e2e_ms": 1452.6,
+   "response_status": "completed",
+   "duration_ms": 4340,
+   "responses": [
+    {
+     "response_id": "resp_eoh0ky67odwnxqoh",
+     "status": "completed",
+     "first_audio_ms": 876.9,
+     "max_gap_ms": 176.2,
+     "tail_ms": 0.1,
+     "done_ms": 2552.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_025",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "呃对它analyzed或者是哦对就你刚你说的那些东西",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_j9ger8vkglld92dp"
+   ],
+   "transcript": "呃，data analyst，或者是啊，对，就看刚你刚刚说的那些东西。",
+   "client_e2e_ms": 1505.4,
+   "server_stages_ms": {
+    "speech_stopped": 519.8,
+    "turn_confirmed": 43.3,
+    "asr_done": 229.5,
+    "llm_first_token": 301.3,
+    "first_sentence_ready": 158.0,
+    "tts_first_chunk": 79.3,
+    "first_audio_sent": 130.8
+   },
+   "server_e2e_ms": 1461.8,
+   "response_status": "completed",
+   "duration_ms": 4360,
+   "responses": [
+    {
+     "response_id": "resp_uapqsgab7c00pz5d",
+     "status": "completed",
+     "first_audio_ms": 898.7,
+     "max_gap_ms": 180.0,
+     "tail_ms": 0.1,
+     "done_ms": 3452.5
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_026",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "that's the reason我来就是最后决定做那个",
+   "outcome": "answered",
+   "session_id": "sess_ihfrl8whb1765jdp",
+   "items": [
+    "item_yn7s63k7ackezwma"
+   ],
+   "transcript": "That's the reason I came. Is the final decision to do that?",
+   "client_e2e_ms": 4097.5,
+   "server_stages_ms": {
+    "speech_stopped": 525.0,
+    "turn_confirmed": 2480.0,
+    "asr_done": 239.6,
+    "llm_first_token": 295.4,
+    "first_sentence_ready": 97.7,
+    "tts_first_chunk": 77.3,
+    "first_audio_sent": 240.8
+   },
+   "server_e2e_ms": 3955.6,
+   "response_status": "completed",
+   "duration_ms": 4380,
+   "responses": [
+    {
+     "response_id": "resp_y4b23xusyemsn26a",
+     "status": "completed",
+     "first_audio_ms": 947.8,
+     "max_gap_ms": 135.8,
+     "tail_ms": 0.1,
+     "done_ms": 2717.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_027",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "做optimization然后再去做预测主要还是做预测",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_qy0pf903fo9jxqo0"
+   ],
+   "transcript": "做optimization，然后再去做预测，主要还是做预测。",
+   "client_e2e_ms": 1332.2,
+   "server_stages_ms": {
+    "speech_stopped": 523.0,
+    "turn_confirmed": 67.6,
+    "asr_done": 190.4,
+    "llm_first_token": 257.8,
+    "first_sentence_ready": 36.3,
+    "tts_first_chunk": 76.2,
+    "first_audio_sent": 99.1
+   },
+   "server_e2e_ms": 1250.4,
+   "response_status": "completed",
+   "duration_ms": 4800,
+   "responses": [
+    {
+     "response_id": "resp_it1d4rz802vwse7z",
+     "status": "completed",
+     "first_audio_ms": 659.8,
+     "max_gap_ms": 116.3,
+     "tail_ms": 0.1,
+     "done_ms": 2203.8
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_028",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "然后但是我当时读了很多相关的paper",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_iunryd2wg7wvsvcm"
+   ],
+   "transcript": "然后，但是我当时读了很多相关的paper。",
+   "client_e2e_ms": 1386.1,
+   "server_stages_ms": {
+    "speech_stopped": 520.7,
+    "turn_confirmed": 48.2,
+    "asr_done": 168.7,
+    "llm_first_token": 284.0,
+    "first_sentence_ready": 131.7,
+    "tts_first_chunk": 78.2,
+    "first_audio_sent": 91.8
+   },
+   "server_e2e_ms": 1323.3,
+   "response_status": "completed",
+   "duration_ms": 4820,
+   "responses": [
+    {
+     "response_id": "resp_3nll5djdi915ya5l",
+     "status": "completed",
+     "first_audio_ms": 754.4,
+     "max_gap_ms": 135.2,
+     "tail_ms": 0.1,
+     "done_ms": 2848.3
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_029",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "去全部赌在a去全部押在ai身上",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_xbnu697rvqf7zzcf"
+   ],
+   "transcript": "去全部赌在A，去全部压在A I身上。",
+   "client_e2e_ms": 1521.8,
+   "server_stages_ms": {
+    "speech_stopped": 521.2,
+    "turn_confirmed": 65.7,
+    "asr_done": 199.8,
+    "llm_first_token": 293.5,
+    "first_sentence_ready": 96.4,
+    "tts_first_chunk": 77.5,
+    "first_audio_sent": 144.3
+   },
+   "server_e2e_ms": 1398.4,
+   "response_status": "completed",
+   "duration_ms": 4840,
+   "responses": [
+    {
+     "response_id": "resp_xn8fshmtbrxjk89j",
+     "status": "completed",
+     "first_audio_ms": 811.5,
+     "max_gap_ms": 155.7,
+     "tail_ms": 0.1,
+     "done_ms": 3079.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_030",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "对business那边social活动多一点就有很多活动要参加",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_0i80wbujzzf8zuam"
+   ],
+   "transcript": "对，第几年身边搜索的活动多一点，就有很多活动要参加。",
+   "client_e2e_ms": 1521.9,
+   "server_stages_ms": {
+    "speech_stopped": 521.6,
+    "turn_confirmed": 66.3,
+    "asr_done": 219.1,
+    "llm_first_token": 298.5,
+    "first_sentence_ready": 72.1,
+    "tts_first_chunk": 77.0,
+    "first_audio_sent": 143.6
+   },
+   "server_e2e_ms": 1398.3,
+   "response_status": "completed",
+   "duration_ms": 5060,
+   "responses": [
+    {
+     "response_id": "resp_vgmvdk2ypr1hv588",
+     "status": "completed",
+     "first_audio_ms": 810.3,
+     "max_gap_ms": 117.4,
+     "tail_ms": 0.1,
+     "done_ms": 2788.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_031",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就你要申请去交换你并不需要去说哦我要去哪一个department交换是直接选school",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_y4tjjl6q1gif4h3c"
+   ],
+   "transcript": "就你要申请去交换，你并不需要去说哦，我要去哪一个department交换，是直接选school。",
+   "client_e2e_ms": 1602.0,
+   "server_stages_ms": {
+    "speech_stopped": 522.4,
+    "turn_confirmed": 84.2,
+    "asr_done": 264.1,
+    "llm_first_token": 301.3,
+    "first_sentence_ready": 107.8,
+    "tts_first_chunk": 77.0,
+    "first_audio_sent": 121.9
+   },
+   "server_e2e_ms": 1478.9,
+   "response_status": "completed",
+   "duration_ms": 5720,
+   "responses": [
+    {
+     "response_id": "resp_5m2mc634cw7tboc8",
+     "status": "completed",
+     "first_audio_ms": 872.2,
+     "max_gap_ms": 171.9,
+     "tail_ms": 0.1,
+     "done_ms": 2564.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_032",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "还有就是比如说会呃我们上次就我上次做的一个project是",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_dmn7pwes4bf3vriz"
+   ],
+   "transcript": "还有就是，比如说会，呃，我们上次就我上次做的一个project是。",
+   "client_e2e_ms": 1530.0,
+   "server_stages_ms": {
+    "speech_stopped": 520.3,
+    "turn_confirmed": 79.5,
+    "asr_done": 233.4,
+    "llm_first_token": 303.1,
+    "first_sentence_ready": 71.7,
+    "tts_first_chunk": 76.0,
+    "first_audio_sent": 82.6
+   },
+   "server_e2e_ms": 1366.6,
+   "response_status": "completed",
+   "duration_ms": 5780,
+   "responses": [
+    {
+     "response_id": "resp_tzijugex1j85ckhk",
+     "status": "completed",
+     "first_audio_ms": 766.5,
+     "max_gap_ms": 117.9,
+     "tail_ms": 0.1,
+     "done_ms": 2314.4
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_033",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "嗯你觉得那你为什么会呃你就是觉得国外更open minded然后有更多",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_8n3uvdvcgw5oatsn"
+   ],
+   "transcript": "呃，你觉得？那你为什么会？呃，你就是觉得国外更open-minded，然后有更多。",
+   "client_e2e_ms": 3966.1,
+   "server_stages_ms": {
+    "speech_stopped": 501.3,
+    "turn_confirmed": 2499.5,
+    "asr_done": 273.8,
+    "llm_first_token": 297.8,
+    "first_sentence_ready": 145.7,
+    "tts_first_chunk": 64.9,
+    "first_audio_sent": 120.4
+   },
+   "server_e2e_ms": 3903.5,
+   "response_status": "completed",
+   "duration_ms": 6220,
+   "responses": [
+    {
+     "response_id": "resp_li9517u8o3a02yir",
+     "status": "completed",
+     "first_audio_ms": 901.1,
+     "max_gap_ms": 100.0,
+     "tail_ms": 0.1,
+     "done_ms": 2524.2
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_034",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "对啊大家最近都是觉得ai有一天能够replace人类",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_l9jludl9r4lm0ww8"
+   ],
+   "transcript": "对啊，大家最近都是觉得AI有一天能够replace人类。",
+   "client_e2e_ms": 3971.0,
+   "server_stages_ms": {
+    "speech_stopped": 523.7,
+    "turn_confirmed": 2478.6,
+    "asr_done": 217.7,
+    "llm_first_token": 291.0,
+    "first_sentence_ready": 48.2,
+    "tts_first_chunk": 75.0,
+    "first_audio_sent": 235.1
+   },
+   "server_e2e_ms": 3869.4,
+   "response_status": "completed",
+   "duration_ms": 6240,
+   "responses": [
+    {
+     "response_id": "resp_8atfs9z5sjkpgabs",
+     "status": "completed",
+     "first_audio_ms": 866.0,
+     "max_gap_ms": 122.2,
+     "tail_ms": 0.1,
+     "done_ms": 3182.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_035",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "对我的我undergraduate的时候学的major也是",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_x1y2hhqhfa8qfj97"
+   ],
+   "transcript": "对，我的我undergraduate的时候学的major也是。",
+   "client_e2e_ms": 3903.7,
+   "server_stages_ms": {
+    "speech_stopped": 522.5,
+    "turn_confirmed": 2477.2,
+    "asr_done": 203.0,
+    "llm_first_token": 297.0,
+    "first_sentence_ready": 99.4,
+    "tts_first_chunk": 63.9,
+    "first_audio_sent": 117.3
+   },
+   "server_e2e_ms": 3780.3,
+   "response_status": "completed",
+   "duration_ms": 6440,
+   "responses": [
+    {
+     "response_id": "resp_79xe6tjl3wl3t603",
+     "status": "completed",
+     "first_audio_ms": 780.4,
+     "max_gap_ms": 100.1,
+     "tail_ms": 0.1,
+     "done_ms": 1514.7
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_036",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "然后在打算申请graduate school的时候我考虑过挺多major的",
+   "outcome": "answered",
+   "session_id": "sess_gs66giu839s4j6nt",
+   "items": [
+    "item_vkp7irqkhxkzjw6w"
+   ],
+   "transcript": "然后在打算申请graduate school的时候，我考虑过挺多major的。",
+   "client_e2e_ms": 1513.0,
+   "server_stages_ms": {
+    "speech_stopped": 520.3,
+    "turn_confirmed": 67.4,
+    "asr_done": 224.6,
+    "llm_first_token": 301.0,
+    "first_sentence_ready": 85.2,
+    "tts_first_chunk": 80.0,
+    "first_audio_sent": 91.2
+   },
+   "server_e2e_ms": 1369.8,
+   "response_status": "completed",
+   "duration_ms": 6440,
+   "responses": [
+    {
+     "response_id": "resp_pulccfgjwfp7q7xp",
+     "status": "completed",
+     "first_audio_ms": 781.9,
+     "max_gap_ms": 174.2,
+     "tail_ms": 0.1,
+     "done_ms": 2511.6
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_037",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "所以你平时就现在大部分时间还是tennis就打网球",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_bels5971q4l1be8v",
+    "item_b4iby8zbecvd32dy"
+   ],
+   "transcript": "所以你平时就现在大部分时间还是。tennis就打网球。",
+   "client_e2e_ms": 1307.2,
+   "server_stages_ms": {
+    "speech_stopped": 521.6,
+    "turn_confirmed": 67.8,
+    "asr_done": 132.0,
+    "llm_first_token": 262.7,
+    "first_sentence_ready": 74.0,
+    "tts_first_chunk": 65.8,
+    "first_audio_sent": 80.1
+   },
+   "server_e2e_ms": 1204.0,
+   "response_status": "completed",
+   "duration_ms": 6620,
+   "responses": [
+    {
+     "response_id": "resp_t2zbm0bjtwbjlkwz",
+     "status": "cancelled",
+     "first_audio_ms": null,
+     "max_gap_ms": null,
+     "tail_ms": null,
+     "done_ms": 263.9
+    },
+    {
+     "response_id": "resp_polrnhdggkyy8d3k",
+     "status": "completed",
+     "first_audio_ms": 614.7,
+     "max_gap_ms": 100.6,
+     "tail_ms": 0.1,
+     "done_ms": 1222.3
+    }
+   ],
+   "split": true
+  },
+  {
+   "utterance_id": "mix_038",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "就是会有很多呃比如说跟alumnus聚会啊一起吃饭然后用就是",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_ltskypwqxiz99n8i",
+    "item_11cldqab9z5zxjux"
+   ],
+   "transcript": "就是会有很多，呃，比如说跟Luminize聚会啊，一起吃饭。然后，要么就。",
+   "client_e2e_ms": 3744.9,
+   "server_stages_ms": {
+    "speech_stopped": 482.3,
+    "turn_confirmed": 2520.4,
+    "asr_done": 149.4,
+    "llm_first_token": 315.2,
+    "first_sentence_ready": 73.2,
+    "tts_first_chunk": 63.6,
+    "first_audio_sent": 78.2
+   },
+   "server_e2e_ms": 3682.2,
+   "response_status": "completed",
+   "duration_ms": 6800,
+   "responses": [
+    {
+     "response_id": "resp_mbfzfa42zsvbql7f",
+     "status": "cancelled",
+     "first_audio_ms": null,
+     "max_gap_ms": null,
+     "tail_ms": null,
+     "done_ms": 277.3
+    },
+    {
+     "response_id": "resp_jqoj1sfjg4ym13zd",
+     "status": "completed",
+     "first_audio_ms": 678.6,
+     "max_gap_ms": 100.3,
+     "tail_ms": 0.1,
+     "done_ms": 1483.8
+    }
+   ],
+   "split": true
+  },
+  {
+   "utterance_id": "mix_039",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "当时其实有一个就是做communication的professor想找我进组",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_g45px28pd6sd9xs4"
+   ],
+   "transcript": "当时其实有一个就是做communication的professor想招我进组。",
+   "client_e2e_ms": 1510.8,
+   "server_stages_ms": {
+    "speech_stopped": 522.0,
+    "turn_confirmed": 49.8,
+    "asr_done": 216.5,
+    "llm_first_token": 300.1,
+    "first_sentence_ready": 134.6,
+    "tts_first_chunk": 65.0,
+    "first_audio_sent": 79.8
+   },
+   "server_e2e_ms": 1367.7,
+   "response_status": "completed",
+   "duration_ms": 7040,
+   "responses": [
+    {
+     "response_id": "resp_6pdj1p24vegjrdqh",
+     "status": "completed",
+     "first_audio_ms": 795.9,
+     "max_gap_ms": 154.4,
+     "tail_ms": 0.1,
+     "done_ms": 1953.0
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_040",
+   "set": "mix",
+   "has_number": true,
+   "text_norm": "大四上学期好像是反正好像是六月份的时候才开始准备ielts",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_159zoodsghjm9iu9",
+    "item_f8fd8v7bog93h99k"
+   ],
+   "transcript": "大四上学期。好像是，反正好像是六月份的时候才开始准备I F。",
+   "client_e2e_ms": 1516.2,
+   "server_stages_ms": {
+    "speech_stopped": 522.1,
+    "turn_confirmed": 84.7,
+    "asr_done": 208.8,
+    "llm_first_token": 303.4,
+    "first_sentence_ready": 131.8,
+    "tts_first_chunk": 64.0,
+    "first_audio_sent": 78.2
+   },
+   "server_e2e_ms": 1393.0,
+   "response_status": "completed",
+   "duration_ms": 7940,
+   "responses": [
+    {
+     "response_id": "resp_zyeb0x9z37nrlx9c",
+     "status": "cancelled",
+     "first_audio_ms": null,
+     "max_gap_ms": null,
+     "tail_ms": null,
+     "done_ms": 118.9
+    },
+    {
+     "response_id": "resp_9qvex34thncey5l8",
+     "status": "completed",
+     "first_audio_ms": 786.2,
+     "max_gap_ms": 101.8,
+     "tail_ms": 0.1,
+     "done_ms": 1889.7
+    }
+   ],
+   "split": true
+  },
+  {
+   "utterance_id": "mix_041",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_lkggzh0f2at1n32d"
+   ],
+   "transcript": "三明治，或者是其他东西分给我们吃，然后我们就边吃边听他分享，share他的一些他们公司的一些东西。",
+   "client_e2e_ms": 1543.4,
+   "server_stages_ms": {
+    "speech_stopped": 523.7,
+    "turn_confirmed": 67.6,
+    "asr_done": 301.9,
+    "llm_first_token": 315.1,
+    "first_sentence_ready": 170.1,
+    "tts_first_chunk": 66.0,
+    "first_audio_sent": 117.1
+   },
+   "server_e2e_ms": 1561.5,
+   "response_status": "completed",
+   "duration_ms": 8440,
+   "responses": [
+    {
+     "response_id": "resp_6q4i7t5lukyu2blf",
+     "status": "completed",
+     "first_audio_ms": 970.2,
+     "max_gap_ms": 155.8,
+     "tail_ms": 0.1,
+     "done_ms": 2442.1
+    }
+   ],
+   "split": false
+  },
+  {
+   "utterance_id": "mix_042",
+   "set": "mix",
+   "has_number": false,
+   "text_norm": "也就是我现在supervisor呢就跟我说哎那你过来跟我做我就给你一些robotics相关的题目啊这样子做那我就说哎那其实",
+   "outcome": "answered",
+   "session_id": "sess_ay55k6z9nd8614uu",
+   "items": [
+    "item_tyv7gfkyr7wquptv"
+   ],
+   "transcript": "也就是我现在是个advisor呢，就跟我说，哎，那你过来跟我说，我就给你一些robotics相关的题目啊，这样子做，这样，那我就想说，哎，那其实。",
+   "client_e2e_ms": 4139.1,
+   "server_stages_ms": {
+    "speech_stopped": 522.6,
+    "turn_confirmed": 2478.6,
+    "asr_done": 413.8,
+    "llm_first_token": 310.1,
+    "first_sentence_ready": 108.7,
+    "tts_first_chunk": 63.7,
+    "first_audio_sent": 78.7
+   },
+   "server_e2e_ms": 3976.2,
+   "response_status": "completed",
+   "duration_ms": 8620,
+   "responses": [
+    {
+     "response_id": "resp_xvjztnt3sdt1637p",
+     "status": "completed",
+     "first_audio_ms": 974.8,
+     "max_gap_ms": 116.6,
+     "tail_ms": 0.1,
+     "done_ms": 1846.0
+    }
+   ],
+   "split": false
+  }
+ ]
+}

@@ -1,0 +1,235 @@
+{
+ "spike": "S3",
+ "step": "cold",
+ "started_at": "2026-10-23T07:27:37+08:00",
+ "loadavg1_start": 2.54,
+ "environment": {
+  "recorded_at": "2026-10-23T07:27:37+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+  "text": "zh medium #0, then #1",
+  "voice": "vivian",
+  "streaming_interval": 0.32,
+  "note": "each run starts a fresh server; 'first' includes the lazy model load (preflight)"
+ },
+ "runs": [
+  {
+   "i": 0,
+   "seconds_to_ready": 17.48,
+   "footprint_after": 3751628088,
+   "first": {
+    "status": 200,
+    "connect_ms": 0.39,
+    "headers_ms": 1867.15,
+    "first_byte_ms": 2005.69,
+    "end_ms": 3519.36,
+    "closed_early": false,
+    "error": null,
+    "bytes": 218880,
+    "n_chunks": 15,
+    "content_type": "audio/pcm",
+    "transfer_encoding": "chunked",
+    "audio_s": 4.56,
+    "ttfc_ms": 2005.69,
+    "total_ms": 3519.36,
+    "rtf": 0.7718,
+    "steady_rtf": 0.3569,
+    "first_chunk_audio_s": 0.32,
+    "min_slack_ms": 222.4,
+    "max_gap_ms": 130.2,
+    "loadavg1_before": 2.66
+   },
+   "second": {
+    "status": 200,
+    "connect_ms": 0.24,
+    "headers_ms": 1.72,
+    "first_byte_ms": 137.6,
+    "end_ms": 2292.68,
+    "closed_early": false,
+    "error": null,
+    "bytes": 299520,
+    "n_chunks": 20,
+    "content_type": "audio/pcm",
+    "transfer_encoding": "chunked",
+    "audio_s": 6.24,
+    "ttfc_ms": 137.6,
+    "total_ms": 2292.68,
+    "rtf": 0.3674,
+    "steady_rtf": 0.364,
+    "first_chunk_audio_s": 0.32,
+    "min_slack_ms": 218.3,
+    "max_gap_ms": 144.4,
+    "loadavg1_before": 2.69
+   },
+   "log": [
+    "1663.8 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "1847.8 ms:   Initialized encoder codebooks",
+    "1847.9 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit/snapshots/41d3337e8b7f2843a75841595fc14e4b9a7a4b96/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  },
+  {
+   "i": 1,
+   "seconds_to_ready": 12.83,
+   "footprint_after": 3565440360,
+   "first": {
+    "status": 200,
+    "connect_ms": 0.31,
+    "headers_ms": 1838.27,
+    "first_byte_ms": 1980.44,
+    "end_ms": 3820.54,
+    "closed_early": false,
+    "error": null,
+    "bytes": 249600,
+    "n_chunks": 17,
+    "content_type": "audio/pcm",
+    "transfer_encoding": "chunked",
+    "audio_s": 5.2,
+    "ttfc_ms": 1980.44,
+    "total_ms": 3820.54,
+    "rtf": 0.7347,
+    "steady_rtf": 0.377,
+    "first_chunk_audio_s": 0.32,
+    "min_slack_ms": 210.6,
+    "max_gap_ms": 162.2,
+    "loadavg1_before": 2.46
+   },
+   "second": {
+    "status": 200,
+    "connect_ms": 0.18,
+    "headers_ms": 1.72,
+    "first_byte_ms": 133.32,
+    "end_ms": 1834.41,
+    "closed_early": false,
+    "error": null,
+    "bytes": 218880,
+    "n_chunks": 15,
+    "content_type": "audio/pcm",
+    "transfer_encoding": "chunked",
+    "audio_s": 4.56,
+    "ttfc_ms": 133.32,
+    "total_ms": 1834.41,
+    "rtf": 0.4023,
+    "steady_rtf": 0.4011,
+    "first_chunk_audio_s": 0.32,
+    "min_slack_ms": 198.7,
+    "max_gap_ms": 161.2,
+    "loadavg1_before": 2.58
+   },
+   "log": [
+    "1635.5 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "1818.7 ms:   Initialized encoder codebooks",
+    "1818.8 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit/snapshots/41d3337e8b7f2843a75841595fc14e4b9a7a4b96/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ],
+ "summary": {
+  "seconds_to_ready": {
+   "n": 2,
+   "p50": 15.16,
+   "p95": 17.25,
+   "max": 17.48,
+   "min": 12.83,
+   "mean": 15.16
+  },
+  "first_ttfc_ms": {
+   "n": 2,
+   "p50": 1993.07,
+   "p95": 2004.43,
+   "max": 2005.69,
+   "min": 1980.44,
+   "mean": 1993.07
+  },
+  "first_total_ms": {
+   "n": 2,
+   "p50": 3669.95,
+   "p95": 3805.48,
+   "max": 3820.54,
+   "min": 3519.36,
+   "mean": 3669.95
+  },
+  "second_ttfc_ms": {
+   "n": 2,
+   "p50": 135.46,
+   "p95": 137.39,
+   "max": 137.6,
+   "min": 133.32,
+   "mean": 135.46
+  }
+ },
+ "loadavg1_end": 2.54
+}

@@ -1,0 +1,288 @@
+{
+  "spike": "S7.5 concurrency: 64 streams, Silero per-stream vs batched, Smart Turn executor K",
+  "env": {
+    "date": "2026-10-23T00:58:15+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "iogpu_wired_limit_mb": "0",
+    "mx_device_info": "n/a: the gateway/CPU environment is MLX-free by design",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "config": {
+    "duration": 20.0,
+    "streams": 64,
+    "st_model": "v3.2-gpu",
+    "st_intra": 4,
+    "st_rate": 8.0,
+    "burst_size": 8,
+    "burst_every": 5.0,
+    "workers": "1,2",
+    "modes": "per_stream",
+    "baseline": false,
+    "max_load_wait": 60.0,
+    "switch_interval_ms": 5.0,
+    "out": "s7_5_concurrency_t4.json"
+  },
+  "notes": [
+    "ingest_only = json + base64 + soxr per frame, windows formed, no inference",
+    "Silero latency includes the batching wait in batched mode (up to one 32 ms tick)"
+  ],
+  "runs": [
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 1,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.88,
+      "load_wait_s": 0.0,
+      "load_after": 4.27,
+      "load_flag": false,
+      "cpu_pct": 168.6,
+      "loop_lag_ms": {
+        "n": 3929,
+        "p50": 0.071,
+        "p95": 0.22,
+        "p99": 0.323,
+        "max": 1.596,
+        "mean": 0.091
+      },
+      "silero_latency_ms": {
+        "n": 40000,
+        "p50": 0.303,
+        "p95": 0.662,
+        "p99": 1.056,
+        "max": 3.989,
+        "mean": 0.353
+      },
+      "silero_windows": 40000,
+      "silero_windows_expected_approx": 40000,
+      "per_stream_executor_backlog_max": 57,
+      "batch_size": null,
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 4,
+        "jobs": 193,
+        "queue_ms": {
+          "n": 193,
+          "p50": 0.056,
+          "p95": 203.505,
+          "p99": 241.984,
+          "max": 262.803,
+          "mean": 35.157
+        },
+        "queue_ms_burst": {
+          "n": 32,
+          "p50": 119.233,
+          "p95": 239.934,
+          "p99": 240.543,
+          "max": 240.716,
+          "mean": 119.535
+        },
+        "queue_ms_poisson": {
+          "n": 161,
+          "p50": 0.04,
+          "p95": 76.054,
+          "p99": 236.332,
+          "max": 262.803,
+          "mean": 18.387
+        },
+        "service_ms": {
+          "n": 193,
+          "p50": 34.113,
+          "p95": 36.041,
+          "p99": 37.027,
+          "max": 38.461,
+          "mean": 34.34
+        },
+        "features_ms": {
+          "n": 193,
+          "p50": 2.071,
+          "p95": 2.419,
+          "p99": 3.002,
+          "max": 3.621,
+          "mean": 2.124
+        },
+        "model_ms": {
+          "n": 193,
+          "p50": 32.03,
+          "p95": 33.718,
+          "p99": 34.861,
+          "max": 36.439,
+          "mean": 32.215
+        },
+        "total_ms": {
+          "n": 193,
+          "p50": 34.725,
+          "p95": 239.175,
+          "p99": 278.368,
+          "max": 297.225,
+          "mean": 69.575
+        },
+        "total_ms_burst": {
+          "n": 32,
+          "p50": 153.363,
+          "p95": 276.026,
+          "p99": 276.901,
+          "max": 277.268,
+          "mean": 154.144
+        }
+      }
+    },
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 2,
+      "switch_interval_ms": 5.0,
+      "load_before": 5.78,
+      "load_wait_s": 60.0,
+      "load_after": 5.43,
+      "load_flag": true,
+      "cpu_pct": 170.5,
+      "loop_lag_ms": {
+        "n": 3928,
+        "p50": 0.071,
+        "p95": 0.22,
+        "p99": 0.337,
+        "max": 1.488,
+        "mean": 0.092
+      },
+      "silero_latency_ms": {
+        "n": 40000,
+        "p50": 0.3,
+        "p95": 0.663,
+        "p99": 0.966,
+        "max": 7.296,
+        "mean": 0.352
+      },
+      "silero_windows": 40000,
+      "silero_windows_expected_approx": 40000,
+      "per_stream_executor_backlog_max": 58,
+      "batch_size": null,
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 4,
+        "jobs": 193,
+        "queue_ms": {
+          "n": 193,
+          "p50": 0.038,
+          "p95": 86.135,
+          "p99": 114.166,
+          "max": 134.577,
+          "mean": 12.228
+        },
+        "queue_ms_burst": {
+          "n": 32,
+          "p50": 59.609,
+          "p95": 113.155,
+          "p99": 114.24,
+          "max": 114.277,
+          "mean": 57.543
+        },
+        "queue_ms_poisson": {
+          "n": 161,
+          "p50": 0.034,
+          "p95": 14.261,
+          "p99": 76.883,
+          "max": 134.577,
+          "mean": 3.222
+        },
+        "service_ms": {
+          "n": 193,
+          "p50": 34.54,
+          "p95": 39.788,
+          "p99": 45.248,
+          "max": 47.241,
+          "mean": 35.181
+        },
+        "features_ms": {
+          "n": 193,
+          "p50": 2.113,
+          "p95": 2.593,
+          "p99": 2.993,
+          "max": 3.395,
+          "mean": 2.189
+        },
+        "model_ms": {
+          "n": 193,
+          "p50": 32.352,
+          "p95": 37.317,
+          "p99": 42.593,
+          "max": 44.036,
+          "mean": 32.992
+        },
+        "total_ms": {
+          "n": 193,
+          "p50": 34.672,
+          "p95": 123.729,
+          "p99": 149.333,
+          "max": 176.758,
+          "mean": 47.484
+        },
+        "total_ms_burst": {
+          "n": 32,
+          "p50": 94.66,
+          "p95": 148.613,
+          "p99": 149.529,
+          "max": 149.628,
+          "mean": 94.426
+        }
+      }
+    }
+  ]
+}

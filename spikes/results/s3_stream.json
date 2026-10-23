@@ -1,0 +1,1560 @@
+{
+ "spike": "S3",
+ "step": "stream",
+ "started_at": "2026-10-23T06:10:49+08:00",
+ "loadavg1_start": 2.5,
+ "environment": {
+  "recorded_at": "2026-10-23T06:10:49+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "tts_stream",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_stream_061036/server.log",
+   "seconds_to_ready": 12.53
+  }
+ ],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "voice": "vivian"
+ },
+ "warmup": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 1918.06,
+   "total_ms": 3391.79,
+   "audio_s": 5.12,
+   "error": null
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "status": 200,
+   "ttfc_ms": 136.32,
+   "total_ms": 1147.43,
+   "audio_s": 3.76,
+   "error": null
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 109.13,
+   "total_ms": 1711.42,
+   "audio_s": 5.84,
+   "error": null
+  }
+ ],
+ "runs": [
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 5.14,
+   "first_byte_ms": 105.79,
+   "end_ms": 1559.09,
+   "closed_early": false,
+   "error": null,
+   "bytes": 257280,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.36,
+   "ttfc_ms": 105.79,
+   "total_ms": 1559.09,
+   "chunks": [
+    [
+     105.8,
+     15360
+    ],
+    [
+     183.5,
+     15360
+    ],
+    [
+     259.18,
+     15360
+    ],
+    [
+     334.61,
+     15360
+    ],
+    [
+     409.52,
+     15360
+    ],
+    [
+     486.33,
+     15360
+    ],
+    [
+     564.52,
+     15360
+    ],
+    [
+     652.75,
+     15360
+    ],
+    [
+     760.43,
+     15360
+    ],
+    [
+     869.15,
+     15360
+    ],
+    [
+     972.28,
+     15360
+    ],
+    [
+     1069.72,
+     15360
+    ],
+    [
+     1169.0,
+     15360
+    ],
+    [
+     1269.59,
+     15360
+    ],
+    [
+     1367.47,
+     15360
+    ],
+    [
+     1462.41,
+     15360
+    ],
+    [
+     1558.9,
+     11520
+    ]
+   ],
+   "rtf": 0.2909,
+   "steady_rtf": 0.2883,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 242.3,
+   "max_gap_ms": 108.7,
+   "loadavg1_before": 2.65,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.27,
+   "headers_ms": 4.98,
+   "first_byte_ms": 562.96,
+   "end_ms": 1280.22,
+   "closed_early": false,
+   "error": null,
+   "bytes": 245760,
+   "n_chunks": 3,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.12,
+   "ttfc_ms": 562.96,
+   "total_ms": 1280.22,
+   "chunks": [
+    [
+     562.96,
+     96000
+    ],
+    [
+     985.2,
+     96000
+    ],
+    [
+     1279.92,
+     53760
+    ]
+   ],
+   "rtf": 0.25,
+   "steady_rtf": 0.2298,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1577.8,
+   "max_gap_ms": 422.2,
+   "loadavg1_before": 2.65,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.45,
+   "first_byte_ms": 2373.85,
+   "end_ms": 2374.14,
+   "closed_early": false,
+   "error": null,
+   "bytes": 288000,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 6.0,
+   "ttfc_ms": 2373.85,
+   "total_ms": 2374.14,
+   "chunks": [
+    [
+     2374.02,
+     288000
+    ]
+   ],
+   "rtf": 0.3957,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 6.0,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.65,
+   "length": "medium",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.29,
+   "first_byte_ms": 176.77,
+   "end_ms": 4417.35,
+   "closed_early": false,
+   "error": null,
+   "bytes": 710400,
+   "n_chunks": 47,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 14.8,
+   "ttfc_ms": 176.77,
+   "total_ms": 4417.35,
+   "chunks": [
+    [
+     176.78,
+     15360
+    ],
+    [
+     272.28,
+     15360
+    ],
+    [
+     350.0,
+     15360
+    ],
+    [
+     426.83,
+     15360
+    ],
+    [
+     504.08,
+     15360
+    ],
+    [
+     586.68,
+     15360
+    ],
+    [
+     683.47,
+     15360
+    ],
+    [
+     792.09,
+     15360
+    ],
+    [
+     897.82,
+     15360
+    ],
+    [
+     989.76,
+     15360
+    ],
+    [
+     1091.93,
+     15360
+    ],
+    [
+     1197.56,
+     15360
+    ],
+    [
+     1284.52,
+     15360
+    ],
+    [
+     1367.67,
+     15360
+    ],
+    [
+     1451.24,
+     15360
+    ],
+    [
+     1542.28,
+     15360
+    ],
+    [
+     1635.01,
+     15360
+    ],
+    [
+     1731.69,
+     15360
+    ],
+    [
+     1829.97,
+     15360
+    ],
+    [
+     1925.54,
+     15360
+    ],
+    [
+     2035.46,
+     15360
+    ],
+    [
+     2132.37,
+     15360
+    ],
+    [
+     2216.23,
+     15360
+    ],
+    [
+     2296.78,
+     15360
+    ],
+    [
+     2377.07,
+     15360
+    ],
+    [
+     2455.34,
+     15360
+    ],
+    [
+     2536.29,
+     15360
+    ],
+    [
+     2634.24,
+     15360
+    ],
+    [
+     2758.8,
+     15360
+    ],
+    [
+     2856.68,
+     15360
+    ],
+    [
+     2964.93,
+     15360
+    ],
+    [
+     3085.69,
+     15360
+    ],
+    [
+     3187.71,
+     15360
+    ],
+    [
+     3277.34,
+     15360
+    ],
+    [
+     3365.27,
+     15360
+    ],
+    [
+     3453.25,
+     15360
+    ],
+    [
+     3542.22,
+     15360
+    ],
+    [
+     3635.25,
+     15360
+    ],
+    [
+     3732.14,
+     15360
+    ],
+    [
+     3825.73,
+     15360
+    ],
+    [
+     3911.64,
+     15360
+    ],
+    [
+     3997.38,
+     15360
+    ],
+    [
+     4086.09,
+     15360
+    ],
+    [
+     4183.43,
+     15360
+    ],
+    [
+     4272.73,
+     15360
+    ],
+    [
+     4359.82,
+     15360
+    ],
+    [
+     4417.15,
+     3840
+    ]
+   ],
+   "rtf": 0.2985,
+   "steady_rtf": 0.2928,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 224.5,
+   "max_gap_ms": 124.6,
+   "loadavg1_before": 2.92,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.03,
+   "first_byte_ms": 571.56,
+   "end_ms": 3845.85,
+   "closed_early": false,
+   "error": null,
+   "bytes": 691200,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 14.4,
+   "ttfc_ms": 571.56,
+   "total_ms": 3845.85,
+   "chunks": [
+    [
+     571.58,
+     96000
+    ],
+    [
+     1010.66,
+     96000
+    ],
+    [
+     1555.0,
+     96000
+    ],
+    [
+     2122.66,
+     96000
+    ],
+    [
+     2643.1,
+     96000
+    ],
+    [
+     3164.74,
+     96000
+    ],
+    [
+     3723.37,
+     96000
+    ],
+    [
+     3845.67,
+     19200
+    ]
+   ],
+   "rtf": 0.2671,
+   "steady_rtf": 0.264,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1560.9,
+   "max_gap_ms": 567.6,
+   "loadavg1_before": 2.92,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 0.98,
+   "first_byte_ms": 5276.57,
+   "end_ms": 5277.07,
+   "closed_early": false,
+   "error": null,
+   "bytes": 691200,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 14.4,
+   "ttfc_ms": 5276.57,
+   "total_ms": 5277.07,
+   "chunks": [
+    [
+     5276.99,
+     691200
+    ]
+   ],
+   "rtf": 0.3665,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 14.4,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.84,
+   "length": "long",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 0,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.39,
+   "first_byte_ms": 158.34,
+   "end_ms": 1658.73,
+   "closed_early": false,
+   "error": null,
+   "bytes": 257280,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.36,
+   "ttfc_ms": 158.34,
+   "total_ms": 1658.73,
+   "chunks": [
+    [
+     158.34,
+     15360
+    ],
+    [
+     255.66,
+     15360
+    ],
+    [
+     340.89,
+     15360
+    ],
+    [
+     420.99,
+     15360
+    ],
+    [
+     503.69,
+     15360
+    ],
+    [
+     588.99,
+     15360
+    ],
+    [
+     683.08,
+     15360
+    ],
+    [
+     777.1,
+     15360
+    ],
+    [
+     869.8,
+     15360
+    ],
+    [
+     959.44,
+     15360
+    ],
+    [
+     1044.41,
+     15360
+    ],
+    [
+     1132.5,
+     15360
+    ],
+    [
+     1225.26,
+     15360
+    ],
+    [
+     1321.06,
+     15360
+    ],
+    [
+     1431.65,
+     15360
+    ],
+    [
+     1548.07,
+     15360
+    ],
+    [
+     1658.55,
+     11520
+    ]
+   ],
+   "rtf": 0.3095,
+   "steady_rtf": 0.2977,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 222.7,
+   "max_gap_ms": 116.4,
+   "loadavg1_before": 2.78,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 0.96,
+   "first_byte_ms": 552.71,
+   "end_ms": 1454.57,
+   "closed_early": false,
+   "error": null,
+   "bytes": 257280,
+   "n_chunks": 3,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.36,
+   "ttfc_ms": 552.71,
+   "total_ms": 1454.57,
+   "chunks": [
+    [
+     552.73,
+     96000
+    ],
+    [
+     1072.85,
+     96000
+    ],
+    [
+     1454.34,
+     65280
+    ]
+   ],
+   "rtf": 0.2714,
+   "steady_rtf": 0.2683,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1479.9,
+   "max_gap_ms": 520.1,
+   "loadavg1_before": 2.63,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.39,
+   "first_byte_ms": 1914.18,
+   "end_ms": 1914.44,
+   "closed_early": false,
+   "error": null,
+   "bytes": 238080,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.96,
+   "ttfc_ms": 1914.18,
+   "total_ms": 1914.44,
+   "chunks": [
+    [
+     1914.26,
+     238080
+    ]
+   ],
+   "rtf": 0.386,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 4.96,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.63,
+   "length": "medium",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.19,
+   "first_byte_ms": 160.11,
+   "end_ms": 4696.23,
+   "closed_early": false,
+   "error": null,
+   "bytes": 695040,
+   "n_chunks": 46,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 14.48,
+   "ttfc_ms": 160.11,
+   "total_ms": 4696.23,
+   "chunks": [
+    [
+     160.11,
+     15360
+    ],
+    [
+     255.69,
+     15360
+    ],
+    [
+     340.69,
+     15360
+    ],
+    [
+     424.47,
+     15360
+    ],
+    [
+     522.06,
+     15360
+    ],
+    [
+     628.01,
+     15360
+    ],
+    [
+     728.59,
+     15360
+    ],
+    [
+     818.99,
+     15360
+    ],
+    [
+     904.08,
+     15360
+    ],
+    [
+     997.84,
+     15360
+    ],
+    [
+     1116.06,
+     15360
+    ],
+    [
+     1262.16,
+     15360
+    ],
+    [
+     1385.59,
+     15360
+    ],
+    [
+     1486.35,
+     15360
+    ],
+    [
+     1599.83,
+     15360
+    ],
+    [
+     1701.26,
+     15360
+    ],
+    [
+     1800.94,
+     15360
+    ],
+    [
+     1901.71,
+     15360
+    ],
+    [
+     2017.42,
+     15360
+    ],
+    [
+     2130.35,
+     15360
+    ],
+    [
+     2221.94,
+     15360
+    ],
+    [
+     2356.57,
+     15360
+    ],
+    [
+     2490.1,
+     15360
+    ],
+    [
+     2589.44,
+     15360
+    ],
+    [
+     2688.87,
+     15360
+    ],
+    [
+     2786.48,
+     15360
+    ],
+    [
+     2881.68,
+     15360
+    ],
+    [
+     2978.6,
+     15360
+    ],
+    [
+     3074.48,
+     15360
+    ],
+    [
+     3174.71,
+     15360
+    ],
+    [
+     3278.75,
+     15360
+    ],
+    [
+     3411.63,
+     15360
+    ],
+    [
+     3527.78,
+     15360
+    ],
+    [
+     3637.42,
+     15360
+    ],
+    [
+     3747.75,
+     15360
+    ],
+    [
+     3840.41,
+     15360
+    ],
+    [
+     3926.07,
+     15360
+    ],
+    [
+     4007.56,
+     15360
+    ],
+    [
+     4087.32,
+     15360
+    ],
+    [
+     4167.51,
+     15360
+    ],
+    [
+     4247.52,
+     15360
+    ],
+    [
+     4330.31,
+     15360
+    ],
+    [
+     4414.91,
+     15360
+    ],
+    [
+     4509.86,
+     15360
+    ],
+    [
+     4630.14,
+     15360
+    ],
+    [
+     4696.03,
+     3840
+    ]
+   ],
+   "rtf": 0.3243,
+   "steady_rtf": 0.3203,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 224.4,
+   "max_gap_ms": 146.1,
+   "loadavg1_before": 2.63,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 0.94,
+   "first_byte_ms": 530.56,
+   "end_ms": 3619.28,
+   "closed_early": false,
+   "error": null,
+   "bytes": 648960,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 13.52,
+   "ttfc_ms": 530.56,
+   "total_ms": 3619.28,
+   "chunks": [
+    [
+     530.57,
+     96000
+    ],
+    [
+     1060.34,
+     96000
+    ],
+    [
+     1568.35,
+     96000
+    ],
+    [
+     2106.39,
+     96000
+    ],
+    [
+     2677.01,
+     96000
+    ],
+    [
+     3235.46,
+     96000
+    ],
+    [
+     3618.99,
+     72960
+    ]
+   ],
+   "rtf": 0.2677,
+   "steady_rtf": 0.2681,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1470.2,
+   "max_gap_ms": 570.6,
+   "loadavg1_before": 2.74,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.46,
+   "first_byte_ms": 4812.04,
+   "end_ms": 4812.4,
+   "closed_early": false,
+   "error": null,
+   "bytes": 622080,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 12.96,
+   "ttfc_ms": 4812.04,
+   "total_ms": 4812.4,
+   "chunks": [
+    [
+     4812.28,
+     622080
+    ]
+   ],
+   "rtf": 0.3713,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 12.96,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.6,
+   "length": "long",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 1,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 1.09,
+   "first_byte_ms": 132.6,
+   "end_ms": 1795.9,
+   "closed_early": false,
+   "error": null,
+   "bytes": 288000,
+   "n_chunks": 19,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 6.0,
+   "ttfc_ms": 132.6,
+   "total_ms": 1795.9,
+   "chunks": [
+    [
+     132.61,
+     15360
+    ],
+    [
+     258.77,
+     15360
+    ],
+    [
+     349.38,
+     15360
+    ],
+    [
+     428.42,
+     15360
+    ],
+    [
+     504.71,
+     15360
+    ],
+    [
+     581.31,
+     15360
+    ],
+    [
+     659.63,
+     15360
+    ],
+    [
+     738.39,
+     15360
+    ],
+    [
+     817.22,
+     15360
+    ],
+    [
+     899.34,
+     15360
+    ],
+    [
+     988.69,
+     15360
+    ],
+    [
+     1083.95,
+     15360
+    ],
+    [
+     1211.81,
+     15360
+    ],
+    [
+     1317.79,
+     15360
+    ],
+    [
+     1402.24,
+     15360
+    ],
+    [
+     1482.6,
+     15360
+    ],
+    [
+     1567.67,
+     15360
+    ],
+    [
+     1670.31,
+     15360
+    ],
+    [
+     1795.73,
+     11520
+    ]
+   ],
+   "rtf": 0.2993,
+   "steady_rtf": 0.2928,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 193.8,
+   "max_gap_ms": 127.8,
+   "loadavg1_before": 2.47,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 2,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.06,
+   "first_byte_ms": 580.54,
+   "end_ms": 1508.34,
+   "closed_early": false,
+   "error": null,
+   "bytes": 261120,
+   "n_chunks": 3,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.44,
+   "ttfc_ms": 580.54,
+   "total_ms": 1508.34,
+   "chunks": [
+    [
+     580.56,
+     96000
+    ],
+    [
+     1034.61,
+     96000
+    ],
+    [
+     1507.97,
+     69120
+    ]
+   ],
+   "rtf": 0.2773,
+   "steady_rtf": 0.2696,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1546.0,
+   "max_gap_ms": 473.4,
+   "loadavg1_before": 2.47,
+   "length": "medium",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 2,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 1.17,
+   "first_byte_ms": 1775.39,
+   "end_ms": 1775.63,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 1775.39,
+   "total_ms": 1775.63,
+   "chunks": [
+    [
+     1775.45,
+     218880
+    ]
+   ],
+   "rtf": 0.3894,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 4.56,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.6,
+   "length": "medium",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 2,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.0,
+   "first_byte_ms": 115.97,
+   "end_ms": 3601.49,
+   "closed_early": false,
+   "error": null,
+   "bytes": 579840,
+   "n_chunks": 38,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 12.08,
+   "ttfc_ms": 115.97,
+   "total_ms": 3601.49,
+   "chunks": [
+    [
+     115.97,
+     15360
+    ],
+    [
+     218.06,
+     15360
+    ],
+    [
+     324.82,
+     15360
+    ],
+    [
+     414.85,
+     15360
+    ],
+    [
+     495.0,
+     15360
+    ],
+    [
+     575.32,
+     15360
+    ],
+    [
+     667.43,
+     15360
+    ],
+    [
+     780.66,
+     15360
+    ],
+    [
+     881.19,
+     15360
+    ],
+    [
+     967.62,
+     15360
+    ],
+    [
+     1055.77,
+     15360
+    ],
+    [
+     1161.61,
+     15360
+    ],
+    [
+     1268.21,
+     15360
+    ],
+    [
+     1374.44,
+     15360
+    ],
+    [
+     1479.96,
+     15360
+    ],
+    [
+     1595.45,
+     15360
+    ],
+    [
+     1699.6,
+     15360
+    ],
+    [
+     1789.94,
+     15360
+    ],
+    [
+     1871.65,
+     15360
+    ],
+    [
+     1949.91,
+     15360
+    ],
+    [
+     2028.54,
+     15360
+    ],
+    [
+     2109.05,
+     15360
+    ],
+    [
+     2187.7,
+     15360
+    ],
+    [
+     2268.65,
+     15360
+    ],
+    [
+     2360.06,
+     15360
+    ],
+    [
+     2474.53,
+     15360
+    ],
+    [
+     2573.35,
+     15360
+    ],
+    [
+     2667.84,
+     15360
+    ],
+    [
+     2765.2,
+     15360
+    ],
+    [
+     2871.32,
+     15360
+    ],
+    [
+     2964.26,
+     15360
+    ],
+    [
+     3051.86,
+     15360
+    ],
+    [
+     3138.83,
+     15360
+    ],
+    [
+     3226.84,
+     15360
+    ],
+    [
+     3320.43,
+     15360
+    ],
+    [
+     3413.62,
+     15360
+    ],
+    [
+     3503.61,
+     15360
+    ],
+    [
+     3601.29,
+     11520
+    ]
+   ],
+   "rtf": 0.2981,
+   "steady_rtf": 0.2964,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 217.9,
+   "max_gap_ms": 115.5,
+   "loadavg1_before": 2.6,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": 0.32,
+   "rep": 2,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.01,
+   "first_byte_ms": 525.95,
+   "end_ms": 3420.84,
+   "closed_early": false,
+   "error": null,
+   "bytes": 602880,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 12.56,
+   "ttfc_ms": 525.95,
+   "total_ms": 3420.84,
+   "chunks": [
+    [
+     525.96,
+     96000
+    ],
+    [
+     1065.2,
+     96000
+    ],
+    [
+     1650.72,
+     96000
+    ],
+    [
+     2118.63,
+     96000
+    ],
+    [
+     2665.71,
+     96000
+    ],
+    [
+     3267.46,
+     96000
+    ],
+    [
+     3420.4,
+     26880
+    ]
+   ],
+   "rtf": 0.2724,
+   "steady_rtf": 0.2741,
+   "first_chunk_audio_s": 2.0,
+   "min_slack_ms": 1460.8,
+   "max_gap_ms": 601.7,
+   "loadavg1_before": 2.55,
+   "length": "long",
+   "stream": true,
+   "streaming_interval": "default (2.0)",
+   "rep": 2,
+   "even_bytes": true
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 1.25,
+   "first_byte_ms": 4884.59,
+   "end_ms": 4884.84,
+   "closed_early": false,
+   "error": null,
+   "bytes": 591360,
+   "n_chunks": 1,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 12.32,
+   "ttfc_ms": 4884.59,
+   "total_ms": 4884.84,
+   "chunks": [
+    [
+     4884.81,
+     591360
+    ]
+   ],
+   "rtf": 0.3965,
+   "steady_rtf": null,
+   "first_chunk_audio_s": 12.32,
+   "min_slack_ms": null,
+   "max_gap_ms": null,
+   "loadavg1_before": 2.55,
+   "length": "long",
+   "stream": false,
+   "streaming_interval": "default (2.0)",
+   "rep": 2,
+   "even_bytes": true
+  }
+ ],
+ "loadavg1_end": 2.58,
+ "finished_at": "2026-10-23T06:11:49+08:00",
+ "servers_end": [
+  {
+   "name": "tts_stream",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_stream_061036/server.log",
+   "seconds_to_ready": 12.53,
+   "footprint_bytes_end": 4741057128,
+   "log_interesting": [
+    "12353.0 ms: INFO:     Started server process [11709]",
+    "12353.1 ms: INFO:     Waiting for application startup.",
+    "12353.4 ms: INFO:     Application startup complete.",
+    "12353.6 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+    "14181.5 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "14364.4 ms:   Initialized encoder codebooks",
+    "14364.4 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

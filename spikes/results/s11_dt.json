@@ -1,0 +1,2543 @@
+{
+ "spike": "S11 part 2",
+ "part": "dt",
+ "generated": "2026-10-23T02:31:40+0800",
+ "environment": {
+  "date": "2026-10-23T02:31:40+0800",
+  "python": "3.12.12",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "cpu": "Apple M3 Max",
+  "cores_perf": "12",
+  "cores_eff": "4",
+  "versions": {
+   "numpy": "2.5.4",
+   "livekit": "1.1.21",
+   "pywebrtc-audio": "0.2.0",
+   "onnxruntime": "1.31.0",
+   "soxr": "1.1.0",
+   "protobuf": "7.36.2"
+  },
+  "speexdsp_lib": "/opt/homebrew/opt/speexdsp/lib/libspeexdsp.1.dylib",
+  "speexdsp_version": "1.2.1 (Homebrew Cellar)",
+  "threads_env": {
+   "VECLIB_MAXIMUM_THREADS": "2",
+   "OMP_NUM_THREADS": "2",
+   "OPENBLAS_NUM_THREADS": "2"
+  },
+  "loadavg_1_5_15": [
+   3.81,
+   4.35,
+   4.63
+  ],
+  "aicc_source": "ai-native-callcenter @8fabadc (read-only): voice/rtp.go Run, media/resample.go, aicall/framer.go",
+  "g168_source": "spikes/data/echo/g168_paths.json"
+ },
+ "grid": [
+  {
+   "cid": "dt_zh0_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m1",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_001",
+    "zh_002",
+    "zh_003",
+    "zh_004",
+    "zh_005",
+    "zh_006",
+    "zh_007",
+    "zh_008",
+    "zh_009",
+    "zh_010"
+   ]
+  },
+  {
+   "cid": "dt_zh0_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m1",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_001",
+    "zh_002",
+    "zh_003",
+    "zh_004",
+    "zh_005",
+    "zh_006",
+    "zh_007",
+    "zh_008",
+    "zh_009",
+    "zh_010"
+   ]
+  },
+  {
+   "cid": "dt_zh0_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m1",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_001",
+    "zh_002",
+    "zh_003",
+    "zh_004",
+    "zh_005",
+    "zh_006",
+    "zh_007",
+    "zh_008",
+    "zh_009",
+    "zh_010"
+   ]
+  },
+  {
+   "cid": "dt_zh0_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m1",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_001",
+    "zh_002",
+    "zh_003",
+    "zh_004",
+    "zh_005",
+    "zh_006",
+    "zh_007",
+    "zh_008",
+    "zh_009",
+    "zh_010"
+   ]
+  },
+  {
+   "cid": "dt_zh1_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m3",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_011",
+    "zh_012",
+    "zh_013",
+    "zh_014",
+    "zh_015",
+    "zh_016",
+    "zh_017",
+    "zh_018",
+    "zh_019",
+    "zh_020"
+   ]
+  },
+  {
+   "cid": "dt_zh1_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m3",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_011",
+    "zh_012",
+    "zh_013",
+    "zh_014",
+    "zh_015",
+    "zh_016",
+    "zh_017",
+    "zh_018",
+    "zh_019",
+    "zh_020"
+   ]
+  },
+  {
+   "cid": "dt_zh1_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m3",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_011",
+    "zh_012",
+    "zh_013",
+    "zh_014",
+    "zh_015",
+    "zh_016",
+    "zh_017",
+    "zh_018",
+    "zh_019",
+    "zh_020"
+   ]
+  },
+  {
+   "cid": "dt_zh1_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m3",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_011",
+    "zh_012",
+    "zh_013",
+    "zh_014",
+    "zh_015",
+    "zh_016",
+    "zh_017",
+    "zh_018",
+    "zh_019",
+    "zh_020"
+   ]
+  },
+  {
+   "cid": "dt_zh2_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m5",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_021",
+    "zh_022",
+    "zh_023",
+    "zh_024",
+    "zh_025",
+    "zh_026",
+    "zh_027",
+    "zh_028",
+    "zh_029",
+    "zh_030"
+   ]
+  },
+  {
+   "cid": "dt_zh2_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m5",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_021",
+    "zh_022",
+    "zh_023",
+    "zh_024",
+    "zh_025",
+    "zh_026",
+    "zh_027",
+    "zh_028",
+    "zh_029",
+    "zh_030"
+   ]
+  },
+  {
+   "cid": "dt_zh2_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m5",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_021",
+    "zh_022",
+    "zh_023",
+    "zh_024",
+    "zh_025",
+    "zh_026",
+    "zh_027",
+    "zh_028",
+    "zh_029",
+    "zh_030"
+   ]
+  },
+  {
+   "cid": "dt_zh2_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m5",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_021",
+    "zh_022",
+    "zh_023",
+    "zh_024",
+    "zh_025",
+    "zh_026",
+    "zh_027",
+    "zh_028",
+    "zh_029",
+    "zh_030"
+   ]
+  },
+  {
+   "cid": "dt_zh3_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m7",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_031",
+    "zh_032",
+    "zh_033",
+    "zh_034",
+    "zh_035",
+    "zh_036",
+    "zh_037",
+    "zh_038",
+    "zh_039",
+    "zh_040"
+   ]
+  },
+  {
+   "cid": "dt_zh3_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m7",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_031",
+    "zh_032",
+    "zh_033",
+    "zh_034",
+    "zh_035",
+    "zh_036",
+    "zh_037",
+    "zh_038",
+    "zh_039",
+    "zh_040"
+   ]
+  },
+  {
+   "cid": "dt_zh3_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m7",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_031",
+    "zh_032",
+    "zh_033",
+    "zh_034",
+    "zh_035",
+    "zh_036",
+    "zh_037",
+    "zh_038",
+    "zh_039",
+    "zh_040"
+   ]
+  },
+  {
+   "cid": "dt_zh3_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m7",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "zh",
+   "seed": 0,
+   "near_ids": [
+    "zh_031",
+    "zh_032",
+    "zh_033",
+    "zh_034",
+    "zh_035",
+    "zh_036",
+    "zh_037",
+    "zh_038",
+    "zh_039",
+    "zh_040"
+   ]
+  },
+  {
+   "cid": "dt_en0_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m2",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_001",
+    "en_002",
+    "en_003",
+    "en_004",
+    "en_005",
+    "en_006",
+    "en_007",
+    "en_008",
+    "en_009",
+    "en_010"
+   ]
+  },
+  {
+   "cid": "dt_en0_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m2",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_001",
+    "en_002",
+    "en_003",
+    "en_004",
+    "en_005",
+    "en_006",
+    "en_007",
+    "en_008",
+    "en_009",
+    "en_010"
+   ]
+  },
+  {
+   "cid": "dt_en0_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m2",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_001",
+    "en_002",
+    "en_003",
+    "en_004",
+    "en_005",
+    "en_006",
+    "en_007",
+    "en_008",
+    "en_009",
+    "en_010"
+   ]
+  },
+  {
+   "cid": "dt_en0_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m2",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_001",
+    "en_002",
+    "en_003",
+    "en_004",
+    "en_005",
+    "en_006",
+    "en_007",
+    "en_008",
+    "en_009",
+    "en_010"
+   ]
+  },
+  {
+   "cid": "dt_en1_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m4",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_011",
+    "en_012",
+    "en_013",
+    "en_014",
+    "en_015",
+    "en_016",
+    "en_017",
+    "en_018",
+    "en_019",
+    "en_020"
+   ]
+  },
+  {
+   "cid": "dt_en1_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m4",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_011",
+    "en_012",
+    "en_013",
+    "en_014",
+    "en_015",
+    "en_016",
+    "en_017",
+    "en_018",
+    "en_019",
+    "en_020"
+   ]
+  },
+  {
+   "cid": "dt_en1_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m4",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_011",
+    "en_012",
+    "en_013",
+    "en_014",
+    "en_015",
+    "en_016",
+    "en_017",
+    "en_018",
+    "en_019",
+    "en_020"
+   ]
+  },
+  {
+   "cid": "dt_en1_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m4",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_011",
+    "en_012",
+    "en_013",
+    "en_014",
+    "en_015",
+    "en_016",
+    "en_017",
+    "en_018",
+    "en_019",
+    "en_020"
+   ]
+  },
+  {
+   "cid": "dt_en2_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m6",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_021",
+    "en_022",
+    "en_023",
+    "en_024",
+    "en_025",
+    "en_026",
+    "en_027",
+    "en_028",
+    "en_029",
+    "en_030"
+   ]
+  },
+  {
+   "cid": "dt_en2_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m6",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_021",
+    "en_022",
+    "en_023",
+    "en_024",
+    "en_025",
+    "en_026",
+    "en_027",
+    "en_028",
+    "en_029",
+    "en_030"
+   ]
+  },
+  {
+   "cid": "dt_en2_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m6",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_021",
+    "en_022",
+    "en_023",
+    "en_024",
+    "en_025",
+    "en_026",
+    "en_027",
+    "en_028",
+    "en_029",
+    "en_030"
+   ]
+  },
+  {
+   "cid": "dt_en2_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m6",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_021",
+    "en_022",
+    "en_023",
+    "en_024",
+    "en_025",
+    "en_026",
+    "en_027",
+    "en_028",
+    "en_029",
+    "en_030"
+   ]
+  },
+  {
+   "cid": "dt_en3_e6_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m8",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_031",
+    "en_032",
+    "en_033",
+    "en_034",
+    "en_035",
+    "en_036",
+    "en_037",
+    "en_038",
+    "en_039",
+    "en_040"
+   ]
+  },
+  {
+   "cid": "dt_en3_e6_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m8",
+   "path2": null,
+   "erl": 6,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_031",
+    "en_032",
+    "en_033",
+    "en_034",
+    "en_035",
+    "en_036",
+    "en_037",
+    "en_038",
+    "en_039",
+    "en_040"
+   ]
+  },
+  {
+   "cid": "dt_en3_e15_n0",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m8",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": 0,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_031",
+    "en_032",
+    "en_033",
+    "en_034",
+    "en_035",
+    "en_036",
+    "en_037",
+    "en_038",
+    "en_039",
+    "en_040"
+   ]
+  },
+  {
+   "cid": "dt_en3_e15_n15",
+   "part": "dt",
+   "layout": "dt",
+   "path": "m8",
+   "path2": null,
+   "erl": 15,
+   "d_ms": 120,
+   "eps_ms": 0.0,
+   "eps_step_t": null,
+   "eps2_ms": 0.0,
+   "law": "ulaw",
+   "noise_dbm0": -65.0,
+   "rtf": 0.29,
+   "near_rel_db": -15,
+   "lang": "en",
+   "seed": 0,
+   "near_ids": [
+    "en_031",
+    "en_032",
+    "en_033",
+    "en_034",
+    "en_035",
+    "en_036",
+    "en_037",
+    "en_038",
+    "en_039",
+    "en_040"
+   ]
+  }
+ ],
+ "variants": {
+  "bl05_pf:gcc_locked": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": -9.419,
+    "p50": 5.685,
+    "p90": 13.71
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.259,
+    "p90": 0.46,
+    "max": 0.639,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.237,
+    "p90": 0.452,
+    "max": 0.662,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.134,
+    "p90": 0.285,
+    "max": 0.613,
+    "frac_calls_le_1pct": 0.125
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.271,
+    "p90": 0.446,
+    "max": 0.618,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 247,
+    "after_1s": 223,
+    "after_2s": 215,
+    "calls_with_any_after_1s": 32,
+    "calls_with_any_after_2s": 32,
+    "since_playback_onset_s": {
+     "n": 247,
+     "p50": 2.325,
+     "p90": 6.112,
+     "max": 8.035,
+     "within_1s": 37,
+     "within_2s": 106,
+     "within_3s": 150
+    }
+   },
+   "false_starts_400": {
+    "total": 168,
+    "after_1s": 152,
+    "after_2s": 138,
+    "calls_with_any_after_1s": 31,
+    "calls_with_any_after_2s": 31,
+    "since_playback_onset_s": {
+     "n": 168,
+     "p50": 2.297,
+     "p90": 6.367,
+     "max": 8.291,
+     "within_1s": 17,
+     "within_2s": 73,
+     "within_3s": 108
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 247,
+      "calls": 32
+     },
+     "500ms": {
+      "false_starts": 244,
+      "calls": 32
+     },
+     "1000ms": {
+      "false_starts": 213,
+      "calls": 32
+     },
+     "1500ms": {
+      "false_starts": 184,
+      "calls": 32
+     },
+     "2000ms": {
+      "false_starts": 146,
+      "calls": 32
+     },
+     "2500ms": {
+      "false_starts": 118,
+      "calls": 32
+     },
+     "3000ms": {
+      "false_starts": 99,
+      "calls": 30
+     },
+     "4000ms": {
+      "false_starts": 69,
+      "calls": 27
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 168,
+      "calls": 32
+     },
+     "500ms": {
+      "false_starts": 168,
+      "calls": 32
+     },
+     "1000ms": {
+      "false_starts": 157,
+      "calls": 32
+     },
+     "1500ms": {
+      "false_starts": 132,
+      "calls": 31
+     },
+     "2000ms": {
+      "false_starts": 106,
+      "calls": 31
+     },
+     "2500ms": {
+      "false_starts": 80,
+      "calls": 29
+     },
+     "3000ms": {
+      "false_starts": 65,
+      "calls": 29
+     },
+     "4000ms": {
+      "false_starts": 45,
+      "calls": 23
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.005,
+    "worst_utt_p10": -0.359
+   },
+   "dt_sdr_db": {
+    "out_p50": -1.52,
+    "in_p50": 3.24,
+    "delta_p50": -3.77
+   },
+   "spec": {
+    "dt_out_p50": 0.165,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 32.485,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": -0.17,
+    "p90": 12.854,
+    "max": 58.55
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 9.232,
+    "frame_us_p99_p50": 120.855,
+    "frame_us_max_max": 1339.54,
+    "loadavg1_p50": 3.57
+   },
+   "gcc": {
+    "cpu_ms_per_audio_s_p50": 1.791,
+    "first_applied_t_p50": 2.5,
+    "first_applied_t_p90": 3.95,
+    "never_applied": 0,
+    "reshifts_p50": 1.0,
+    "reshifts_max": 5.0
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": -10.512,
+     "p50": 8.12
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": 0.055,
+     "p90": 11.301,
+     "max": 48.62,
+     "n_gt_10db": 34,
+     "n_gt_3db": 89
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "0/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "lk:engine": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 23.777,
+    "p50": 28.34,
+    "p90": 35.972
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.013,
+    "p90": 0.08,
+    "max": 0.102,
+    "frac_calls_le_1pct": 0.375
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.013,
+    "p90": 0.078,
+    "max": 0.105,
+    "frac_calls_le_1pct": 0.469
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.0,
+    "p90": 0.101,
+    "max": 0.171,
+    "frac_calls_le_1pct": 0.688
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.013,
+    "p90": 0.079,
+    "max": 0.099,
+    "frac_calls_le_1pct": 0.375
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 51,
+    "after_1s": 49,
+    "after_2s": 42,
+    "calls_with_any_after_1s": 22,
+    "calls_with_any_after_2s": 19,
+    "since_playback_onset_s": {
+     "n": 51,
+     "p50": 1.62,
+     "p90": 4.141,
+     "max": 5.617,
+     "within_1s": 10,
+     "within_2s": 32,
+     "within_3s": 44
+    }
+   },
+   "false_starts_400": {
+    "total": 16,
+    "after_1s": 16,
+    "after_2s": 14,
+    "calls_with_any_after_1s": 10,
+    "calls_with_any_after_2s": 9,
+    "since_playback_onset_s": {
+     "n": 16,
+     "p50": 2.277,
+     "p90": 4.671,
+     "max": 5.723,
+     "within_1s": 1,
+     "within_2s": 7,
+     "within_3s": 13
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 51,
+      "calls": 22
+     },
+     "500ms": {
+      "false_starts": 51,
+      "calls": 22
+     },
+     "1000ms": {
+      "false_starts": 44,
+      "calls": 21
+     },
+     "1500ms": {
+      "false_starts": 30,
+      "calls": 18
+     },
+     "2000ms": {
+      "false_starts": 22,
+      "calls": 15
+     },
+     "2500ms": {
+      "false_starts": 12,
+      "calls": 9
+     },
+     "3000ms": {
+      "false_starts": 9,
+      "calls": 6
+     },
+     "4000ms": {
+      "false_starts": 6,
+      "calls": 4
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 16,
+      "calls": 10
+     },
+     "500ms": {
+      "false_starts": 16,
+      "calls": 10
+     },
+     "1000ms": {
+      "false_starts": 15,
+      "calls": 9
+     },
+     "1500ms": {
+      "false_starts": 12,
+      "calls": 9
+     },
+     "2000ms": {
+      "false_starts": 10,
+      "calls": 8
+     },
+     "2500ms": {
+      "false_starts": 7,
+      "calls": 6
+     },
+     "3000ms": {
+      "false_starts": 3,
+      "calls": 2
+     },
+     "4000ms": {
+      "false_starts": 3,
+      "calls": 2
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.41,
+    "worst_utt_p10": -12.208
+   },
+   "dt_sdr_db": {
+    "out_p50": -1.265,
+    "in_p50": 3.24,
+    "delta_p50": -5.08
+   },
+   "spec": {
+    "dt_out_p50": 5.645,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 27.99,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": -0.22,
+    "p90": 23.284,
+    "max": 40.84
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 7.647,
+    "frame_us_p99_p50": 104.27,
+    "frame_us_max_max": 367.25,
+    "loadavg1_p50": 5.04
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 29.166,
+     "p50": 31.56
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": -0.075,
+     "p90": 14.536,
+     "max": 45.96,
+     "n_gt_10db": 30,
+     "n_gt_3db": 66
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "10/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "lk:locked": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 26.221,
+    "p50": 29.18,
+    "p90": 37.156
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.001,
+    "p90": 0.016,
+    "max": 0.037,
+    "frac_calls_le_1pct": 0.812
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.0,
+    "p90": 0.014,
+    "max": 0.039,
+    "frac_calls_le_1pct": 0.875
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.0,
+    "p90": 0.031,
+    "max": 0.055,
+    "frac_calls_le_1pct": 0.875
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.001,
+    "p90": 0.015,
+    "max": 0.036,
+    "frac_calls_le_1pct": 0.75
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 14,
+    "after_1s": 11,
+    "after_2s": 7,
+    "calls_with_any_after_1s": 9,
+    "calls_with_any_after_2s": 5,
+    "since_playback_onset_s": {
+     "n": 14,
+     "p50": 1.57,
+     "p90": 3.217,
+     "max": 6.517,
+     "within_1s": 4,
+     "within_2s": 12,
+     "within_3s": 12
+    }
+   },
+   "false_starts_400": {
+    "total": 5,
+    "after_1s": 5,
+    "after_2s": 2,
+    "calls_with_any_after_1s": 5,
+    "calls_with_any_after_2s": 2,
+    "since_playback_onset_s": {
+     "n": 5,
+     "p50": 2.201,
+     "p90": 5.666,
+     "max": 6.773,
+     "within_1s": 0,
+     "within_2s": 2,
+     "within_3s": 3
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 14,
+      "calls": 12
+     },
+     "500ms": {
+      "false_starts": 14,
+      "calls": 12
+     },
+     "1000ms": {
+      "false_starts": 12,
+      "calls": 10
+     },
+     "1500ms": {
+      "false_starts": 8,
+      "calls": 6
+     },
+     "2000ms": {
+      "false_starts": 5,
+      "calls": 5
+     },
+     "2500ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "3000ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "4000ms": {
+      "false_starts": 1,
+      "calls": 1
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 5,
+      "calls": 5
+     },
+     "500ms": {
+      "false_starts": 5,
+      "calls": 5
+     },
+     "1000ms": {
+      "false_starts": 5,
+      "calls": 5
+     },
+     "1500ms": {
+      "false_starts": 4,
+      "calls": 4
+     },
+     "2000ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "2500ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "3000ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "4000ms": {
+      "false_starts": 2,
+      "calls": 2
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.4,
+    "worst_utt_p10": -12.135
+   },
+   "dt_sdr_db": {
+    "out_p50": -0.815,
+    "in_p50": 3.24,
+    "delta_p50": -4.525
+   },
+   "spec": {
+    "dt_out_p50": 6.755,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 28.995,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": -0.19,
+    "p90": 21.59,
+    "max": 35.51
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 7.646,
+    "frame_us_p99_p50": 104.42,
+    "frame_us_max_max": 421.25,
+    "loadavg1_p50": 6.67
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 30.548,
+     "p50": 32.015
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": -0.665,
+     "p90": 4.959,
+     "max": 32.41,
+     "n_gt_10db": 5,
+     "n_gt_3db": 50
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "22/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "none:engine": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 0.0,
+    "p50": 0.0,
+    "p90": 0.0
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.776,
+    "p90": 0.85,
+    "max": 0.888,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.769,
+    "p90": 0.849,
+    "max": 0.884,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.242,
+    "p90": 0.484,
+    "max": 0.669,
+    "frac_calls_le_1pct": 0.031
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.765,
+    "p90": 0.835,
+    "max": 0.877,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 341,
+    "after_1s": 317,
+    "after_2s": 305,
+    "calls_with_any_after_1s": 32,
+    "calls_with_any_after_2s": 32,
+    "since_playback_onset_s": {
+     "n": 341,
+     "p50": 2.064,
+     "p90": 5.849,
+     "max": 7.817,
+     "within_1s": 65,
+     "within_2s": 163,
+     "within_3s": 204
+    }
+   },
+   "false_starts_400": {
+    "total": 294,
+    "after_1s": 275,
+    "after_2s": 259,
+    "calls_with_any_after_1s": 32,
+    "calls_with_any_after_2s": 32,
+    "since_playback_onset_s": {
+     "n": 294,
+     "p50": 2.279,
+     "p90": 6.073,
+     "max": 7.916,
+     "within_1s": 37,
+     "within_2s": 134,
+     "within_3s": 172
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 341,
+      "calls": 32
+     },
+     "500ms": {
+      "false_starts": 332,
+      "calls": 32
+     },
+     "1000ms": {
+      "false_starts": 291,
+      "calls": 32
+     },
+     "1500ms": {
+      "false_starts": 231,
+      "calls": 32
+     },
+     "2000ms": {
+      "false_starts": 180,
+      "calls": 32
+     },
+     "2500ms": {
+      "false_starts": 158,
+      "calls": 32
+     },
+     "3000ms": {
+      "false_starts": 145,
+      "calls": 32
+     },
+     "4000ms": {
+      "false_starts": 109,
+      "calls": 31
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 294,
+      "calls": 32
+     },
+     "500ms": {
+      "false_starts": 294,
+      "calls": 32
+     },
+     "1000ms": {
+      "false_starts": 267,
+      "calls": 32
+     },
+     "1500ms": {
+      "false_starts": 220,
+      "calls": 32
+     },
+     "2000ms": {
+      "false_starts": 169,
+      "calls": 32
+     },
+     "2500ms": {
+      "false_starts": 141,
+      "calls": 32
+     },
+     "3000ms": {
+      "false_starts": 127,
+      "calls": 32
+     },
+     "4000ms": {
+      "false_starts": 98,
+      "calls": 32
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": 0.0,
+    "worst_utt_p10": 0.0
+   },
+   "dt_sdr_db": {
+    "out_p50": 3.24,
+    "in_p50": 3.24,
+    "delta_p50": 0.0
+   },
+   "spec": {
+    "dt_out_p50": 4.24,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 43.93,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 0.091,
+    "frame_us_p99_p50": 1.08,
+    "frame_us_max_max": 59.71,
+    "loadavg1_p50": 5.14
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 0.0,
+     "p50": 0.0
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "n_gt_10db": 0,
+     "n_gt_3db": 0
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "0/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "pw:engine": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 22.634,
+    "p50": 27.625,
+    "p90": 34.581
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.009,
+    "p90": 0.029,
+    "max": 0.065,
+    "frac_calls_le_1pct": 0.562
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.006,
+    "p90": 0.024,
+    "max": 0.067,
+    "frac_calls_le_1pct": 0.625
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.0,
+    "p90": 0.033,
+    "max": 0.088,
+    "frac_calls_le_1pct": 0.781
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.01,
+    "p90": 0.03,
+    "max": 0.063,
+    "frac_calls_le_1pct": 0.5
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 29,
+    "after_1s": 27,
+    "after_2s": 22,
+    "calls_with_any_after_1s": 17,
+    "calls_with_any_after_2s": 13,
+    "since_playback_onset_s": {
+     "n": 29,
+     "p50": 1.946,
+     "p90": 4.106,
+     "max": 6.562,
+     "within_1s": 3,
+     "within_2s": 16,
+     "within_3s": 21
+    }
+   },
+   "false_starts_400": {
+    "total": 9,
+    "after_1s": 9,
+    "after_2s": 4,
+    "calls_with_any_after_1s": 7,
+    "calls_with_any_after_2s": 3,
+    "since_playback_onset_s": {
+     "n": 9,
+     "p50": 2.231,
+     "p90": 3.671,
+     "max": 5.723,
+     "within_1s": 0,
+     "within_2s": 3,
+     "within_3s": 7
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 29,
+      "calls": 18
+     },
+     "500ms": {
+      "false_starts": 29,
+      "calls": 18
+     },
+     "1000ms": {
+      "false_starts": 28,
+      "calls": 18
+     },
+     "1500ms": {
+      "false_starts": 21,
+      "calls": 15
+     },
+     "2000ms": {
+      "false_starts": 15,
+      "calls": 10
+     },
+     "2500ms": {
+      "false_starts": 11,
+      "calls": 7
+     },
+     "3000ms": {
+      "false_starts": 9,
+      "calls": 6
+     },
+     "4000ms": {
+      "false_starts": 4,
+      "calls": 3
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 9,
+      "calls": 7
+     },
+     "500ms": {
+      "false_starts": 9,
+      "calls": 7
+     },
+     "1000ms": {
+      "false_starts": 9,
+      "calls": 7
+     },
+     "1500ms": {
+      "false_starts": 7,
+      "calls": 5
+     },
+     "2000ms": {
+      "false_starts": 6,
+      "calls": 5
+     },
+     "2500ms": {
+      "false_starts": 4,
+      "calls": 3
+     },
+     "3000ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "4000ms": {
+      "false_starts": 1,
+      "calls": 1
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.305,
+    "worst_utt_p10": -11.878
+   },
+   "dt_sdr_db": {
+    "out_p50": 3.44,
+    "in_p50": 3.24,
+    "delta_p50": -1.185
+   },
+   "spec": {
+    "dt_out_p50": 5.335,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 32.095,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": -0.04,
+    "p90": 22.11,
+    "max": 35.59
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 8.107,
+    "frame_us_p99_p50": 117.005,
+    "frame_us_max_max": 299.79,
+    "loadavg1_p50": 5.595
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 28.233,
+     "p50": 30.475
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": -0.185,
+     "p90": 10.936,
+     "max": 35.19,
+     "n_gt_10db": 28,
+     "n_gt_3db": 65
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "12/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "pw:locked": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 25.285,
+    "p50": 28.255,
+    "p90": 35.476
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.0,
+    "p90": 0.011,
+    "max": 0.028,
+    "frac_calls_le_1pct": 0.844
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.0,
+    "p90": 0.005,
+    "max": 0.015,
+    "frac_calls_le_1pct": 0.906
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "max": 0.048,
+    "frac_calls_le_1pct": 0.938
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.0,
+    "p90": 0.012,
+    "max": 0.027,
+    "frac_calls_le_1pct": 0.812
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 6,
+    "after_1s": 5,
+    "after_2s": 2,
+    "calls_with_any_after_1s": 5,
+    "calls_with_any_after_2s": 2,
+    "since_playback_onset_s": {
+     "n": 6,
+     "p50": 1.736,
+     "p90": 2.974,
+     "max": 3.973,
+     "within_1s": 1,
+     "within_2s": 5,
+     "within_3s": 5
+    }
+   },
+   "false_starts_400": {
+    "total": 3,
+    "after_1s": 3,
+    "after_2s": 0,
+    "calls_with_any_after_1s": 3,
+    "calls_with_any_after_2s": 0,
+    "since_playback_onset_s": {
+     "n": 3,
+     "p50": 2.201,
+     "p90": 2.225,
+     "max": 2.231,
+     "within_1s": 0,
+     "within_2s": 1,
+     "within_3s": 3
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 6,
+      "calls": 6
+     },
+     "500ms": {
+      "false_starts": 6,
+      "calls": 6
+     },
+     "1000ms": {
+      "false_starts": 6,
+      "calls": 6
+     },
+     "1500ms": {
+      "false_starts": 4,
+      "calls": 4
+     },
+     "2000ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "2500ms": {
+      "false_starts": 1,
+      "calls": 1
+     },
+     "3000ms": {
+      "false_starts": 1,
+      "calls": 1
+     },
+     "4000ms": {
+      "false_starts": 1,
+      "calls": 1
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "500ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "1000ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "1500ms": {
+      "false_starts": 3,
+      "calls": 3
+     },
+     "2000ms": {
+      "false_starts": 2,
+      "calls": 2
+     },
+     "2500ms": {
+      "false_starts": 0,
+      "calls": 0
+     },
+     "3000ms": {
+      "false_starts": 0,
+      "calls": 0
+     },
+     "4000ms": {
+      "false_starts": 0,
+      "calls": 0
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.305,
+    "worst_utt_p10": -11.885
+   },
+   "dt_sdr_db": {
+    "out_p50": 4.225,
+    "in_p50": 3.24,
+    "delta_p50": 0.855
+   },
+   "spec": {
+    "dt_out_p50": 6.11,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 34.4,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": -0.2,
+    "p90": 20.444,
+    "max": 33.58
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 8.127,
+    "frame_us_p99_p50": 116.935,
+    "frame_us_max_max": 271.42,
+    "loadavg1_p50": 4.51
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 29.306,
+     "p50": 31.245
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": -0.385,
+     "p90": 5.535,
+     "max": 28.57,
+     "n_gt_10db": 6,
+     "n_gt_3db": 52
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "27/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "sx1024_pf:gcc_locked": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 15.491,
+    "p50": 21.97,
+    "p90": 26.747
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.165,
+    "p90": 0.241,
+    "max": 0.259,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.134,
+    "p90": 0.214,
+    "max": 0.228,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.051,
+    "p90": 0.256,
+    "max": 0.419,
+    "frac_calls_le_1pct": 0.438
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.173,
+    "p90": 0.24,
+    "max": 0.284,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 133,
+    "after_1s": 109,
+    "after_2s": 100,
+    "calls_with_any_after_1s": 31,
+    "calls_with_any_after_2s": 30,
+    "since_playback_onset_s": {
+     "n": 133,
+     "p50": 1.744,
+     "p90": 4.717,
+     "max": 7.597,
+     "within_1s": 26,
+     "within_2s": 76,
+     "within_3s": 96
+    }
+   },
+   "false_starts_400": {
+    "total": 93,
+    "after_1s": 74,
+    "after_2s": 60,
+    "calls_with_any_after_1s": 29,
+    "calls_with_any_after_2s": 26,
+    "since_playback_onset_s": {
+     "n": 93,
+     "p50": 1.917,
+     "p90": 4.445,
+     "max": 5.961,
+     "within_1s": 13,
+     "within_2s": 52,
+     "within_3s": 71
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 133,
+      "calls": 32
+     },
+     "500ms": {
+      "false_starts": 131,
+      "calls": 32
+     },
+     "1000ms": {
+      "false_starts": 115,
+      "calls": 31
+     },
+     "1500ms": {
+      "false_starts": 91,
+      "calls": 30
+     },
+     "2000ms": {
+      "false_starts": 60,
+      "calls": 26
+     },
+     "2500ms": {
+      "false_starts": 46,
+      "calls": 24
+     },
+     "3000ms": {
+      "false_starts": 40,
+      "calls": 22
+     },
+     "4000ms": {
+      "false_starts": 25,
+      "calls": 18
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 93,
+      "calls": 31
+     },
+     "500ms": {
+      "false_starts": 93,
+      "calls": 31
+     },
+     "1000ms": {
+      "false_starts": 84,
+      "calls": 31
+     },
+     "1500ms": {
+      "false_starts": 67,
+      "calls": 28
+     },
+     "2000ms": {
+      "false_starts": 47,
+      "calls": 25
+     },
+     "2500ms": {
+      "false_starts": 30,
+      "calls": 20
+     },
+     "3000ms": {
+      "false_starts": 25,
+      "calls": 19
+     },
+     "4000ms": {
+      "false_starts": 14,
+      "calls": 12
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.22,
+    "worst_utt_p10": -9.024
+   },
+   "dt_sdr_db": {
+    "out_p50": 11.99,
+    "in_p50": 3.24,
+    "delta_p50": 8.15
+   },
+   "spec": {
+    "dt_out_p50": 19.955,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 37.755,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": 0.59,
+    "p90": 16.838,
+    "max": 25.75
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 4.459,
+    "frame_us_p99_p50": 54.525,
+    "frame_us_max_max": 3673.79,
+    "loadavg1_p50": 4.26
+   },
+   "gcc": {
+    "cpu_ms_per_audio_s_p50": 1.8,
+    "first_applied_t_p50": 2.5,
+    "first_applied_t_p90": 3.95,
+    "never_applied": 0,
+    "reshifts_p50": 1.0,
+    "reshifts_max": 5.0
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 19.75,
+     "p50": 23.965
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": 0.66,
+     "p90": 7.597,
+     "max": 23.76,
+     "n_gt_10db": 14,
+     "n_gt_3db": 70
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "0/32",
+    "c3_convergence_calls_pass": null
+   }
+  },
+  "sx1024ppd_pf:gcc_locked": {
+   "calls": 32,
+   "ok": 32,
+   "errors": [],
+   "erle_ss_db": {
+    "p10": 36.085,
+    "p50": 41.46,
+    "p90": 47.413
+   },
+   "silero_rate_after_1s": {
+    "p50": 0.07,
+    "p90": 0.088,
+    "max": 0.129,
+    "frac_calls_le_1pct": 0.031
+   },
+   "silero_rate_after_2s": {
+    "p50": 0.038,
+    "p90": 0.057,
+    "max": 0.077,
+    "frac_calls_le_1pct": 0.062
+   },
+   "silero_rate_first_1s_of_playbacks": {
+    "p50": 0.027,
+    "p90": 0.161,
+    "max": 0.419,
+    "frac_calls_le_1pct": 0.469
+   },
+   "silero_rate_change_first_2s": {
+    "p50": null,
+    "p90": null,
+    "max": null,
+    "frac_calls_le_1pct": 0.0
+   },
+   "silero_rate_all_eo": {
+    "p50": 0.084,
+    "p90": 0.113,
+    "max": 0.167,
+    "frac_calls_le_1pct": 0.031
+   },
+   "silero_before_rate_all_eo_p50": 0.765,
+   "silero_before_false_starts_150": 341,
+   "false_starts_150": {
+    "total": 61,
+    "after_1s": 36,
+    "after_2s": 26,
+    "calls_with_any_after_1s": 22,
+    "calls_with_any_after_2s": 17,
+    "since_playback_onset_s": {
+     "n": 61,
+     "p50": 1.597,
+     "p90": 4.242,
+     "max": 6.057,
+     "within_1s": 16,
+     "within_2s": 41,
+     "within_3s": 46
+    }
+   },
+   "false_starts_400": {
+    "total": 46,
+    "after_1s": 28,
+    "after_2s": 11,
+    "calls_with_any_after_1s": 23,
+    "calls_with_any_after_2s": 10,
+    "since_playback_onset_s": {
+     "n": 46,
+     "p50": 1.609,
+     "p90": 4.429,
+     "max": 4.912,
+     "within_1s": 9,
+     "within_2s": 32,
+     "within_3s": 38
+    }
+   },
+   "false_starts_vs_echo_guard": {
+    "150": {
+     "0ms": {
+      "false_starts": 61,
+      "calls": 31
+     },
+     "500ms": {
+      "false_starts": 60,
+      "calls": 31
+     },
+     "1000ms": {
+      "false_starts": 51,
+      "calls": 26
+     },
+     "1500ms": {
+      "false_starts": 36,
+      "calls": 20
+     },
+     "2000ms": {
+      "false_starts": 22,
+      "calls": 17
+     },
+     "2500ms": {
+      "false_starts": 18,
+      "calls": 14
+     },
+     "3000ms": {
+      "false_starts": 16,
+      "calls": 14
+     },
+     "4000ms": {
+      "false_starts": 9,
+      "calls": 8
+     }
+    },
+    "400": {
+     "0ms": {
+      "false_starts": 46,
+      "calls": 31
+     },
+     "500ms": {
+      "false_starts": 46,
+      "calls": 31
+     },
+     "1000ms": {
+      "false_starts": 40,
+      "calls": 27
+     },
+     "1500ms": {
+      "false_starts": 28,
+      "calls": 18
+     },
+     "2000ms": {
+      "false_starts": 18,
+      "calls": 13
+     },
+     "2500ms": {
+      "false_starts": 10,
+      "calls": 9
+     },
+     "3000ms": {
+      "false_starts": 9,
+      "calls": 8
+     },
+     "4000ms": {
+      "false_starts": 6,
+      "calls": 6
+     }
+    }
+   },
+   "near_single_talk_gain_db": {
+    "p50": -0.59,
+    "worst_utt_p10": -24.252
+   },
+   "dt_sdr_db": {
+    "out_p50": 11.975,
+    "in_p50": 3.24,
+    "delta_p50": 8.245
+   },
+   "spec": {
+    "dt_out_p50": 18.015,
+    "dt_in_p50": 4.24,
+    "st_out_p50": 26.275,
+    "st_in_p50": 43.93
+   },
+   "post_dt_drop_db": {
+    "n": 289,
+    "p50": 0.72,
+    "p90": 20.488,
+    "max": 41.67
+   },
+   "cpu": {
+    "engine_ms_per_audio_s_p50": 5.621,
+    "frame_us_p99_p50": 111.19,
+    "frame_us_max_max": 3020.33,
+    "loadavg1_p50": 3.81
+   },
+   "gcc": {
+    "cpu_ms_per_audio_s_p50": 1.813,
+    "first_applied_t_p50": 2.5,
+    "first_applied_t_p90": 3.95,
+    "never_applied": 0,
+    "reshifts_p50": 1.0,
+    "reshifts_max": 5.0
+   },
+   "measurable_windows": {
+    "calls": 32,
+    "erle_ss_db": {
+     "p10": 40.708,
+     "p50": 44.985
+    },
+    "post_dt_drop_db": {
+     "n": 244,
+     "p50": 0.975,
+     "p90": 10.492,
+     "max": 44.27,
+     "n_gt_10db": 28,
+     "n_gt_3db": 86
+    }
+   },
+   "criteria": {
+    "c1_echo_only_calls_pass": "1/32",
+    "c3_convergence_calls_pass": null
+   }
+  }
+ }
+}

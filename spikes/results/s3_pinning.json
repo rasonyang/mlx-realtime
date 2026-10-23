@@ -1,0 +1,841 @@
+{
+ "spike": "S3",
+ "step": "pinning",
+ "started_at": "2026-10-23T06:46:31+08:00",
+ "loadavg1_start": 2.88,
+ "environment": {
+  "recorded_at": "2026-10-23T06:46:32+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "tts_pinning",
+   "port": 8103,
+   "traced": true,
+   "cmd": "uv run --locked --project spikes/audio python spikes/audio/s3_traced_server.py --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_pinning_064619/server.log",
+   "seconds_to_ready": 12.81
+  }
+ ],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "voice": "vivian",
+  "streaming_interval": 0.32,
+  "note": "traced server (trace lines only); model.load lines show every real load"
+ },
+ "models_before": {
+  "object": "list",
+  "data": []
+ },
+ "swap_before": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+ "footprint_before_warmup": 67338864,
+ "warmup": {
+  "status": 200,
+  "connect_ms": 0.25,
+  "headers_ms": 1793.08,
+  "first_byte_ms": 1925.82,
+  "end_ms": 3234.27,
+  "closed_early": false,
+  "error": null,
+  "bytes": 222720,
+  "n_chunks": 15,
+  "content_type": "audio/pcm",
+  "transfer_encoding": "chunked",
+  "audio_s": 4.64,
+  "ttfc_ms": 1925.82,
+  "total_ms": 3234.27,
+  "rtf": 0.697,
+  "steady_rtf": 0.3028,
+  "first_chunk_audio_s": 0.32,
+  "min_slack_ms": 225.5,
+  "max_gap_ms": 103.1,
+  "loadavg1_before": 2.88
+ },
+ "footprint_after_warmup": 2771487240,
+ "sequence": [
+  {
+   "i": 2,
+   "status": 200,
+   "ttfc_ms": 117.57,
+   "total_ms": 1638.57,
+   "rtf": 0.3103,
+   "audio_s": 5.28,
+   "loadavg1_before": 3.29,
+   "error": null
+  },
+  {
+   "i": 3,
+   "status": 200,
+   "ttfc_ms": 119.45,
+   "total_ms": 1486.42,
+   "rtf": 0.2949,
+   "audio_s": 5.04,
+   "loadavg1_before": 3.29,
+   "error": null
+  },
+  {
+   "i": 4,
+   "status": 200,
+   "ttfc_ms": 112.61,
+   "total_ms": 1572.07,
+   "rtf": 0.3169,
+   "audio_s": 4.96,
+   "loadavg1_before": 3.35,
+   "error": null
+  },
+  {
+   "i": 5,
+   "status": 200,
+   "ttfc_ms": 124.37,
+   "total_ms": 1446.76,
+   "rtf": 0.3014,
+   "audio_s": 4.8,
+   "loadavg1_before": 3.35,
+   "error": null
+  },
+  {
+   "i": 6,
+   "status": 200,
+   "ttfc_ms": 106.11,
+   "total_ms": 1427.32,
+   "rtf": 0.2974,
+   "audio_s": 4.8,
+   "loadavg1_before": 3.35,
+   "error": null
+  },
+  {
+   "i": 7,
+   "status": 200,
+   "ttfc_ms": 108.8,
+   "total_ms": 1626.47,
+   "rtf": 0.3128,
+   "audio_s": 5.2,
+   "loadavg1_before": 3.48,
+   "error": null
+  },
+  {
+   "i": 8,
+   "status": 200,
+   "ttfc_ms": 138.04,
+   "total_ms": 1603.24,
+   "rtf": 0.2947,
+   "audio_s": 5.44,
+   "loadavg1_before": 3.48,
+   "error": null
+  },
+  {
+   "i": 9,
+   "status": 200,
+   "ttfc_ms": 107.3,
+   "total_ms": 1593.41,
+   "rtf": 0.2973,
+   "audio_s": 5.36,
+   "loadavg1_before": 3.48,
+   "error": null
+  },
+  {
+   "i": 10,
+   "status": 200,
+   "ttfc_ms": 109.44,
+   "total_ms": 1692.59,
+   "rtf": 0.3022,
+   "audio_s": 5.6,
+   "loadavg1_before": 3.36,
+   "error": null
+  },
+  {
+   "i": 11,
+   "status": 200,
+   "ttfc_ms": 106.56,
+   "total_ms": 1427.53,
+   "rtf": 0.2925,
+   "audio_s": 4.88,
+   "loadavg1_before": 3.36,
+   "error": null
+  },
+  {
+   "i": 12,
+   "status": 200,
+   "ttfc_ms": 112.56,
+   "total_ms": 1463.62,
+   "rtf": 0.2951,
+   "audio_s": 4.96,
+   "loadavg1_before": 3.36,
+   "error": null
+  },
+  {
+   "i": 13,
+   "status": 200,
+   "ttfc_ms": 111.42,
+   "total_ms": 1402.17,
+   "rtf": 0.2921,
+   "audio_s": 4.8,
+   "loadavg1_before": 3.36,
+   "error": null
+  },
+  {
+   "i": 14,
+   "status": 200,
+   "ttfc_ms": 112.93,
+   "total_ms": 1591.33,
+   "rtf": 0.306,
+   "audio_s": 5.2,
+   "loadavg1_before": 3.33,
+   "error": null
+  },
+  {
+   "i": 15,
+   "status": 200,
+   "ttfc_ms": 162.74,
+   "total_ms": 2567.15,
+   "rtf": 0.4457,
+   "audio_s": 5.76,
+   "loadavg1_before": 3.33,
+   "error": null
+  },
+  {
+   "i": 16,
+   "status": 200,
+   "ttfc_ms": 189.74,
+   "total_ms": 2680.49,
+   "rtf": 0.5155,
+   "audio_s": 5.2,
+   "loadavg1_before": 3.39,
+   "error": null
+  },
+  {
+   "i": 17,
+   "status": 200,
+   "ttfc_ms": 189.7,
+   "total_ms": 2560.11,
+   "rtf": 0.5162,
+   "audio_s": 4.96,
+   "loadavg1_before": 3.39,
+   "error": null
+  },
+  {
+   "i": 18,
+   "status": 200,
+   "ttfc_ms": 189.7,
+   "total_ms": 2515.23,
+   "rtf": 0.5154,
+   "audio_s": 4.88,
+   "loadavg1_before": 4.0,
+   "error": null
+  },
+  {
+   "i": 19,
+   "status": 200,
+   "ttfc_ms": 188.74,
+   "total_ms": 2397.64,
+   "rtf": 0.5167,
+   "audio_s": 4.64,
+   "loadavg1_before": 4.0,
+   "error": null
+  },
+  {
+   "i": 20,
+   "status": 200,
+   "ttfc_ms": 192.6,
+   "total_ms": 2783.24,
+   "rtf": 0.5116,
+   "audio_s": 5.44,
+   "loadavg1_before": 3.92,
+   "error": null
+  },
+  {
+   "i": 21,
+   "status": 200,
+   "ttfc_ms": 189.37,
+   "total_ms": 2958.61,
+   "rtf": 0.5136,
+   "audio_s": 5.76,
+   "loadavg1_before": 3.92,
+   "error": null
+  },
+  {
+   "i": 22,
+   "status": 200,
+   "ttfc_ms": 189.68,
+   "total_ms": 2516.8,
+   "rtf": 0.5157,
+   "audio_s": 4.88,
+   "loadavg1_before": 3.68,
+   "error": null
+  },
+  {
+   "i": 23,
+   "status": 200,
+   "ttfc_ms": 189.84,
+   "total_ms": 2273.72,
+   "rtf": 0.5168,
+   "audio_s": 4.4,
+   "loadavg1_before": 3.68,
+   "error": null
+  },
+  {
+   "i": 24,
+   "status": 200,
+   "ttfc_ms": 189.96,
+   "total_ms": 2633.93,
+   "rtf": 0.5144,
+   "audio_s": 5.12,
+   "loadavg1_before": 3.63,
+   "error": null
+  },
+  {
+   "i": 25,
+   "status": 200,
+   "ttfc_ms": 189.77,
+   "total_ms": 2430.67,
+   "rtf": 0.515,
+   "audio_s": 4.72,
+   "loadavg1_before": 3.63,
+   "error": null
+  },
+  {
+   "i": 26,
+   "status": 200,
+   "ttfc_ms": 190.11,
+   "total_ms": 2724.81,
+   "rtf": 0.5161,
+   "audio_s": 5.28,
+   "loadavg1_before": 3.58,
+   "error": null
+  },
+  {
+   "i": 27,
+   "status": 200,
+   "ttfc_ms": 189.97,
+   "total_ms": 2681.12,
+   "rtf": 0.5156,
+   "audio_s": 5.2,
+   "loadavg1_before": 3.58,
+   "error": null
+  },
+  {
+   "i": 28,
+   "status": 200,
+   "ttfc_ms": 194.0,
+   "total_ms": 2598.47,
+   "rtf": 0.5156,
+   "audio_s": 5.04,
+   "loadavg1_before": 3.53,
+   "error": null
+  },
+  {
+   "i": 29,
+   "status": 200,
+   "ttfc_ms": 189.21,
+   "total_ms": 2630.05,
+   "rtf": 0.5137,
+   "audio_s": 5.12,
+   "loadavg1_before": 3.53,
+   "error": null
+  },
+  {
+   "i": 30,
+   "status": 200,
+   "ttfc_ms": 189.17,
+   "total_ms": 2717.59,
+   "rtf": 0.5147,
+   "audio_s": 5.28,
+   "loadavg1_before": 3.41,
+   "error": null
+  },
+  {
+   "i": 31,
+   "status": 200,
+   "ttfc_ms": 191.16,
+   "total_ms": 2523.87,
+   "rtf": 0.5172,
+   "audio_s": 4.88,
+   "loadavg1_before": 3.41,
+   "error": null
+  },
+  {
+   "i": 32,
+   "status": 200,
+   "ttfc_ms": 189.71,
+   "total_ms": 2199.72,
+   "rtf": 0.5188,
+   "audio_s": 4.24,
+   "loadavg1_before": 3.21,
+   "error": null
+  },
+  {
+   "i": 33,
+   "status": 200,
+   "ttfc_ms": 189.8,
+   "total_ms": 2362.91,
+   "rtf": 0.5182,
+   "audio_s": 4.56,
+   "loadavg1_before": 3.21,
+   "error": null
+  },
+  {
+   "i": 34,
+   "status": 200,
+   "ttfc_ms": 191.39,
+   "total_ms": 2590.29,
+   "rtf": 0.5139,
+   "audio_s": 5.04,
+   "loadavg1_before": 3.2,
+   "error": null
+  },
+  {
+   "i": 35,
+   "status": 200,
+   "ttfc_ms": 191.32,
+   "total_ms": 2398.91,
+   "rtf": 0.517,
+   "audio_s": 4.64,
+   "loadavg1_before": 3.2,
+   "error": null
+  },
+  {
+   "i": 36,
+   "status": 200,
+   "ttfc_ms": 191.59,
+   "total_ms": 3001.85,
+   "rtf": 0.514,
+   "audio_s": 5.84,
+   "loadavg1_before": 3.02,
+   "error": null
+  },
+  {
+   "i": 37,
+   "status": 200,
+   "ttfc_ms": 191.25,
+   "total_ms": 2310.79,
+   "rtf": 0.5158,
+   "audio_s": 4.48,
+   "loadavg1_before": 3.02,
+   "error": null
+  },
+  {
+   "i": 38,
+   "status": 200,
+   "ttfc_ms": 189.64,
+   "total_ms": 2846.87,
+   "rtf": 0.5157,
+   "audio_s": 5.52,
+   "loadavg1_before": 2.86,
+   "error": null
+  },
+  {
+   "i": 39,
+   "status": 200,
+   "ttfc_ms": 189.01,
+   "total_ms": 2597.89,
+   "rtf": 0.5155,
+   "audio_s": 5.04,
+   "loadavg1_before": 2.86,
+   "error": null
+  },
+  {
+   "i": 40,
+   "status": 200,
+   "ttfc_ms": 188.54,
+   "total_ms": 2868.32,
+   "rtf": 0.5196,
+   "audio_s": 5.52,
+   "loadavg1_before": 2.79,
+   "error": null
+  },
+  {
+   "i": 41,
+   "status": 200,
+   "ttfc_ms": 188.79,
+   "total_ms": 2719.3,
+   "rtf": 0.5665,
+   "audio_s": 4.8,
+   "loadavg1_before": 2.73,
+   "error": null
+  },
+  {
+   "i": 42,
+   "status": 200,
+   "ttfc_ms": 190.2,
+   "total_ms": 2207.54,
+   "rtf": 0.5206,
+   "audio_s": 4.24,
+   "loadavg1_before": 2.73,
+   "error": null
+  },
+  {
+   "i": 43,
+   "status": 200,
+   "ttfc_ms": 191.61,
+   "total_ms": 2151.07,
+   "rtf": 0.5171,
+   "audio_s": 4.16,
+   "loadavg1_before": 2.73,
+   "error": null
+  },
+  {
+   "i": 44,
+   "status": 200,
+   "ttfc_ms": 190.01,
+   "total_ms": 2473.81,
+   "rtf": 0.5154,
+   "audio_s": 4.8,
+   "loadavg1_before": 2.59,
+   "error": null
+  },
+  {
+   "i": 45,
+   "status": 200,
+   "ttfc_ms": 188.83,
+   "total_ms": 2724.21,
+   "rtf": 0.5159,
+   "audio_s": 5.28,
+   "loadavg1_before": 2.59,
+   "error": null
+  },
+  {
+   "i": 46,
+   "status": 200,
+   "ttfc_ms": 191.31,
+   "total_ms": 2363.0,
+   "rtf": 0.5182,
+   "audio_s": 4.56,
+   "loadavg1_before": 2.54,
+   "error": null
+  },
+  {
+   "i": 47,
+   "status": 200,
+   "ttfc_ms": 190.05,
+   "total_ms": 2525.48,
+   "rtf": 0.5175,
+   "audio_s": 4.88,
+   "loadavg1_before": 2.54,
+   "error": null
+  },
+  {
+   "i": 48,
+   "status": 200,
+   "ttfc_ms": 189.13,
+   "total_ms": 2680.3,
+   "rtf": 0.5154,
+   "audio_s": 5.2,
+   "loadavg1_before": 2.42,
+   "error": null
+  },
+  {
+   "i": 49,
+   "status": 200,
+   "ttfc_ms": 189.5,
+   "total_ms": 2519.37,
+   "rtf": 0.5163,
+   "audio_s": 4.88,
+   "loadavg1_before": 2.42,
+   "error": null
+  },
+  {
+   "i": 50,
+   "status": 200,
+   "ttfc_ms": 190.17,
+   "total_ms": 3019.35,
+   "rtf": 0.51,
+   "audio_s": 5.92,
+   "loadavg1_before": 2.38,
+   "error": null
+  }
+ ],
+ "footprint_after_sequence": 2760477192,
+ "sequence_summary": {
+  "request_2": {
+   "i": 2,
+   "status": 200,
+   "ttfc_ms": 117.57,
+   "total_ms": 1638.57,
+   "rtf": 0.3103,
+   "audio_s": 5.28,
+   "loadavg1_before": 3.29,
+   "error": null
+  },
+  "request_50": {
+   "i": 50,
+   "status": 200,
+   "ttfc_ms": 190.17,
+   "total_ms": 3019.35,
+   "rtf": 0.51,
+   "audio_s": 5.92,
+   "loadavg1_before": 2.38,
+   "error": null
+  },
+  "ttfc_ms": {
+   "n": 49,
+   "p50": 189.64,
+   "p95": 191.6,
+   "max": 194.0,
+   "min": 106.11,
+   "mean": 169.48
+  },
+  "first10_ttfc_ms": {
+   "n": 10,
+   "p50": 111.03,
+   "p95": 131.89,
+   "max": 138.04,
+   "min": 106.11,
+   "mean": 115.03
+  },
+  "last10_ttfc_ms": {
+   "n": 10,
+   "p50": 190.03,
+   "p95": 191.47,
+   "max": 191.61,
+   "min": 188.79,
+   "mean": 189.96
+  }
+ },
+ "idle_gaps": [
+  {
+   "idle_s": 5.0,
+   "rep": 0,
+   "after_idle_ttfc_ms": 127.95,
+   "after_idle_total_ms": 1472.29,
+   "next_ttfc_ms": 104.39,
+   "next_total_ms": 1664.47,
+   "loadavg1_before": 2.4
+  },
+  {
+   "idle_s": 5.0,
+   "rep": 1,
+   "after_idle_ttfc_ms": 114.67,
+   "after_idle_total_ms": 1560.18,
+   "next_ttfc_ms": 112.59,
+   "next_total_ms": 1697.42,
+   "loadavg1_before": 2.29
+  },
+  {
+   "idle_s": 30.0,
+   "rep": 0,
+   "after_idle_ttfc_ms": 126.59,
+   "after_idle_total_ms": 1475.96,
+   "next_ttfc_ms": 105.91,
+   "next_total_ms": 1539.88,
+   "loadavg1_before": 2.59
+  },
+  {
+   "idle_s": 30.0,
+   "rep": 1,
+   "after_idle_ttfc_ms": 141.06,
+   "after_idle_total_ms": 1407.71,
+   "next_ttfc_ms": 100.64,
+   "next_total_ms": 1329.7,
+   "loadavg1_before": 2.18
+  },
+  {
+   "idle_s": 120.0,
+   "rep": 0,
+   "after_idle_ttfc_ms": 142.13,
+   "after_idle_total_ms": 1610.32,
+   "next_ttfc_ms": 100.95,
+   "next_total_ms": 1554.25,
+   "loadavg1_before": 2.5
+  },
+  {
+   "idle_s": 120.0,
+   "rep": 1,
+   "after_idle_ttfc_ms": 134.95,
+   "after_idle_total_ms": 1497.95,
+   "next_ttfc_ms": 116.59,
+   "next_total_ms": 1605.84,
+   "loadavg1_before": 2.76
+  }
+ ],
+ "models_after": {
+  "object": "list",
+  "data": [
+   {
+    "id": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+    "object": "model",
+    "created": 1792709636,
+    "owned_by": "system"
+   }
+  ]
+ },
+ "swap_after": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+ "model_load_trace_lines": [
+  "134.9 ms: [trace 76318825264166] model.load.start mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "1906.6 ms: [trace 76320596911750] model.load.end mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
+ ],
+ "load_lines_stock": [
+  "Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+ ],
+ "loadavg1_end": 2.76,
+ "finished_at": "2026-10-23T06:53:56+08:00",
+ "servers_end": [
+  {
+   "name": "tts_pinning",
+   "port": 8103,
+   "traced": true,
+   "cmd": "uv run --locked --project spikes/audio python spikes/audio/s3_traced_server.py --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_pinning_064619/server.log",
+   "seconds_to_ready": 12.81,
+   "footprint_bytes_end": 2664057352,
+   "log_interesting": [
+    "331434.6 ms: [trace 76637240308166] tts.start rid=859c9fe5 chars=23 stream=True interval=0.32",
+    "331569.4 ms: [trace 76637375257541] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "331643.9 ms: [trace 76637449706125] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "331723.4 ms: [trace 76637529196666] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "331816.7 ms: [trace 76637622479208] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "331929.6 ms: [trace 76637735397833] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332032.0 ms: [trace 76637837791083] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332120.9 ms: [trace 76637926719375] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332215.8 ms: [trace 76638021599583] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332321.1 ms: [trace 76638126924833] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332432.7 ms: [trace 76638238504916] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332528.8 ms: [trace 76638334634125] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332614.5 ms: [trace 76638420293875] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332696.6 ms: [trace 76638502476375] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332775.4 ms: [trace 76638581258458] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332854.1 ms: [trace 76638659915750] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "332933.4 ms: [trace 76638739184625] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "333015.9 ms: [trace 76638821727416] tts.emit rid=859c9fe5 samples=7680 cancelled=False",
+    "333040.9 ms: [trace 76638846761208] tts.end rid=859c9fe5 cancelled=False",
+    "333041.0 ms: [trace 76638846858750] handle.cancel rid=859c9fe5 kind=tts",
+    "333042.0 ms: [trace 76638847876083] tts.start rid=ab8b23d5 chars=23 stream=True interval=0.32",
+    "333138.8 ms: [trace 76638944589958] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333217.5 ms: [trace 76639023348625] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333296.9 ms: [trace 76639102738333] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333376.9 ms: [trace 76639182689125] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333464.8 ms: [trace 76639270638750] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333571.1 ms: [trace 76639376932291] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333667.5 ms: [trace 76639473364541] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333761.1 ms: [trace 76639566909833] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333863.6 ms: [trace 76639669458541] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "333971.8 ms: [trace 76639777610000] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334063.4 ms: [trace 76639869203166] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334147.2 ms: [trace 76639953014500] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334231.8 ms: [trace 76640037577375] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334316.8 ms: [trace 76640122622708] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334406.2 ms: [trace 76640212052208] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334498.4 ms: [trace 76640304181750] tts.emit rid=ab8b23d5 samples=7680 cancelled=False",
+    "334587.9 ms: [trace 76640393713375] tts.emit rid=ab8b23d5 samples=5760 cancelled=False",
+    "334595.0 ms: [trace 76640400854958] tts.end rid=ab8b23d5 cancelled=False",
+    "334595.4 ms: [trace 76640401213083] handle.cancel rid=ab8b23d5 kind=tts",
+    "454609.2 ms: [trace 76760414931958] tts.start rid=7e0b0bba chars=23 stream=True interval=0.32",
+    "454737.3 ms: [trace 76760543148500] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "454811.8 ms: [trace 76760617674458] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "454890.2 ms: [trace 76760696065875] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "454985.6 ms: [trace 76760791361666] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455097.9 ms: [trace 76760903720083] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455191.0 ms: [trace 76760996835875] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455278.6 ms: [trace 76761084392750] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455378.4 ms: [trace 76761184211500] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455497.1 ms: [trace 76761302967000] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455595.8 ms: [trace 76761401601250] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455675.7 ms: [trace 76761481528166] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455751.0 ms: [trace 76761556847000] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455825.7 ms: [trace 76761631494500] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455900.1 ms: [trace 76761705913166] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "455974.8 ms: [trace 76761780622125] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "456051.6 ms: [trace 76761857441750] tts.emit rid=7e0b0bba samples=7680 cancelled=False",
+    "456096.2 ms: [trace 76761902046291] tts.emit rid=7e0b0bba samples=1920 cancelled=False",
+    "456103.4 ms: [trace 76761909215666] tts.end rid=7e0b0bba cancelled=False",
+    "456103.7 ms: [trace 76761909527291] handle.cancel rid=7e0b0bba kind=tts",
+    "456104.7 ms: [trace 76761910587458] tts.start rid=731cef4d chars=23 stream=True interval=0.32",
+    "456214.8 ms: [trace 76762020611916] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456337.5 ms: [trace 76762143254708] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456442.0 ms: [trace 76762247868416] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456538.2 ms: [trace 76762344068791] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456632.9 ms: [trace 76762438760375] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456728.6 ms: [trace 76762534400166] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456826.9 ms: [trace 76762632769083] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "456917.0 ms: [trace 76762722828875] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457005.4 ms: [trace 76762811242125] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457095.2 ms: [trace 76762901034041] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457191.2 ms: [trace 76762997028375] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457296.0 ms: [trace 76763101790541] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457409.3 ms: [trace 76763215090666] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457507.1 ms: [trace 76763312960166] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457587.0 ms: [trace 76763392834416] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457662.8 ms: [trace 76763468673416] tts.emit rid=731cef4d samples=7680 cancelled=False",
+    "457703.0 ms: [trace 76763508859125] tts.emit rid=731cef4d samples=1920 cancelled=False",
+    "457709.3 ms: [trace 76763515169000] tts.end rid=731cef4d cancelled=False",
+    "457709.6 ms: [trace 76763515482291] handle.cancel rid=731cef4d kind=tts"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

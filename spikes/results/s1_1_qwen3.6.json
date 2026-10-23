@@ -1,0 +1,522 @@
+{
+ "spike": "S1.1",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": {
+   "pmset_custom": "Battery Power:\n Sleep On Power Button 1\n powermode            1\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                1\n tcpkeepalive         1\n disksleep            10\n",
+   "pmset_powermode_now": "powermode            0",
+   "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7274595)\t79%; AC attached; not charging present: true",
+   "iogpu_wired_limit_mb": "0",
+   "loadavg": [
+    6.0029296875,
+    6.3447265625,
+    8.67578125
+   ]
+  },
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.839969166,
+  "first_request_done_s": 2.105083916,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792724662.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 5.4404296875,
+  "loadavg_1m_after": 6.0029296875,
+  "wall_s": 51.8,
+  "footprint_gb": 20.81
+ },
+ "data": {
+  "off": [
+   {
+    "prompt": "请用一两句话介绍一下杭州。",
+    "status": 200,
+    "content": "杭州是一座风景秀丽的历史文化名城，以“人间天堂”西湖闻名于世。这里不仅有着深厚的历史底蕴，还是中国数字经济的中心，拥有阿里巴巴等科技巨头。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 45,
+     "completion_tokens": 37,
+     "total_tokens": 82,
+     "prompt_tokens_details": {
+      "cached_tokens": 0
+     }
+    },
+    "t_first_token": 0.1202065
+   },
+   {
+    "prompt": "手机电池不耐用有什么办法？",
+    "status": 200,
+    "content": "建议开启手机的省电模式，并关闭后台应用刷新以延长续航。此外，调低屏幕亮度并定期检查电池健康度也是有效的应对措施。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 46,
+     "completion_tokens": 31,
+     "total_tokens": 77,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.071577417
+   },
+   {
+    "prompt": "什么是5G网络？",
+    "status": 200,
+    "content": "5G是第五代移动通信技术，它比4G速度快得多，延迟也更低。这使得高清视频流、在线游戏和物联网应用更加流畅和实时。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 44,
+     "completion_tokens": 35,
+     "total_tokens": 79,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.069637083
+   },
+   {
+    "prompt": "怎么把照片从手机传到电脑？",
+    "status": 200,
+    "content": "最简单的方法是使用手机自带的“Nearby Share”或“快速分享”功能直接发送给电脑。或者，你也可以通过数据线连接电脑，像使用U盘一样直接复制照片文件。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 47,
+     "completion_tokens": 39,
+     "total_tokens": 86,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.075256417
+   },
+   {
+    "prompt": "我的手机充不进电了，可能是什么原因？",
+    "status": 200,
+    "content": "可能是充电线或充电头坏了，也可能是手机充电口积灰了。建议先清理一下接口或换个充电器试试。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 49,
+     "completion_tokens": 27,
+     "total_tokens": 76,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.076834375
+   },
+   {
+    "prompt": "推荐一个周末放松的方式。",
+    "status": 200,
+    "content": "去公园野餐或近郊徒步是个不错的选择，既能呼吸新鲜空气又能缓解压力。或者在家看部老电影、泡个热水澡，享受安静的独处时光。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 45,
+     "completion_tokens": 36,
+     "total_tokens": 81,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.068920917
+   },
+   {
+    "prompt": "解释一下什么是云存储。",
+    "status": 200,
+    "content": "云存储就是把数据保存在互联网上的远程服务器上，而不是你的电脑或手机本地。这样你可以随时随地通过设备访问和备份文件。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 45,
+     "completion_tokens": 28,
+     "total_tokens": 73,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.069513416
+   },
+   {
+    "prompt": "13乘以17等于多少？",
+    "status": 200,
+    "content": "13乘以17等于221。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 47,
+     "completion_tokens": 11,
+     "total_tokens": 58,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.074267959
+   },
+   {
+    "prompt": "如何设置手机的指纹解锁？",
+    "status": 200,
+    "content": "请进入手机的“设置”，找到“安全与隐私”或“生物识别”选项，然后按照提示录入您的指纹即可。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 45,
+     "completion_tokens": 28,
+     "total_tokens": 73,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.070654125
+   },
+   {
+    "prompt": "用一句话说说你能帮我做什么。",
+    "status": 200,
+    "content": "我可以为你解答疑问、提供建议、处理各种任务，做你身边的得力助手。",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 47,
+     "completion_tokens": 19,
+     "total_tokens": 66,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.075498792
+   },
+   {
+    "prompt": "What is the capital of Australia?",
+    "status": 200,
+    "content": "The capital of Australia is Canberra.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 46,
+     "completion_tokens": 8,
+     "total_tokens": 54,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.070238958
+   },
+   {
+    "prompt": "How do I free up storage on my phone?",
+    "status": 200,
+    "content": "Start by deleting unused apps and clearing your browser cache. You can also offload large photos and videos to cloud storage or an external drive.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 49,
+     "completion_tokens": 29,
+     "total_tokens": 78,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.075829291
+   },
+   {
+    "prompt": "Explain what a SIM card does in one sentence.",
+    "status": 200,
+    "content": "A SIM card identifies you to your mobile network, allowing your phone to make calls and use data services.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 50,
+     "completion_tokens": 22,
+     "total_tokens": 72,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.076882
+   },
+   {
+    "prompt": "What's 15% of 80?",
+    "status": 200,
+    "content": "15% of 80 is 12.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 50,
+     "completion_tokens": 13,
+     "total_tokens": 63,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.078210791
+   },
+   {
+    "prompt": "Give me a tip for better sleep.",
+    "status": 200,
+    "content": "Try keeping your bedroom cool, dark, and quiet to create an ideal environment for rest. Also, avoid screens at least an hour before bed to help your body wind down.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 47,
+     "completion_tokens": 36,
+     "total_tokens": 83,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.074770542
+   },
+   {
+    "prompt": "Why does my phone get hot when charging?",
+    "status": 200,
+    "content": "Your phone heats up because charging generates energy, and some of that energy turns into heat as a natural byproduct. It's completely normal for the device to get warm, though it should never feel uncomfortably hot to the touch.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 48,
+     "completion_tokens": 47,
+     "total_tokens": 95,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.075230792
+   },
+   {
+    "prompt": "What does airplane mode do?",
+    "status": 200,
+    "content": "Airplane mode turns off all wireless connections on your device, including Wi-Fi, Bluetooth, and cellular data. This prevents signals from interfering with aircraft navigation systems during flights.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 45,
+     "completion_tokens": 35,
+     "total_tokens": 80,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.071938959
+   },
+   {
+    "prompt": "Tell me a fun fact about octopuses.",
+    "status": 200,
+    "content": "Octopuses have three hearts and blue blood! Two hearts pump blood to the gills, while the third pumps it to the rest of the body.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 49,
+     "completion_tokens": 32,
+     "total_tokens": 81,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.080866917
+   },
+   {
+    "prompt": "How do I take a screenshot on Android?",
+    "status": 200,
+    "content": "Press and hold the Power and Volume Down buttons at the same time. The screen will flash, and you'll see a preview of your screenshot.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 48,
+     "completion_tokens": 30,
+     "total_tokens": 78,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.079063459
+   },
+   {
+    "prompt": "Is it safe to leave my phone charging overnight?",
+    "status": 200,
+    "content": "Yes, it is generally safe because modern phones automatically stop charging once they reach 100%. However, keeping it plugged in for long periods can generate heat, which may slightly degrade the battery's lifespan over time.",
+    "reasoning": "",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 49,
+     "completion_tokens": 45,
+     "total_tokens": 94,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.076738834
+   }
+  ],
+  "on": [
+   {
+    "prompt": "请用一两句话介绍一下杭州。",
+    "reasoning_chars": 1370,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **User:** \"请用一两句话介绍一下杭州。\" (Please introduce Hangzhou in one or two sentences.)\n   - **Language:** Chinese\n   - **Constraint:** One or two short spoken sentences.\n   - **Content:** Introduce Hangzhou.\n\n2.  **Identify Key Information about H",
+    "status": 200,
+    "content": "\n\n杭州是浙江省会，以秀美的西湖和深厚的历史文化闻名，自古被誉为“人间天堂”。如今它更是数字经济的高地，一座兼具古典韵味与现代活力的宜居城市。",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 43,
+     "completion_tokens": 451,
+     "total_tokens": 494,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.070389958,
+    "t_first_content": 5.028364625
+   },
+   {
+    "prompt": "手机电池不耐用有什么办法？",
+    "reasoning_chars": 1072,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Question:** 手机电池不耐用有什么办法？ (What can I do if my phone battery doesn't last long?)\n   - **Language:** Chinese\n   - **Constraint:** Answer in one or two short spoken sentences, in the user's language.\n\n2.  **Identify Key Information Needed:",
+    "status": 200,
+    "content": "\n\n建议调低屏幕亮度、关闭后台不必要的APP并开启省电模式。如果电池确实已经老化，最彻底的办法是去官方售后更换新电池。",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 44,
+     "completion_tokens": 349,
+     "total_tokens": 393,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.067961042,
+    "t_first_content": 3.919465542
+   },
+   {
+    "prompt": "什么是5G网络？",
+    "reasoning_chars": 2407,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Question:** 什么是5G网络？ (What is 5G network?)\n   - **Language:** Chinese\n   - **Constraint:** Answer in one or two short spoken sentences, in the user's language.\n\n2.  **Identify Key Concepts about 5G:**\n   - 5G is the fifth generation of m",
+    "status": 200,
+    "content": "\n\n5G是第五代移动通信技术，简单说就是网速更快、延迟更低，还能同时连接海量设备。它不光让日常上网更流畅，也为自动驾驶和智能家居等应用提供了基础。",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 42,
+     "completion_tokens": 836,
+     "total_tokens": 878,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.066752084,
+    "t_first_content": 9.721893542
+   },
+   {
+    "prompt": "What is the capital of Australia?",
+    "reasoning_chars": 3100,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Question: \"What is the capital of Australia?\"\n   - Language: English\n   - Expected Answer: Canberra\n   - Constraint: Answer in one or two short spoken sentences, in the user's language.\n\n2.  **Identify Key Information:**\n   - Capital of Au",
+    "status": 200,
+    "content": "\n\nThe capital of Australia is Canberra. It's located in the Australian Capital Territory.",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 44,
+     "completion_tokens": 749,
+     "total_tokens": 793,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.06901525,
+    "t_first_content": 8.917241625
+   },
+   {
+    "prompt": "How do I free up storage on my phone?",
+    "reasoning_chars": 1533,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Question:** \"How do I free up storage on my phone?\"\n   - **Language:** English\n   - **Goal:** Provide clear, concise advice on freeing up phone storage\n   - **Constraint:** Answer in one or two short spoken sentences, in the user's langu",
+    "status": 200,
+    "content": "\n\nStart by deleting apps you rarely use and clearing your cache. Then, move photos and videos to the cloud or an external drive.",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 47,
+     "completion_tokens": 413,
+     "total_tokens": 460,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.076370875,
+    "t_first_content": 4.771753625
+   },
+   {
+    "prompt": "Explain what a SIM card does in one sentence.",
+    "reasoning_chars": 2831,
+    "reasoning_head": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Question:** \"Explain what a SIM card does in one sentence.\"\n   - **Constraint 1:** Explain what a SIM card does.\n   - **Constraint 2:** Use exactly one sentence.\n   - **Constraint 3:** Answer in one or two short spoken sentences (from sy",
+    "status": 200,
+    "content": "\n\nA SIM card is a small chip that securely stores your unique subscriber information and authentication details, allowing your phone to connect to and be recognized by your cellular network.",
+    "think_markup": false,
+    "finish_reason": "stop",
+    "usage": {
+     "prompt_tokens": 48,
+     "completion_tokens": 697,
+     "total_tokens": 745,
+     "prompt_tokens_details": {
+      "cached_tokens": 30
+     }
+    },
+    "t_first_token": 0.077563292,
+    "t_first_content": 8.232185625
+   }
+  ],
+  "no_kwargs": [
+   {
+    "prompt": "请用一两句话介绍一下杭州。",
+    "status": 200,
+    "content": "杭州是浙江省省会，以秀丽的西湖风景和深厚的历史文化闻名于世。它也是一座充满活力的现代化城市，被誉为“人间天堂”。",
+    "reasoning": "",
+    "think_markup": false
+   },
+   {
+    "prompt": "What is the capital of Australia?",
+    "status": 200,
+    "content": "The capital of Australia is Canberra.",
+    "reasoning": "",
+    "think_markup": false
+   }
+  ],
+  "off_ok": 20,
+  "off_n": 20,
+  "on_reasoning": 6,
+  "on_n": 6
+ }
+}

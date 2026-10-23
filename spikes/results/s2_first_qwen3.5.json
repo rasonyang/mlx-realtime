@@ -1,0 +1,88 @@
+{
+ "spike": "S2.first",
+ "conditions": {
+  "model": "mlx-community/Qwen3.5-35B-A3B-4bit",
+  "revision": "1e20fd8d42056f870933bf98ca6211024744f7ec",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.5-35B-A3B-4bit/snapshots/1e20fd8d42056f870933bf98ca6211024744f7ec",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": {
+   "pmset_custom": "Battery Power:\n Sleep On Power Button 1\n powermode            1\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         2\n womp                 0\n networkoversleep     0\n sleep                1\n lessbright           1\n tcpkeepalive         1\n disksleep            10\nAC Power:\n Sleep On Power Button 1\n powermode            0\n standby              1\n ttyskeepawake        1\n hibernatemode        3\n powernap             1\n hibernatefile        /var/vm/sleepimage\n displaysleep         10\n womp                 1\n networkoversleep     0\n sleep                1\n tcpkeepalive         1\n disksleep            10\n",
+   "pmset_powermode_now": "powermode            0",
+   "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7274595)\t76%; AC attached; not charging present: true",
+   "iogpu_wired_limit_mb": "0",
+   "loadavg": [
+    6.484375,
+    12.283203125,
+    13.2646484375
+   ]
+  },
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.5-35B-A3B-4bit/snapshots/1e20fd8d42056f870933bf98ca6211024744f7ec --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.846103959,
+  "first_request_done_s": 2.267887,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s2_qwen3.5_1792728222.log",
+  "concurrency": 1,
+  "warm_or_cold": "see keys",
+  "loadavg_1m_before": 6.484375,
+  "loadavg_1m_after": 6.484375,
+  "wall_s": 3.6,
+  "footprint_gb": 21.03,
+  "sampling": {
+   "temperature": 0.7,
+   "top_p": 0.8
+  },
+  "max_completion_tokens": 512
+ },
+ "data": {
+  "first_aicc_request_after_warmup": {
+   "ttft": 1.444294959,
+   "t_first_boundary": 1.457129084,
+   "t_first_content": 1.444294959,
+   "t_first_tool_call": null,
+   "t_done": 1.850369042,
+   "prompt_tokens": 1568,
+   "cached": 0,
+   "uncached": 1568,
+   "completion_tokens": 34,
+   "decode_tps": 83.51112852596513,
+   "finish_reason": "stop",
+   "status": 200,
+   "content": "您好，手机截图通常可以按电源键加音量下键，或者使用三指下滑等手势。请问您具体是想咨询哪款手机的操作呢？",
+   "tool_calls": [],
+   "wall_clock": "12:03:48",
+   "load1": 6.5
+  },
+  "second_cold_prefill_request": {
+   "ttft": 1.346248,
+   "t_first_boundary": 1.43146925,
+   "t_first_content": 1.346248,
+   "t_first_tool_call": null,
+   "t_done": 1.778125208,
+   "prompt_tokens": 1570,
+   "cached": 0,
+   "uncached": 1570,
+   "completion_tokens": 36,
+   "decode_tps": 83.15389257875576,
+   "finish_reason": "stop",
+   "status": 200,
+   "content": "充电慢可能是充电器或数据线的问题，建议检查配件是否原装或损坏。如果问题依旧，我可以帮您转接人工客服进一步处理。请问需要转接吗？",
+   "tool_calls": [],
+   "wall_clock": "12:03:48",
+   "load1": 6.5
+  },
+  "server_ready_s": 0.846103959,
+  "server_first_request_done_s": 2.267887
+ }
+}

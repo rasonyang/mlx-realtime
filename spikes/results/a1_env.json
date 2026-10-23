@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-10-22T22:33:22+08:00",
+  "uv_version": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)",
+  "sysctl_iogpu.wired_limit_mb": "0",
+  "hw.memsize": "137438953472",
+  "macos": "26.6.2",
+  "mx_device_info": {
+    "device_name": "Apple M3 Max",
+    "max_recommended_working_set_size": 115448725504,
+    "memory_size": 137438953472,
+    "architecture": "applegpu_g15s",
+    "max_buffer_length": 86586540032,
+    "resource_limit": 499000
+  },
+  "projects": {
+    "llm": {
+      "python_pin": "3.12",
+      "python": "3.12.12",
+      "dependencies": [
+        "mlx-lm==0.32.2"
+      ],
+      "uv_sources": null,
+      "locked_packages": 37,
+      "key_versions": {
+        "mlx": "0.32.4",
+        "mlx-lm": "0.32.2",
+        "mlx-metal": "0.32.4",
+        "transformers": "5.20.2",
+        "numpy": "2.5.4",
+        "huggingface-hub": "2.2.0",
+        "hf-xet": "1.7.0",
+        "tokenizers": "0.23.3",
+        "safetensors": "0.8.0"
+      }
+    },
+    "audio": {
+      "python_pin": "3.12",
+      "python": "3.12.12",
+      "dependencies": [
+        "en-core-web-sm",
+        "espeakng-loader==0.2.4",
+        "misaki[zh]==0.9.4",
+        "mlx-audio[server]==0.6.1",
+        "num2words==0.5.14",
+        "phonemizer-fork==3.3.2",
+        "soxr==1.1.0",
+        "spacy==3.8.16"
+      ],
+      "uv_sources": {
+        "en-core-web-sm": {
+          "url": "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+        }
+      },
+      "locked_packages": 114,
+      "key_versions": {
+        "mlx": "0.32.4",
+        "mlx-audio": "0.6.1",
+        "mlx-metal": "0.32.4",
+        "transformers": "5.20.2",
+        "numpy": "2.5.4",
+        "websockets": "17.3",
+        "huggingface-hub": "2.2.0",
+        "hf-xet": "1.7.0",
+        "tokenizers": "0.23.3",
+        "safetensors": "0.8.0",
+        "misaki": "0.9.4",
+        "spacy": "3.8.16",
+        "en-core-web-sm": "3.8.0",
+        "phonemizer-fork": "3.3.2",
+        "espeakng-loader": "0.2.4",
+        "soxr": "1.1.0",
+        "fastapi": "0.159.1",
+        "uvicorn": "0.54.0",
+        "pydantic": "2.14.1"
+      }
+    },
+    "sdk": {
+      "python_pin": "3.12",
+      "python": "3.12.12",
+      "dependencies": [
+        "openai[realtime]==3.36.1"
+      ],
+      "uv_sources": null,
+      "locked_packages": 17,
+      "key_versions": {
+        "openai": "3.36.1",
+        "websockets": "15.0.1",
+        "pydantic": "2.14.1"
+      }
+    }
+  },
+  "mlx_lm_server_help": "usage: mlx_lm.server [-h] [--model MODEL] [--adapter-path ADAPTER_PATH]\n                     [--host HOST] [--port PORT]\n                     [--allowed-origins ALLOWED_ORIGINS]\n                     [--draft-model DRAFT_MODEL]\n                     [--num-draft-tokens NUM_DRAFT_TOKENS]\n                     [--trust-remote-code]\n                     [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\n                     [--chat-template CHAT_TEMPLATE]\n                     [--use-default-chat-template] [--temp TEMP]\n                     [--top-p TOP_P] [--top-k TOP_K] [--min-p MIN_P]\n                     [--max-tokens MAX_TOKENS]\n                     [--chat-template-args CHAT_TEMPLATE_ARGS]\n                     [--decode-concurrency DECODE_CONCURRENCY]\n                     [--prompt-concurrency PROMPT_CONCURRENCY]\n                     [--prefill-step-size PREFILL_STEP_SIZE]\n                     [--prompt-cache-size PROMPT_CACHE_SIZE]\n                     [--prompt-cache-bytes PROMPT_CACHE_BYTES]\n                     [--kv-bits KV_BITS] [--kv-group-size KV_GROUP_SIZE]\n                     [--quantized-kv-start QUANTIZED_KV_START] [--pipeline]\n\nMLX Http Server.\n\noptions:\n  -h, --help            show this help message and exit\n  --model MODEL         The path to the MLX model weights, tokenizer, and\n                        config\n  --adapter-path ADAPTER_PATH\n                        Optional path for the trained adapter weights and\n                        config.\n  --host HOST           Host for the HTTP server (default: 127.0.0.1)\n  --port PORT           Port for the HTTP server (default: 8080)\n  --allowed-origins ALLOWED_ORIGINS\n                        Allowed origins (default: *)\n  --draft-model DRAFT_MODEL\n                        A model to be used for speculative decoding.\n  --num-draft-tokens NUM_DRAFT_TOKENS\n                        Number of tokens to draft when using speculative\n                        decoding.\n  --trust-remote-code   Enable trusting remote code for tokenizer\n  --log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}\n                        Set the logging level (default: INFO)\n  --chat-template CHAT_TEMPLATE\n                        Specify a chat template for the tokenizer\n  --use-default-chat-template\n                        Use the default chat template\n  --temp TEMP           Default sampling temperature (default: 0.0)\n  --top-p TOP_P         Default nucleus sampling top-p (default: 1.0)\n  --top-k TOP_K         Default top-k sampling (default: 0, disables top-k)\n  --min-p MIN_P         Default min-p sampling (default: 0.0, disables min-p)\n  --max-tokens MAX_TOKENS\n                        Default maximum number of tokens to generate (default:\n                        512)\n  --chat-template-args CHAT_TEMPLATE_ARGS\n                        A JSON formatted string of arguments for the\n                        tokenizer's apply_chat_template, e.g.\n                        '{\"enable_thinking\":false}'\n  --decode-concurrency DECODE_CONCURRENCY\n                        When a request is batchable then decode that many\n                        requests in parallel\n  --prompt-concurrency PROMPT_CONCURRENCY\n                        When a request is batchable then process that many\n                        prompts in parallel\n  --prefill-step-size PREFILL_STEP_SIZE\n                        Step size for prefill processing (default: 2048)\n  --prompt-cache-size PROMPT_CACHE_SIZE\n                        Maximum number of distinct KV caches to hold in the\n                        prompt cache\n  --prompt-cache-bytes PROMPT_CACHE_BYTES\n                        Maximum size in bytes of the KV caches\n  --kv-bits KV_BITS     Number of bits for KV cache quantization (e.g., 4 or\n                        8). Reduces memory usage for long contexts. Disables\n                        batching, so requests are served one at a time.\n                        Default: None (full precision)\n  --kv-group-size KV_GROUP_SIZE\n                        Group size for KV cache quantization (default: 64)\n  --quantized-kv-start QUANTIZED_KV_START\n                        Token position to start KV cache quantization\n                        (default: 5000)\n  --pipeline            Use pipelining instead of tensor parallelism",
+  "mlx_audio_server_help": "usage: server.py [-h]\n                 [--allowed-origins ALLOWED_ORIGINS [ALLOWED_ORIGINS ...]]\n                 [--host HOST] [--port PORT] [--reload RELOAD] [--start-ui]\n                 [--log-dir LOG_DIR] [--realtime-model REALTIME_MODEL]\n                 [--realtime-transcription-delay-ms REALTIME_TRANSCRIPTION_DELAY_MS]\n                 [--vad-model VAD_MODEL] [--realtime]\n                 [--tts-max-batch-size TTS_MAX_BATCH_SIZE]\n\nMLX Audio API server\n\noptions:\n  -h, --help            show this help message and exit\n  --allowed-origins ALLOWED_ORIGINS [ALLOWED_ORIGINS ...]\n                        List of allowed origins for CORS\n  --host HOST           Host to run the server on\n  --port PORT           Port to run the server on\n  --reload RELOAD       Enable auto-reload of the server.\n  --start-ui            Start the Studio UI alongside the API server\n  --log-dir LOG_DIR     Directory to save server logs\n  --realtime-model REALTIME_MODEL\n                        Default model for /v1/realtime when the client omits\n                        ?model=. Overrides $MLX_AUDIO_REALTIME_MODEL.\n  --realtime-transcription-delay-ms REALTIME_TRANSCRIPTION_DELAY_MS\n                        Transcription latency/quality knob for streaming STT\n                        models that expose a ``transcription_delay_ms``\n                        parameter (e.g. voxtral_realtime). Lower values reduce\n                        latency at the cost of accuracy. When unset, each\n                        model uses its own default. Overrides\n                        $MLX_AUDIO_REALTIME_TRANSCRIPTION_DELAY_MS.\n  --vad-model VAD_MODEL\n                        Streaming VAD model used for server-side turn\n                        detection on /v1/realtime (server_vad). Overrides\n                        $MLX_AUDIO_VAD_MODEL (default: mlx-community/silero-\n                        vad).\n  --realtime            Start the server for /v1/realtime usage.\n  --tts-max-batch-size TTS_MAX_BATCH_SIZE\n                        Maximum compatible TTS speech requests per continuous\n                        batch session. Overrides\n                        $MLX_AUDIO_TTS_MAX_BATCH_SIZE."
+}

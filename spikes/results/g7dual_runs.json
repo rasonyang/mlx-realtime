@@ -1,0 +1,210 @@
+{
+ "spike": "G7 dual path",
+ "part": "runs",
+ "variants": {
+  "dt/f128": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_f128"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 18,
+   "speex_resets": 0,
+   "anchors": 0,
+   "aec3_realignments": 8,
+   "bypasses": 16,
+   "erle_db_p50": 8.1,
+   "speex_erle_db_p50": 3.75,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.896,
+    "speex_path": 1.843,
+    "executor_total": 10.103
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "dt/linear": {
+   "calls": 32,
+   "tracks": {
+    "raw": "raw",
+    "aec3": "aec3",
+    "asr": "speex"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 23,
+   "speex_resets": 0,
+   "anchors": 0,
+   "aec3_realignments": 8,
+   "bypasses": 16,
+   "erle_db_p50": 8.1,
+   "speex_erle_db_p50": 3.8,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.861,
+    "speex_path": 1.628,
+    "executor_total": 9.835
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "dt/nopf": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_nopf"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 23,
+   "speex_resets": 0,
+   "anchors": 0,
+   "aec3_realignments": 8,
+   "bypasses": 16,
+   "erle_db_p50": 8.1,
+   "speex_erle_db_p50": 3.75,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.896,
+    "speex_path": 1.005,
+    "executor_total": 9.255
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "dt/pp": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_pp"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 23,
+   "speex_resets": 0,
+   "anchors": 0,
+   "aec3_realignments": 8,
+   "bypasses": 16,
+   "erle_db_p50": 8.1,
+   "speex_erle_db_p50": 5.4,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.904,
+    "speex_path": 2.118,
+    "executor_total": 10.395
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "dt/pp_nopf": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_pp_nopf"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 23,
+   "speex_resets": 0,
+   "anchors": 0,
+   "aec3_realignments": 8,
+   "bypasses": 16,
+   "erle_db_p50": 8.1,
+   "speex_erle_db_p50": 5.25,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.851,
+    "speex_path": 1.473,
+    "executor_total": 9.638
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "bargein/f128": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_f128"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 6,
+   "speex_resets": 0,
+   "anchors": 43,
+   "aec3_realignments": 0,
+   "bypasses": 0,
+   "erle_db_p50": 29.85,
+   "speex_erle_db_p50": 15.15,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.232,
+    "speex_path": 1.833,
+    "executor_total": 8.641
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "bargein/linear": {
+   "calls": 32,
+   "tracks": {
+    "raw": "raw",
+    "aec3": "aec3",
+    "asr": "speex"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 7,
+   "speex_resets": 0,
+   "anchors": 43,
+   "aec3_realignments": 0,
+   "bypasses": 0,
+   "erle_db_p50": 29.85,
+   "speex_erle_db_p50": 17.9,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.213,
+    "speex_path": 1.621,
+    "executor_total": 8.397
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "bargein/nopf": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_nopf"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 7,
+   "speex_resets": 0,
+   "anchors": 43,
+   "aec3_realignments": 0,
+   "bypasses": 0,
+   "erle_db_p50": 29.85,
+   "speex_erle_db_p50": 14.65,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.232,
+    "speex_path": 1.004,
+    "executor_total": 7.802
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "bargein/pp": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_pp"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 7,
+   "speex_resets": 0,
+   "anchors": 43,
+   "aec3_realignments": 0,
+   "bypasses": 0,
+   "erle_db_p50": 29.85,
+   "speex_erle_db_p50": 31.85,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.236,
+    "speex_path": 2.105,
+    "executor_total": 8.922
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  },
+  "bargein/pp_nopf": {
+   "calls": 32,
+   "tracks": {
+    "asr": "speex_pp_nopf"
+   },
+   "speex_aligned_at_s_p50": 2.5,
+   "speex_realignments": 7,
+   "speex_resets": 0,
+   "anchors": 43,
+   "aec3_realignments": 0,
+   "bypasses": 0,
+   "erle_db_p50": 29.85,
+   "speex_erle_db_p50": 23.95,
+   "cpu_ms_per_audio_s_mean": {
+    "aec3": 5.197,
+    "speex_path": 1.475,
+    "executor_total": 8.226
+   },
+   "note": "ERLE: median over 0.5 s windows with an active reference, double talk included (the dt layout is double talk throughout)"
+  }
+ }
+}

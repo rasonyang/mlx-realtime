@@ -1,0 +1,21 @@
+[project]
+name = "cpu"
+version = "0.1.0"
+description = "M0 spike S7: CPU audio models (Silero VAD, Smart Turn v3.2) and gateway audio libraries (soxr, G.711). Throwaway."
+requires-python = ">=3.12"
+dependencies = [
+    "huggingface-hub>=2.2.0",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.31.0",
+    "soundfile>=0.14.0",
+    "soxr>=1.1.0",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
+
+[dependency-groups]
+dev = [
+    "pyarrow>=26.0.0",
+    "transformers>=5.20.2",
+]

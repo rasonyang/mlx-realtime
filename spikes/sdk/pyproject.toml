@@ -1,0 +1,10 @@
+[project]
+name = "spike-sdk"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "openai[realtime]==3.36.1",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"

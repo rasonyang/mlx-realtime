@@ -1,0 +1,209 @@
+{
+ "spike": "S1.2",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": null,
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.839969166,
+  "first_request_done_s": 2.105083916,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792724662.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 4.09228515625,
+  "loadavg_1m_after": 3.77587890625,
+  "wall_s": 14.8,
+  "footprint_gb": 21.4
+ },
+ "data": {
+  "include_usage": {
+   "usage_before_done": true,
+   "usage": {
+    "prompt_tokens": 43,
+    "completion_tokens": 8,
+    "total_tokens": 51,
+    "prompt_tokens_details": {
+     "cached_tokens": 30
+    }
+   },
+   "raw_tail": [
+    "0.1600 data: {\"id\": \"chatcmpl-0f28eff3-0acc-4bf0-951e-bd06dc6e6292\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion.chunk\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [{\"index\": 0, \"finish_reason\": \"stop\", \"delta\": {\"role\": \"assistant\"}}]}",
+    "0.1600 data: {\"id\": \"chatcmpl-0f28eff3-0acc-4bf0-951e-bd06dc6e6292\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [], \"usage\": {\"prompt_tokens\": 43, \"completion_tokens\": 8, \"total_tokens\": 51, \"prompt_tokens_details\": {\"cached_tokens\": 30}}}",
+    "0.1600 data: [DONE]"
+   ]
+  },
+  "stream_options_omitted": {
+   "status": 200,
+   "usage": null,
+   "t_done": 0.119317916,
+   "exception": null,
+   "raw_tail": [
+    "0.1193 data: {\"id\": \"chatcmpl-4666e5b9-1268-4366-9b6d-28dc611e7ad2\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion.chunk\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [{\"index\": 0, \"finish_reason\": \"stop\", \"delta\": {\"role\": \"assistant\"}}]}",
+    "0.1193 data: [DONE]"
+   ]
+  },
+  "stream_options_without_include_usage": {
+   "status": 200,
+   "usage": null,
+   "t_done": null,
+   "finish_reason": "stop",
+   "exception": null,
+   "raw_tail": [
+    "0.0911 data: {\"id\": \"chatcmpl-95ece9f2-2c70-40f5-ab4b-1bc5509d69fa\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion.chunk\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [{\"index\": 0, \"finish_reason\": null, \"delta\": {\"role\": \"assistant\", \"content\": \" yellow\"}}]}",
+    "0.1036 data: {\"id\": \"chatcmpl-95ece9f2-2c70-40f5-ab4b-1bc5509d69fa\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion.chunk\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [{\"index\": 0, \"finish_reason\": null, \"delta\": {\"role\": \"assistant\", \"content\": \".\"}}]}",
+    "0.1140 data: {\"id\": \"chatcmpl-95ece9f2-2c70-40f5-ab4b-1bc5509d69fa\", \"system_fingerprint\": \"0.32.2-0.32.4-macOS-26.6.2-arm64-arm-64bit-applegpu_g15s\", \"object\": \"chat.completion.chunk\", \"model\": \"default_model\", \"created\": 1792724977, \"choices\": [{\"index\": 0, \"finish_reason\": \"stop\", \"delta\": {\"role\": \"assistant\"}}]}"
+   ],
+   "server_log": "socketserver.py\", line 362, in finish_request\n    self.RequestHandlerClass(request, client_address, self)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1684, in handle_completion\n    and self.stream_options[\"include_usage\"]\n        ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\nKeyError: 'include_usage'\n----------------------------------------\n"
+  },
+  "max_completion_tokens_5": {
+   "completion_tokens": 5,
+   "finish_reason": "length",
+   "content": "I can't count all"
+  },
+  "max_tokens_7_legacy": {
+   "completion_tokens": 7,
+   "finish_reason": "length"
+  },
+  "no_max_tokens_server_default": {
+   "completion_tokens": 39,
+   "finish_reason": "stop"
+  },
+  "sampling_temp0": {
+   "distinct": 1,
+   "n": 4,
+   "texts": [
+    "A suspiciously fluffy cat napped on the windowsill.",
+    "A suspiciously fluffy cat napped on the windowsill.",
+    "A suspiciously fluffy cat napped on the windowsill.",
+    "A suspiciously fluffy cat napped on the windowsill."
+   ]
+  },
+  "sampling_temp0.7_top_p0.8": {
+   "distinct": 4,
+   "n": 4,
+   "texts": [
+    "Surreptitious, the cat crept across the kitchen floor without making a sound.",
+    "Verdant, the curious feline stretched lazily across the sun-drenched windowsill.",
+    "Unpredictable felines often choose the most inconvenient times to knock things off shelves.",
+    "A suspiciously fluffy cat sat on the windowsill, watching the rain with unblinking intensity."
+   ]
+  },
+  "sampling_temp1.5_top_p1.0": {
+   "distinct": 4,
+   "n": 4,
+   "texts": [
+    "Eccentric furballs often stare at walls for hours, imagining things the rest of us can't see.",
+    "Mischievous and unbothered, the feline slept through the thunderstorm with absolute serenity.",
+    "Zestfully, the peculiar feline danced upon the moonlight.",
+    "Verdous fur cascades from my shadowed perch, observing the world with an ancient, knowing gaze."
+   ]
+  },
+  "sampling_temp1.5_top_p1e-6": {
+   "distinct": 2,
+   "n": 4,
+   "texts": [
+    "Unpredictable felines often choose the most inconvenient times to knock things off tables.",
+    "Unpredictable felines often choose the most inconvenient times to knock things off tables.",
+    "A suspiciously fluffy cat napped on the windowsill.",
+    "Unpredictable felines often choose the most inconvenient times to knock things off tables."
+   ]
+  },
+  "sampling_omitted_uses_server_flags": {
+   "distinct": 4,
+   "n": 4,
+   "texts": [
+    "Meticulous, the cat surveyed the empty bowl with profound disappointment.",
+    "A suspiciously fluffy cat watched me from the top of the refrigerator.",
+    "The mischievous feline stole the spotlight by knocking over a vase.",
+    "Velvety and aloof, the cat perched on the windowsill, watching the world with half-closed, golden eyes."
+   ]
+  },
+  "invalid_{\"top_p\": 1.5}": {
+   "status": 400,
+   "body": "{\"error\": \"top_p must be at most 1\"}"
+  },
+  "invalid_{\"temperature\": -1}": {
+   "status": 400,
+   "body": "{\"error\": \"temperature must be at least 0\"}"
+  },
+  "invalid_{\"presence_penalty\": \"x\"}": {
+   "status": 400,
+   "body": "{\"error\": \"presence_penalty must be of type ('float', 'int')\"}"
+  },
+  "invalid_{\"max_completion_tokens\": 0}": {
+   "status": 400,
+   "body": "{\"error\": \"max_tokens must be at least 1\"}"
+  },
+  "presence_penalty_0.0": {
+   "status": 200,
+   "repeat_hello": "I can't repeat that word 30 times, but I can say hello to you!",
+   "hello_count": 1,
+   "id_copy": "RMA100100100"
+  },
+  "presence_penalty_1.5": {
+   "status": 200,
+   "repeat_hello": "I can't repeat that word 30 times, but I can say hello to you!",
+   "hello_count": 1,
+   "id_copy": "RMA100100100."
+  },
+  "model_omitted": {
+   "status": 200,
+   "t_first_token": 0.070118083,
+   "content": "Blue, red, and yellow.",
+   "error": null,
+   "log": "2026-10-23 11:09:45,023 - INFO - Prompt Cache: 10 sequences, 0.68 GB\n2026-10-23 11:09:45,023 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,023 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,023 - INFO - - system: 4 sequences, 0.29 GB\n127.0.0.1 - - [23/Oct/2026 11:09:45] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:45,049 - INFO - Prompt processing progress: 9/13\n2026-10-23 11:09:45,065 - INFO - Prompt processing progress: 12/13\n2026-10-23 11:09:45,080 - INFO - Prompt processing progress: 13/13\n"
+  },
+  "model_exact_--model_string": {
+   "status": 200,
+   "t_first_token": 0.029022917,
+   "content": "Red, blue, and yellow.",
+   "error": null,
+   "log": "2026-10-23 11:09:45,179 - INFO - Prompt Cache: 10 sequences, 0.68 GB\n2026-10-23 11:09:45,179 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,179 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,179 - INFO - - system: 4 sequences, 0.29 GB\n127.0.0.1 - - [23/Oct/2026 11:09:45] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:45,195 - INFO - Prompt processing progress: 1/1\n"
+  },
+  "model_default_model": {
+   "status": 200,
+   "t_first_token": 0.029327,
+   "content": "Red, blue, and yellow.",
+   "error": null,
+   "log": "2026-10-23 11:09:45,297 - INFO - Prompt Cache: 10 sequences, 0.68 GB\n2026-10-23 11:09:45,297 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,297 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:45,297 - INFO - - system: 4 sequences, 0.29 GB\n127.0.0.1 - - [23/Oct/2026 11:09:45] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:45,313 - INFO - Prompt processing progress: 1/1\n"
+  },
+  "model_wrong_name": {
+   "model": "gpt-4o-realtime-preview",
+   "status": 404,
+   "error": "{\"error\": \"Cannot find an appropriate cached snapshot folder for the specified revision on the local disk and outgoing traffic has been disabled. To enable repo look-ups and downloads online, set 'HF_HUB_OFFLINE=0' as environment variable.\"}",
+   "content": "",
+   "elapsed_s": 0.01955666599678807,
+   "log": "127.0.0.1 - - [23/Oct/2026 11:09:45] \"POST /v1/chat/completions HTTP/1.1\" 404 -\n",
+   "next_request_status": 200,
+   "next_request_elapsed_s": 1.5067382090055617,
+   "next_request_ttft": 1.417177791,
+   "next_log": "127.0.0.1 - - [23/Oct/2026 11:09:47] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:47,266 - INFO - Prompt Cache: 10 sequences, 0.68 GB\n2026-10-23 11:09:47,266 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:47,266 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:47,266 - INFO - - system: 4 sequences, 0.29 GB\n2026-10-23 11:09:47,269 - INFO - Prompt processing progress: 0/1\n2026-10-23 11:09:47,310 - INFO - Prompt processing progress: 1/1\n"
+  },
+  "model_repo_id_not_--model": {
+   "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+   "status": 200,
+   "error": "",
+   "content": "Red, blue, and yellow.",
+   "elapsed_s": 1.5931575830036309,
+   "log": "2026-10-23 11:09:49,264 - INFO - Prompt Cache: 10 sequences, 0.69 GB\n2026-10-23 11:09:49,264 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:49,264 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:49,264 - INFO - - system: 4 sequences, 0.29 GB\n127.0.0.1 - - [23/Oct/2026 11:09:49] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:49,378 - INFO - Prompt processing progress: 30/43\n2026-10-23 11:09:49,402 - INFO - Prompt processing progress: 39/43\n2026-10-23 11:09:49,418 - INFO - Prompt processing progress: 42/43\n2026-10-23 11:09:49,439 - INFO - Prompt processing progress: 43/43\n",
+   "next_request_status": 200,
+   "next_request_elapsed_s": 1.507811709001544,
+   "next_request_ttft": 1.423642,
+   "next_log": "2026-10-23 11:09:51,367 - INFO - Prompt Cache: 10 sequences, 0.69 GB\n2026-10-23 11:09:51,367 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:09:51,367 - INFO - - user: 3 sequences, 0.20 GB\n2026-10-23 11:09:51,367 - INFO - - system: 4 sequences, 0.29 GB\n127.0.0.1 - - [23/Oct/2026 11:09:51] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:09:51,430 - INFO - Prompt processing progress: 3/4\n2026-10-23 11:09:51,455 - INFO - Prompt processing progress: 4/4\n"
+  }
+ }
+}

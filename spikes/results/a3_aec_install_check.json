@@ -1,0 +1,140 @@
+{
+  "python": "3.12.12 (main, Oct 14 2025, 21:38:21) [Clang 20.1.4 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "signal": {
+    "sample_rate": 16000,
+    "frame": 160,
+    "seconds": 1,
+    "kind": "seeded white noise; capture = far end delayed 40 ms at -10 dB + noise"
+  },
+  "candidates": {
+    "livekit_apm": {
+      "ok": true,
+      "dist": "livekit",
+      "version": "1.1.21",
+      "api": [
+        "process_reverse_stream",
+        "process_stream",
+        "set_stream_delay_ms"
+      ],
+      "frames_processed": 100,
+      "output_differs_from_input": true,
+      "rates_10ms_frames": {
+        "8000": "accepted (10 ms frame)",
+        "16000": "accepted (10 ms frame)",
+        "24000": "accepted (10 ms frame)",
+        "32000": "accepted (10 ms frame)",
+        "44100": "accepted (10 ms frame)",
+        "48000": "accepted (10 ms frame)"
+      },
+      "frame_20ms_at_16k": "accepted",
+      "frame_20ms_at_16k_hpf_only": {
+        "first_10ms_changed": true,
+        "second_10ms_changed": true
+      },
+      "frame_15ms_at_16k_child_process": {
+        "returncode": -6,
+        "stderr_panic_lines": [
+          "thread '<unnamed>' (3227089) panicked at libwebrtc/src/native/apm.rs:48:9:",
+          "slice must have a multiple of 10ms worth of samples"
+        ]
+      }
+    },
+    "pywebrtc_audio": {
+      "ok": true,
+      "dist": "pywebrtc-audio",
+      "version": "0.2.0",
+      "api": [
+        "process",
+        "reset",
+        "stream_delay_ms"
+      ],
+      "frames_processed": 100,
+      "output_differs_from_input": true,
+      "one_call_1s_arrays": {
+        "out_len": 16000,
+        "in_len": 16000
+      },
+      "frame_15ms_at_16k_child_process": {
+        "returncode": 0,
+        "stdout": "returned 240",
+        "stderr_tail": ""
+      }
+    },
+    "speex_ctypes": {
+      "ok": true,
+      "dist": "speex_ctypes.py over Homebrew libspeexdsp",
+      "lib": "/opt/homebrew/opt/speexdsp/lib/libspeexdsp.1.dylib",
+      "api": [
+        "process",
+        "reset"
+      ],
+      "preprocess=False": {
+        "frames_processed": 100,
+        "output_differs_from_input": true
+      },
+      "preprocess=True": {
+        "frames_processed": 100,
+        "output_differs_from_input": true
+      }
+    },
+    "speexaec": {
+      "ok": true,
+      "dist": "speexaec",
+      "version": "0.1.3",
+      "api": [
+        "filter_length",
+        "frame_size",
+        "process",
+        "process_bytes",
+        "sample_rate"
+      ],
+      "frames_processed": 100,
+      "output_differs_from_input": true,
+      "short_frame": "rejected: ValueError('near_frame size (100) != frame_size (160)')"
+    },
+    "pyaec": {
+      "ok": true,
+      "dist": "pyaec",
+      "version": "1.0.1",
+      "api": [
+        "cancel_echo"
+      ],
+      "native_lib": "libaec.dylib",
+      "enable_preprocess=False": {
+        "frames_processed": 100,
+        "output_differs_from_input": true
+      },
+      "enable_preprocess=True": {
+        "frames_processed": 100,
+        "output_differs_from_input": true
+      }
+    },
+    "speexdsp_xiongyihui": {
+      "ok": true,
+      "dist": "speexdsp",
+      "version": "0.1.1",
+      "api": [
+        "create",
+        "process",
+        "thisown"
+      ],
+      "frames_processed": 100,
+      "output_differs_from_input": true
+    },
+    "numpy_baseline": {
+      "ok": true,
+      "dist": "numpy (self-written baseline.py)",
+      "version": "2.5.4",
+      "api": [
+        "process",
+        "tail_samples"
+      ],
+      "tail_samples": 2080,
+      "frames_processed": 100,
+      "output_differs_from_input": true,
+      "output_finite": true
+    }
+  }
+}

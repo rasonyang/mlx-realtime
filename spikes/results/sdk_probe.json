@@ -1,0 +1,900 @@
+{
+  "probe": "S8.1 openai-python Realtime client against a GA stub (M0 A1)",
+  "generated_at": "2026-10-22T22:23:24+08:00",
+  "versions": {
+    "python": "3.12.12",
+    "openai": "3.36.1",
+    "websockets": "15.0.1",
+    "pydantic": "2.14.1",
+    "openai_realtime_extra": [
+      "websockets<16,>=13; extra == 'realtime'"
+    ]
+  },
+  "client_call": "AsyncOpenAI(base_url=\"http://127.0.0.1:<port>/v1\", api_key=\"test\").realtime.connect(model=\"gpt-realtime\")",
+  "stub": {
+    "host": "127.0.0.1",
+    "port": 8103,
+    "quiet_window_s": 0.5
+  },
+  "checks": {
+    "url": "ws://127.0.0.1:8103/v1/realtime?model=gpt-realtime",
+    "url_scheme_is_ws": true,
+    "path_is_v1_realtime": true,
+    "query": {
+      "model": [
+        "gpt-realtime"
+      ]
+    },
+    "authorization_is_bearer_test": true,
+    "openai_beta_header_sent": false,
+    "permessage_deflate_offered": false,
+    "subprotocol_requested": false,
+    "user_agent": "AsyncOpenAI/Python 3.36.1",
+    "x_stainless_headers": [
+      "x-stainless-arch",
+      "x-stainless-async",
+      "x-stainless-lang",
+      "x-stainless-os",
+      "x-stainless-package-version",
+      "x-stainless-runtime",
+      "x-stainless-runtime-version"
+    ],
+    "client_frame_types": [
+      "session.update",
+      "response.create"
+    ],
+    "client_frames_are_exactly_the_two_calls": true,
+    "no_frame_before_first_explicit_send": true,
+    "binary_frames_from_client": 0,
+    "connect_returned_before_any_server_event": true,
+    "all_events_parsed_into_expected_class": true,
+    "all_events_validate_against_expected_model": true,
+    "events_received": 15,
+    "events_sent": 15,
+    "websockets_proxy_for_this_uri": null,
+    "close": {
+      "t_ms": 1561.8,
+      "code": 1000,
+      "reason": ""
+    }
+  },
+  "sdk_connect_calls": [
+    {
+      "uri": "ws://127.0.0.1:8103/v1/realtime?model=gpt-realtime",
+      "kwargs": {
+        "user_agent_header": null,
+        "max_size": null,
+        "compression": null
+      },
+      "additional_headers": {
+        "Authorization": "Bearer test",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": "AsyncOpenAI/Python 3.36.1",
+        "X-Stainless-Lang": "python",
+        "X-Stainless-Package-Version": "3.36.1",
+        "X-Stainless-OS": "MacOS",
+        "X-Stainless-Arch": "arm64",
+        "X-Stainless-Runtime": "CPython",
+        "X-Stainless-Runtime-Version": "3.12.12",
+        "X-Stainless-Async": "async:asyncio"
+      }
+    }
+  ],
+  "client_connection": {
+    "connected_t_ms": 36.4,
+    "client_ping_interval": 20,
+    "client_ping_timeout": 20,
+    "client_close_timeout": 10,
+    "client_max_queue": "(16, None)",
+    "client_max_size": null,
+    "offline_parse_checks": [
+      {
+        "case": "user item that fails validation",
+        "sdk_class": "ConversationItemAdded",
+        "item_sdk_class": "RealtimeConversationItemAssistantMessage",
+        "type_attr": "conversation.item.added"
+      },
+      {
+        "case": "unknown event type",
+        "sdk_class": "ConversationCreatedEvent",
+        "item_sdk_class": null,
+        "type_attr": "x.custom_event"
+      }
+    ],
+    "client_closed_t_ms": 1081.2
+  },
+  "handshake": {
+    "t_ms": 36.2,
+    "request_line_path": "/v1/realtime?model=gpt-realtime",
+    "path": "/v1/realtime",
+    "query": {
+      "model": [
+        "gpt-realtime"
+      ]
+    },
+    "headers": [
+      [
+        "Host",
+        "127.0.0.1:8103"
+      ],
+      [
+        "Upgrade",
+        "websocket"
+      ],
+      [
+        "Connection",
+        "Upgrade"
+      ],
+      [
+        "Sec-WebSocket-Key",
+        "yt0esLWOnaeyyPVrw7bSJw=="
+      ],
+      [
+        "Sec-WebSocket-Version",
+        "13"
+      ],
+      [
+        "Authorization",
+        "Bearer test"
+      ],
+      [
+        "Accept",
+        "application/json"
+      ],
+      [
+        "Content-Type",
+        "application/json"
+      ],
+      [
+        "User-Agent",
+        "AsyncOpenAI/Python 3.36.1"
+      ],
+      [
+        "X-Stainless-Lang",
+        "python"
+      ],
+      [
+        "X-Stainless-Package-Version",
+        "3.36.1"
+      ],
+      [
+        "X-Stainless-OS",
+        "MacOS"
+      ],
+      [
+        "X-Stainless-Arch",
+        "arm64"
+      ],
+      [
+        "X-Stainless-Runtime",
+        "CPython"
+      ],
+      [
+        "X-Stainless-Runtime-Version",
+        "3.12.12"
+      ],
+      [
+        "X-Stainless-Async",
+        "async:asyncio"
+      ]
+    ],
+    "subprotocol_selected": null
+  },
+  "client_sent_calls": [
+    {
+      "t_ms": 538.5,
+      "call": "conn.session.update(session=SESSION_UPDATE)"
+    },
+    {
+      "t_ms": 556.1,
+      "call": "conn.response.create()"
+    }
+  ],
+  "client_frames_received_by_stub": [
+    {
+      "t_ms": 540.2,
+      "frame": "text",
+      "bytes": 630,
+      "type": "session.update",
+      "json": {
+        "type": "session.update",
+        "session": {
+          "type": "realtime",
+          "instructions": "你是电话客服助理，回答要简短。",
+          "output_modalities": [
+            "audio"
+          ],
+          "audio": {
+            "input": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "turn_detection": {
+                "type": "server_vad",
+                "silence_duration_ms": 500
+              }
+            },
+            "output": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "voice": "alloy"
+            }
+          },
+          "tools": [
+            {
+              "type": "function",
+              "name": "lookup_order",
+              "description": "Look up an order by its id.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "order_id"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 559.3,
+      "frame": "text",
+      "bytes": 27,
+      "type": "response.create",
+      "json": {
+        "type": "response.create"
+      }
+    }
+  ],
+  "received_events": [
+    {
+      "t_ms": 549.8,
+      "type": "session.created",
+      "sdk_class": "openai.types.realtime.session_created_event.SessionCreatedEvent",
+      "expected_class": "openai.types.realtime.session_created_event.SessionCreatedEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "session": {
+          "sdk_class": "RealtimeSessionCreateRequest",
+          "validated_class": "RealtimeSessionCreateRequest",
+          "id": "sess_probe0001",
+          "object": "realtime.session",
+          "type": "realtime",
+          "extra_fields_kept": [
+            "expires_at",
+            "id",
+            "object"
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 553.3,
+      "type": "session.updated",
+      "sdk_class": "openai.types.realtime.session_updated_event.SessionUpdatedEvent",
+      "expected_class": "openai.types.realtime.session_updated_event.SessionUpdatedEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "session": {
+          "sdk_class": "RealtimeSessionCreateRequest",
+          "validated_class": "RealtimeSessionCreateRequest",
+          "id": "sess_probe0001",
+          "object": "realtime.session",
+          "type": "realtime",
+          "extra_fields_kept": [
+            "expires_at",
+            "id",
+            "object"
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 556.3,
+      "type": "conversation.item.added",
+      "sdk_class": "openai.types.realtime.conversation_item_added.ConversationItemAdded",
+      "expected_class": "openai.types.realtime.conversation_item_added.ConversationItemAdded",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "item": {
+          "sdk_class": "RealtimeConversationItemUserMessage",
+          "validated_class": "RealtimeConversationItemUserMessage",
+          "id": "item_user0001",
+          "object": "realtime.item",
+          "type": "message",
+          "role": "user",
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "t_ms": 557.9,
+      "type": "conversation.item.done",
+      "sdk_class": "openai.types.realtime.conversation_item_done.ConversationItemDone",
+      "expected_class": "openai.types.realtime.conversation_item_done.ConversationItemDone",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "item": {
+          "sdk_class": "RealtimeConversationItemUserMessage",
+          "validated_class": "RealtimeConversationItemUserMessage",
+          "id": "item_user0001",
+          "object": "realtime.item",
+          "type": "message",
+          "role": "user",
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "t_ms": 559.9,
+      "type": "response.created",
+      "sdk_class": "openai.types.realtime.response_created_event.ResponseCreatedEvent",
+      "expected_class": "openai.types.realtime.response_created_event.ResponseCreatedEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "response": {
+          "sdk_class": "RealtimeResponse",
+          "validated_class": "RealtimeResponse",
+          "id": "resp_probe0001",
+          "object": "realtime.response",
+          "status": "in_progress",
+          "output_item_classes": []
+        }
+      }
+    },
+    {
+      "t_ms": 562.1,
+      "type": "response.output_item.added",
+      "sdk_class": "openai.types.realtime.response_output_item_added_event.ResponseOutputItemAddedEvent",
+      "expected_class": "openai.types.realtime.response_output_item_added_event.ResponseOutputItemAddedEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "item": {
+          "sdk_class": "RealtimeConversationItemAssistantMessage",
+          "validated_class": "RealtimeConversationItemAssistantMessage",
+          "id": "item_asst0001",
+          "object": "realtime.item",
+          "type": "message",
+          "role": "assistant",
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "t_ms": 563.5,
+      "type": "response.content_part.added",
+      "sdk_class": "openai.types.realtime.response_content_part_added_event.ResponseContentPartAddedEvent",
+      "expected_class": "openai.types.realtime.response_content_part_added_event.ResponseContentPartAddedEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "part": {
+          "sdk_class": "Part",
+          "validated_class": "Part",
+          "type": "audio"
+        }
+      }
+    },
+    {
+      "t_ms": 563.8,
+      "type": "response.output_audio.delta",
+      "sdk_class": "openai.types.realtime.response_audio_delta_event.ResponseAudioDeltaEvent",
+      "expected_class": "openai.types.realtime.response_audio_delta_event.ResponseAudioDeltaEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "delta_pcm_bytes": 1920
+    },
+    {
+      "t_ms": 564.0,
+      "type": "response.output_audio_transcript.delta",
+      "sdk_class": "openai.types.realtime.response_audio_transcript_delta_event.ResponseAudioTranscriptDeltaEvent",
+      "expected_class": "openai.types.realtime.response_audio_transcript_delta_event.ResponseAudioTranscriptDeltaEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true
+    },
+    {
+      "t_ms": 564.2,
+      "type": "response.output_audio.done",
+      "sdk_class": "openai.types.realtime.response_audio_done_event.ResponseAudioDoneEvent",
+      "expected_class": "openai.types.realtime.response_audio_done_event.ResponseAudioDoneEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true
+    },
+    {
+      "t_ms": 564.4,
+      "type": "response.output_audio_transcript.done",
+      "sdk_class": "openai.types.realtime.response_audio_transcript_done_event.ResponseAudioTranscriptDoneEvent",
+      "expected_class": "openai.types.realtime.response_audio_transcript_done_event.ResponseAudioTranscriptDoneEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true
+    },
+    {
+      "t_ms": 564.6,
+      "type": "response.content_part.done",
+      "sdk_class": "openai.types.realtime.response_content_part_done_event.ResponseContentPartDoneEvent",
+      "expected_class": "openai.types.realtime.response_content_part_done_event.ResponseContentPartDoneEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "part": {
+          "sdk_class": "Part",
+          "validated_class": "Part",
+          "type": "audio"
+        }
+      }
+    },
+    {
+      "t_ms": 564.9,
+      "type": "response.output_item.done",
+      "sdk_class": "openai.types.realtime.response_output_item_done_event.ResponseOutputItemDoneEvent",
+      "expected_class": "openai.types.realtime.response_output_item_done_event.ResponseOutputItemDoneEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "item": {
+          "sdk_class": "RealtimeConversationItemAssistantMessage",
+          "validated_class": "RealtimeConversationItemAssistantMessage",
+          "id": "item_asst0001",
+          "object": "realtime.item",
+          "type": "message",
+          "role": "assistant",
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "t_ms": 566.4,
+      "type": "response.done",
+      "sdk_class": "openai.types.realtime.response_done_event.ResponseDoneEvent",
+      "expected_class": "openai.types.realtime.response_done_event.ResponseDoneEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "response": {
+          "sdk_class": "RealtimeResponse",
+          "validated_class": "RealtimeResponse",
+          "id": "resp_probe0001",
+          "object": "realtime.response",
+          "status": "completed",
+          "output_item_classes": [
+            "RealtimeConversationItemAssistantMessage"
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 568.5,
+      "type": "error",
+      "sdk_class": "openai.types.realtime.realtime_error_event.RealtimeErrorEvent",
+      "expected_class": "openai.types.realtime.realtime_error_event.RealtimeErrorEvent",
+      "class_matches": true,
+      "validates_against_expected_model": true,
+      "nested": {
+        "error": {
+          "sdk_class": "RealtimeError",
+          "validated_class": "RealtimeError",
+          "type": "invalid_request_error",
+          "code": "conversation_already_has_active_response"
+        }
+      },
+      "error_code": "conversation_already_has_active_response",
+      "error_type": "invalid_request_error"
+    }
+  ],
+  "server_events_sent": [
+    {
+      "t_ms": 540.3,
+      "type": "session.created",
+      "json": {
+        "event_id": "event_0001",
+        "type": "session.created",
+        "session": {
+          "object": "realtime.session",
+          "id": "sess_probe0001",
+          "type": "realtime",
+          "model": "gpt-realtime",
+          "output_modalities": [
+            "audio"
+          ],
+          "instructions": "",
+          "audio": {
+            "input": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "transcription": null,
+              "noise_reduction": null,
+              "turn_detection": {
+                "type": "server_vad",
+                "threshold": 0.5,
+                "prefix_padding_ms": 300,
+                "silence_duration_ms": 200,
+                "idle_timeout_ms": null,
+                "create_response": true,
+                "interrupt_response": true
+              }
+            },
+            "output": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "voice": "alloy",
+              "speed": 1.0
+            }
+          },
+          "tools": [],
+          "tool_choice": "auto",
+          "max_output_tokens": "inf",
+          "tracing": null,
+          "truncation": "auto",
+          "prompt": null,
+          "expires_at": 0,
+          "include": null
+        }
+      }
+    },
+    {
+      "t_ms": 540.3,
+      "type": "session.updated",
+      "json": {
+        "event_id": "event_0002",
+        "type": "session.updated",
+        "session": {
+          "object": "realtime.session",
+          "id": "sess_probe0001",
+          "type": "realtime",
+          "model": "gpt-realtime",
+          "output_modalities": [
+            "audio"
+          ],
+          "instructions": "你是电话客服助理，回答要简短。",
+          "audio": {
+            "input": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "transcription": null,
+              "noise_reduction": null,
+              "turn_detection": {
+                "type": "server_vad",
+                "threshold": 0.5,
+                "prefix_padding_ms": 300,
+                "silence_duration_ms": 500,
+                "idle_timeout_ms": null,
+                "create_response": true,
+                "interrupt_response": true
+              }
+            },
+            "output": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "voice": "alloy",
+              "speed": 1.0
+            }
+          },
+          "tools": [
+            {
+              "type": "function",
+              "name": "lookup_order",
+              "description": "Look up an order by its id.",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "order_id"
+                ]
+              }
+            }
+          ],
+          "tool_choice": "auto",
+          "max_output_tokens": "inf",
+          "tracing": null,
+          "truncation": "auto",
+          "prompt": null,
+          "expires_at": 0,
+          "include": null
+        }
+      }
+    },
+    {
+      "t_ms": 540.3,
+      "type": "conversation.item.added",
+      "json": {
+        "event_id": "event_0003",
+        "type": "conversation.item.added",
+        "previous_item_id": null,
+        "item": {
+          "id": "item_user0001",
+          "object": "realtime.item",
+          "type": "message",
+          "status": "completed",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_audio",
+              "transcript": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 540.4,
+      "type": "conversation.item.done",
+      "json": {
+        "event_id": "event_0004",
+        "type": "conversation.item.done",
+        "previous_item_id": null,
+        "item": {
+          "id": "item_user0001",
+          "object": "realtime.item",
+          "type": "message",
+          "status": "completed",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_audio",
+              "transcript": "我想查一下订单。"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 559.6,
+      "type": "response.created",
+      "json": {
+        "event_id": "event_0005",
+        "type": "response.created",
+        "response": {
+          "object": "realtime.response",
+          "id": "resp_probe0001",
+          "conversation_id": "conv_probe0001",
+          "status": "in_progress",
+          "status_details": null,
+          "output": [],
+          "output_modalities": [
+            "audio"
+          ],
+          "max_output_tokens": "inf",
+          "audio": {
+            "output": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "voice": "alloy"
+            }
+          },
+          "usage": null,
+          "metadata": null
+        }
+      }
+    },
+    {
+      "t_ms": 559.6,
+      "type": "response.output_item.added",
+      "json": {
+        "event_id": "event_0006",
+        "type": "response.output_item.added",
+        "response_id": "resp_probe0001",
+        "output_index": 0,
+        "item": {
+          "id": "item_asst0001",
+          "object": "realtime.item",
+          "type": "message",
+          "status": "in_progress",
+          "role": "assistant",
+          "content": []
+        }
+      }
+    },
+    {
+      "t_ms": 559.6,
+      "type": "response.content_part.added",
+      "json": {
+        "event_id": "event_0007",
+        "type": "response.content_part.added",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0,
+        "part": {
+          "type": "audio",
+          "transcript": ""
+        }
+      }
+    },
+    {
+      "t_ms": 559.6,
+      "type": "response.output_audio.delta",
+      "json": {
+        "event_id": "event_0008",
+        "type": "response.output_audio.delta",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0,
+        "delta": "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"
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.output_audio_transcript.delta",
+      "json": {
+        "event_id": "event_0009",
+        "type": "response.output_audio_transcript.delta",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0,
+        "delta": "您好，请提供一下订单号。"
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.output_audio.done",
+      "json": {
+        "event_id": "event_0010",
+        "type": "response.output_audio.done",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.output_audio_transcript.done",
+      "json": {
+        "event_id": "event_0011",
+        "type": "response.output_audio_transcript.done",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0,
+        "transcript": "您好，请提供一下订单号。"
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.content_part.done",
+      "json": {
+        "event_id": "event_0012",
+        "type": "response.content_part.done",
+        "response_id": "resp_probe0001",
+        "item_id": "item_asst0001",
+        "output_index": 0,
+        "content_index": 0,
+        "part": {
+          "type": "audio",
+          "transcript": "您好，请提供一下订单号。"
+        }
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.output_item.done",
+      "json": {
+        "event_id": "event_0013",
+        "type": "response.output_item.done",
+        "response_id": "resp_probe0001",
+        "output_index": 0,
+        "item": {
+          "id": "item_asst0001",
+          "object": "realtime.item",
+          "type": "message",
+          "status": "completed",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_audio",
+              "transcript": "您好，请提供一下订单号。"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "response.done",
+      "json": {
+        "event_id": "event_0014",
+        "type": "response.done",
+        "response": {
+          "object": "realtime.response",
+          "id": "resp_probe0001",
+          "conversation_id": "conv_probe0001",
+          "status": "completed",
+          "status_details": null,
+          "output": [
+            {
+              "id": "item_asst0001",
+              "object": "realtime.item",
+              "type": "message",
+              "status": "completed",
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "output_audio",
+                  "transcript": "您好，请提供一下订单号。"
+                }
+              ]
+            }
+          ],
+          "output_modalities": [
+            "audio"
+          ],
+          "max_output_tokens": "inf",
+          "audio": {
+            "output": {
+              "format": {
+                "type": "audio/pcm",
+                "rate": 24000
+              },
+              "voice": "alloy"
+            }
+          },
+          "usage": {
+            "total_tokens": 30,
+            "input_tokens": 20,
+            "output_tokens": 10,
+            "input_token_details": {
+              "text_tokens": 20,
+              "audio_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_token_details": {
+              "text_tokens": 10,
+              "audio_tokens": 0
+            }
+          },
+          "metadata": null
+        }
+      }
+    },
+    {
+      "t_ms": 559.7,
+      "type": "error",
+      "json": {
+        "event_id": "event_0015",
+        "type": "error",
+        "error": {
+          "type": "invalid_request_error",
+          "code": "conversation_already_has_active_response",
+          "message": "Conversation already has an active response in progress: resp_probe0001.",
+          "param": null,
+          "event_id": null
+        }
+      }
+    }
+  ],
+  "proxy_env": {
+    "getproxies_schemes": [],
+    "proxy_bypass_127.0.0.1": false
+  }
+}

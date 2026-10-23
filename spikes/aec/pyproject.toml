@@ -1,0 +1,14 @@
+[project]
+name = "aec"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "livekit>=1.1.21",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.31.0",
+    "pywebrtc-audio>=0.2.0",
+    "soxr>=1.1.0",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"

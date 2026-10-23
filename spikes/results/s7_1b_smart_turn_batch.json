@@ -1,0 +1,215 @@
+{
+  "spike": "S7.1b Smart Turn batched calls (extra)",
+  "env": {
+    "date": "2026-10-22T22:30:41+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "iogpu_wired_limit_mb": "0",
+    "mx_device_info": "n/a: the gateway/CPU environment is MLX-free by design",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "results": [
+    {
+      "model": "v3.2-cpu",
+      "intra_op": 2,
+      "B": 1,
+      "load_before": 3.41,
+      "load_wait_s": 0.0,
+      "load_after": 3.62,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 28.0935,
+        "p95": 29.4201,
+        "p99": 31.1762,
+        "max": 31.891,
+        "mean": 28.2771
+      },
+      "per_item_ms_p50": 28.09
+    },
+    {
+      "model": "v3.2-cpu",
+      "intra_op": 2,
+      "B": 4,
+      "load_before": 3.62,
+      "load_wait_s": 0.0,
+      "load_after": 4.11,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 107.954,
+        "p95": 111.4782,
+        "p99": 114.0802,
+        "max": 114.8656,
+        "mean": 108.4664
+      },
+      "per_item_ms_p50": 26.99
+    },
+    {
+      "model": "v3.2-cpu",
+      "intra_op": 4,
+      "B": 1,
+      "load_before": 3.7,
+      "load_wait_s": 40.0,
+      "load_after": 3.7,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 17.3527,
+        "p95": 17.9459,
+        "p99": 19.3895,
+        "max": 20.2325,
+        "mean": 17.3905
+      },
+      "per_item_ms_p50": 17.35
+    },
+    {
+      "model": "v3.2-cpu",
+      "intra_op": 4,
+      "B": 4,
+      "load_before": 3.7,
+      "load_wait_s": 0.0,
+      "load_after": 4.29,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 60.6604,
+        "p95": 62.2781,
+        "p99": 64.0772,
+        "max": 68.6258,
+        "mean": 60.8317
+      },
+      "per_item_ms_p50": 15.17
+    },
+    {
+      "model": "v3.2-gpu",
+      "intra_op": 2,
+      "B": 1,
+      "load_before": 3.91,
+      "load_wait_s": 30.0,
+      "load_after": 3.78,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 57.1381,
+        "p95": 58.9747,
+        "p99": 62.9198,
+        "max": 65.0094,
+        "mean": 57.5004
+      },
+      "per_item_ms_p50": 57.14
+    },
+    {
+      "model": "v3.2-gpu",
+      "intra_op": 2,
+      "B": 4,
+      "load_before": 3.78,
+      "load_wait_s": 0.0,
+      "load_after": 4.25,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 223.8607,
+        "p95": 228.3769,
+        "p99": 229.9354,
+        "max": 230.5676,
+        "mean": 224.6096
+      },
+      "per_item_ms_p50": 55.97
+    },
+    {
+      "model": "v3.2-gpu",
+      "intra_op": 4,
+      "B": 1,
+      "load_before": 3.74,
+      "load_wait_s": 20.0,
+      "load_after": 3.68,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 31.4376,
+        "p95": 32.8055,
+        "p99": 33.8057,
+        "max": 34.4486,
+        "mean": 31.6507
+      },
+      "per_item_ms_p50": 31.44
+    },
+    {
+      "model": "v3.2-gpu",
+      "intra_op": 4,
+      "B": 4,
+      "load_before": 3.68,
+      "load_wait_s": 0.0,
+      "load_after": 4.89,
+      "load_flag": false,
+      "per_call_ms": {
+        "n": 200,
+        "p50": 114.1543,
+        "p95": 167.201,
+        "p99": 168.3733,
+        "max": 169.5365,
+        "mean": 120.462
+      },
+      "per_item_ms_p50": 28.54
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+ "spike": "S1.5",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": null,
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.839969166,
+  "first_request_done_s": 2.105083916,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792724662.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 4.47802734375,
+  "loadavg_1m_after": 4.83984375,
+  "wall_s": 4.1,
+  "footprint_gb": 21.15
+ },
+ "data": {
+  "interleaved": [
+   {
+    "conv": "A",
+    "turn": 1,
+    "prompt_tokens": 1579,
+    "cached_tokens": 0,
+    "uncached": 1579,
+    "ttft": 1.385926875,
+    "content": "请问您使用的是哪款手机？不同品牌的截图按键组合可能不同。",
+    "tool_calls": []
+   },
+   {
+    "conv": "B",
+    "turn": 1,
+    "prompt_tokens": 1580,
+    "cached_tokens": 1530,
+    "uncached": 50,
+    "ttft": 0.127544666,
+    "content": "请问您的手机是什么品牌和型号呢？另外，您是否尝试过更换充电线或充电头？有时候配件老化或损坏会导致充电速度变慢。",
+    "tool_calls": []
+   },
+   {
+    "conv": "A",
+    "turn": 2,
+    "prompt_tokens": 1609,
+    "cached_tokens": 1575,
+    "uncached": 34,
+    "ttft": 0.102926458,
+    "content": "请问您使用的是哪款手机？不同品牌的录屏按键组合可能不同。",
+    "tool_calls": []
+   },
+   {
+    "conv": "B",
+    "turn": 2,
+    "prompt_tokens": 1627,
+    "cached_tokens": 1576,
+    "uncached": 51,
+    "ttft": 0.12865925,
+    "content": "您可以尝试清理手机充电接口，确保没有灰尘或异物。另外，请检查手机是否在发热，高温会影响充电效率。如果问题依旧，建议前往售后检测。请问还有其他需要帮助的吗？",
+    "tool_calls": []
+   },
+   {
+    "conv": "A",
+    "turn": 3,
+    "prompt_tokens": 1644,
+    "cached_tokens": 1605,
+    "uncached": 39,
+    "ttft": 0.489448375,
+    "content": "",
+    "tool_calls": [
+     "hangup"
+    ]
+   },
+   {
+    "conv": "B",
+    "turn": 3,
+    "prompt_tokens": 1684,
+    "cached_tokens": 1623,
+    "uncached": 61,
+    "ttft": 0.138663709,
+    "content": "不一定，您可以先尝试重启手机或更新系统。如果问题持续，建议预约售后检测。请问您需要查询维修进度，还是预约送修服务？",
+    "tool_calls": []
+   }
+  ],
+  "tag": "a21165"
+ }
+}

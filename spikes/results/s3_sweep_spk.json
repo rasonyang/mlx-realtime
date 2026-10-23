@@ -1,0 +1,11449 @@
+{
+ "spike": "S3",
+ "step": "sweep",
+ "started_at": "2026-10-23T06:54:45+08:00",
+ "loadavg1_start": 3.47,
+ "environment": {
+  "recorded_at": "2026-10-23T06:54:45+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "tts_sweep_spk",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_sweep_spk_065430/server.log",
+   "seconds_to_ready": 14.58
+  }
+ ],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "speakers": [
+   "aiden",
+   "serena"
+  ],
+  "intervals": [
+   0.32
+  ],
+  "langs": [
+   "zh",
+   "en",
+   "mix"
+  ],
+  "lengths": [
+   "short",
+   "medium"
+  ],
+  "n_per_cell": 10,
+  "order": "one discarded first-in-cell pass, then n rounds, each visiting every cell once in a seeded random order",
+  "seed": 20261023,
+  "texts": "3 texts per (lang, length), rotated by round",
+  "concurrency": 1,
+  "lang_code": {
+   "zh": "chinese",
+   "en": "english",
+   "mix": "chinese"
+  }
+ },
+ "text_units": {
+  "zh/short": [
+   8,
+   8,
+   6
+  ],
+  "zh/medium": [
+   20,
+   21,
+   21
+  ],
+  "en/short": [
+   4,
+   3,
+   4
+  ],
+  "en/medium": [
+   12,
+   13,
+   13
+  ],
+  "mix/short": [
+   6,
+   7,
+   7
+  ],
+  "mix/medium": [
+   22,
+   21,
+   18
+  ]
+ },
+ "warmup": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 2044.82,
+   "total_ms": 3412.65,
+   "audio_s": 4.88,
+   "error": null
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "status": 200,
+   "ttfc_ms": 107.45,
+   "total_ms": 1416.33,
+   "audio_s": 4.72,
+   "error": null
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 106.11,
+   "total_ms": 1634.84,
+   "audio_s": 5.68,
+   "error": null
+  }
+ ],
+ "round_loadavg1": [
+  [
+   3.54,
+   3.41
+  ],
+  [
+   3.41,
+   3.2
+  ],
+  [
+   3.2,
+   3.43
+  ],
+  [
+   3.43,
+   3.4
+  ],
+  [
+   3.4,
+   2.97
+  ],
+  [
+   2.97,
+   2.94
+  ],
+  [
+   2.94,
+   2.68
+  ],
+  [
+   2.68,
+   2.62
+  ],
+  [
+   2.62,
+   2.43
+  ],
+  [
+   2.43,
+   2.59
+  ]
+ ],
+ "log_during_run": [
+  "1719.5 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+  "1902.7 ms:   Initialized encoder codebooks",
+  "1902.8 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+ ],
+ "n_requests": 132,
+ "summary": {
+  "0.32|zh|short|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.19,
+    "p95": 190.7,
+    "max": 190.78,
+    "min": 180.54,
+    "mean": 187.04
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 1246.3,
+    "p95": 1568.41,
+    "max": 1616.76,
+    "min": 827.2,
+    "mean": 1258.4
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.53,
+    "p95": 0.54,
+    "max": 0.54,
+    "min": 0.52,
+    "mean": 0.53
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.53,
+    "max": 0.53,
+    "min": 0.5,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 2.36,
+    "p95": 3.01,
+    "max": 3.12,
+    "min": 1.52,
+    "mean": 2.38
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.6,
+    "p95": 160.08,
+    "max": 160.3,
+    "min": 159.0,
+    "mean": 159.61
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.1,
+    "p95": 161.72,
+    "max": 161.9,
+    "min": 160.4,
+    "mean": 161.09
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.41,
+    "before_last": 2.52
+   },
+   "first_in_cell_ttfc_ms": 95.41
+  },
+  "0.32|zh|short|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 186.44,
+    "p95": 189.49,
+    "max": 189.65,
+    "min": 182.19,
+    "mean": 185.74
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 1256.17,
+    "p95": 1553.12,
+    "max": 1632.58,
+    "min": 826.49,
+    "mean": 1208.58
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.53,
+    "p95": 0.54,
+    "max": 0.54,
+    "min": 0.52,
+    "mean": 0.53
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.53,
+    "max": 0.53,
+    "min": 0.49,
+    "mean": 0.52
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 2.36,
+    "p95": 2.98,
+    "max": 3.12,
+    "min": 1.52,
+    "mean": 2.29
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.45,
+    "p95": 160.51,
+    "max": 160.6,
+    "min": 158.7,
+    "mean": 159.59
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.1,
+    "p95": 163.03,
+    "max": 163.3,
+    "min": 159.6,
+    "mean": 161.4
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.41,
+    "before_last": 2.56
+   },
+   "first_in_cell_ttfc_ms": 94.08
+  },
+  "0.32|zh|medium|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.02,
+    "p95": 190.36,
+    "max": 190.47,
+    "min": 183.3,
+    "mean": 187.17
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2349.14,
+    "p95": 2490.17,
+    "max": 2518.12,
+    "min": 2178.59,
+    "mean": 2351.92
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.51,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.5,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 4.56,
+    "p95": 4.84,
+    "max": 4.88,
+    "min": 4.16,
+    "mean": 4.55
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.3,
+    "p95": 161.69,
+    "max": 162.0,
+    "min": 158.3,
+    "mean": 159.68
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.4,
+    "p95": 167.28,
+    "max": 167.6,
+    "min": 161.0,
+    "mean": 162.95
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.53,
+    "before_last": 2.59
+   },
+   "first_in_cell_ttfc_ms": 106.37
+  },
+  "0.32|zh|medium|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 189.25,
+    "p95": 191.86,
+    "max": 192.89,
+    "min": 183.59,
+    "mean": 188.41
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2332.07,
+    "p95": 2560.87,
+    "max": 2595.12,
+    "min": 1997.19,
+    "mean": 2312.81
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.51,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.51,
+    "max": 0.51,
+    "min": 0.5,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 4.52,
+    "p95": 4.97,
+    "max": 5.04,
+    "min": 3.84,
+    "mean": 4.49
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.9,
+    "p95": 162.25,
+    "max": 163.2,
+    "min": 158.7,
+    "mean": 160.08
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.9,
+    "p95": 164.35,
+    "max": 164.8,
+    "min": 161.3,
+    "mean": 162.46
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.58,
+    "before_last": 2.48
+   },
+   "first_in_cell_ttfc_ms": 124.37
+  },
+  "0.32|en|short|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 187.59,
+    "p95": 189.46,
+    "max": 190.42,
+    "min": 160.83,
+    "mean": 184.42
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 805.62,
+    "p95": 1550.38,
+    "max": 1879.16,
+    "min": 603.6,
+    "mean": 895.69
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.54,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.52,
+    "mean": 0.54
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.53,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.5,
+    "mean": 0.53
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 1.48,
+    "p95": 2.95,
+    "max": 3.6,
+    "min": 1.12,
+    "mean": 1.66
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.95,
+    "p95": 161.9,
+    "max": 162.3,
+    "min": 158.6,
+    "mean": 160.14
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 160.7,
+    "p95": 162.44,
+    "max": 163.3,
+    "min": 159.7,
+    "mean": 160.95
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.52
+   },
+   "first_in_cell_ttfc_ms": 108.21
+  },
+  "0.32|en|short|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 187.7,
+    "p95": 189.54,
+    "max": 190.58,
+    "min": 182.44,
+    "mean": 187.44
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 932.73,
+    "p95": 1163.17,
+    "max": 1307.45,
+    "min": 791.36,
+    "mean": 950.1
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.54,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.53,
+    "mean": 0.54
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.54,
+    "max": 0.54,
+    "min": 0.5,
+    "mean": 0.52
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 1.72,
+    "p95": 2.19,
+    "max": 2.48,
+    "min": 1.44,
+    "mean": 1.77
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.9,
+    "p95": 161.16,
+    "max": 161.7,
+    "min": 159.2,
+    "mean": 160.1
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 160.7,
+    "p95": 162.99,
+    "max": 163.3,
+    "min": 160.1,
+    "mean": 161.08
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.58,
+    "before_last": 2.56
+   },
+   "first_in_cell_ttfc_ms": 122.25
+  },
+  "0.32|en|medium|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 185.02,
+    "p95": 190.67,
+    "max": 190.68,
+    "min": 179.07,
+    "mean": 185.96
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2083.97,
+    "p95": 2464.38,
+    "max": 2475.41,
+    "min": 1753.09,
+    "mean": 2121.38
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.51,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.5,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 4.04,
+    "p95": 4.8,
+    "max": 4.8,
+    "min": 3.36,
+    "mean": 4.11
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 160.05,
+    "p95": 163.12,
+    "max": 163.7,
+    "min": 158.8,
+    "mean": 160.25
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.85,
+    "p95": 163.68,
+    "max": 164.8,
+    "min": 160.9,
+    "mean": 162.0
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.58,
+    "before_last": 2.52
+   },
+   "first_in_cell_ttfc_ms": 115.44
+  },
+  "0.32|en|medium|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.98,
+    "p95": 192.81,
+    "max": 194.02,
+    "min": 117.11,
+    "mean": 181.76
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2402.98,
+    "p95": 2563.01,
+    "max": 2596.39,
+    "min": 1408.16,
+    "mean": 2325.3
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.53,
+    "max": 0.53,
+    "min": 0.31,
+    "mean": 0.5
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.53,
+    "min": 0.3,
+    "mean": 0.49
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 4.64,
+    "p95": 4.97,
+    "max": 5.04,
+    "min": 4.32,
+    "mean": 4.67
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 160.1,
+    "p95": 198.37,
+    "max": 227.8,
+    "min": 159.0,
+    "mean": 166.99
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 162.5,
+    "p95": 182.55,
+    "max": 197.0,
+    "min": 111.1,
+    "mean": 160.87
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.43
+   },
+   "first_in_cell_ttfc_ms": 101.06
+  },
+  "0.32|mix|short|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 186.48,
+    "p95": 190.29,
+    "max": 190.62,
+    "min": 135.0,
+    "mean": 181.15
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 1129.44,
+    "p95": 1601.09,
+    "max": 1658.64,
+    "min": 848.97,
+    "mean": 1187.48
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.53,
+    "p95": 0.53,
+    "max": 0.53,
+    "min": 0.39,
+    "mean": 0.51
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.39,
+    "mean": 0.5
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 2.16,
+    "p95": 3.09,
+    "max": 3.2,
+    "min": 1.92,
+    "mean": 2.31
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.8,
+    "p95": 185.66,
+    "max": 204.2,
+    "min": 159.0,
+    "mean": 164.58
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 161.1,
+    "p95": 161.61,
+    "max": 161.7,
+    "min": 127.0,
+    "mean": 157.59
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   },
+   "first_in_cell_ttfc_ms": 101.82
+  },
+  "0.32|mix|short|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.15,
+    "p95": 189.49,
+    "max": 189.52,
+    "min": 104.67,
+    "mean": 179.04
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 1165.89,
+    "p95": 1323.1,
+    "max": 1395.06,
+    "min": 858.02,
+    "mean": 1145.74
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.53,
+    "p95": 0.53,
+    "max": 0.54,
+    "min": 0.3,
+    "mean": 0.51
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.53,
+    "min": 0.29,
+    "mean": 0.49
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 2.24,
+    "p95": 2.77,
+    "max": 2.88,
+    "min": 1.92,
+    "mean": 2.29
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.65,
+    "p95": 202.16,
+    "max": 236.5,
+    "min": 157.9,
+    "mean": 167.03
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 160.85,
+    "p95": 161.97,
+    "max": 162.1,
+    "min": 100.7,
+    "mean": 155.01
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.56
+   },
+   "first_in_cell_ttfc_ms": 120.91
+  },
+  "0.32|mix|medium|aiden": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.88,
+    "p95": 190.81,
+    "max": 191.05,
+    "min": 181.26,
+    "mean": 187.13
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2577.66,
+    "p95": 3027.12,
+    "max": 3038.51,
+    "min": 2206.22,
+    "mean": 2643.62
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.51,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.51,
+    "max": 0.51,
+    "min": 0.51,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 5.0,
+    "p95": 5.88,
+    "max": 5.92,
+    "min": 4.24,
+    "mean": 5.13
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.5,
+    "p95": 160.64,
+    "max": 161.0,
+    "min": 158.0,
+    "mean": 159.48
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 162.4,
+    "p95": 164.92,
+    "max": 165.1,
+    "min": 161.4,
+    "mean": 162.8
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.53,
+    "before_last": 2.48
+   },
+   "first_in_cell_ttfc_ms": 102.96
+  },
+  "0.32|mix|medium|serena": {
+   "ttfc_ms": {
+    "n": 10,
+    "p50": 188.6,
+    "p95": 192.11,
+    "max": 193.54,
+    "min": 119.15,
+    "mean": 181.15
+   },
+   "total_ms": {
+    "n": 10,
+    "p50": 2559.4,
+    "p95": 2864.58,
+    "max": 2928.64,
+    "min": 1525.99,
+    "mean": 2472.47
+   },
+   "rtf": {
+    "n": 10,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.3,
+    "mean": 0.49
+   },
+   "steady_rtf": {
+    "n": 10,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.52,
+    "min": 0.3,
+    "mean": 0.49
+   },
+   "audio_s": {
+    "n": 10,
+    "p50": 5.12,
+    "p95": 5.57,
+    "max": 5.68,
+    "min": 4.32,
+    "mean": 5.0
+   },
+   "min_slack_ms": {
+    "n": 10,
+    "p50": 159.55,
+    "p95": 195.72,
+    "max": 224.3,
+    "min": 158.5,
+    "mean": 165.95
+   },
+   "max_gap_ms": {
+    "n": 10,
+    "p50": 162.4,
+    "p95": 168.12,
+    "max": 168.7,
+    "min": 109.4,
+    "mean": 158.03
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.48
+   },
+   "first_in_cell_ttfc_ms": 126.01
+  }
+ },
+ "by_interval": {
+  "0.32": {
+   "ttfc_ms": {
+    "n": 120,
+    "p50": 187.69,
+    "p95": 190.69,
+    "max": 194.02,
+    "min": 104.67,
+    "mean": 184.7
+   },
+   "total_ms": {
+    "n": 120,
+    "p50": 1645.61,
+    "p95": 2718.45,
+    "max": 3038.51,
+    "min": 603.6,
+    "mean": 1739.46
+   },
+   "rtf": {
+    "n": 120,
+    "p50": 0.52,
+    "p95": 0.54,
+    "max": 0.55,
+    "min": 0.3,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 120,
+    "p50": 0.51,
+    "p95": 0.53,
+    "max": 0.55,
+    "min": 0.29,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 120,
+    "p50": 3.48,
+    "p95": 5.28,
+    "max": 5.92,
+    "min": 1.12,
+    "mean": 3.39
+   },
+   "min_slack_ms": {
+    "n": 120,
+    "p50": 159.8,
+    "p95": 163.01,
+    "max": 236.5,
+    "min": 157.9,
+    "mean": 161.96
+   },
+   "max_gap_ms": {
+    "n": 120,
+    "p50": 161.4,
+    "p95": 165.14,
+    "max": 197.0,
+    "min": 100.7,
+    "mean": 160.52
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   }
+  }
+ },
+ "by_length": {
+  "medium": {
+   "ttfc_ms": {
+    "n": 60,
+    "p50": 188.51,
+    "p95": 191.4,
+    "max": 194.02,
+    "min": 117.11,
+    "mean": 185.26
+   },
+   "total_ms": {
+    "n": 60,
+    "p50": 2393.28,
+    "p95": 2842.62,
+    "max": 3038.51,
+    "min": 1408.16,
+    "mean": 2371.25
+   },
+   "rtf": {
+    "n": 60,
+    "p50": 0.52,
+    "p95": 0.52,
+    "max": 0.53,
+    "min": 0.3,
+    "mean": 0.51
+   },
+   "steady_rtf": {
+    "n": 60,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.53,
+    "min": 0.3,
+    "mean": 0.5
+   },
+   "audio_s": {
+    "n": 60,
+    "p50": 4.64,
+    "p95": 5.53,
+    "max": 5.92,
+    "min": 3.36,
+    "mean": 4.66
+   },
+   "min_slack_ms": {
+    "n": 60,
+    "p50": 159.85,
+    "p95": 163.22,
+    "max": 227.8,
+    "min": 158.0,
+    "mean": 162.07
+   },
+   "max_gap_ms": {
+    "n": 60,
+    "p50": 162.0,
+    "p95": 167.41,
+    "max": 197.0,
+    "min": 109.4,
+    "mean": 161.52
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   }
+  },
+  "short": {
+   "ttfc_ms": {
+    "n": 60,
+    "p50": 187.6,
+    "p95": 190.58,
+    "max": 190.78,
+    "min": 104.67,
+    "mean": 184.14
+   },
+   "total_ms": {
+    "n": 60,
+    "p50": 1112.32,
+    "p95": 1617.55,
+    "max": 1879.16,
+    "min": 603.6,
+    "mean": 1107.67
+   },
+   "rtf": {
+    "n": 60,
+    "p50": 0.53,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.3,
+    "mean": 0.53
+   },
+   "steady_rtf": {
+    "n": 60,
+    "p50": 0.52,
+    "p95": 0.54,
+    "max": 0.55,
+    "min": 0.29,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 60,
+    "p50": 2.12,
+    "p95": 3.12,
+    "max": 3.6,
+    "min": 1.12,
+    "mean": 2.12
+   },
+   "min_slack_ms": {
+    "n": 60,
+    "p50": 159.75,
+    "p95": 162.34,
+    "max": 236.5,
+    "min": 157.9,
+    "mean": 161.84
+   },
+   "max_gap_ms": {
+    "n": 60,
+    "p50": 161.0,
+    "p95": 162.73,
+    "max": 163.3,
+    "min": 100.7,
+    "mean": 159.52
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   }
+  }
+ },
+ "by_lang": {
+  "mix": {
+   "ttfc_ms": {
+    "n": 40,
+    "p50": 187.78,
+    "p95": 190.64,
+    "max": 193.54,
+    "min": 104.67,
+    "mean": 182.12
+   },
+   "total_ms": {
+    "n": 40,
+    "p50": 1594.7,
+    "p95": 2932.87,
+    "max": 3038.51,
+    "min": 848.97,
+    "mean": 1862.33
+   },
+   "rtf": {
+    "n": 40,
+    "p50": 0.52,
+    "p95": 0.53,
+    "max": 0.54,
+    "min": 0.3,
+    "mean": 0.51
+   },
+   "steady_rtf": {
+    "n": 40,
+    "p50": 0.51,
+    "p95": 0.52,
+    "max": 0.53,
+    "min": 0.29,
+    "mean": 0.5
+   },
+   "audio_s": {
+    "n": 40,
+    "p50": 3.72,
+    "p95": 5.69,
+    "max": 5.92,
+    "min": 1.92,
+    "mean": 3.68
+   },
+   "min_slack_ms": {
+    "n": 40,
+    "p50": 159.65,
+    "p95": 205.2,
+    "max": 236.5,
+    "min": 157.9,
+    "mean": 164.26
+   },
+   "max_gap_ms": {
+    "n": 40,
+    "p50": 161.45,
+    "p95": 165.21,
+    "max": 168.7,
+    "min": 100.7,
+    "mean": 158.36
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   }
+  },
+  "en": {
+   "ttfc_ms": {
+    "n": 40,
+    "p50": 187.62,
+    "p95": 190.71,
+    "max": 194.02,
+    "min": 117.11,
+    "mean": 184.9
+   },
+   "total_ms": {
+    "n": 40,
+    "p50": 1580.62,
+    "p95": 2485.74,
+    "max": 2596.39,
+    "min": 603.6,
+    "mean": 1573.12
+   },
+   "rtf": {
+    "n": 40,
+    "p50": 0.52,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.31,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 40,
+    "p50": 0.51,
+    "p95": 0.54,
+    "max": 0.55,
+    "min": 0.3,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 40,
+    "p50": 3.48,
+    "p95": 4.8,
+    "max": 5.04,
+    "min": 1.12,
+    "mean": 3.05
+   },
+   "min_slack_ms": {
+    "n": 40,
+    "p50": 160.0,
+    "p95": 162.47,
+    "max": 227.8,
+    "min": 158.6,
+    "mean": 161.87
+   },
+   "max_gap_ms": {
+    "n": 40,
+    "p50": 161.3,
+    "p95": 164.81,
+    "max": 197.0,
+    "min": 111.1,
+    "mean": 161.22
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.56
+   }
+  },
+  "zh": {
+   "ttfc_ms": {
+    "n": 40,
+    "p50": 187.81,
+    "p95": 190.62,
+    "max": 192.89,
+    "min": 180.54,
+    "mean": 187.09
+   },
+   "total_ms": {
+    "n": 40,
+    "p50": 1814.88,
+    "p95": 2518.16,
+    "max": 2595.12,
+    "min": 826.49,
+    "mean": 1782.93
+   },
+   "rtf": {
+    "n": 40,
+    "p50": 0.52,
+    "p95": 0.54,
+    "max": 0.54,
+    "min": 0.51,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 40,
+    "p50": 0.51,
+    "p95": 0.53,
+    "max": 0.53,
+    "min": 0.49,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 40,
+    "p50": 3.48,
+    "p95": 4.88,
+    "max": 5.04,
+    "min": 1.52,
+    "mean": 3.43
+   },
+   "min_slack_ms": {
+    "n": 40,
+    "p50": 159.55,
+    "p95": 161.34,
+    "max": 163.2,
+    "min": 158.3,
+    "mean": 159.74
+   },
+   "max_gap_ms": {
+    "n": 40,
+    "p50": 161.45,
+    "p95": 166.04,
+    "max": 167.6,
+    "min": 159.6,
+    "mean": 161.97
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.58,
+    "before_last": 2.59
+   }
+  }
+ },
+ "by_speaker": {
+  "serena": {
+   "ttfc_ms": {
+    "n": 60,
+    "p50": 187.91,
+    "p95": 191.4,
+    "max": 194.02,
+    "min": 104.67,
+    "mean": 183.92
+   },
+   "total_ms": {
+    "n": 60,
+    "p50": 1490.99,
+    "p95": 2718.45,
+    "max": 2928.64,
+    "min": 791.36,
+    "mean": 1735.83
+   },
+   "rtf": {
+    "n": 60,
+    "p50": 0.52,
+    "p95": 0.54,
+    "max": 0.55,
+    "min": 0.3,
+    "mean": 0.51
+   },
+   "steady_rtf": {
+    "n": 60,
+    "p50": 0.51,
+    "p95": 0.53,
+    "max": 0.54,
+    "min": 0.29,
+    "mean": 0.5
+   },
+   "audio_s": {
+    "n": 60,
+    "p50": 3.48,
+    "p95": 5.28,
+    "max": 5.68,
+    "min": 1.44,
+    "mean": 3.42
+   },
+   "min_slack_ms": {
+    "n": 60,
+    "p50": 159.9,
+    "p95": 166.25,
+    "max": 236.5,
+    "min": 157.9,
+    "mean": 163.29
+   },
+   "max_gap_ms": {
+    "n": 60,
+    "p50": 161.5,
+    "p95": 165.03,
+    "max": 197.0,
+    "min": 100.7,
+    "mean": 159.81
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.56
+   }
+  },
+  "aiden": {
+   "ttfc_ms": {
+    "n": 60,
+    "p50": 187.61,
+    "p95": 190.66,
+    "max": 191.05,
+    "min": 135.0,
+    "mean": 185.48
+   },
+   "total_ms": {
+    "n": 60,
+    "p50": 1806.09,
+    "p95": 2692.65,
+    "max": 3038.51,
+    "min": 603.6,
+    "mean": 1743.08
+   },
+   "rtf": {
+    "n": 60,
+    "p50": 0.52,
+    "p95": 0.55,
+    "max": 0.55,
+    "min": 0.39,
+    "mean": 0.52
+   },
+   "steady_rtf": {
+    "n": 60,
+    "p50": 0.51,
+    "p95": 0.54,
+    "max": 0.55,
+    "min": 0.39,
+    "mean": 0.51
+   },
+   "audio_s": {
+    "n": 60,
+    "p50": 3.48,
+    "p95": 5.22,
+    "max": 5.92,
+    "min": 1.12,
+    "mean": 3.36
+   },
+   "min_slack_ms": {
+    "n": 60,
+    "p50": 159.6,
+    "p95": 162.43,
+    "max": 204.2,
+    "min": 158.0,
+    "mean": 160.62
+   },
+   "max_gap_ms": {
+    "n": 60,
+    "p50": 161.4,
+    "p95": 165.14,
+    "max": 167.6,
+    "min": 127.0,
+    "mean": 161.23
+   },
+   "chunk_audio_s_mode": 0.32,
+   "n_errors": 0,
+   "stalls": 0,
+   "loadavg1": {
+    "before_first": 3.54,
+    "before_last": 2.59
+   }
+  }
+ },
+ "records": [
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.01,
+   "first_byte_ms": 101.06,
+   "end_ms": 1499.42,
+   "closed_early": false,
+   "error": null,
+   "bytes": 261120,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.44,
+   "ttfc_ms": 101.06,
+   "total_ms": 1499.42,
+   "chunks": [
+    [
+     101.06,
+     15360
+    ],
+    [
+     178.06,
+     15360
+    ],
+    [
+     253.79,
+     15360
+    ],
+    [
+     332.16,
+     15360
+    ],
+    [
+     414.35,
+     15360
+    ],
+    [
+     507.56,
+     15360
+    ],
+    [
+     620.08,
+     15360
+    ],
+    [
+     726.61,
+     15360
+    ],
+    [
+     846.21,
+     15360
+    ],
+    [
+     939.11,
+     15360
+    ],
+    [
+     1019.72,
+     15360
+    ],
+    [
+     1095.81,
+     15360
+    ],
+    [
+     1171.11,
+     15360
+    ],
+    [
+     1245.94,
+     15360
+    ],
+    [
+     1321.64,
+     15360
+    ],
+    [
+     1398.34,
+     15360
+    ],
+    [
+     1478.86,
+     15360
+    ]
+   ],
+   "rtf": 0.2756,
+   "steady_rtf": 0.2691,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 243.0,
+   "max_gap_ms": 119.6,
+   "loadavg1_before": 3.43,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.12,
+   "first_byte_ms": 120.91,
+   "end_ms": 758.12,
+   "closed_early": false,
+   "error": null,
+   "bytes": 111360,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.32,
+   "ttfc_ms": 120.91,
+   "total_ms": 758.12,
+   "chunks": [
+    [
+     120.92,
+     15360
+    ],
+    [
+     222.63,
+     15360
+    ],
+    [
+     316.5,
+     15360
+    ],
+    [
+     403.89,
+     15360
+    ],
+    [
+     502.12,
+     15360
+    ],
+    [
+     607.52,
+     15360
+    ],
+    [
+     703.8,
+     15360
+    ],
+    [
+     757.93,
+     3840
+    ]
+   ],
+   "rtf": 0.3268,
+   "steady_rtf": 0.3185,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 218.3,
+   "max_gap_ms": 105.4,
+   "loadavg1_before": 3.43,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.06,
+   "first_byte_ms": 115.44,
+   "end_ms": 1300.07,
+   "closed_early": false,
+   "error": null,
+   "bytes": 203520,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.24,
+   "ttfc_ms": 115.44,
+   "total_ms": 1300.07,
+   "chunks": [
+    [
+     115.45,
+     15360
+    ],
+    [
+     217.37,
+     15360
+    ],
+    [
+     316.56,
+     15360
+    ],
+    [
+     413.36,
+     15360
+    ],
+    [
+     512.82,
+     15360
+    ],
+    [
+     603.95,
+     15360
+    ],
+    [
+     696.59,
+     15360
+    ],
+    [
+     788.73,
+     15360
+    ],
+    [
+     879.49,
+     15360
+    ],
+    [
+     983.56,
+     15360
+    ],
+    [
+     1092.81,
+     15360
+    ],
+    [
+     1177.97,
+     15360
+    ],
+    [
+     1255.96,
+     15360
+    ],
+    [
+     1299.89,
+     3840
+    ]
+   ],
+   "rtf": 0.3066,
+   "steady_rtf": 0.3022,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 218.1,
+   "max_gap_ms": 109.2,
+   "loadavg1_before": 3.55,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 4.87,
+   "first_byte_ms": 95.41,
+   "end_ms": 659.85,
+   "closed_early": false,
+   "error": null,
+   "bytes": 115200,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.4,
+   "ttfc_ms": 95.41,
+   "total_ms": 659.85,
+   "chunks": [
+    [
+     95.41,
+     15360
+    ],
+    [
+     170.48,
+     15360
+    ],
+    [
+     246.61,
+     15360
+    ],
+    [
+     324.12,
+     15360
+    ],
+    [
+     403.49,
+     15360
+    ],
+    [
+     487.53,
+     15360
+    ],
+    [
+     582.43,
+     15360
+    ],
+    [
+     659.66,
+     7680
+    ]
+   ],
+   "rtf": 0.2749,
+   "steady_rtf": 0.2713,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 244.9,
+   "max_gap_ms": 94.9,
+   "loadavg1_before": 3.55,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.03,
+   "first_byte_ms": 106.37,
+   "end_ms": 1397.17,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 106.37,
+   "total_ms": 1397.17,
+   "chunks": [
+    [
+     106.38,
+     15360
+    ],
+    [
+     191.65,
+     15360
+    ],
+    [
+     274.74,
+     15360
+    ],
+    [
+     359.16,
+     15360
+    ],
+    [
+     444.32,
+     15360
+    ],
+    [
+     530.68,
+     15360
+    ],
+    [
+     625.92,
+     15360
+    ],
+    [
+     730.48,
+     15360
+    ],
+    [
+     825.52,
+     15360
+    ],
+    [
+     915.35,
+     15360
+    ],
+    [
+     1004.37,
+     15360
+    ],
+    [
+     1096.88,
+     15360
+    ],
+    [
+     1195.46,
+     15360
+    ],
+    [
+     1286.98,
+     15360
+    ],
+    [
+     1375.7,
+     15360
+    ]
+   ],
+   "rtf": 0.2911,
+   "steady_rtf": 0.2833,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 234.7,
+   "max_gap_ms": 104.6,
+   "loadavg1_before": 3.55,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.04,
+   "first_byte_ms": 102.96,
+   "end_ms": 1415.29,
+   "closed_early": false,
+   "error": null,
+   "bytes": 234240,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.88,
+   "ttfc_ms": 102.96,
+   "total_ms": 1415.29,
+   "chunks": [
+    [
+     102.96,
+     15360
+    ],
+    [
+     183.77,
+     15360
+    ],
+    [
+     261.04,
+     15360
+    ],
+    [
+     338.47,
+     15360
+    ],
+    [
+     419.34,
+     15360
+    ],
+    [
+     513.83,
+     15360
+    ],
+    [
+     619.0,
+     15360
+    ],
+    [
+     712.52,
+     15360
+    ],
+    [
+     808.41,
+     15360
+    ],
+    [
+     906.76,
+     15360
+    ],
+    [
+     1007.48,
+     15360
+    ],
+    [
+     1117.52,
+     15360
+    ],
+    [
+     1217.05,
+     15360
+    ],
+    [
+     1295.92,
+     15360
+    ],
+    [
+     1371.84,
+     15360
+    ],
+    [
+     1415.1,
+     3840
+    ]
+   ],
+   "rtf": 0.29,
+   "steady_rtf": 0.2878,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 239.2,
+   "max_gap_ms": 110.0,
+   "loadavg1_before": 3.55,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 0.97,
+   "first_byte_ms": 94.08,
+   "end_ms": 590.96,
+   "closed_early": false,
+   "error": null,
+   "bytes": 96000,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.0,
+   "ttfc_ms": 94.08,
+   "total_ms": 590.96,
+   "chunks": [
+    [
+     94.09,
+     15360
+    ],
+    [
+     169.37,
+     15360
+    ],
+    [
+     246.59,
+     15360
+    ],
+    [
+     333.16,
+     15360
+    ],
+    [
+     429.15,
+     15360
+    ],
+    [
+     536.07,
+     15360
+    ],
+    [
+     590.71,
+     3840
+    ]
+   ],
+   "rtf": 0.2955,
+   "steady_rtf": 0.2956,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 244.7,
+   "max_gap_ms": 106.9,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.31,
+   "first_byte_ms": 122.25,
+   "end_ms": 534.51,
+   "closed_early": false,
+   "error": null,
+   "bytes": 69120,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.44,
+   "ttfc_ms": 122.25,
+   "total_ms": 534.51,
+   "chunks": [
+    [
+     122.25,
+     15360
+    ],
+    [
+     220.4,
+     15360
+    ],
+    [
+     337.89,
+     15360
+    ],
+    [
+     461.54,
+     15360
+    ],
+    [
+     534.34,
+     7680
+    ]
+   ],
+   "rtf": 0.3712,
+   "steady_rtf": 0.3679,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 221.8,
+   "max_gap_ms": 123.7,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.19,
+   "first_byte_ms": 101.82,
+   "end_ms": 615.2,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 101.82,
+   "total_ms": 615.2,
+   "chunks": [
+    [
+     101.82,
+     15360
+    ],
+    [
+     186.49,
+     15360
+    ],
+    [
+     268.09,
+     15360
+    ],
+    [
+     349.17,
+     15360
+    ],
+    [
+     432.76,
+     15360
+    ],
+    [
+     519.76,
+     15360
+    ],
+    [
+     615.04,
+     11520
+    ]
+   ],
+   "rtf": 0.2848,
+   "steady_rtf": 0.2789,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 235.3,
+   "max_gap_ms": 95.3,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.04,
+   "first_byte_ms": 124.37,
+   "end_ms": 1449.26,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 124.37,
+   "total_ms": 1449.26,
+   "chunks": [
+    [
+     124.38,
+     15360
+    ],
+    [
+     233.44,
+     15360
+    ],
+    [
+     332.19,
+     15360
+    ],
+    [
+     426.24,
+     15360
+    ],
+    [
+     518.03,
+     15360
+    ],
+    [
+     609.75,
+     15360
+    ],
+    [
+     704.45,
+     15360
+    ],
+    [
+     815.94,
+     15360
+    ],
+    [
+     916.51,
+     15360
+    ],
+    [
+     1007.52,
+     15360
+    ],
+    [
+     1097.21,
+     15360
+    ],
+    [
+     1188.93,
+     15360
+    ],
+    [
+     1285.28,
+     15360
+    ],
+    [
+     1387.36,
+     15360
+    ],
+    [
+     1449.09,
+     3840
+    ]
+   ],
+   "rtf": 0.3178,
+   "steady_rtf": 0.3124,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 210.9,
+   "max_gap_ms": 111.5,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 0.99,
+   "first_byte_ms": 126.01,
+   "end_ms": 1540.47,
+   "closed_early": false,
+   "error": null,
+   "bytes": 249600,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.2,
+   "ttfc_ms": 126.01,
+   "total_ms": 1540.47,
+   "chunks": [
+    [
+     126.02,
+     15360
+    ],
+    [
+     216.43,
+     15360
+    ],
+    [
+     303.75,
+     15360
+    ],
+    [
+     391.71,
+     15360
+    ],
+    [
+     478.14,
+     15360
+    ],
+    [
+     567.15,
+     15360
+    ],
+    [
+     661.89,
+     15360
+    ],
+    [
+     763.43,
+     15360
+    ],
+    [
+     868.2,
+     15360
+    ],
+    [
+     978.24,
+     15360
+    ],
+    [
+     1070.63,
+     15360
+    ],
+    [
+     1155.32,
+     15360
+    ],
+    [
+     1237.83,
+     15360
+    ],
+    [
+     1320.77,
+     15360
+    ],
+    [
+     1405.8,
+     15360
+    ],
+    [
+     1490.28,
+     15360
+    ],
+    [
+     1540.29,
+     3840
+    ]
+   ],
+   "rtf": 0.2962,
+   "steady_rtf": 0.2898,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 229.6,
+   "max_gap_ms": 110.0,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.13,
+   "first_byte_ms": 108.21,
+   "end_ms": 360.2,
+   "closed_early": false,
+   "error": null,
+   "bytes": 53760,
+   "n_chunks": 4,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.12,
+   "ttfc_ms": 108.21,
+   "total_ms": 360.2,
+   "chunks": [
+    [
+     108.21,
+     15360
+    ],
+    [
+     194.36,
+     15360
+    ],
+    [
+     283.86,
+     15360
+    ],
+    [
+     359.87,
+     7680
+    ]
+   ],
+   "rtf": 0.3216,
+   "steady_rtf": 0.3146,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 233.8,
+   "max_gap_ms": 89.5,
+   "loadavg1_before": 3.59,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "first_in_cell"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.26,
+   "headers_ms": 6.15,
+   "first_byte_ms": 119.15,
+   "end_ms": 1525.99,
+   "closed_early": false,
+   "error": null,
+   "bytes": 241920,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.04,
+   "ttfc_ms": 119.15,
+   "total_ms": 1525.99,
+   "chunks": [
+    [
+     119.15,
+     15360
+    ],
+    [
+     214.86,
+     15360
+    ],
+    [
+     307.21,
+     15360
+    ],
+    [
+     399.65,
+     15360
+    ],
+    [
+     499.79,
+     15360
+    ],
+    [
+     607.04,
+     15360
+    ],
+    [
+     716.45,
+     15360
+    ],
+    [
+     810.0,
+     15360
+    ],
+    [
+     894.84,
+     15360
+    ],
+    [
+     976.67,
+     15360
+    ],
+    [
+     1058.09,
+     15360
+    ],
+    [
+     1141.11,
+     15360
+    ],
+    [
+     1227.36,
+     15360
+    ],
+    [
+     1316.86,
+     15360
+    ],
+    [
+     1418.35,
+     15360
+    ],
+    [
+     1525.83,
+     11520
+    ]
+   ],
+   "rtf": 0.3028,
+   "steady_rtf": 0.298,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 224.3,
+   "max_gap_ms": 109.4,
+   "loadavg1_before": 3.54,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.02,
+   "first_byte_ms": 104.67,
+   "end_ms": 858.02,
+   "closed_early": false,
+   "error": null,
+   "bytes": 138240,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.88,
+   "ttfc_ms": 104.67,
+   "total_ms": 858.02,
+   "chunks": [
+    [
+     104.67,
+     15360
+    ],
+    [
+     188.15,
+     15360
+    ],
+    [
+     271.15,
+     15360
+    ],
+    [
+     354.31,
+     15360
+    ],
+    [
+     443.86,
+     15360
+    ],
+    [
+     536.83,
+     15360
+    ],
+    [
+     637.11,
+     15360
+    ],
+    [
+     736.08,
+     15360
+    ],
+    [
+     836.75,
+     15360
+    ]
+   ],
+   "rtf": 0.2979,
+   "steady_rtf": 0.286,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 236.5,
+   "max_gap_ms": 100.7,
+   "loadavg1_before": 3.54,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.14,
+   "headers_ms": 0.93,
+   "first_byte_ms": 117.11,
+   "end_ms": 1408.16,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 117.11,
+   "total_ms": 1408.16,
+   "chunks": [
+    [
+     117.12,
+     15360
+    ],
+    [
+     209.36,
+     15360
+    ],
+    [
+     302.19,
+     15360
+    ],
+    [
+     397.07,
+     15360
+    ],
+    [
+     498.91,
+     15360
+    ],
+    [
+     610.06,
+     15360
+    ],
+    [
+     707.41,
+     15360
+    ],
+    [
+     796.66,
+     15360
+    ],
+    [
+     885.31,
+     15360
+    ],
+    [
+     992.25,
+     15360
+    ],
+    [
+     1088.92,
+     15360
+    ],
+    [
+     1174.78,
+     15360
+    ],
+    [
+     1263.49,
+     15360
+    ],
+    [
+     1356.02,
+     15360
+    ],
+    [
+     1407.97,
+     3840
+    ]
+   ],
+   "rtf": 0.3088,
+   "steady_rtf": 0.3044,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 227.8,
+   "max_gap_ms": 111.1,
+   "loadavg1_before": 3.54,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.08,
+   "first_byte_ms": 135.0,
+   "end_ms": 848.97,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 135.0,
+   "total_ms": 848.97,
+   "chunks": [
+    [
+     135.0,
+     15360
+    ],
+    [
+     250.82,
+     15360
+    ],
+    [
+     362.34,
+     15360
+    ],
+    [
+     474.33,
+     15360
+    ],
+    [
+     594.89,
+     15360
+    ],
+    [
+     721.9,
+     15360
+    ],
+    [
+     848.77,
+     11520
+    ]
+   ],
+   "rtf": 0.393,
+   "steady_rtf": 0.3879,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 204.2,
+   "max_gap_ms": 127.0,
+   "loadavg1_before": 3.54,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.09,
+   "first_byte_ms": 160.83,
+   "end_ms": 603.6,
+   "closed_early": false,
+   "error": null,
+   "bytes": 53760,
+   "n_chunks": 4,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.12,
+   "ttfc_ms": 160.83,
+   "total_ms": 603.6,
+   "chunks": [
+    [
+     160.84,
+     15360
+    ],
+    [
+     320.09,
+     15360
+    ],
+    [
+     480.7,
+     15360
+    ],
+    [
+     603.41,
+     7680
+    ]
+   ],
+   "rtf": 0.5389,
+   "steady_rtf": 0.5532,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.7,
+   "max_gap_ms": 160.6,
+   "loadavg1_before": 3.54,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.08,
+   "first_byte_ms": 182.88,
+   "end_ms": 1978.86,
+   "closed_early": false,
+   "error": null,
+   "bytes": 184320,
+   "n_chunks": 12,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.84,
+   "ttfc_ms": 182.88,
+   "total_ms": 1978.86,
+   "chunks": [
+    [
+     182.88,
+     15360
+    ],
+    [
+     343.66,
+     15360
+    ],
+    [
+     503.64,
+     15360
+    ],
+    [
+     663.76,
+     15360
+    ],
+    [
+     824.88,
+     15360
+    ],
+    [
+     983.93,
+     15360
+    ],
+    [
+     1145.29,
+     15360
+    ],
+    [
+     1303.07,
+     15360
+    ],
+    [
+     1463.34,
+     15360
+    ],
+    [
+     1623.45,
+     15360
+    ],
+    [
+     1783.88,
+     15360
+    ],
+    [
+     1944.7,
+     15360
+    ]
+   ],
+   "rtf": 0.5153,
+   "steady_rtf": 0.5005,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.2,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 3.58,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 0.99,
+   "first_byte_ms": 187.9,
+   "end_ms": 986.83,
+   "closed_early": false,
+   "error": null,
+   "bytes": 88320,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.84,
+   "ttfc_ms": 187.9,
+   "total_ms": 986.83,
+   "chunks": [
+    [
+     187.91,
+     15360
+    ],
+    [
+     347.37,
+     15360
+    ],
+    [
+     507.92,
+     15360
+    ],
+    [
+     668.02,
+     15360
+    ],
+    [
+     828.3,
+     15360
+    ],
+    [
+     986.63,
+     11520
+    ]
+   ],
+   "rtf": 0.5363,
+   "steady_rtf": 0.5255,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.5,
+   "max_gap_ms": 160.6,
+   "loadavg1_before": 3.58,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 5.09,
+   "first_byte_ms": 183.59,
+   "end_ms": 2519.01,
+   "closed_early": false,
+   "error": null,
+   "bytes": 234240,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.88,
+   "ttfc_ms": 183.59,
+   "total_ms": 2519.01,
+   "chunks": [
+    [
+     183.59,
+     15360
+    ],
+    [
+     344.29,
+     15360
+    ],
+    [
+     504.63,
+     15360
+    ],
+    [
+     664.41,
+     15360
+    ],
+    [
+     824.37,
+     15360
+    ],
+    [
+     983.26,
+     15360
+    ],
+    [
+     1144.07,
+     15360
+    ],
+    [
+     1304.34,
+     15360
+    ],
+    [
+     1464.35,
+     15360
+    ],
+    [
+     1625.12,
+     15360
+    ],
+    [
+     1785.11,
+     15360
+    ],
+    [
+     1946.3,
+     15360
+    ],
+    [
+     2108.31,
+     15360
+    ],
+    [
+     2270.08,
+     15360
+    ],
+    [
+     2430.94,
+     15360
+    ],
+    [
+     2518.76,
+     3840
+    ]
+   ],
+   "rtf": 0.5162,
+   "steady_rtf": 0.5121,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.3,
+   "max_gap_ms": 162.0,
+   "loadavg1_before": 3.58,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.12,
+   "first_byte_ms": 189.87,
+   "end_ms": 3013.19,
+   "closed_early": false,
+   "error": null,
+   "bytes": 280320,
+   "n_chunks": 19,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.84,
+   "ttfc_ms": 189.87,
+   "total_ms": 3013.19,
+   "chunks": [
+    [
+     189.87,
+     15360
+    ],
+    [
+     350.91,
+     15360
+    ],
+    [
+     510.86,
+     15360
+    ],
+    [
+     672.14,
+     15360
+    ],
+    [
+     832.84,
+     15360
+    ],
+    [
+     990.03,
+     15360
+    ],
+    [
+     1150.53,
+     15360
+    ],
+    [
+     1311.26,
+     15360
+    ],
+    [
+     1471.49,
+     15360
+    ],
+    [
+     1631.9,
+     15360
+    ],
+    [
+     1792.81,
+     15360
+    ],
+    [
+     1952.96,
+     15360
+    ],
+    [
+     2114.57,
+     15360
+    ],
+    [
+     2274.71,
+     15360
+    ],
+    [
+     2436.12,
+     15360
+    ],
+    [
+     2599.51,
+     15360
+    ],
+    [
+     2763.3,
+     15360
+    ],
+    [
+     2924.49,
+     15360
+    ],
+    [
+     3013.0,
+     3840
+    ]
+   ],
+   "rtf": 0.516,
+   "steady_rtf": 0.5114,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 163.8,
+   "loadavg1_before": 3.53,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 5.08,
+   "first_byte_ms": 190.03,
+   "end_ms": 2178.59,
+   "closed_early": false,
+   "error": null,
+   "bytes": 199680,
+   "n_chunks": 13,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.16,
+   "ttfc_ms": 190.03,
+   "total_ms": 2178.59,
+   "chunks": [
+    [
+     190.03,
+     15360
+    ],
+    [
+     350.58,
+     15360
+    ],
+    [
+     510.77,
+     15360
+    ],
+    [
+     672.37,
+     15360
+    ],
+    [
+     839.23,
+     15360
+    ],
+    [
+     999.69,
+     15360
+    ],
+    [
+     1164.0,
+     15360
+    ],
+    [
+     1329.86,
+     15360
+    ],
+    [
+     1496.13,
+     15360
+    ],
+    [
+     1656.31,
+     15360
+    ],
+    [
+     1822.45,
+     15360
+    ],
+    [
+     1982.92,
+     15360
+    ],
+    [
+     2143.89,
+     15360
+    ]
+   ],
+   "rtf": 0.5237,
+   "steady_rtf": 0.5088,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 166.9,
+   "loadavg1_before": 3.53,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.07,
+   "first_byte_ms": 188.45,
+   "end_ms": 1472.79,
+   "closed_early": false,
+   "error": null,
+   "bytes": 134400,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.8,
+   "ttfc_ms": 188.45,
+   "total_ms": 1472.79,
+   "chunks": [
+    [
+     188.46,
+     15360
+    ],
+    [
+     349.05,
+     15360
+    ],
+    [
+     510.29,
+     15360
+    ],
+    [
+     670.65,
+     15360
+    ],
+    [
+     831.27,
+     15360
+    ],
+    [
+     989.2,
+     15360
+    ],
+    [
+     1149.91,
+     15360
+    ],
+    [
+     1311.08,
+     15360
+    ],
+    [
+     1472.61,
+     11520
+    ]
+   ],
+   "rtf": 0.526,
+   "steady_rtf": 0.5178,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 3.41,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.04,
+   "first_byte_ms": 189.65,
+   "end_ms": 1117.23,
+   "closed_early": false,
+   "error": null,
+   "bytes": 99840,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.08,
+   "ttfc_ms": 189.65,
+   "total_ms": 1117.23,
+   "chunks": [
+    [
+     189.66,
+     15360
+    ],
+    [
+     349.06,
+     15360
+    ],
+    [
+     509.72,
+     15360
+    ],
+    [
+     670.49,
+     15360
+    ],
+    [
+     830.45,
+     15360
+    ],
+    [
+     991.51,
+     15360
+    ],
+    [
+     1117.03,
+     7680
+    ]
+   ],
+   "rtf": 0.5371,
+   "steady_rtf": 0.5269,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.6,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 3.41,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 0,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 5.22,
+   "first_byte_ms": 180.99,
+   "end_ms": 1658.64,
+   "closed_early": false,
+   "error": null,
+   "bytes": 153600,
+   "n_chunks": 10,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.2,
+   "ttfc_ms": 180.99,
+   "total_ms": 1658.64,
+   "chunks": [
+    [
+     180.99,
+     15360
+    ],
+    [
+     341.96,
+     15360
+    ],
+    [
+     502.23,
+     15360
+    ],
+    [
+     662.66,
+     15360
+    ],
+    [
+     823.08,
+     15360
+    ],
+    [
+     984.8,
+     15360
+    ],
+    [
+     1144.77,
+     15360
+    ],
+    [
+     1305.93,
+     15360
+    ],
+    [
+     1466.41,
+     15360
+    ],
+    [
+     1625.23,
+     15360
+    ]
+   ],
+   "rtf": 0.5183,
+   "steady_rtf": 0.5015,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.7,
+   "loadavg1_before": 3.41,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.13,
+   "first_byte_ms": 188.7,
+   "end_ms": 1113.04,
+   "closed_early": false,
+   "error": null,
+   "bytes": 99840,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.08,
+   "ttfc_ms": 188.7,
+   "total_ms": 1113.04,
+   "chunks": [
+    [
+     188.7,
+     15360
+    ],
+    [
+     350.79,
+     15360
+    ],
+    [
+     510.57,
+     15360
+    ],
+    [
+     669.94,
+     15360
+    ],
+    [
+     830.36,
+     15360
+    ],
+    [
+     989.83,
+     15360
+    ],
+    [
+     1112.85,
+     7680
+    ]
+   ],
+   "rtf": 0.5351,
+   "steady_rtf": 0.5251,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 157.9,
+   "max_gap_ms": 162.1,
+   "loadavg1_before": 3.38,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 5.14,
+   "first_byte_ms": 182.9,
+   "end_ms": 662.42,
+   "closed_early": false,
+   "error": null,
+   "bytes": 57600,
+   "n_chunks": 4,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.2,
+   "ttfc_ms": 182.9,
+   "total_ms": 662.42,
+   "chunks": [
+    [
+     182.9,
+     15360
+    ],
+    [
+     344.32,
+     15360
+    ],
+    [
+     503.57,
+     15360
+    ],
+    [
+     662.21,
+     11520
+    ]
+   ],
+   "rtf": 0.552,
+   "steady_rtf": 0.5447,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.6,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 3.38,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.17,
+   "headers_ms": 1.02,
+   "first_byte_ms": 182.34,
+   "end_ms": 2511.46,
+   "closed_early": false,
+   "error": null,
+   "bytes": 234240,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.88,
+   "ttfc_ms": 182.34,
+   "total_ms": 2511.46,
+   "chunks": [
+    [
+     182.35,
+     15360
+    ],
+    [
+     342.56,
+     15360
+    ],
+    [
+     505.37,
+     15360
+    ],
+    [
+     665.7,
+     15360
+    ],
+    [
+     825.88,
+     15360
+    ],
+    [
+     986.78,
+     15360
+    ],
+    [
+     1147.25,
+     15360
+    ],
+    [
+     1307.31,
+     15360
+    ],
+    [
+     1468.7,
+     15360
+    ],
+    [
+     1630.25,
+     15360
+    ],
+    [
+     1790.83,
+     15360
+    ],
+    [
+     1951.65,
+     15360
+    ],
+    [
+     2111.64,
+     15360
+    ],
+    [
+     2267.54,
+     15360
+    ],
+    [
+     2424.0,
+     15360
+    ],
+    [
+     2511.22,
+     3840
+    ]
+   ],
+   "rtf": 0.5146,
+   "steady_rtf": 0.5107,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 162.8,
+   "loadavg1_before": 3.38,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.14,
+   "first_byte_ms": 189.29,
+   "end_ms": 1456.0,
+   "closed_early": false,
+   "error": null,
+   "bytes": 134400,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.8,
+   "ttfc_ms": 189.29,
+   "total_ms": 1456.0,
+   "chunks": [
+    [
+     189.29,
+     15360
+    ],
+    [
+     349.46,
+     15360
+    ],
+    [
+     512.17,
+     15360
+    ],
+    [
+     672.49,
+     15360
+    ],
+    [
+     830.11,
+     15360
+    ],
+    [
+     986.39,
+     15360
+    ],
+    [
+     1144.17,
+     15360
+    ],
+    [
+     1300.29,
+     15360
+    ],
+    [
+     1455.81,
+     11520
+    ]
+   ],
+   "rtf": 0.52,
+   "steady_rtf": 0.5107,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 162.7,
+   "loadavg1_before": 3.38,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 0.99,
+   "first_byte_ms": 185.59,
+   "end_ms": 2125.96,
+   "closed_early": false,
+   "error": null,
+   "bytes": 199680,
+   "n_chunks": 13,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.16,
+   "ttfc_ms": 185.59,
+   "total_ms": 2125.96,
+   "chunks": [
+    [
+     185.59,
+     15360
+    ],
+    [
+     341.9,
+     15360
+    ],
+    [
+     498.2,
+     15360
+    ],
+    [
+     657.18,
+     15360
+    ],
+    [
+     813.13,
+     15360
+    ],
+    [
+     972.39,
+     15360
+    ],
+    [
+     1129.96,
+     15360
+    ],
+    [
+     1288.34,
+     15360
+    ],
+    [
+     1449.18,
+     15360
+    ],
+    [
+     1611.17,
+     15360
+    ],
+    [
+     1770.3,
+     15360
+    ],
+    [
+     1930.8,
+     15360
+    ],
+    [
+     2091.21,
+     15360
+    ]
+   ],
+   "rtf": 0.511,
+   "steady_rtf": 0.4963,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 163.7,
+   "max_gap_ms": 162.0,
+   "loadavg1_before": 3.35,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.1,
+   "first_byte_ms": 190.47,
+   "end_ms": 2434.22,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 190.47,
+   "total_ms": 2434.22,
+   "chunks": [
+    [
+     190.47,
+     15360
+    ],
+    [
+     352.12,
+     15360
+    ],
+    [
+     513.12,
+     15360
+    ],
+    [
+     673.42,
+     15360
+    ],
+    [
+     833.89,
+     15360
+    ],
+    [
+     994.2,
+     15360
+    ],
+    [
+     1155.21,
+     15360
+    ],
+    [
+     1319.03,
+     15360
+    ],
+    [
+     1486.67,
+     15360
+    ],
+    [
+     1646.91,
+     15360
+    ],
+    [
+     1807.53,
+     15360
+    ],
+    [
+     1972.04,
+     15360
+    ],
+    [
+     2135.81,
+     15360
+    ],
+    [
+     2301.81,
+     15360
+    ],
+    [
+     2433.86,
+     7680
+    ]
+   ],
+   "rtf": 0.5246,
+   "steady_rtf": 0.5193,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.4,
+   "max_gap_ms": 167.6,
+   "loadavg1_before": 3.35,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.59,
+   "first_byte_ms": 190.6,
+   "end_ms": 1509.31,
+   "closed_early": false,
+   "error": null,
+   "bytes": 138240,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.88,
+   "ttfc_ms": 190.6,
+   "total_ms": 1509.31,
+   "chunks": [
+    [
+     190.6,
+     15360
+    ],
+    [
+     351.19,
+     15360
+    ],
+    [
+     511.54,
+     15360
+    ],
+    [
+     671.92,
+     15360
+    ],
+    [
+     832.14,
+     15360
+    ],
+    [
+     992.73,
+     15360
+    ],
+    [
+     1154.21,
+     15360
+    ],
+    [
+     1314.28,
+     15360
+    ],
+    [
+     1474.74,
+     15360
+    ]
+   ],
+   "rtf": 0.5241,
+   "steady_rtf": 0.5016,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 3.32,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.11,
+   "first_byte_ms": 187.57,
+   "end_ms": 1307.45,
+   "closed_early": false,
+   "error": null,
+   "bytes": 119040,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.48,
+   "ttfc_ms": 187.57,
+   "total_ms": 1307.45,
+   "chunks": [
+    [
+     187.58,
+     15360
+    ],
+    [
+     347.63,
+     15360
+    ],
+    [
+     507.66,
+     15360
+    ],
+    [
+     668.99,
+     15360
+    ],
+    [
+     828.54,
+     15360
+    ],
+    [
+     989.65,
+     15360
+    ],
+    [
+     1149.63,
+     15360
+    ],
+    [
+     1307.24,
+     11520
+    ]
+   ],
+   "rtf": 0.5272,
+   "steady_rtf": 0.5184,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 3.32,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.05,
+   "first_byte_ms": 192.89,
+   "end_ms": 2367.58,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 192.89,
+   "total_ms": 2367.58,
+   "chunks": [
+    [
+     192.89,
+     15360
+    ],
+    [
+     353.66,
+     15360
+    ],
+    [
+     513.8,
+     15360
+    ],
+    [
+     674.57,
+     15360
+    ],
+    [
+     834.6,
+     15360
+    ],
+    [
+     995.17,
+     15360
+    ],
+    [
+     1155.88,
+     15360
+    ],
+    [
+     1316.99,
+     15360
+    ],
+    [
+     1476.87,
+     15360
+    ],
+    [
+     1637.1,
+     15360
+    ],
+    [
+     1797.83,
+     15360
+    ],
+    [
+     1958.03,
+     15360
+    ],
+    [
+     2119.7,
+     15360
+    ],
+    [
+     2279.58,
+     15360
+    ],
+    [
+     2367.38,
+     3840
+    ]
+   ],
+   "rtf": 0.5192,
+   "steady_rtf": 0.5129,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.2,
+   "max_gap_ms": 161.7,
+   "loadavg1_before": 3.32,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.09,
+   "first_byte_ms": 190.1,
+   "end_ms": 2404.91,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 190.1,
+   "total_ms": 2404.91,
+   "chunks": [
+    [
+     190.11,
+     15360
+    ],
+    [
+     351.09,
+     15360
+    ],
+    [
+     511.25,
+     15360
+    ],
+    [
+     671.22,
+     15360
+    ],
+    [
+     833.81,
+     15360
+    ],
+    [
+     994.22,
+     15360
+    ],
+    [
+     1154.59,
+     15360
+    ],
+    [
+     1314.78,
+     15360
+    ],
+    [
+     1475.64,
+     15360
+    ],
+    [
+     1635.52,
+     15360
+    ],
+    [
+     1797.26,
+     15360
+    ],
+    [
+     1957.18,
+     15360
+    ],
+    [
+     2116.95,
+     15360
+    ],
+    [
+     2277.84,
+     15360
+    ],
+    [
+     2404.73,
+     7680
+    ]
+   ],
+   "rtf": 0.5183,
+   "steady_rtf": 0.5126,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 162.6,
+   "loadavg1_before": 3.13,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 5.06,
+   "first_byte_ms": 189.29,
+   "end_ms": 2725.55,
+   "closed_early": false,
+   "error": null,
+   "bytes": 253440,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.28,
+   "ttfc_ms": 189.29,
+   "total_ms": 2725.55,
+   "chunks": [
+    [
+     189.3,
+     15360
+    ],
+    [
+     350.77,
+     15360
+    ],
+    [
+     513.65,
+     15360
+    ],
+    [
+     673.44,
+     15360
+    ],
+    [
+     833.98,
+     15360
+    ],
+    [
+     994.58,
+     15360
+    ],
+    [
+     1153.44,
+     15360
+    ],
+    [
+     1314.87,
+     15360
+    ],
+    [
+     1475.3,
+     15360
+    ],
+    [
+     1635.5,
+     15360
+    ],
+    [
+     1795.5,
+     15360
+    ],
+    [
+     1956.85,
+     15360
+    ],
+    [
+     2117.28,
+     15360
+    ],
+    [
+     2277.72,
+     15360
+    ],
+    [
+     2439.4,
+     15360
+    ],
+    [
+     2599.37,
+     15360
+    ],
+    [
+     2725.36,
+     7680
+    ]
+   ],
+   "rtf": 0.5162,
+   "steady_rtf": 0.5113,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.5,
+   "max_gap_ms": 162.9,
+   "loadavg1_before": 3.13,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 1,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.07,
+   "first_byte_ms": 190.51,
+   "end_ms": 2206.22,
+   "closed_early": false,
+   "error": null,
+   "bytes": 203520,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.24,
+   "ttfc_ms": 190.51,
+   "total_ms": 2206.22,
+   "chunks": [
+    [
+     190.51,
+     15360
+    ],
+    [
+     350.31,
+     15360
+    ],
+    [
+     510.43,
+     15360
+    ],
+    [
+     671.74,
+     15360
+    ],
+    [
+     830.81,
+     15360
+    ],
+    [
+     991.56,
+     15360
+    ],
+    [
+     1151.83,
+     15360
+    ],
+    [
+     1312.34,
+     15360
+    ],
+    [
+     1472.45,
+     15360
+    ],
+    [
+     1637.6,
+     15360
+    ],
+    [
+     1800.94,
+     15360
+    ],
+    [
+     1958.52,
+     15360
+    ],
+    [
+     2118.86,
+     15360
+    ],
+    [
+     2206.03,
+     3840
+    ]
+   ],
+   "rtf": 0.5203,
+   "steady_rtf": 0.5142,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 165.1,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 5.08,
+   "first_byte_ms": 187.92,
+   "end_ms": 827.2,
+   "closed_early": false,
+   "error": null,
+   "bytes": 72960,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.52,
+   "ttfc_ms": 187.92,
+   "total_ms": 827.2,
+   "chunks": [
+    [
+     187.92,
+     15360
+    ],
+    [
+     348.4,
+     15360
+    ],
+    [
+     508.92,
+     15360
+    ],
+    [
+     668.67,
+     15360
+    ],
+    [
+     826.99,
+     11520
+    ]
+   ],
+   "rtf": 0.5442,
+   "steady_rtf": 0.5326,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.5,
+   "max_gap_ms": 160.5,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.06,
+   "first_byte_ms": 183.73,
+   "end_ms": 2267.67,
+   "closed_early": false,
+   "error": null,
+   "bytes": 207360,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.32,
+   "ttfc_ms": 183.73,
+   "total_ms": 2267.67,
+   "chunks": [
+    [
+     183.73,
+     15360
+    ],
+    [
+     344.65,
+     15360
+    ],
+    [
+     504.39,
+     15360
+    ],
+    [
+     667.75,
+     15360
+    ],
+    [
+     828.05,
+     15360
+    ],
+    [
+     988.44,
+     15360
+    ],
+    [
+     1148.81,
+     15360
+    ],
+    [
+     1309.17,
+     15360
+    ],
+    [
+     1472.88,
+     15360
+    ],
+    [
+     1632.98,
+     15360
+    ],
+    [
+     1792.62,
+     15360
+    ],
+    [
+     1957.04,
+     15360
+    ],
+    [
+     2124.45,
+     15360
+    ],
+    [
+     2267.47,
+     7680
+    ]
+   ],
+   "rtf": 0.5249,
+   "steady_rtf": 0.5209,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.1,
+   "max_gap_ms": 167.4,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.09,
+   "first_byte_ms": 187.69,
+   "end_ms": 1022.26,
+   "closed_early": false,
+   "error": null,
+   "bytes": 92160,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.92,
+   "ttfc_ms": 187.69,
+   "total_ms": 1022.26,
+   "chunks": [
+    [
+     187.69,
+     15360
+    ],
+    [
+     349.49,
+     15360
+    ],
+    [
+     508.32,
+     15360
+    ],
+    [
+     669.05,
+     15360
+    ],
+    [
+     829.98,
+     15360
+    ],
+    [
+     990.2,
+     15360
+    ]
+   ],
+   "rtf": 0.5324,
+   "steady_rtf": 0.5016,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.2,
+   "max_gap_ms": 161.8,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.06,
+   "first_byte_ms": 183.69,
+   "end_ms": 2407.92,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 183.69,
+   "total_ms": 2407.92,
+   "chunks": [
+    [
+     183.69,
+     15360
+    ],
+    [
+     345.37,
+     15360
+    ],
+    [
+     506.02,
+     15360
+    ],
+    [
+     666.0,
+     15360
+    ],
+    [
+     823.37,
+     15360
+    ],
+    [
+     983.9,
+     15360
+    ],
+    [
+     1143.92,
+     15360
+    ],
+    [
+     1305.59,
+     15360
+    ],
+    [
+     1468.26,
+     15360
+    ],
+    [
+     1628.98,
+     15360
+    ],
+    [
+     1789.18,
+     15360
+    ],
+    [
+     1950.16,
+     15360
+    ],
+    [
+     2113.82,
+     15360
+    ],
+    [
+     2279.8,
+     15360
+    ],
+    [
+     2407.76,
+     7680
+    ]
+   ],
+   "rtf": 0.5189,
+   "steady_rtf": 0.5148,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.3,
+   "max_gap_ms": 166.0,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.04,
+   "first_byte_ms": 187.58,
+   "end_ms": 826.67,
+   "closed_early": false,
+   "error": null,
+   "bytes": 72960,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.52,
+   "ttfc_ms": 187.58,
+   "total_ms": 826.67,
+   "chunks": [
+    [
+     187.58,
+     15360
+    ],
+    [
+     348.0,
+     15360
+    ],
+    [
+     508.2,
+     15360
+    ],
+    [
+     668.86,
+     15360
+    ],
+    [
+     826.48,
+     11520
+    ]
+   ],
+   "rtf": 0.5439,
+   "steady_rtf": 0.5324,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.6,
+   "max_gap_ms": 160.7,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.0,
+   "first_byte_ms": 185.58,
+   "end_ms": 2358.77,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 185.58,
+   "total_ms": 2358.77,
+   "chunks": [
+    [
+     185.58,
+     15360
+    ],
+    [
+     345.6,
+     15360
+    ],
+    [
+     502.7,
+     15360
+    ],
+    [
+     658.71,
+     15360
+    ],
+    [
+     814.68,
+     15360
+    ],
+    [
+     970.52,
+     15360
+    ],
+    [
+     1127.42,
+     15360
+    ],
+    [
+     1283.64,
+     15360
+    ],
+    [
+     1439.19,
+     15360
+    ],
+    [
+     1594.67,
+     15360
+    ],
+    [
+     1751.07,
+     15360
+    ],
+    [
+     1908.28,
+     15360
+    ],
+    [
+     2068.68,
+     15360
+    ],
+    [
+     2232.37,
+     15360
+    ],
+    [
+     2358.59,
+     7680
+    ]
+   ],
+   "rtf": 0.5084,
+   "steady_rtf": 0.503,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 163.7,
+   "loadavg1_before": 3.42,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.08,
+   "first_byte_ms": 186.95,
+   "end_ms": 978.65,
+   "closed_early": false,
+   "error": null,
+   "bytes": 88320,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.84,
+   "ttfc_ms": 186.95,
+   "total_ms": 978.65,
+   "chunks": [
+    [
+     186.95,
+     15360
+    ],
+    [
+     345.21,
+     15360
+    ],
+    [
+     504.77,
+     15360
+    ],
+    [
+     665.16,
+     15360
+    ],
+    [
+     821.89,
+     15360
+    ],
+    [
+     978.43,
+     11520
+    ]
+   ],
+   "rtf": 0.5319,
+   "steady_rtf": 0.5207,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.7,
+   "max_gap_ms": 160.4,
+   "loadavg1_before": 3.42,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.1,
+   "first_byte_ms": 181.17,
+   "end_ms": 1302.92,
+   "closed_early": false,
+   "error": null,
+   "bytes": 119040,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.48,
+   "ttfc_ms": 181.17,
+   "total_ms": 1302.92,
+   "chunks": [
+    [
+     181.18,
+     15360
+    ],
+    [
+     341.37,
+     15360
+    ],
+    [
+     501.05,
+     15360
+    ],
+    [
+     662.51,
+     15360
+    ],
+    [
+     823.05,
+     15360
+    ],
+    [
+     982.95,
+     15360
+    ],
+    [
+     1143.53,
+     15360
+    ],
+    [
+     1302.69,
+     11520
+    ]
+   ],
+   "rtf": 0.5254,
+   "steady_rtf": 0.5192,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 3.42,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.03,
+   "first_byte_ms": 188.93,
+   "end_ms": 2522.22,
+   "closed_early": false,
+   "error": null,
+   "bytes": 234240,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.88,
+   "ttfc_ms": 188.93,
+   "total_ms": 2522.22,
+   "chunks": [
+    [
+     188.94,
+     15360
+    ],
+    [
+     349.08,
+     15360
+    ],
+    [
+     510.55,
+     15360
+    ],
+    [
+     670.22,
+     15360
+    ],
+    [
+     830.28,
+     15360
+    ],
+    [
+     990.78,
+     15360
+    ],
+    [
+     1152.15,
+     15360
+    ],
+    [
+     1310.74,
+     15360
+    ],
+    [
+     1472.1,
+     15360
+    ],
+    [
+     1633.42,
+     15360
+    ],
+    [
+     1793.7,
+     15360
+    ],
+    [
+     1953.59,
+     15360
+    ],
+    [
+     2112.66,
+     15360
+    ],
+    [
+     2272.3,
+     15360
+    ],
+    [
+     2432.03,
+     15360
+    ],
+    [
+     2522.05,
+     3840
+    ]
+   ],
+   "rtf": 0.5168,
+   "steady_rtf": 0.5116,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 3.47,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.09,
+   "first_byte_ms": 190.68,
+   "end_ms": 2041.98,
+   "closed_early": false,
+   "error": null,
+   "bytes": 188160,
+   "n_chunks": 13,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.92,
+   "ttfc_ms": 190.68,
+   "total_ms": 2041.98,
+   "chunks": [
+    [
+     190.69,
+     15360
+    ],
+    [
+     350.54,
+     15360
+    ],
+    [
+     510.53,
+     15360
+    ],
+    [
+     670.3,
+     15360
+    ],
+    [
+     828.3,
+     15360
+    ],
+    [
+     990.02,
+     15360
+    ],
+    [
+     1149.73,
+     15360
+    ],
+    [
+     1310.11,
+     15360
+    ],
+    [
+     1470.91,
+     15360
+    ],
+    [
+     1631.28,
+     15360
+    ],
+    [
+     1791.71,
+     15360
+    ],
+    [
+     1953.25,
+     15360
+    ],
+    [
+     2041.66,
+     3840
+    ]
+   ],
+   "rtf": 0.5209,
+   "steady_rtf": 0.5142,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 161.7,
+   "loadavg1_before": 3.47,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 1.0,
+   "first_byte_ms": 186.88,
+   "end_ms": 952.25,
+   "closed_early": false,
+   "error": null,
+   "bytes": 84480,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.76,
+   "ttfc_ms": 186.88,
+   "total_ms": 952.25,
+   "chunks": [
+    [
+     186.89,
+     15360
+    ],
+    [
+     347.92,
+     15360
+    ],
+    [
+     508.25,
+     15360
+    ],
+    [
+     667.17,
+     15360
+    ],
+    [
+     827.43,
+     15360
+    ],
+    [
+     952.04,
+     7680
+    ]
+   ],
+   "rtf": 0.5411,
+   "steady_rtf": 0.5314,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 3.47,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 2,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.1,
+   "first_byte_ms": 184.45,
+   "end_ms": 2232.27,
+   "closed_early": false,
+   "error": null,
+   "bytes": 207360,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.32,
+   "ttfc_ms": 184.45,
+   "total_ms": 2232.27,
+   "chunks": [
+    [
+     184.45,
+     15360
+    ],
+    [
+     344.43,
+     15360
+    ],
+    [
+     504.35,
+     15360
+    ],
+    [
+     664.31,
+     15360
+    ],
+    [
+     824.35,
+     15360
+    ],
+    [
+     986.67,
+     15360
+    ],
+    [
+     1148.14,
+     15360
+    ],
+    [
+     1307.42,
+     15360
+    ],
+    [
+     1468.34,
+     15360
+    ],
+    [
+     1628.45,
+     15360
+    ],
+    [
+     1788.59,
+     15360
+    ],
+    [
+     1948.57,
+     15360
+    ],
+    [
+     2107.39,
+     15360
+    ],
+    [
+     2232.06,
+     7680
+    ]
+   ],
+   "rtf": 0.5167,
+   "steady_rtf": 0.5119,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 162.3,
+   "loadavg1_before": 3.43,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.08,
+   "first_byte_ms": 188.77,
+   "end_ms": 1235.16,
+   "closed_early": false,
+   "error": null,
+   "bytes": 111360,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.32,
+   "ttfc_ms": 188.77,
+   "total_ms": 1235.16,
+   "chunks": [
+    [
+     188.77,
+     15360
+    ],
+    [
+     348.79,
+     15360
+    ],
+    [
+     508.84,
+     15360
+    ],
+    [
+     667.96,
+     15360
+    ],
+    [
+     826.71,
+     15360
+    ],
+    [
+     987.21,
+     15360
+    ],
+    [
+     1147.78,
+     15360
+    ],
+    [
+     1234.95,
+     3840
+    ]
+   ],
+   "rtf": 0.5324,
+   "steady_rtf": 0.5231,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 160.6,
+   "loadavg1_before": 3.43,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 5.05,
+   "first_byte_ms": 189.97,
+   "end_ms": 1997.19,
+   "closed_early": false,
+   "error": null,
+   "bytes": 184320,
+   "n_chunks": 12,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.84,
+   "ttfc_ms": 189.97,
+   "total_ms": 1997.19,
+   "chunks": [
+    [
+     189.97,
+     15360
+    ],
+    [
+     350.08,
+     15360
+    ],
+    [
+     514.85,
+     15360
+    ],
+    [
+     675.18,
+     15360
+    ],
+    [
+     835.47,
+     15360
+    ],
+    [
+     996.01,
+     15360
+    ],
+    [
+     1156.35,
+     15360
+    ],
+    [
+     1316.2,
+     15360
+    ],
+    [
+     1479.16,
+     15360
+    ],
+    [
+     1640.53,
+     15360
+    ],
+    [
+     1801.52,
+     15360
+    ],
+    [
+     1962.1,
+     15360
+    ]
+   ],
+   "rtf": 0.5201,
+   "steady_rtf": 0.5034,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 164.8,
+   "loadavg1_before": 3.43,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.07,
+   "first_byte_ms": 187.79,
+   "end_ms": 864.76,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 187.79,
+   "total_ms": 864.76,
+   "chunks": [
+    [
+     187.79,
+     15360
+    ],
+    [
+     348.06,
+     15360
+    ],
+    [
+     510.65,
+     15360
+    ],
+    [
+     671.69,
+     15360
+    ],
+    [
+     832.51,
+     15360
+    ]
+   ],
+   "rtf": 0.5405,
+   "steady_rtf": 0.5037,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.7,
+   "max_gap_ms": 162.6,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.09,
+   "first_byte_ms": 182.31,
+   "end_ms": 1145.92,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 182.31,
+   "total_ms": 1145.92,
+   "chunks": [
+    [
+     182.31,
+     15360
+    ],
+    [
+     343.29,
+     15360
+    ],
+    [
+     503.37,
+     15360
+    ],
+    [
+     664.83,
+     15360
+    ],
+    [
+     824.53,
+     15360
+    ],
+    [
+     985.04,
+     15360
+    ],
+    [
+     1145.56,
+     11520
+    ]
+   ],
+   "rtf": 0.5305,
+   "steady_rtf": 0.5235,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.4,
+   "first_byte_ms": 187.92,
+   "end_ms": 2435.63,
+   "closed_early": false,
+   "error": null,
+   "bytes": 226560,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.72,
+   "ttfc_ms": 187.92,
+   "total_ms": 2435.63,
+   "chunks": [
+    [
+     187.92,
+     15360
+    ],
+    [
+     348.19,
+     15360
+    ],
+    [
+     509.92,
+     15360
+    ],
+    [
+     667.77,
+     15360
+    ],
+    [
+     828.44,
+     15360
+    ],
+    [
+     988.62,
+     15360
+    ],
+    [
+     1147.79,
+     15360
+    ],
+    [
+     1308.11,
+     15360
+    ],
+    [
+     1470.16,
+     15360
+    ],
+    [
+     1629.92,
+     15360
+    ],
+    [
+     1790.77,
+     15360
+    ],
+    [
+     1951.42,
+     15360
+    ],
+    [
+     2112.38,
+     15360
+    ],
+    [
+     2272.38,
+     15360
+    ],
+    [
+     2435.42,
+     11520
+    ]
+   ],
+   "rtf": 0.516,
+   "steady_rtf": 0.5108,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.7,
+   "max_gap_ms": 163.0,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.09,
+   "first_byte_ms": 190.52,
+   "end_ms": 2595.33,
+   "closed_early": false,
+   "error": null,
+   "bytes": 241920,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.04,
+   "ttfc_ms": 190.52,
+   "total_ms": 2595.33,
+   "chunks": [
+    [
+     190.52,
+     15360
+    ],
+    [
+     351.45,
+     15360
+    ],
+    [
+     511.11,
+     15360
+    ],
+    [
+     671.62,
+     15360
+    ],
+    [
+     831.62,
+     15360
+    ],
+    [
+     992.54,
+     15360
+    ],
+    [
+     1153.55,
+     15360
+    ],
+    [
+     1313.87,
+     15360
+    ],
+    [
+     1474.32,
+     15360
+    ],
+    [
+     1632.95,
+     15360
+    ],
+    [
+     1793.75,
+     15360
+    ],
+    [
+     1954.31,
+     15360
+    ],
+    [
+     2114.31,
+     15360
+    ],
+    [
+     2274.23,
+     15360
+    ],
+    [
+     2433.72,
+     15360
+    ],
+    [
+     2595.14,
+     11520
+    ]
+   ],
+   "rtf": 0.5149,
+   "steady_rtf": 0.5095,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.1,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 3.28,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.08,
+   "first_byte_ms": 189.01,
+   "end_ms": 1632.58,
+   "closed_early": false,
+   "error": null,
+   "bytes": 149760,
+   "n_chunks": 10,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.12,
+   "ttfc_ms": 189.01,
+   "total_ms": 1632.58,
+   "chunks": [
+    [
+     189.01,
+     15360
+    ],
+    [
+     349.65,
+     15360
+    ],
+    [
+     509.46,
+     15360
+    ],
+    [
+     669.98,
+     15360
+    ],
+    [
+     827.71,
+     15360
+    ],
+    [
+     988.63,
+     15360
+    ],
+    [
+     1149.27,
+     15360
+    ],
+    [
+     1309.15,
+     15360
+    ],
+    [
+     1472.49,
+     15360
+    ],
+    [
+     1632.39,
+     11520
+    ]
+   ],
+   "rtf": 0.5233,
+   "steady_rtf": 0.5155,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 163.3,
+   "loadavg1_before": 3.28,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.04,
+   "first_byte_ms": 189.02,
+   "end_ms": 2238.19,
+   "closed_early": false,
+   "error": null,
+   "bytes": 207360,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.32,
+   "ttfc_ms": 189.02,
+   "total_ms": 2238.19,
+   "chunks": [
+    [
+     189.02,
+     15360
+    ],
+    [
+     349.75,
+     15360
+    ],
+    [
+     509.68,
+     15360
+    ],
+    [
+     670.84,
+     15360
+    ],
+    [
+     829.35,
+     15360
+    ],
+    [
+     989.19,
+     15360
+    ],
+    [
+     1150.27,
+     15360
+    ],
+    [
+     1310.21,
+     15360
+    ],
+    [
+     1471.37,
+     15360
+    ],
+    [
+     1630.85,
+     15360
+    ],
+    [
+     1791.64,
+     15360
+    ],
+    [
+     1950.7,
+     15360
+    ],
+    [
+     2112.32,
+     15360
+    ],
+    [
+     2237.99,
+     7680
+    ]
+   ],
+   "rtf": 0.5181,
+   "steady_rtf": 0.5122,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.3,
+   "max_gap_ms": 161.6,
+   "loadavg1_before": 3.28,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 5.13,
+   "first_byte_ms": 190.22,
+   "end_ms": 2251.05,
+   "closed_early": false,
+   "error": null,
+   "bytes": 211200,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.4,
+   "ttfc_ms": 190.22,
+   "total_ms": 2251.05,
+   "chunks": [
+    [
+     190.22,
+     15360
+    ],
+    [
+     351.24,
+     15360
+    ],
+    [
+     507.55,
+     15360
+    ],
+    [
+     665.55,
+     15360
+    ],
+    [
+     824.1,
+     15360
+    ],
+    [
+     985.31,
+     15360
+    ],
+    [
+     1145.62,
+     15360
+    ],
+    [
+     1304.41,
+     15360
+    ],
+    [
+     1464.63,
+     15360
+    ],
+    [
+     1623.96,
+     15360
+    ],
+    [
+     1780.11,
+     15360
+    ],
+    [
+     1936.08,
+     15360
+    ],
+    [
+     2093.82,
+     15360
+    ],
+    [
+     2250.71,
+     11520
+    ]
+   ],
+   "rtf": 0.5116,
+   "steady_rtf": 0.505,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 3.26,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.03,
+   "first_byte_ms": 184.19,
+   "end_ms": 1530.75,
+   "closed_early": false,
+   "error": null,
+   "bytes": 142080,
+   "n_chunks": 10,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.96,
+   "ttfc_ms": 184.19,
+   "total_ms": 1530.75,
+   "chunks": [
+    [
+     184.19,
+     15360
+    ],
+    [
+     341.2,
+     15360
+    ],
+    [
+     497.43,
+     15360
+    ],
+    [
+     656.69,
+     15360
+    ],
+    [
+     812.72,
+     15360
+    ],
+    [
+     972.44,
+     15360
+    ],
+    [
+     1130.45,
+     15360
+    ],
+    [
+     1286.62,
+     15360
+    ],
+    [
+     1445.36,
+     15360
+    ],
+    [
+     1530.56,
+     3840
+    ]
+   ],
+   "rtf": 0.5171,
+   "steady_rtf": 0.51,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 163.0,
+   "max_gap_ms": 159.7,
+   "loadavg1_before": 3.26,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.02,
+   "first_byte_ms": 183.7,
+   "end_ms": 823.55,
+   "closed_early": false,
+   "error": null,
+   "bytes": 72960,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.52,
+   "ttfc_ms": 183.7,
+   "total_ms": 823.55,
+   "chunks": [
+    [
+     183.7,
+     15360
+    ],
+    [
+     341.36,
+     15360
+    ],
+    [
+     502.34,
+     15360
+    ],
+    [
+     662.29,
+     15360
+    ],
+    [
+     823.34,
+     11520
+    ]
+   ],
+   "rtf": 0.5418,
+   "steady_rtf": 0.533,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 162.3,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 3,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 5.25,
+   "first_byte_ms": 183.84,
+   "end_ms": 2838.09,
+   "closed_early": false,
+   "error": null,
+   "bytes": 264960,
+   "n_chunks": 18,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.52,
+   "ttfc_ms": 183.84,
+   "total_ms": 2838.09,
+   "chunks": [
+    [
+     183.84,
+     15360
+    ],
+    [
+     345.27,
+     15360
+    ],
+    [
+     505.52,
+     15360
+    ],
+    [
+     665.47,
+     15360
+    ],
+    [
+     824.89,
+     15360
+    ],
+    [
+     986.69,
+     15360
+    ],
+    [
+     1146.91,
+     15360
+    ],
+    [
+     1307.03,
+     15360
+    ],
+    [
+     1467.68,
+     15360
+    ],
+    [
+     1628.25,
+     15360
+    ],
+    [
+     1787.36,
+     15360
+    ],
+    [
+     1948.58,
+     15360
+    ],
+    [
+     2109.42,
+     15360
+    ],
+    [
+     2271.44,
+     15360
+    ],
+    [
+     2431.99,
+     15360
+    ],
+    [
+     2591.27,
+     15360
+    ],
+    [
+     2749.65,
+     15360
+    ],
+    [
+     2837.89,
+     3840
+    ]
+   ],
+   "rtf": 0.5141,
+   "steady_rtf": 0.5104,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.6,
+   "max_gap_ms": 162.0,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 5.1,
+   "first_byte_ms": 194.02,
+   "end_ms": 2483.82,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 194.02,
+   "total_ms": 2483.82,
+   "chunks": [
+    [
+     194.02,
+     15360
+    ],
+    [
+     354.12,
+     15360
+    ],
+    [
+     514.93,
+     15360
+    ],
+    [
+     675.4,
+     15360
+    ],
+    [
+     836.05,
+     15360
+    ],
+    [
+     995.79,
+     15360
+    ],
+    [
+     1160.53,
+     15360
+    ],
+    [
+     1321.16,
+     15360
+    ],
+    [
+     1481.68,
+     15360
+    ],
+    [
+     1642.26,
+     15360
+    ],
+    [
+     1802.85,
+     15360
+    ],
+    [
+     1962.6,
+     15360
+    ],
+    [
+     2127.52,
+     15360
+    ],
+    [
+     2288.46,
+     15360
+    ],
+    [
+     2449.26,
+     15360
+    ]
+   ],
+   "rtf": 0.5175,
+   "steady_rtf": 0.5034,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 164.9,
+   "loadavg1_before": 3.4,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.04,
+   "first_byte_ms": 188.19,
+   "end_ms": 864.66,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 188.19,
+   "total_ms": 864.66,
+   "chunks": [
+    [
+     188.2,
+     15360
+    ],
+    [
+     348.98,
+     15360
+    ],
+    [
+     509.01,
+     15360
+    ],
+    [
+     672.31,
+     15360
+    ],
+    [
+     832.68,
+     15360
+    ]
+   ],
+   "rtf": 0.5404,
+   "steady_rtf": 0.5035,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.2,
+   "max_gap_ms": 163.3,
+   "loadavg1_before": 3.45,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.1,
+   "first_byte_ms": 182.22,
+   "end_ms": 1395.12,
+   "closed_early": false,
+   "error": null,
+   "bytes": 126720,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.64,
+   "ttfc_ms": 182.22,
+   "total_ms": 1395.12,
+   "chunks": [
+    [
+     182.22,
+     15360
+    ],
+    [
+     342.75,
+     15360
+    ],
+    [
+     503.08,
+     15360
+    ],
+    [
+     664.4,
+     15360
+    ],
+    [
+     827.02,
+     15360
+    ],
+    [
+     987.0,
+     15360
+    ],
+    [
+     1147.43,
+     15360
+    ],
+    [
+     1307.76,
+     15360
+    ],
+    [
+     1394.93,
+     3840
+    ]
+   ],
+   "rtf": 0.5285,
+   "steady_rtf": 0.5227,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.5,
+   "max_gap_ms": 162.6,
+   "loadavg1_before": 3.45,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.04,
+   "first_byte_ms": 187.63,
+   "end_ms": 1879.16,
+   "closed_early": false,
+   "error": null,
+   "bytes": 172800,
+   "n_chunks": 12,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.6,
+   "ttfc_ms": 187.63,
+   "total_ms": 1879.16,
+   "chunks": [
+    [
+     187.63,
+     15360
+    ],
+    [
+     346.74,
+     15360
+    ],
+    [
+     510.1,
+     15360
+    ],
+    [
+     670.32,
+     15360
+    ],
+    [
+     830.59,
+     15360
+    ],
+    [
+     991.09,
+     15360
+    ],
+    [
+     1150.78,
+     15360
+    ],
+    [
+     1311.68,
+     15360
+    ],
+    [
+     1472.26,
+     15360
+    ],
+    [
+     1632.32,
+     15360
+    ],
+    [
+     1792.88,
+     15360
+    ],
+    [
+     1878.83,
+     3840
+    ]
+   ],
+   "rtf": 0.522,
+   "steady_rtf": 0.5156,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.9,
+   "max_gap_ms": 163.3,
+   "loadavg1_before": 3.45,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.86,
+   "first_byte_ms": 190.78,
+   "end_ms": 1154.41,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 190.78,
+   "total_ms": 1154.41,
+   "chunks": [
+    [
+     190.78,
+     15360
+    ],
+    [
+     351.0,
+     15360
+    ],
+    [
+     512.03,
+     15360
+    ],
+    [
+     672.93,
+     15360
+    ],
+    [
+     832.97,
+     15360
+    ],
+    [
+     993.6,
+     15360
+    ],
+    [
+     1154.21,
+     11520
+    ]
+   ],
+   "rtf": 0.5344,
+   "steady_rtf": 0.5236,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 3.33,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 5.04,
+   "first_byte_ms": 189.7,
+   "end_ms": 2346.28,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 189.7,
+   "total_ms": 2346.28,
+   "chunks": [
+    [
+     189.7,
+     15360
+    ],
+    [
+     350.67,
+     15360
+    ],
+    [
+     508.7,
+     15360
+    ],
+    [
+     666.73,
+     15360
+    ],
+    [
+     827.22,
+     15360
+    ],
+    [
+     987.33,
+     15360
+    ],
+    [
+     1146.15,
+     15360
+    ],
+    [
+     1304.14,
+     15360
+    ],
+    [
+     1463.55,
+     15360
+    ],
+    [
+     1622.45,
+     15360
+    ],
+    [
+     1781.46,
+     15360
+    ],
+    [
+     1940.58,
+     15360
+    ],
+    [
+     2098.99,
+     15360
+    ],
+    [
+     2258.49,
+     15360
+    ],
+    [
+     2345.83,
+     3840
+    ]
+   ],
+   "rtf": 0.5145,
+   "steady_rtf": 0.5085,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 3.33,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 1.21,
+   "first_byte_ms": 188.99,
+   "end_ms": 1149.37,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 188.99,
+   "total_ms": 1149.37,
+   "chunks": [
+    [
+     188.99,
+     15360
+    ],
+    [
+     349.62,
+     15360
+    ],
+    [
+     510.38,
+     15360
+    ],
+    [
+     670.48,
+     15360
+    ],
+    [
+     829.57,
+     15360
+    ],
+    [
+     990.85,
+     15360
+    ],
+    [
+     1149.14,
+     11520
+    ]
+   ],
+   "rtf": 0.5321,
+   "steady_rtf": 0.5218,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 3.33,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.15,
+   "headers_ms": 0.98,
+   "first_byte_ms": 190.61,
+   "end_ms": 2595.12,
+   "closed_early": false,
+   "error": null,
+   "bytes": 241920,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.04,
+   "ttfc_ms": 190.61,
+   "total_ms": 2595.12,
+   "chunks": [
+    [
+     190.61,
+     15360
+    ],
+    [
+     351.29,
+     15360
+    ],
+    [
+     510.92,
+     15360
+    ],
+    [
+     671.05,
+     15360
+    ],
+    [
+     831.39,
+     15360
+    ],
+    [
+     992.84,
+     15360
+    ],
+    [
+     1152.39,
+     15360
+    ],
+    [
+     1312.89,
+     15360
+    ],
+    [
+     1472.79,
+     15360
+    ],
+    [
+     1632.66,
+     15360
+    ],
+    [
+     1794.47,
+     15360
+    ],
+    [
+     1954.93,
+     15360
+    ],
+    [
+     2113.93,
+     15360
+    ],
+    [
+     2273.92,
+     15360
+    ],
+    [
+     2434.13,
+     15360
+    ],
+    [
+     2594.93,
+     11520
+    ]
+   ],
+   "rtf": 0.5149,
+   "steady_rtf": 0.5094,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.3,
+   "max_gap_ms": 161.8,
+   "loadavg1_before": 3.15,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 5.07,
+   "first_byte_ms": 193.54,
+   "end_ms": 2683.17,
+   "closed_early": false,
+   "error": null,
+   "bytes": 249600,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.2,
+   "ttfc_ms": 193.54,
+   "total_ms": 2683.17,
+   "chunks": [
+    [
+     193.55,
+     15360
+    ],
+    [
+     354.93,
+     15360
+    ],
+    [
+     514.7,
+     15360
+    ],
+    [
+     674.65,
+     15360
+    ],
+    [
+     835.01,
+     15360
+    ],
+    [
+     995.89,
+     15360
+    ],
+    [
+     1155.88,
+     15360
+    ],
+    [
+     1317.45,
+     15360
+    ],
+    [
+     1475.06,
+     15360
+    ],
+    [
+     1635.41,
+     15360
+    ],
+    [
+     1795.77,
+     15360
+    ],
+    [
+     1955.98,
+     15360
+    ],
+    [
+     2116.03,
+     15360
+    ],
+    [
+     2275.98,
+     15360
+    ],
+    [
+     2436.5,
+     15360
+    ],
+    [
+     2596.38,
+     15360
+    ],
+    [
+     2682.97,
+     3840
+    ]
+   ],
+   "rtf": 0.516,
+   "steady_rtf": 0.5101,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.6,
+   "max_gap_ms": 161.6,
+   "loadavg1_before": 3.15,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 0.95,
+   "first_byte_ms": 188.1,
+   "end_ms": 2475.41,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 188.1,
+   "total_ms": 2475.41,
+   "chunks": [
+    [
+     188.1,
+     15360
+    ],
+    [
+     349.3,
+     15360
+    ],
+    [
+     509.52,
+     15360
+    ],
+    [
+     671.79,
+     15360
+    ],
+    [
+     831.91,
+     15360
+    ],
+    [
+     992.7,
+     15360
+    ],
+    [
+     1153.0,
+     15360
+    ],
+    [
+     1313.34,
+     15360
+    ],
+    [
+     1473.43,
+     15360
+    ],
+    [
+     1638.28,
+     15360
+    ],
+    [
+     1798.6,
+     15360
+    ],
+    [
+     1959.19,
+     15360
+    ],
+    [
+     2120.13,
+     15360
+    ],
+    [
+     2280.62,
+     15360
+    ],
+    [
+     2440.82,
+     15360
+    ]
+   ],
+   "rtf": 0.5157,
+   "steady_rtf": 0.5028,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.8,
+   "max_gap_ms": 164.8,
+   "loadavg1_before": 2.97,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 1.03,
+   "first_byte_ms": 188.61,
+   "end_ms": 1183.02,
+   "closed_early": false,
+   "error": null,
+   "bytes": 107520,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.24,
+   "ttfc_ms": 188.61,
+   "total_ms": 1183.02,
+   "chunks": [
+    [
+     188.61,
+     15360
+    ],
+    [
+     348.59,
+     15360
+    ],
+    [
+     508.57,
+     15360
+    ],
+    [
+     669.38,
+     15360
+    ],
+    [
+     829.89,
+     15360
+    ],
+    [
+     990.27,
+     15360
+    ],
+    [
+     1151.38,
+     15360
+    ]
+   ],
+   "rtf": 0.5281,
+   "steady_rtf": 0.5014,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 2.97,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 4,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 4.89,
+   "first_byte_ms": 184.31,
+   "end_ms": 2352.0,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 184.31,
+   "total_ms": 2352.0,
+   "chunks": [
+    [
+     184.31,
+     15360
+    ],
+    [
+     342.3,
+     15360
+    ],
+    [
+     502.23,
+     15360
+    ],
+    [
+     662.56,
+     15360
+    ],
+    [
+     821.44,
+     15360
+    ],
+    [
+     982.78,
+     15360
+    ],
+    [
+     1143.77,
+     15360
+    ],
+    [
+     1301.1,
+     15360
+    ],
+    [
+     1461.73,
+     15360
+    ],
+    [
+     1622.26,
+     15360
+    ],
+    [
+     1782.21,
+     15360
+    ],
+    [
+     1943.53,
+     15360
+    ],
+    [
+     2102.44,
+     15360
+    ],
+    [
+     2263.17,
+     15360
+    ],
+    [
+     2351.66,
+     3840
+    ]
+   ],
+   "rtf": 0.5158,
+   "steady_rtf": 0.5112,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 162.0,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 2.97,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.08,
+   "first_byte_ms": 186.17,
+   "end_ms": 1395.06,
+   "closed_early": false,
+   "error": null,
+   "bytes": 126720,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.64,
+   "ttfc_ms": 186.17,
+   "total_ms": 1395.06,
+   "chunks": [
+    [
+     186.18,
+     15360
+    ],
+    [
+     346.71,
+     15360
+    ],
+    [
+     507.17,
+     15360
+    ],
+    [
+     667.92,
+     15360
+    ],
+    [
+     828.57,
+     15360
+    ],
+    [
+     988.83,
+     15360
+    ],
+    [
+     1148.98,
+     15360
+    ],
+    [
+     1309.34,
+     15360
+    ],
+    [
+     1394.87,
+     3840
+    ]
+   ],
+   "rtf": 0.5284,
+   "steady_rtf": 0.521,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.5,
+   "max_gap_ms": 160.7,
+   "loadavg1_before": 3.14,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.09,
+   "first_byte_ms": 191.32,
+   "end_ms": 2339.54,
+   "closed_early": false,
+   "error": null,
+   "bytes": 211200,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.4,
+   "ttfc_ms": 191.32,
+   "total_ms": 2339.54,
+   "chunks": [
+    [
+     191.32,
+     15360
+    ],
+    [
+     351.17,
+     15360
+    ],
+    [
+     511.51,
+     15360
+    ],
+    [
+     672.06,
+     15360
+    ],
+    [
+     832.88,
+     15360
+    ],
+    [
+     992.74,
+     15360
+    ],
+    [
+     1154.38,
+     15360
+    ],
+    [
+     1351.41,
+     15360
+    ],
+    [
+     1547.83,
+     15360
+    ],
+    [
+     1704.75,
+     15360
+    ],
+    [
+     1863.12,
+     15360
+    ],
+    [
+     2021.93,
+     15360
+    ],
+    [
+     2182.22,
+     15360
+    ],
+    [
+     2339.34,
+     11520
+    ]
+   ],
+   "rtf": 0.5317,
+   "steady_rtf": 0.5265,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 197.0,
+   "loadavg1_before": 3.14,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.17,
+   "headers_ms": 0.95,
+   "first_byte_ms": 187.58,
+   "end_ms": 1147.28,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 187.58,
+   "total_ms": 1147.28,
+   "chunks": [
+    [
+     187.58,
+     15360
+    ],
+    [
+     347.81,
+     15360
+    ],
+    [
+     507.52,
+     15360
+    ],
+    [
+     667.22,
+     15360
+    ],
+    [
+     828.36,
+     15360
+    ],
+    [
+     989.75,
+     15360
+    ],
+    [
+     1147.1,
+     11520
+    ]
+   ],
+   "rtf": 0.5311,
+   "steady_rtf": 0.5215,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.06,
+   "first_byte_ms": 183.34,
+   "end_ms": 2346.6,
+   "closed_early": false,
+   "error": null,
+   "bytes": 218880,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.56,
+   "ttfc_ms": 183.34,
+   "total_ms": 2346.6,
+   "chunks": [
+    [
+     183.35,
+     15360
+    ],
+    [
+     342.53,
+     15360
+    ],
+    [
+     502.09,
+     15360
+    ],
+    [
+     662.96,
+     15360
+    ],
+    [
+     821.72,
+     15360
+    ],
+    [
+     979.07,
+     15360
+    ],
+    [
+     1139.09,
+     15360
+    ],
+    [
+     1299.58,
+     15360
+    ],
+    [
+     1459.79,
+     15360
+    ],
+    [
+     1620.68,
+     15360
+    ],
+    [
+     1781.26,
+     15360
+    ],
+    [
+     1940.9,
+     15360
+    ],
+    [
+     2098.07,
+     15360
+    ],
+    [
+     2259.09,
+     15360
+    ],
+    [
+     2346.41,
+     3840
+    ]
+   ],
+   "rtf": 0.5146,
+   "steady_rtf": 0.5102,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.8,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.06,
+   "first_byte_ms": 186.0,
+   "end_ms": 858.86,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 186.0,
+   "total_ms": 858.86,
+   "chunks": [
+    [
+     186.0,
+     15360
+    ],
+    [
+     347.3,
+     15360
+    ],
+    [
+     508.63,
+     15360
+    ],
+    [
+     668.44,
+     15360
+    ],
+    [
+     827.45,
+     15360
+    ]
+   ],
+   "rtf": 0.5368,
+   "steady_rtf": 0.5011,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.7,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 3.2,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 0.95,
+   "first_byte_ms": 181.26,
+   "end_ms": 2548.27,
+   "closed_early": false,
+   "error": null,
+   "bytes": 238080,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.96,
+   "ttfc_ms": 181.26,
+   "total_ms": 2548.27,
+   "chunks": [
+    [
+     181.26,
+     15360
+    ],
+    [
+     340.28,
+     15360
+    ],
+    [
+     500.25,
+     15360
+    ],
+    [
+     660.64,
+     15360
+    ],
+    [
+     820.08,
+     15360
+    ],
+    [
+     980.21,
+     15360
+    ],
+    [
+     1140.63,
+     15360
+    ],
+    [
+     1298.99,
+     15360
+    ],
+    [
+     1460.58,
+     15360
+    ],
+    [
+     1618.15,
+     15360
+    ],
+    [
+     1779.13,
+     15360
+    ],
+    [
+     1939.63,
+     15360
+    ],
+    [
+     2100.1,
+     15360
+    ],
+    [
+     2259.94,
+     15360
+    ],
+    [
+     2419.75,
+     15360
+    ],
+    [
+     2548.08,
+     7680
+    ]
+   ],
+   "rtf": 0.5138,
+   "steady_rtf": 0.5101,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.0,
+   "max_gap_ms": 161.6,
+   "loadavg1_before": 3.11,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.11,
+   "first_byte_ms": 189.4,
+   "end_ms": 2398.0,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 189.4,
+   "total_ms": 2398.0,
+   "chunks": [
+    [
+     189.41,
+     15360
+    ],
+    [
+     349.48,
+     15360
+    ],
+    [
+     507.06,
+     15360
+    ],
+    [
+     665.35,
+     15360
+    ],
+    [
+     826.27,
+     15360
+    ],
+    [
+     990.1,
+     15360
+    ],
+    [
+     1150.16,
+     15360
+    ],
+    [
+     1309.43,
+     15360
+    ],
+    [
+     1470.07,
+     15360
+    ],
+    [
+     1630.68,
+     15360
+    ],
+    [
+     1791.13,
+     15360
+    ],
+    [
+     1951.83,
+     15360
+    ],
+    [
+     2112.11,
+     15360
+    ],
+    [
+     2272.14,
+     15360
+    ],
+    [
+     2397.79,
+     7680
+    ]
+   ],
+   "rtf": 0.5168,
+   "steady_rtf": 0.5112,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 163.8,
+   "loadavg1_before": 3.11,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.06,
+   "first_byte_ms": 188.28,
+   "end_ms": 787.7,
+   "closed_early": false,
+   "error": null,
+   "bytes": 69120,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.44,
+   "ttfc_ms": 188.28,
+   "total_ms": 787.7,
+   "chunks": [
+    [
+     188.28,
+     15360
+    ],
+    [
+     348.01,
+     15360
+    ],
+    [
+     506.55,
+     15360
+    ],
+    [
+     664.4,
+     15360
+    ],
+    [
+     787.52,
+     7680
+    ]
+   ],
+   "rtf": 0.547,
+   "steady_rtf": 0.535,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.3,
+   "max_gap_ms": 159.7,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.05,
+   "first_byte_ms": 180.54,
+   "end_ms": 1616.76,
+   "closed_early": false,
+   "error": null,
+   "bytes": 149760,
+   "n_chunks": 10,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.12,
+   "ttfc_ms": 180.54,
+   "total_ms": 1616.76,
+   "chunks": [
+    [
+     180.55,
+     15360
+    ],
+    [
+     340.83,
+     15360
+    ],
+    [
+     500.57,
+     15360
+    ],
+    [
+     660.05,
+     15360
+    ],
+    [
+     817.23,
+     15360
+    ],
+    [
+     975.84,
+     15360
+    ],
+    [
+     1136.26,
+     15360
+    ],
+    [
+     1296.31,
+     15360
+    ],
+    [
+     1456.43,
+     15360
+    ],
+    [
+     1616.57,
+     11520
+    ]
+   ],
+   "rtf": 0.5182,
+   "steady_rtf": 0.5129,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.7,
+   "max_gap_ms": 160.4,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.09,
+   "first_byte_ms": 190.58,
+   "end_ms": 952.43,
+   "closed_early": false,
+   "error": null,
+   "bytes": 84480,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.76,
+   "ttfc_ms": 190.58,
+   "total_ms": 952.43,
+   "chunks": [
+    [
+     190.59,
+     15360
+    ],
+    [
+     350.44,
+     15360
+    ],
+    [
+     509.48,
+     15360
+    ],
+    [
+     669.36,
+     15360
+    ],
+    [
+     829.44,
+     15360
+    ],
+    [
+     952.23,
+     7680
+    ]
+   ],
+   "rtf": 0.5412,
+   "steady_rtf": 0.5289,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 160.1,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.04,
+   "first_byte_ms": 184.17,
+   "end_ms": 1753.09,
+   "closed_early": false,
+   "error": null,
+   "bytes": 161280,
+   "n_chunks": 11,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.36,
+   "ttfc_ms": 184.17,
+   "total_ms": 1753.09,
+   "chunks": [
+    [
+     184.17,
+     15360
+    ],
+    [
+     345.39,
+     15360
+    ],
+    [
+     504.65,
+     15360
+    ],
+    [
+     664.73,
+     15360
+    ],
+    [
+     824.7,
+     15360
+    ],
+    [
+     984.74,
+     15360
+    ],
+    [
+     1145.43,
+     15360
+    ],
+    [
+     1306.1,
+     15360
+    ],
+    [
+     1466.34,
+     15360
+    ],
+    [
+     1626.77,
+     15360
+    ],
+    [
+     1752.9,
+     7680
+    ]
+   ],
+   "rtf": 0.5218,
+   "steady_rtf": 0.516,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.8,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 3.02,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 5,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.09,
+   "first_byte_ms": 189.83,
+   "end_ms": 2306.97,
+   "closed_early": false,
+   "error": null,
+   "bytes": 215040,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.48,
+   "ttfc_ms": 189.83,
+   "total_ms": 2306.97,
+   "chunks": [
+    [
+     189.83,
+     15360
+    ],
+    [
+     350.64,
+     15360
+    ],
+    [
+     510.35,
+     15360
+    ],
+    [
+     669.94,
+     15360
+    ],
+    [
+     829.28,
+     15360
+    ],
+    [
+     989.61,
+     15360
+    ],
+    [
+     1149.95,
+     15360
+    ],
+    [
+     1309.94,
+     15360
+    ],
+    [
+     1471.17,
+     15360
+    ],
+    [
+     1630.6,
+     15360
+    ],
+    [
+     1790.12,
+     15360
+    ],
+    [
+     1951.06,
+     15360
+    ],
+    [
+     2111.71,
+     15360
+    ],
+    [
+     2271.55,
+     15360
+    ]
+   ],
+   "rtf": 0.5149,
+   "steady_rtf": 0.5004,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.2,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 2.94,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 4.98,
+   "first_byte_ms": 191.05,
+   "end_ms": 2559.99,
+   "closed_early": false,
+   "error": null,
+   "bytes": 238080,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.96,
+   "ttfc_ms": 191.05,
+   "total_ms": 2559.99,
+   "chunks": [
+    [
+     191.06,
+     15360
+    ],
+    [
+     351.6,
+     15360
+    ],
+    [
+     510.99,
+     15360
+    ],
+    [
+     670.49,
+     15360
+    ],
+    [
+     830.49,
+     15360
+    ],
+    [
+     990.4,
+     15360
+    ],
+    [
+     1151.79,
+     15360
+    ],
+    [
+     1311.45,
+     15360
+    ],
+    [
+     1471.06,
+     15360
+    ],
+    [
+     1631.89,
+     15360
+    ],
+    [
+     1792.77,
+     15360
+    ],
+    [
+     1952.56,
+     15360
+    ],
+    [
+     2113.01,
+     15360
+    ],
+    [
+     2273.32,
+     15360
+    ],
+    [
+     2434.18,
+     15360
+    ],
+    [
+     2559.8,
+     7680
+    ]
+   ],
+   "rtf": 0.5161,
+   "steady_rtf": 0.5105,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 2.94,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.02,
+   "first_byte_ms": 190.37,
+   "end_ms": 2718.08,
+   "closed_early": false,
+   "error": null,
+   "bytes": 253440,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.28,
+   "ttfc_ms": 190.37,
+   "total_ms": 2718.08,
+   "chunks": [
+    [
+     190.37,
+     15360
+    ],
+    [
+     350.43,
+     15360
+    ],
+    [
+     511.17,
+     15360
+    ],
+    [
+     670.88,
+     15360
+    ],
+    [
+     829.19,
+     15360
+    ],
+    [
+     989.56,
+     15360
+    ],
+    [
+     1150.1,
+     15360
+    ],
+    [
+     1307.31,
+     15360
+    ],
+    [
+     1466.52,
+     15360
+    ],
+    [
+     1627.75,
+     15360
+    ],
+    [
+     1788.17,
+     15360
+    ],
+    [
+     1948.52,
+     15360
+    ],
+    [
+     2108.48,
+     15360
+    ],
+    [
+     2269.01,
+     15360
+    ],
+    [
+     2429.15,
+     15360
+    ],
+    [
+     2591.79,
+     15360
+    ],
+    [
+     2717.88,
+     7680
+    ]
+   ],
+   "rtf": 0.5148,
+   "steady_rtf": 0.5096,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 162.6,
+   "loadavg1_before": 2.86,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 187.83,
+   "end_ms": 701.33,
+   "closed_early": false,
+   "error": null,
+   "bytes": 61440,
+   "n_chunks": 4,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.28,
+   "ttfc_ms": 187.83,
+   "total_ms": 701.33,
+   "chunks": [
+    [
+     187.84,
+     15360
+    ],
+    [
+     348.52,
+     15360
+    ],
+    [
+     508.83,
+     15360
+    ],
+    [
+     668.66,
+     15360
+    ]
+   ],
+   "rtf": 0.5479,
+   "steady_rtf": 0.5009,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.3,
+   "max_gap_ms": 160.7,
+   "loadavg1_before": 2.86,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 4.85,
+   "first_byte_ms": 185.06,
+   "end_ms": 2220.52,
+   "closed_early": false,
+   "error": null,
+   "bytes": 207360,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.32,
+   "ttfc_ms": 185.06,
+   "total_ms": 2220.52,
+   "chunks": [
+    [
+     185.06,
+     15360
+    ],
+    [
+     344.82,
+     15360
+    ],
+    [
+     501.78,
+     15360
+    ],
+    [
+     658.83,
+     15360
+    ],
+    [
+     819.36,
+     15360
+    ],
+    [
+     979.61,
+     15360
+    ],
+    [
+     1140.99,
+     15360
+    ],
+    [
+     1300.64,
+     15360
+    ],
+    [
+     1456.7,
+     15360
+    ],
+    [
+     1615.54,
+     15360
+    ],
+    [
+     1776.38,
+     15360
+    ],
+    [
+     1936.48,
+     15360
+    ],
+    [
+     2096.04,
+     15360
+    ],
+    [
+     2220.27,
+     7680
+    ]
+   ],
+   "rtf": 0.514,
+   "steady_rtf": 0.5088,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 161.4,
+   "loadavg1_before": 2.86,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.09,
+   "first_byte_ms": 190.62,
+   "end_ms": 1012.15,
+   "closed_early": false,
+   "error": null,
+   "bytes": 92160,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.92,
+   "ttfc_ms": 190.62,
+   "total_ms": 1012.15,
+   "chunks": [
+    [
+     190.62,
+     15360
+    ],
+    [
+     348.5,
+     15360
+    ],
+    [
+     509.11,
+     15360
+    ],
+    [
+     667.04,
+     15360
+    ],
+    [
+     823.27,
+     15360
+    ],
+    [
+     980.21,
+     15360
+    ]
+   ],
+   "rtf": 0.5272,
+   "steady_rtf": 0.4935,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 162.1,
+   "max_gap_ms": 160.6,
+   "loadavg1_before": 2.71,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.12,
+   "first_byte_ms": 183.99,
+   "end_ms": 2018.61,
+   "closed_early": false,
+   "error": null,
+   "bytes": 188160,
+   "n_chunks": 13,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.92,
+   "ttfc_ms": 183.99,
+   "total_ms": 2018.61,
+   "chunks": [
+    [
+     184.0,
+     15360
+    ],
+    [
+     343.74,
+     15360
+    ],
+    [
+     503.97,
+     15360
+    ],
+    [
+     664.24,
+     15360
+    ],
+    [
+     821.65,
+     15360
+    ],
+    [
+     979.08,
+     15360
+    ],
+    [
+     1136.1,
+     15360
+    ],
+    [
+     1293.92,
+     15360
+    ],
+    [
+     1454.25,
+     15360
+    ],
+    [
+     1611.37,
+     15360
+    ],
+    [
+     1767.69,
+     15360
+    ],
+    [
+     1929.96,
+     15360
+    ],
+    [
+     2018.42,
+     3840
+    ]
+   ],
+   "rtf": 0.515,
+   "steady_rtf": 0.5096,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 162.3,
+   "loadavg1_before": 2.71,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.26,
+   "headers_ms": 5.16,
+   "first_byte_ms": 187.14,
+   "end_ms": 860.33,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 187.14,
+   "total_ms": 860.33,
+   "chunks": [
+    [
+     187.14,
+     15360
+    ],
+    [
+     346.77,
+     15360
+    ],
+    [
+     507.46,
+     15360
+    ],
+    [
+     667.17,
+     15360
+    ],
+    [
+     828.0,
+     15360
+    ]
+   ],
+   "rtf": 0.5377,
+   "steady_rtf": 0.5007,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.4,
+   "max_gap_ms": 160.8,
+   "loadavg1_before": 2.71,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.09,
+   "first_byte_ms": 182.39,
+   "end_ms": 1422.58,
+   "closed_early": false,
+   "error": null,
+   "bytes": 130560,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.72,
+   "ttfc_ms": 182.39,
+   "total_ms": 1422.58,
+   "chunks": [
+    [
+     182.39,
+     15360
+    ],
+    [
+     342.97,
+     15360
+    ],
+    [
+     500.99,
+     15360
+    ],
+    [
+     657.42,
+     15360
+    ],
+    [
+     817.95,
+     15360
+    ],
+    [
+     978.8,
+     15360
+    ],
+    [
+     1137.23,
+     15360
+    ],
+    [
+     1296.81,
+     15360
+    ],
+    [
+     1422.37,
+     7680
+    ]
+   ],
+   "rtf": 0.523,
+   "steady_rtf": 0.5167,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 160.8,
+   "loadavg1_before": 2.71,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.25,
+   "headers_ms": 1.07,
+   "first_byte_ms": 188.02,
+   "end_ms": 2596.39,
+   "closed_early": false,
+   "error": null,
+   "bytes": 241920,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.04,
+   "ttfc_ms": 188.02,
+   "total_ms": 2596.39,
+   "chunks": [
+    [
+     188.03,
+     15360
+    ],
+    [
+     345.64,
+     15360
+    ],
+    [
+     506.28,
+     15360
+    ],
+    [
+     667.2,
+     15360
+    ],
+    [
+     826.9,
+     15360
+    ],
+    [
+     987.26,
+     15360
+    ],
+    [
+     1147.63,
+     15360
+    ],
+    [
+     1307.49,
+     15360
+    ],
+    [
+     1468.48,
+     15360
+    ],
+    [
+     1631.55,
+     15360
+    ],
+    [
+     1792.26,
+     15360
+    ],
+    [
+     1952.43,
+     15360
+    ],
+    [
+     2112.65,
+     15360
+    ],
+    [
+     2273.19,
+     15360
+    ],
+    [
+     2433.02,
+     15360
+    ],
+    [
+     2596.2,
+     11520
+    ]
+   ],
+   "rtf": 0.5152,
+   "steady_rtf": 0.5102,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 162.4,
+   "max_gap_ms": 163.2,
+   "loadavg1_before": 2.73,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.16,
+   "first_byte_ms": 190.49,
+   "end_ms": 1505.33,
+   "closed_early": false,
+   "error": null,
+   "bytes": 138240,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.88,
+   "ttfc_ms": 190.49,
+   "total_ms": 1505.33,
+   "chunks": [
+    [
+     190.49,
+     15360
+    ],
+    [
+     350.21,
+     15360
+    ],
+    [
+     509.44,
+     15360
+    ],
+    [
+     669.98,
+     15360
+    ],
+    [
+     829.21,
+     15360
+    ],
+    [
+     990.3,
+     15360
+    ],
+    [
+     1150.25,
+     15360
+    ],
+    [
+     1310.67,
+     15360
+    ],
+    [
+     1470.88,
+     15360
+    ]
+   ],
+   "rtf": 0.5227,
+   "steady_rtf": 0.5002,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.3,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 2.73,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.08,
+   "first_byte_ms": 189.46,
+   "end_ms": 1151.14,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 189.46,
+   "total_ms": 1151.14,
+   "chunks": [
+    [
+     189.46,
+     15360
+    ],
+    [
+     349.28,
+     15360
+    ],
+    [
+     510.27,
+     15360
+    ],
+    [
+     671.02,
+     15360
+    ],
+    [
+     831.17,
+     15360
+    ],
+    [
+     991.51,
+     15360
+    ],
+    [
+     1150.95,
+     11520
+    ]
+   ],
+   "rtf": 0.5329,
+   "steady_rtf": 0.5225,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 2.68,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 6,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 0.99,
+   "first_byte_ms": 185.38,
+   "end_ms": 1010.87,
+   "closed_early": false,
+   "error": null,
+   "bytes": 92160,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.92,
+   "ttfc_ms": 185.38,
+   "total_ms": 1010.87,
+   "chunks": [
+    [
+     185.38,
+     15360
+    ],
+    [
+     345.86,
+     15360
+    ],
+    [
+     506.15,
+     15360
+    ],
+    [
+     666.55,
+     15360
+    ],
+    [
+     823.78,
+     15360
+    ],
+    [
+     979.72,
+     15360
+    ]
+   ],
+   "rtf": 0.5265,
+   "steady_rtf": 0.4965,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.5,
+   "max_gap_ms": 160.5,
+   "loadavg1_before": 2.68,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 1.01,
+   "first_byte_ms": 179.07,
+   "end_ms": 1859.09,
+   "closed_early": false,
+   "error": null,
+   "bytes": 172800,
+   "n_chunks": 12,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 3.6,
+   "ttfc_ms": 179.07,
+   "total_ms": 1859.09,
+   "chunks": [
+    [
+     179.07,
+     15360
+    ],
+    [
+     336.68,
+     15360
+    ],
+    [
+     495.55,
+     15360
+    ],
+    [
+     655.67,
+     15360
+    ],
+    [
+     815.51,
+     15360
+    ],
+    [
+     975.4,
+     15360
+    ],
+    [
+     1133.24,
+     15360
+    ],
+    [
+     1292.82,
+     15360
+    ],
+    [
+     1451.15,
+     15360
+    ],
+    [
+     1612.06,
+     15360
+    ],
+    [
+     1771.98,
+     15360
+    ],
+    [
+     1858.89,
+     3840
+    ]
+   ],
+   "rtf": 0.5164,
+   "steady_rtf": 0.5121,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 162.4,
+   "max_gap_ms": 160.9,
+   "loadavg1_before": 2.68,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.05,
+   "first_byte_ms": 188.95,
+   "end_ms": 1153.83,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 188.95,
+   "total_ms": 1153.83,
+   "chunks": [
+    [
+     188.95,
+     15360
+    ],
+    [
+     349.4,
+     15360
+    ],
+    [
+     511.25,
+     15360
+    ],
+    [
+     672.15,
+     15360
+    ],
+    [
+     832.31,
+     15360
+    ],
+    [
+     993.69,
+     15360
+    ],
+    [
+     1153.62,
+     11520
+    ]
+   ],
+   "rtf": 0.5342,
+   "steady_rtf": 0.5243,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.6,
+   "max_gap_ms": 161.9,
+   "loadavg1_before": 2.68,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.05,
+   "first_byte_ms": 187.28,
+   "end_ms": 1180.63,
+   "closed_early": false,
+   "error": null,
+   "bytes": 107520,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.24,
+   "ttfc_ms": 187.28,
+   "total_ms": 1180.63,
+   "chunks": [
+    [
+     187.28,
+     15360
+    ],
+    [
+     348.39,
+     15360
+    ],
+    [
+     507.96,
+     15360
+    ],
+    [
+     668.31,
+     15360
+    ],
+    [
+     828.55,
+     15360
+    ],
+    [
+     988.78,
+     15360
+    ],
+    [
+     1148.25,
+     15360
+    ]
+   ],
+   "rtf": 0.5271,
+   "steady_rtf": 0.5005,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.9,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 2.7,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.16,
+   "first_byte_ms": 183.77,
+   "end_ms": 2786.29,
+   "closed_early": false,
+   "error": null,
+   "bytes": 261120,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.44,
+   "ttfc_ms": 183.77,
+   "total_ms": 2786.29,
+   "chunks": [
+    [
+     183.78,
+     15360
+    ],
+    [
+     344.35,
+     15360
+    ],
+    [
+     504.49,
+     15360
+    ],
+    [
+     664.55,
+     15360
+    ],
+    [
+     824.84,
+     15360
+    ],
+    [
+     984.67,
+     15360
+    ],
+    [
+     1144.64,
+     15360
+    ],
+    [
+     1305.96,
+     15360
+    ],
+    [
+     1466.05,
+     15360
+    ],
+    [
+     1626.5,
+     15360
+    ],
+    [
+     1787.5,
+     15360
+    ],
+    [
+     1947.22,
+     15360
+    ],
+    [
+     2108.33,
+     15360
+    ],
+    [
+     2269.86,
+     15360
+    ],
+    [
+     2430.27,
+     15360
+    ],
+    [
+     2591.22,
+     15360
+    ],
+    [
+     2750.27,
+     15360
+    ]
+   ],
+   "rtf": 0.5122,
+   "steady_rtf": 0.5013,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 2.7,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 189.52,
+   "end_ms": 2470.11,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 189.52,
+   "total_ms": 2470.11,
+   "chunks": [
+    [
+     189.52,
+     15360
+    ],
+    [
+     348.31,
+     15360
+    ],
+    [
+     507.63,
+     15360
+    ],
+    [
+     667.82,
+     15360
+    ],
+    [
+     827.89,
+     15360
+    ],
+    [
+     988.35,
+     15360
+    ],
+    [
+     1148.55,
+     15360
+    ],
+    [
+     1309.5,
+     15360
+    ],
+    [
+     1469.58,
+     15360
+    ],
+    [
+     1630.07,
+     15360
+    ],
+    [
+     1790.4,
+     15360
+    ],
+    [
+     1951.43,
+     15360
+    ],
+    [
+     2110.71,
+     15360
+    ],
+    [
+     2273.1,
+     15360
+    ],
+    [
+     2435.51,
+     15360
+    ]
+   ],
+   "rtf": 0.5146,
+   "steady_rtf": 0.5013,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.2,
+   "max_gap_ms": 162.4,
+   "loadavg1_before": 2.7,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.13,
+   "first_byte_ms": 190.23,
+   "end_ms": 2220.32,
+   "closed_early": false,
+   "error": null,
+   "bytes": 207360,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.32,
+   "ttfc_ms": 190.23,
+   "total_ms": 2220.32,
+   "chunks": [
+    [
+     190.23,
+     15360
+    ],
+    [
+     347.02,
+     15360
+    ],
+    [
+     505.24,
+     15360
+    ],
+    [
+     661.11,
+     15360
+    ],
+    [
+     817.44,
+     15360
+    ],
+    [
+     975.53,
+     15360
+    ],
+    [
+     1135.53,
+     15360
+    ],
+    [
+     1294.79,
+     15360
+    ],
+    [
+     1451.92,
+     15360
+    ],
+    [
+     1612.62,
+     15360
+    ],
+    [
+     1772.81,
+     15360
+    ],
+    [
+     1934.65,
+     15360
+    ],
+    [
+     2094.18,
+     15360
+    ],
+    [
+     2220.1,
+     7680
+    ]
+   ],
+   "rtf": 0.514,
+   "steady_rtf": 0.5075,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 163.2,
+   "max_gap_ms": 161.8,
+   "loadavg1_before": 2.65,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.13,
+   "first_byte_ms": 187.61,
+   "end_ms": 913.03,
+   "closed_early": false,
+   "error": null,
+   "bytes": 80640,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.68,
+   "ttfc_ms": 187.61,
+   "total_ms": 913.03,
+   "chunks": [
+    [
+     187.61,
+     15360
+    ],
+    [
+     347.76,
+     15360
+    ],
+    [
+     507.2,
+     15360
+    ],
+    [
+     668.01,
+     15360
+    ],
+    [
+     827.24,
+     15360
+    ],
+    [
+     912.81,
+     3840
+    ]
+   ],
+   "rtf": 0.5435,
+   "steady_rtf": 0.5332,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 160.8,
+   "loadavg1_before": 2.65,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.07,
+   "first_byte_ms": 182.19,
+   "end_ms": 1426.48,
+   "closed_early": false,
+   "error": null,
+   "bytes": 130560,
+   "n_chunks": 9,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.72,
+   "ttfc_ms": 182.19,
+   "total_ms": 1426.48,
+   "chunks": [
+    [
+     182.19,
+     15360
+    ],
+    [
+     341.89,
+     15360
+    ],
+    [
+     501.98,
+     15360
+    ],
+    [
+     662.37,
+     15360
+    ],
+    [
+     822.83,
+     15360
+    ],
+    [
+     982.78,
+     15360
+    ],
+    [
+     1142.54,
+     15360
+    ],
+    [
+     1301.29,
+     15360
+    ],
+    [
+     1426.28,
+     7680
+    ]
+   ],
+   "rtf": 0.5244,
+   "steady_rtf": 0.5184,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.3,
+   "max_gap_ms": 160.5,
+   "loadavg1_before": 2.65,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 5.02,
+   "first_byte_ms": 187.88,
+   "end_ms": 3038.51,
+   "closed_early": false,
+   "error": null,
+   "bytes": 284160,
+   "n_chunks": 19,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.92,
+   "ttfc_ms": 187.88,
+   "total_ms": 3038.51,
+   "chunks": [
+    [
+     187.88,
+     15360
+    ],
+    [
+     348.32,
+     15360
+    ],
+    [
+     508.01,
+     15360
+    ],
+    [
+     665.88,
+     15360
+    ],
+    [
+     825.79,
+     15360
+    ],
+    [
+     986.09,
+     15360
+    ],
+    [
+     1145.72,
+     15360
+    ],
+    [
+     1306.33,
+     15360
+    ],
+    [
+     1466.62,
+     15360
+    ],
+    [
+     1627.05,
+     15360
+    ],
+    [
+     1787.34,
+     15360
+    ],
+    [
+     1947.93,
+     15360
+    ],
+    [
+     2107.88,
+     15360
+    ],
+    [
+     2271.13,
+     15360
+    ],
+    [
+     2430.9,
+     15360
+    ],
+    [
+     2591.41,
+     15360
+    ],
+    [
+     2751.98,
+     15360
+    ],
+    [
+     2912.43,
+     15360
+    ],
+    [
+     3038.3,
+     7680
+    ]
+   ],
+   "rtf": 0.5133,
+   "steady_rtf": 0.509,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.6,
+   "max_gap_ms": 163.2,
+   "loadavg1_before": 2.67,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.24,
+   "headers_ms": 1.13,
+   "first_byte_ms": 190.42,
+   "end_ms": 1148.53,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 190.42,
+   "total_ms": 1148.53,
+   "chunks": [
+    [
+     190.42,
+     15360
+    ],
+    [
+     351.67,
+     15360
+    ],
+    [
+     511.14,
+     15360
+    ],
+    [
+     671.29,
+     15360
+    ],
+    [
+     831.34,
+     15360
+    ],
+    [
+     991.57,
+     15360
+    ],
+    [
+     1148.31,
+     11520
+    ]
+   ],
+   "rtf": 0.5317,
+   "steady_rtf": 0.5206,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.7,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 2.67,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 5.05,
+   "first_byte_ms": 186.34,
+   "end_ms": 2518.12,
+   "closed_early": false,
+   "error": null,
+   "bytes": 234240,
+   "n_chunks": 16,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.88,
+   "ttfc_ms": 186.34,
+   "total_ms": 2518.12,
+   "chunks": [
+    [
+     186.34,
+     15360
+    ],
+    [
+     345.05,
+     15360
+    ],
+    [
+     506.01,
+     15360
+    ],
+    [
+     666.51,
+     15360
+    ],
+    [
+     827.53,
+     15360
+    ],
+    [
+     986.57,
+     15360
+    ],
+    [
+     1147.83,
+     15360
+    ],
+    [
+     1306.99,
+     15360
+    ],
+    [
+     1467.55,
+     15360
+    ],
+    [
+     1625.85,
+     15360
+    ],
+    [
+     1787.2,
+     15360
+    ],
+    [
+     1947.26,
+     15360
+    ],
+    [
+     2108.08,
+     15360
+    ],
+    [
+     2269.58,
+     15360
+    ],
+    [
+     2430.47,
+     15360
+    ],
+    [
+     2517.93,
+     3840
+    ]
+   ],
+   "rtf": 0.516,
+   "steady_rtf": 0.5113,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.3,
+   "max_gap_ms": 161.5,
+   "loadavg1_before": 2.62,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 1,
+   "round": 7,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 187.58,
+   "end_ms": 826.49,
+   "closed_early": false,
+   "error": null,
+   "bytes": 72960,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.52,
+   "ttfc_ms": 187.58,
+   "total_ms": 826.49,
+   "chunks": [
+    [
+     187.58,
+     15360
+    ],
+    [
+     348.76,
+     15360
+    ],
+    [
+     508.7,
+     15360
+    ],
+    [
+     669.1,
+     15360
+    ],
+    [
+     826.28,
+     11520
+    ]
+   ],
+   "rtf": 0.5437,
+   "steady_rtf": 0.5323,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.8,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 2.62,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.03,
+   "first_byte_ms": 183.59,
+   "end_ms": 2440.13,
+   "closed_early": false,
+   "error": null,
+   "bytes": 226560,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.72,
+   "ttfc_ms": 183.59,
+   "total_ms": 2440.13,
+   "chunks": [
+    [
+     183.59,
+     15360
+    ],
+    [
+     343.54,
+     15360
+    ],
+    [
+     503.07,
+     15360
+    ],
+    [
+     662.93,
+     15360
+    ],
+    [
+     826.32,
+     15360
+    ],
+    [
+     986.72,
+     15360
+    ],
+    [
+     1147.19,
+     15360
+    ],
+    [
+     1306.94,
+     15360
+    ],
+    [
+     1467.68,
+     15360
+    ],
+    [
+     1631.09,
+     15360
+    ],
+    [
+     1793.85,
+     15360
+    ],
+    [
+     1954.84,
+     15360
+    ],
+    [
+     2115.16,
+     15360
+    ],
+    [
+     2275.21,
+     15360
+    ],
+    [
+     2439.96,
+     11520
+    ]
+   ],
+   "rtf": 0.517,
+   "steady_rtf": 0.5128,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 164.7,
+   "loadavg1_before": 2.62,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.23,
+   "headers_ms": 1.06,
+   "first_byte_ms": 189.11,
+   "end_ms": 2305.36,
+   "closed_early": false,
+   "error": null,
+   "bytes": 215040,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.48,
+   "ttfc_ms": 189.11,
+   "total_ms": 2305.36,
+   "chunks": [
+    [
+     189.12,
+     15360
+    ],
+    [
+     350.46,
+     15360
+    ],
+    [
+     510.87,
+     15360
+    ],
+    [
+     670.12,
+     15360
+    ],
+    [
+     830.33,
+     15360
+    ],
+    [
+     988.02,
+     15360
+    ],
+    [
+     1147.0,
+     15360
+    ],
+    [
+     1307.71,
+     15360
+    ],
+    [
+     1468.07,
+     15360
+    ],
+    [
+     1628.69,
+     15360
+    ],
+    [
+     1788.91,
+     15360
+    ],
+    [
+     1949.5,
+     15360
+    ],
+    [
+     2109.64,
+     15360
+    ],
+    [
+     2270.33,
+     15360
+    ]
+   ],
+   "rtf": 0.5146,
+   "steady_rtf": 0.5003,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.7,
+   "max_gap_ms": 161.3,
+   "loadavg1_before": 2.65,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 4.98,
+   "first_byte_ms": 190.66,
+   "end_ms": 2277.62,
+   "closed_early": false,
+   "error": null,
+   "bytes": 211200,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.4,
+   "ttfc_ms": 190.66,
+   "total_ms": 2277.62,
+   "chunks": [
+    [
+     190.67,
+     15360
+    ],
+    [
+     351.44,
+     15360
+    ],
+    [
+     511.76,
+     15360
+    ],
+    [
+     671.73,
+     15360
+    ],
+    [
+     830.7,
+     15360
+    ],
+    [
+     991.4,
+     15360
+    ],
+    [
+     1152.64,
+     15360
+    ],
+    [
+     1313.39,
+     15360
+    ],
+    [
+     1473.46,
+     15360
+    ],
+    [
+     1633.83,
+     15360
+    ],
+    [
+     1794.0,
+     15360
+    ],
+    [
+     1954.59,
+     15360
+    ],
+    [
+     2116.9,
+     15360
+    ],
+    [
+     2277.41,
+     11520
+    ]
+   ],
+   "rtf": 0.5176,
+   "steady_rtf": 0.5115,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.2,
+   "max_gap_ms": 162.3,
+   "loadavg1_before": 2.65,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.07,
+   "first_byte_ms": 190.34,
+   "end_ms": 2307.05,
+   "closed_early": false,
+   "error": null,
+   "bytes": 215040,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.48,
+   "ttfc_ms": 190.34,
+   "total_ms": 2307.05,
+   "chunks": [
+    [
+     190.35,
+     15360
+    ],
+    [
+     350.51,
+     15360
+    ],
+    [
+     511.5,
+     15360
+    ],
+    [
+     672.13,
+     15360
+    ],
+    [
+     834.31,
+     15360
+    ],
+    [
+     993.9,
+     15360
+    ],
+    [
+     1153.05,
+     15360
+    ],
+    [
+     1313.17,
+     15360
+    ],
+    [
+     1471.04,
+     15360
+    ],
+    [
+     1629.23,
+     15360
+    ],
+    [
+     1790.8,
+     15360
+    ],
+    [
+     1951.91,
+     15360
+    ],
+    [
+     2112.16,
+     15360
+    ],
+    [
+     2272.55,
+     15360
+    ]
+   ],
+   "rtf": 0.515,
+   "steady_rtf": 0.5005,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 162.2,
+   "loadavg1_before": 2.6,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.06,
+   "first_byte_ms": 187.68,
+   "end_ms": 1111.61,
+   "closed_early": false,
+   "error": null,
+   "bytes": 99840,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.08,
+   "ttfc_ms": 187.68,
+   "total_ms": 1111.61,
+   "chunks": [
+    [
+     187.69,
+     15360
+    ],
+    [
+     347.65,
+     15360
+    ],
+    [
+     508.5,
+     15360
+    ],
+    [
+     667.85,
+     15360
+    ],
+    [
+     827.95,
+     15360
+    ],
+    [
+     989.13,
+     15360
+    ],
+    [
+     1111.41,
+     7680
+    ]
+   ],
+   "rtf": 0.5344,
+   "steady_rtf": 0.5248,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 2.6,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.2,
+   "headers_ms": 1.04,
+   "first_byte_ms": 179.52,
+   "end_ms": 1138.35,
+   "closed_early": false,
+   "error": null,
+   "bytes": 103680,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.16,
+   "ttfc_ms": 179.52,
+   "total_ms": 1138.35,
+   "chunks": [
+    [
+     179.53,
+     15360
+    ],
+    [
+     339.69,
+     15360
+    ],
+    [
+     499.73,
+     15360
+    ],
+    [
+     660.07,
+     15360
+    ],
+    [
+     820.35,
+     15360
+    ],
+    [
+     980.51,
+     15360
+    ],
+    [
+     1138.14,
+     11520
+    ]
+   ],
+   "rtf": 0.527,
+   "steady_rtf": 0.521,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 160.3,
+   "loadavg1_before": 2.6,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 5.04,
+   "first_byte_ms": 183.77,
+   "end_ms": 2268.03,
+   "closed_early": false,
+   "error": null,
+   "bytes": 211200,
+   "n_chunks": 14,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.4,
+   "ttfc_ms": 183.77,
+   "total_ms": 2268.03,
+   "chunks": [
+    [
+     183.77,
+     15360
+    ],
+    [
+     343.63,
+     15360
+    ],
+    [
+     503.5,
+     15360
+    ],
+    [
+     663.44,
+     15360
+    ],
+    [
+     823.66,
+     15360
+    ],
+    [
+     984.17,
+     15360
+    ],
+    [
+     1144.36,
+     15360
+    ],
+    [
+     1305.98,
+     15360
+    ],
+    [
+     1466.33,
+     15360
+    ],
+    [
+     1626.64,
+     15360
+    ],
+    [
+     1787.21,
+     15360
+    ],
+    [
+     1947.76,
+     15360
+    ],
+    [
+     2108.29,
+     15360
+    ],
+    [
+     2267.82,
+     11520
+    ]
+   ],
+   "rtf": 0.5155,
+   "steady_rtf": 0.5108,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 161.6,
+   "loadavg1_before": 2.47,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.01,
+   "first_byte_ms": 187.69,
+   "end_ms": 860.29,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 187.69,
+   "total_ms": 860.29,
+   "chunks": [
+    [
+     187.7,
+     15360
+    ],
+    [
+     348.12,
+     15360
+    ],
+    [
+     507.52,
+     15360
+    ],
+    [
+     667.5,
+     15360
+    ],
+    [
+     827.84,
+     15360
+    ]
+   ],
+   "rtf": 0.5377,
+   "steady_rtf": 0.5001,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.6,
+   "max_gap_ms": 160.4,
+   "loadavg1_before": 2.47,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.07,
+   "first_byte_ms": 182.44,
+   "end_ms": 981.48,
+   "closed_early": false,
+   "error": null,
+   "bytes": 88320,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.84,
+   "ttfc_ms": 182.44,
+   "total_ms": 981.48,
+   "chunks": [
+    [
+     182.44,
+     15360
+    ],
+    [
+     342.76,
+     15360
+    ],
+    [
+     502.87,
+     15360
+    ],
+    [
+     663.42,
+     15360
+    ],
+    [
+     824.0,
+     15360
+    ],
+    [
+     981.26,
+     11520
+    ]
+   ],
+   "rtf": 0.5334,
+   "steady_rtf": 0.5255,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.7,
+   "max_gap_ms": 160.6,
+   "loadavg1_before": 2.47,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.05,
+   "first_byte_ms": 185.33,
+   "end_ms": 2401.06,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 185.33,
+   "total_ms": 2401.06,
+   "chunks": [
+    [
+     185.33,
+     15360
+    ],
+    [
+     345.29,
+     15360
+    ],
+    [
+     505.54,
+     15360
+    ],
+    [
+     665.72,
+     15360
+    ],
+    [
+     826.33,
+     15360
+    ],
+    [
+     986.33,
+     15360
+    ],
+    [
+     1148.19,
+     15360
+    ],
+    [
+     1308.33,
+     15360
+    ],
+    [
+     1468.17,
+     15360
+    ],
+    [
+     1628.16,
+     15360
+    ],
+    [
+     1791.6,
+     15360
+    ],
+    [
+     1952.63,
+     15360
+    ],
+    [
+     2114.47,
+     15360
+    ],
+    [
+     2274.89,
+     15360
+    ],
+    [
+     2400.86,
+     7680
+    ]
+   ],
+   "rtf": 0.5175,
+   "steady_rtf": 0.5129,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.0,
+   "max_gap_ms": 163.4,
+   "loadavg1_before": 2.47,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.08,
+   "first_byte_ms": 187.48,
+   "end_ms": 858.93,
+   "closed_early": false,
+   "error": null,
+   "bytes": 76800,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.6,
+   "ttfc_ms": 187.48,
+   "total_ms": 858.93,
+   "chunks": [
+    [
+     187.48,
+     15360
+    ],
+    [
+     347.9,
+     15360
+    ],
+    [
+     507.67,
+     15360
+    ],
+    [
+     668.03,
+     15360
+    ],
+    [
+     827.25,
+     15360
+    ]
+   ],
+   "rtf": 0.5368,
+   "steady_rtf": 0.4998,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.6,
+   "max_gap_ms": 160.4,
+   "loadavg1_before": 2.43,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 2,
+   "round": 8,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 1.1,
+   "first_byte_ms": 184.27,
+   "end_ms": 2388.55,
+   "closed_early": false,
+   "error": null,
+   "bytes": 222720,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.64,
+   "ttfc_ms": 184.27,
+   "total_ms": 2388.55,
+   "chunks": [
+    [
+     184.27,
+     15360
+    ],
+    [
+     344.11,
+     15360
+    ],
+    [
+     504.46,
+     15360
+    ],
+    [
+     663.84,
+     15360
+    ],
+    [
+     824.35,
+     15360
+    ],
+    [
+     985.4,
+     15360
+    ],
+    [
+     1145.63,
+     15360
+    ],
+    [
+     1303.28,
+     15360
+    ],
+    [
+     1463.34,
+     15360
+    ],
+    [
+     1623.47,
+     15360
+    ],
+    [
+     1784.01,
+     15360
+    ],
+    [
+     1943.04,
+     15360
+    ],
+    [
+     2103.55,
+     15360
+    ],
+    [
+     2263.94,
+     15360
+    ],
+    [
+     2388.37,
+     7680
+    ]
+   ],
+   "rtf": 0.5148,
+   "steady_rtf": 0.5102,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.2,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 2.43,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.18,
+   "headers_ms": 1.03,
+   "first_byte_ms": 187.63,
+   "end_ms": 2146.21,
+   "closed_early": false,
+   "error": null,
+   "bytes": 199680,
+   "n_chunks": 13,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.16,
+   "ttfc_ms": 187.63,
+   "total_ms": 2146.21,
+   "chunks": [
+    [
+     187.63,
+     15360
+    ],
+    [
+     346.55,
+     15360
+    ],
+    [
+     508.88,
+     15360
+    ],
+    [
+     668.58,
+     15360
+    ],
+    [
+     828.18,
+     15360
+    ],
+    [
+     988.7,
+     15360
+    ],
+    [
+     1149.09,
+     15360
+    ],
+    [
+     1308.77,
+     15360
+    ],
+    [
+     1470.11,
+     15360
+    ],
+    [
+     1629.88,
+     15360
+    ],
+    [
+     1790.68,
+     15360
+    ],
+    [
+     1950.74,
+     15360
+    ],
+    [
+     2111.29,
+     15360
+    ]
+   ],
+   "rtf": 0.5159,
+   "steady_rtf": 0.501,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.1,
+   "max_gap_ms": 162.3,
+   "loadavg1_before": 2.48,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.08,
+   "first_byte_ms": 190.43,
+   "end_ms": 2685.0,
+   "closed_early": false,
+   "error": null,
+   "bytes": 249600,
+   "n_chunks": 17,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.2,
+   "ttfc_ms": 190.43,
+   "total_ms": 2685.0,
+   "chunks": [
+    [
+     190.43,
+     15360
+    ],
+    [
+     352.47,
+     15360
+    ],
+    [
+     512.04,
+     15360
+    ],
+    [
+     672.76,
+     15360
+    ],
+    [
+     832.81,
+     15360
+    ],
+    [
+     993.14,
+     15360
+    ],
+    [
+     1152.96,
+     15360
+    ],
+    [
+     1313.89,
+     15360
+    ],
+    [
+     1474.65,
+     15360
+    ],
+    [
+     1634.87,
+     15360
+    ],
+    [
+     1795.13,
+     15360
+    ],
+    [
+     1955.89,
+     15360
+    ],
+    [
+     2116.06,
+     15360
+    ],
+    [
+     2277.2,
+     15360
+    ],
+    [
+     2436.65,
+     15360
+    ],
+    [
+     2597.49,
+     15360
+    ],
+    [
+     2684.82,
+     3840
+    ]
+   ],
+   "rtf": 0.5163,
+   "steady_rtf": 0.5111,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 158.0,
+   "max_gap_ms": 162.0,
+   "loadavg1_before": 2.48,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 190.05,
+   "end_ms": 2928.64,
+   "closed_early": false,
+   "error": null,
+   "bytes": 272640,
+   "n_chunks": 18,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 5.68,
+   "ttfc_ms": 190.05,
+   "total_ms": 2928.64,
+   "chunks": [
+    [
+     190.05,
+     15360
+    ],
+    [
+     350.61,
+     15360
+    ],
+    [
+     510.26,
+     15360
+    ],
+    [
+     671.06,
+     15360
+    ],
+    [
+     830.43,
+     15360
+    ],
+    [
+     989.24,
+     15360
+    ],
+    [
+     1150.0,
+     15360
+    ],
+    [
+     1310.12,
+     15360
+    ],
+    [
+     1469.83,
+     15360
+    ],
+    [
+     1631.36,
+     15360
+    ],
+    [
+     1791.76,
+     15360
+    ],
+    [
+     1951.95,
+     15360
+    ],
+    [
+     2112.4,
+     15360
+    ],
+    [
+     2272.67,
+     15360
+    ],
+    [
+     2433.24,
+     15360
+    ],
+    [
+     2601.95,
+     15360
+    ],
+    [
+     2767.29,
+     15360
+    ],
+    [
+     2928.44,
+     11520
+    ]
+   ],
+   "rtf": 0.5156,
+   "steady_rtf": 0.5109,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.4,
+   "max_gap_ms": 168.7,
+   "loadavg1_before": 2.48,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "medium",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 187.59,
+   "end_ms": 665.0,
+   "closed_early": false,
+   "error": null,
+   "bytes": 57600,
+   "n_chunks": 4,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.2,
+   "ttfc_ms": 187.59,
+   "total_ms": 665.0,
+   "chunks": [
+    [
+     187.6,
+     15360
+    ],
+    [
+     346.18,
+     15360
+    ],
+    [
+     506.53,
+     15360
+    ],
+    [
+     664.8,
+     11520
+    ]
+   ],
+   "rtf": 0.5542,
+   "steady_rtf": 0.5423,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 161.4,
+   "max_gap_ms": 160.3,
+   "loadavg1_before": 2.52,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.06,
+   "first_byte_ms": 182.67,
+   "end_ms": 1338.19,
+   "closed_early": false,
+   "error": null,
+   "bytes": 122880,
+   "n_chunks": 8,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.56,
+   "ttfc_ms": 182.67,
+   "total_ms": 1338.19,
+   "chunks": [
+    [
+     182.67,
+     15360
+    ],
+    [
+     342.84,
+     15360
+    ],
+    [
+     503.03,
+     15360
+    ],
+    [
+     663.12,
+     15360
+    ],
+    [
+     823.21,
+     15360
+    ],
+    [
+     984.37,
+     15360
+    ],
+    [
+     1143.86,
+     15360
+    ],
+    [
+     1304.15,
+     15360
+    ]
+   ],
+   "rtf": 0.5227,
+   "steady_rtf": 0.5007,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.8,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 2.52,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.07,
+   "first_byte_ms": 190.01,
+   "end_ms": 2450.9,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 190.01,
+   "total_ms": 2450.9,
+   "chunks": [
+    [
+     190.02,
+     15360
+    ],
+    [
+     349.88,
+     15360
+    ],
+    [
+     509.57,
+     15360
+    ],
+    [
+     670.68,
+     15360
+    ],
+    [
+     830.92,
+     15360
+    ],
+    [
+     989.88,
+     15360
+    ],
+    [
+     1150.47,
+     15360
+    ],
+    [
+     1308.39,
+     15360
+    ],
+    [
+     1464.71,
+     15360
+    ],
+    [
+     1620.69,
+     15360
+    ],
+    [
+     1779.62,
+     15360
+    ],
+    [
+     1935.82,
+     15360
+    ],
+    [
+     2095.77,
+     15360
+    ],
+    [
+     2256.37,
+     15360
+    ],
+    [
+     2416.31,
+     15360
+    ]
+   ],
+   "rtf": 0.5106,
+   "steady_rtf": 0.4969,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 161.1,
+   "loadavg1_before": 2.52,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.22,
+   "headers_ms": 1.07,
+   "first_byte_ms": 189.52,
+   "end_ms": 1180.72,
+   "closed_early": false,
+   "error": null,
+   "bytes": 107520,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.24,
+   "ttfc_ms": 189.52,
+   "total_ms": 1180.72,
+   "chunks": [
+    [
+     189.52,
+     15360
+    ],
+    [
+     350.21,
+     15360
+    ],
+    [
+     510.5,
+     15360
+    ],
+    [
+     670.74,
+     15360
+    ],
+    [
+     830.98,
+     15360
+    ],
+    [
+     988.13,
+     15360
+    ],
+    [
+     1146.57,
+     15360
+    ]
+   ],
+   "rtf": 0.5271,
+   "steady_rtf": 0.4985,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.3,
+   "max_gap_ms": 160.7,
+   "loadavg1_before": 2.56,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.17,
+   "headers_ms": 1.0,
+   "first_byte_ms": 188.26,
+   "end_ms": 791.36,
+   "closed_early": false,
+   "error": null,
+   "bytes": 69120,
+   "n_chunks": 5,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.44,
+   "ttfc_ms": 188.26,
+   "total_ms": 791.36,
+   "chunks": [
+    [
+     188.27,
+     15360
+    ],
+    [
+     348.35,
+     15360
+    ],
+    [
+     508.13,
+     15360
+    ],
+    [
+     668.43,
+     15360
+    ],
+    [
+     791.15,
+     7680
+    ]
+   ],
+   "rtf": 0.5496,
+   "steady_rtf": 0.5383,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.9,
+   "max_gap_ms": 160.3,
+   "loadavg1_before": 2.56,
+   "interval": 0.32,
+   "lang": "en",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.16,
+   "headers_ms": 0.97,
+   "first_byte_ms": 182.21,
+   "end_ms": 998.25,
+   "closed_early": false,
+   "error": null,
+   "bytes": 92160,
+   "n_chunks": 6,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 1.92,
+   "ttfc_ms": 182.21,
+   "total_ms": 998.25,
+   "chunks": [
+    [
+     182.21,
+     15360
+    ],
+    [
+     341.82,
+     15360
+    ],
+    [
+     497.96,
+     15360
+    ],
+    [
+     654.87,
+     15360
+    ],
+    [
+     810.93,
+     15360
+    ],
+    [
+     966.92,
+     15360
+    ]
+   ],
+   "rtf": 0.5199,
+   "steady_rtf": 0.4904,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.4,
+   "max_gap_ms": 159.6,
+   "loadavg1_before": 2.56,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "short",
+   "speaker": "serena",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.19,
+   "headers_ms": 4.99,
+   "first_byte_ms": 183.3,
+   "end_ms": 2456.01,
+   "closed_early": false,
+   "error": null,
+   "bytes": 230400,
+   "n_chunks": 15,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 4.8,
+   "ttfc_ms": 183.3,
+   "total_ms": 2456.01,
+   "chunks": [
+    [
+     183.3,
+     15360
+    ],
+    [
+     343.16,
+     15360
+    ],
+    [
+     502.58,
+     15360
+    ],
+    [
+     662.26,
+     15360
+    ],
+    [
+     821.93,
+     15360
+    ],
+    [
+     981.77,
+     15360
+    ],
+    [
+     1142.11,
+     15360
+    ],
+    [
+     1303.29,
+     15360
+    ],
+    [
+     1462.87,
+     15360
+    ],
+    [
+     1622.9,
+     15360
+    ],
+    [
+     1781.9,
+     15360
+    ],
+    [
+     1942.07,
+     15360
+    ],
+    [
+     2102.01,
+     15360
+    ],
+    [
+     2262.35,
+     15360
+    ],
+    [
+     2421.03,
+     15360
+    ]
+   ],
+   "rtf": 0.5117,
+   "steady_rtf": 0.4995,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 160.1,
+   "max_gap_ms": 161.2,
+   "loadavg1_before": 2.59,
+   "interval": 0.32,
+   "lang": "zh",
+   "length": "medium",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  },
+  {
+   "status": 200,
+   "connect_ms": 0.21,
+   "headers_ms": 1.08,
+   "first_byte_ms": 189.88,
+   "end_ms": 1102.28,
+   "closed_early": false,
+   "error": null,
+   "bytes": 99840,
+   "n_chunks": 7,
+   "content_type": "audio/pcm",
+   "transfer_encoding": "chunked",
+   "audio_s": 2.08,
+   "ttfc_ms": 189.88,
+   "total_ms": 1102.28,
+   "chunks": [
+    [
+     189.88,
+     15360
+    ],
+    [
+     350.9,
+     15360
+    ],
+    [
+     508.75,
+     15360
+    ],
+    [
+     665.48,
+     15360
+    ],
+    [
+     824.62,
+     15360
+    ],
+    [
+     981.56,
+     15360
+    ],
+    [
+     1102.08,
+     7680
+    ]
+   ],
+   "rtf": 0.5299,
+   "steady_rtf": 0.5183,
+   "first_chunk_audio_s": 0.32,
+   "min_slack_ms": 159.0,
+   "max_gap_ms": 161.0,
+   "loadavg1_before": 2.59,
+   "interval": 0.32,
+   "lang": "mix",
+   "length": "short",
+   "speaker": "aiden",
+   "text_i": 0,
+   "round": 9,
+   "phase": "measured"
+  }
+ ],
+ "loadavg1_end": 2.59,
+ "finished_at": "2026-10-23T06:58:32+08:00",
+ "servers_end": [
+  {
+   "name": "tts_sweep_spk",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_sweep_spk_065430/server.log",
+   "seconds_to_ready": 14.58,
+   "footprint_bytes_end": 2747894304,
+   "log_interesting": [
+    "14472.2 ms: INFO:     Started server process [59351]",
+    "14472.2 ms: INFO:     Waiting for application startup.",
+    "14472.5 ms: INFO:     Application startup complete.",
+    "14472.7 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+    "16374.8 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "16557.9 ms:   Initialized encoder codebooks",
+    "16558.0 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

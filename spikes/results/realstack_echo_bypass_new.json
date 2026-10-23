@@ -1,0 +1,105 @@
+{
+ "minutes": 4.47,
+ "caller 0 dB, no echo": {
+  "windows": 418,
+  "valid": 105,
+  "confirmed": 29,
+  "confirmed_wrong_lag": 29,
+  "wrong_lags_ms": [
+   -286,
+   -232,
+   -176,
+   -58,
+   80,
+   172,
+   189,
+   217,
+   328,
+   460,
+   606,
+   678
+  ],
+  "bypass_resumes": 2,
+  "first_resume_window": 136
+ },
+ "caller -15 dB, no echo": {
+  "windows": 418,
+  "valid": 88,
+  "confirmed": 24,
+  "confirmed_wrong_lag": 24,
+  "wrong_lags_ms": [
+   -175,
+   -145,
+   -58,
+   172,
+   217,
+   460,
+   606,
+   678,
+   679,
+   724,
+   725,
+   781
+  ],
+  "bypass_resumes": 1,
+  "first_resume_window": 136
+ },
+ "line noise, no echo": {
+  "windows": 418,
+  "valid": 1,
+  "confirmed": 0,
+  "confirmed_wrong_lag": 0,
+  "wrong_lags_ms": [],
+  "bypass_resumes": 0,
+  "first_resume_window": null
+ },
+ "room tone, no echo": {
+  "windows": 418,
+  "valid": 380,
+  "confirmed": 1,
+  "confirmed_wrong_lag": 1,
+  "wrong_lags_ms": [
+   872
+  ],
+  "bypass_resumes": 0,
+  "first_resume_window": null
+ },
+ "echo ERL 6 dB": {
+  "windows": 418,
+  "valid": 418,
+  "confirmed": 413,
+  "confirmed_wrong_lag": 0,
+  "wrong_lags_ms": [],
+  "bypass_resumes": 138,
+  "first_resume_window": 2
+ },
+ "echo ERL 6 dB + caller 0 dB": {
+  "windows": 418,
+  "valid": 418,
+  "confirmed": 411,
+  "confirmed_wrong_lag": 0,
+  "wrong_lags_ms": [],
+  "bypass_resumes": 138,
+  "first_resume_window": 2
+ },
+ "echo ERL 15 dB + caller 0 dB": {
+  "windows": 418,
+  "valid": 418,
+  "confirmed": 409,
+  "confirmed_wrong_lag": 1,
+  "wrong_lags_ms": [
+   858
+  ],
+  "bypass_resumes": 136,
+  "first_resume_window": 2
+ },
+ "echo ERL 15 dB + caller -15 dB": {
+  "windows": 418,
+  "valid": 418,
+  "confirmed": 413,
+  "confirmed_wrong_lag": 0,
+  "wrong_lags_ms": [],
+  "bypass_resumes": 138,
+  "first_resume_window": 2
+ }
+}

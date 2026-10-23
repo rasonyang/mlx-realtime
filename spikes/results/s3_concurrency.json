@@ -1,0 +1,636 @@
+{
+ "spike": "S3",
+ "step": "concurrency",
+ "started_at": "2026-10-23T06:05:23+08:00",
+ "loadavg1_start": 2.84,
+ "environment": {
+  "recorded_at": "2026-10-23T06:05:23+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "models": {
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+   "sha_models_json": "049ef77fe8816b536193c0c25f9a214d17921282",
+   "status": "ok",
+   "sha_local_ref": "049ef77fe8816b536193c0c25f9a214d17921282"
+  },
+  "mlx-community/Qwen3-ASR-1.7B-8bit": {
+   "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+   "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+   "status": "ok",
+   "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+  },
+  "mlx-community/Kokoro-82M-bf16": {
+   "repo": "mlx-community/Kokoro-82M-bf16",
+   "sha_models_json": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+   "status": "ok",
+   "sha_local_ref": "a71e4d38b236d968966a2002c4c895dbd12b1c3c"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+   "sha_models_json": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+   "status": "ok",
+   "sha_local_ref": "08c72cad5e2fd0f41730c8bd1f28149585e46361"
+  },
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit": {
+   "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+   "sha_models_json": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+   "status": "ok",
+   "sha_local_ref": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96"
+  }
+ },
+ "servers": [
+  {
+   "name": "tts_concurrency",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_concurrency_060511/server.log",
+   "seconds_to_ready": 12.3
+  }
+ ],
+ "conditions": {
+  "model": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+  "voice": "vivian",
+  "text": "zh medium",
+  "streaming_interval": 0.32,
+  "ks": [
+   1,
+   2,
+   4
+  ],
+  "reps": 10
+ },
+ "warmup": [
+  {
+   "lang": "zh",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 1922.42,
+   "total_ms": 3450.98,
+   "audio_s": 5.52,
+   "error": null
+  },
+  {
+   "lang": "en",
+   "speaker": "ryan",
+   "status": 200,
+   "ttfc_ms": 107.42,
+   "total_ms": 1370.94,
+   "audio_s": 4.64,
+   "error": null
+  },
+  {
+   "lang": "mix",
+   "speaker": "vivian",
+   "status": 200,
+   "ttfc_ms": 108.1,
+   "total_ms": 1810.54,
+   "audio_s": 6.08,
+   "error": null
+  }
+ ],
+ "rows": [
+  {
+   "k": 1,
+   "rep": 0,
+   "ttfc_ms_sorted": [
+    109.12
+   ],
+   "total_ms_sorted": [
+    1542.7
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 1,
+   "ttfc_ms_sorted": [
+    116.93
+   ],
+   "total_ms_sorted": [
+    1482.69
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 2,
+   "ttfc_ms_sorted": [
+    118.43
+   ],
+   "total_ms_sorted": [
+    1401.57
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 3,
+   "ttfc_ms_sorted": [
+    102.77
+   ],
+   "total_ms_sorted": [
+    1652.26
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 4,
+   "ttfc_ms_sorted": [
+    129.86
+   ],
+   "total_ms_sorted": [
+    1559.09
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 5,
+   "ttfc_ms_sorted": [
+    122.24
+   ],
+   "total_ms_sorted": [
+    1906.72
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 6,
+   "ttfc_ms_sorted": [
+    126.95
+   ],
+   "total_ms_sorted": [
+    1587.41
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 7,
+   "ttfc_ms_sorted": [
+    111.22
+   ],
+   "total_ms_sorted": [
+    1428.15
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 8,
+   "ttfc_ms_sorted": [
+    122.89
+   ],
+   "total_ms_sorted": [
+    1681.52
+   ],
+   "errors": []
+  },
+  {
+   "k": 1,
+   "rep": 9,
+   "ttfc_ms_sorted": [
+    127.46
+   ],
+   "total_ms_sorted": [
+    1479.15
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 0,
+   "ttfc_ms_sorted": [
+    124.1,
+    2673.7
+   ],
+   "total_ms_sorted": [
+    2489.07,
+    5056.87
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 1,
+   "ttfc_ms_sorted": [
+    192.84,
+    3040.94
+   ],
+   "total_ms_sorted": [
+    2855.31,
+    5532.94
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 2,
+   "ttfc_ms_sorted": [
+    189.46,
+    2869.68
+   ],
+   "total_ms_sorted": [
+    2685.05,
+    5306.34
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 3,
+   "ttfc_ms_sorted": [
+    191.57,
+    2872.21
+   ],
+   "total_ms_sorted": [
+    2688.34,
+    5174.91
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 4,
+   "ttfc_ms_sorted": [
+    187.21,
+    2892.43
+   ],
+   "total_ms_sorted": [
+    2707.02,
+    5321.5
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 5,
+   "ttfc_ms_sorted": [
+    190.03,
+    2578.87
+   ],
+   "total_ms_sorted": [
+    2394.46,
+    4907.79
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 6,
+   "ttfc_ms_sorted": [
+    190.19,
+    2945.77
+   ],
+   "total_ms_sorted": [
+    2760.91,
+    5475.67
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 7,
+   "ttfc_ms_sorted": [
+    190.55,
+    2497.08
+   ],
+   "total_ms_sorted": [
+    2311.56,
+    5305.13
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 8,
+   "ttfc_ms_sorted": [
+    190.42,
+    2943.02
+   ],
+   "total_ms_sorted": [
+    2760.08,
+    5420.42
+   ],
+   "errors": []
+  },
+  {
+   "k": 2,
+   "rep": 9,
+   "ttfc_ms_sorted": [
+    187.35,
+    2607.11
+   ],
+   "total_ms_sorted": [
+    2422.46,
+    5130.56
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 0,
+   "ttfc_ms_sorted": [
+    191.23,
+    3107.75,
+    5687.46,
+    8438.44
+   ],
+   "total_ms_sorted": [
+    2922.65,
+    5503.84,
+    8253.16,
+    10773.67
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 1,
+   "ttfc_ms_sorted": [
+    190.45,
+    3093.03,
+    5806.92,
+    8435.22
+   ],
+   "total_ms_sorted": [
+    2911.65,
+    5622.58,
+    8246.07,
+    10847.12
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 2,
+   "ttfc_ms_sorted": [
+    190.72,
+    2620.01,
+    5282.87,
+    7861.1
+   ],
+   "total_ms_sorted": [
+    2434.96,
+    5102.73,
+    7674.85,
+    10257.95
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 3,
+   "ttfc_ms_sorted": [
+    187.23,
+    2631.35,
+    5586.04,
+    8671.74
+   ],
+   "total_ms_sorted": [
+    2442.89,
+    5395.44,
+    8486.46,
+    11272.52
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 4,
+   "ttfc_ms_sorted": [
+    188.88,
+    2802.69,
+    5755.07,
+    8764.27
+   ],
+   "total_ms_sorted": [
+    2617.64,
+    5566.0,
+    8579.11,
+    11047.26
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 5,
+   "ttfc_ms_sorted": [
+    190.68,
+    3068.31,
+    5708.08,
+    8274.28
+   ],
+   "total_ms_sorted": [
+    2885.15,
+    5523.11,
+    8087.59,
+    10864.76
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 6,
+   "ttfc_ms_sorted": [
+    189.86,
+    2994.71,
+    5951.53,
+    8687.15
+   ],
+   "total_ms_sorted": [
+    2805.95,
+    5767.19,
+    8502.59,
+    11087.13
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 7,
+   "ttfc_ms_sorted": [
+    191.37,
+    2718.81,
+    5637.82,
+    8111.33
+   ],
+   "total_ms_sorted": [
+    2534.51,
+    5453.13,
+    7927.42,
+    10767.62
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 8,
+   "ttfc_ms_sorted": [
+    190.76,
+    2936.56,
+    5731.83,
+    8774.72
+   ],
+   "total_ms_sorted": [
+    2751.83,
+    5546.65,
+    8589.7,
+    11380.45
+   ],
+   "errors": []
+  },
+  {
+   "k": 4,
+   "rep": 9,
+   "ttfc_ms_sorted": [
+    194.1,
+    2666.05,
+    5575.85,
+    8424.98
+   ],
+   "total_ms_sorted": [
+    2481.34,
+    5389.81,
+    8240.04,
+    11363.92
+   ],
+   "errors": []
+  }
+ ],
+ "summary": {
+  "k1": {
+   "rank0_ttfc_ms": {
+    "n": 10,
+    "p50": 120.34,
+    "p95": 128.78,
+    "max": 129.86,
+    "min": 102.77,
+    "mean": 118.79
+   }
+  },
+  "k2": {
+   "rank0_ttfc_ms": {
+    "n": 10,
+    "p50": 190.11,
+    "p95": 192.27,
+    "max": 192.84,
+    "min": 124.1,
+    "mean": 183.37
+   },
+   "rank1_ttfc_ms": {
+    "n": 10,
+    "p50": 2870.94,
+    "p95": 2998.11,
+    "max": 3040.94,
+    "min": 2497.08,
+    "mean": 2792.08
+   }
+  },
+  "k4": {
+   "rank0_ttfc_ms": {
+    "n": 10,
+    "p50": 190.7,
+    "p95": 192.87,
+    "max": 194.1,
+    "min": 187.23,
+    "mean": 190.53
+   },
+   "rank1_ttfc_ms": {
+    "n": 10,
+    "p50": 2869.62,
+    "p95": 3101.13,
+    "max": 3107.75,
+    "min": 2620.01,
+    "mean": 2863.93
+   },
+   "rank2_ttfc_ms": {
+    "n": 10,
+    "p50": 5697.77,
+    "p95": 5886.46,
+    "max": 5951.53,
+    "min": 5282.87,
+    "mean": 5672.35
+   },
+   "rank3_ttfc_ms": {
+    "n": 10,
+    "p50": 8436.83,
+    "p95": 8770.02,
+    "max": 8774.72,
+    "min": 7861.1,
+    "mean": 8444.32
+   }
+  }
+ },
+ "loadavg1_end": 3.07,
+ "finished_at": "2026-10-23T06:08:28+08:00",
+ "servers_end": [
+  {
+   "name": "tts_concurrency",
+   "port": 8103,
+   "traced": false,
+   "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8103 --log-dir <log dir>/logs",
+   "env": {
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "<scratch>"
+   },
+   "log": "/tmp/mlxrt/scratchpad/b2/servers/tts_concurrency_060511/server.log",
+   "seconds_to_ready": 12.3,
+   "footprint_bytes_end": 2459142880,
+   "log_interesting": [
+    "12036.6 ms: INFO:     Started server process [3875]",
+    "12036.7 ms: INFO:     Waiting for application startup.",
+    "12037.0 ms: INFO:     Application startup complete.",
+    "12037.2 ms: INFO:     Uvicorn running on http://127.0.0.1:8103 (Press CTRL+C to quit)",
+    "13973.7 ms: [transformers] You are using a model of type `qwen3_tts` to instantiate a model of type ``. This may be expected if you are loading a checkpoint that shares a subset of the architecture (e.g., loading a `sam2_video` checkpoint into `Sam2Model`), but is otherwise not supported and can yield errors. Please verify that the checkpoint is compatible with the model you are instantiating.",
+    "14159.2 ms:   Initialized encoder codebooks",
+    "14159.3 ms: Loaded speech tokenizer from ~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282/speech_tokenizer"
+   ],
+   "stop": {
+    "stopped_with": "SIGTERM",
+    "returncode": 143,
+    "port_free_after": true
+   }
+  }
+ ]
+}

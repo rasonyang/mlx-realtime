@@ -1,0 +1,789 @@
+{
+  "spike": "S7.5 concurrency: 64 streams, Silero per-stream vs batched, Smart Turn executor K",
+  "env": {
+    "date": "2026-10-23T00:54:33+0800",
+    "python": "3.12.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "cpu": "Apple M3 Max",
+    "cores_logical": 16,
+    "cores_perf": "12",
+    "cores_eff": "4",
+    "mem_bytes": "137438953472",
+    "iogpu_wired_limit_mb": "0",
+    "mx_device_info": "n/a: the gateway/CPU environment is MLX-free by design",
+    "onnxruntime": "1.31.0",
+    "ort_providers": [
+      "CoreMLExecutionProvider",
+      "AzureExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "soundfile": "0.14.0",
+    "huggingface_hub": "2.2.0",
+    "pyarrow": "26.0.0",
+    "transformers": "5.20.2",
+    "mlx": null,
+    "mlx_lm": null,
+    "mlx_audio": null,
+    "openai": null,
+    "omp_num_threads": null,
+    "veclib_maximum_threads": null,
+    "models_manifest": {
+      "fetched": "2026-10-22",
+      "script": "spikes/cpu/fetch_models.py",
+      "models": [
+        {
+          "file": "silero_vad.onnx",
+          "source": "github.com/snakers4/silero-vad",
+          "tag": "v6.2.3",
+          "revision": "5cd7945676eb32225748052e2e6a0580e4686a08",
+          "path": "src/silero_vad/data/silero_vad.onnx",
+          "license": "MIT",
+          "git_blob_sha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+          "url": "https://raw.githubusercontent.com/snakers4/silero-vad/5cd7945676eb32225748052e2e6a0580e4686a08/src/silero_vad/data/silero_vad.onnx",
+          "bytes": 2327524,
+          "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+        },
+        {
+          "file": "smart-turn-v3.2-cpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "int8",
+          "bytes": 8679182,
+          "sha256": "2bb026316b14a660486a75b1733cd3fbab8c2fd0314dc9af7be49f8cca967e4f"
+        },
+        {
+          "file": "smart-turn-v3.2-gpu.onnx",
+          "source": "huggingface.co/pipecat-ai/smart-turn-v3",
+          "revision": "f766f81d3cfdf7737ac64aad813d91bbfd56bf93",
+          "license": "BSD-2-Clause",
+          "precision": "fp32",
+          "bytes": 32411198,
+          "sha256": "ab8dc64b88713f90b571c15b714bd1330e6c883cad8763dacf65c9376dc539be"
+        }
+      ]
+    }
+  },
+  "config": {
+    "duration": 30.0,
+    "streams": 64,
+    "st_model": "v3.2-gpu",
+    "st_intra": 2,
+    "st_rate": 8.0,
+    "burst_size": 8,
+    "burst_every": 5.0,
+    "workers": "0,1,2,4",
+    "modes": "per_stream,batched",
+    "baseline": true,
+    "max_load_wait": 60.0,
+    "switch_interval_ms": 5.0,
+    "out": "s7_5_concurrency.json"
+  },
+  "notes": [
+    "ingest_only = json + base64 + soxr per frame, windows formed, no inference",
+    "Silero latency includes the batching wait in batched mode (up to one 32 ms tick)"
+  ],
+  "runs": [
+    {
+      "silero_mode": "ingest_only",
+      "st_workers": 0,
+      "switch_interval_ms": 5.0,
+      "load_before": 4.58,
+      "load_wait_s": 60.0,
+      "load_after": 4.08,
+      "load_flag": true,
+      "cpu_pct": 23.2,
+      "loop_lag_ms": {
+        "n": 5741,
+        "p50": 0.135,
+        "p95": 0.404,
+        "p99": 0.812,
+        "max": 123.231,
+        "mean": 0.224
+      },
+      "silero_latency_ms": {
+        "n": 0
+      },
+      "silero_windows": 0,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": null,
+      "batch_size": null
+    },
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 0,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.99,
+      "load_wait_s": 10.0,
+      "load_after": 4.54,
+      "load_flag": false,
+      "cpu_pct": 52.6,
+      "loop_lag_ms": {
+        "n": 5878,
+        "p50": 0.075,
+        "p95": 0.252,
+        "p99": 0.423,
+        "max": 12.056,
+        "mean": 0.103
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 0.299,
+        "p95": 1.348,
+        "p99": 2.616,
+        "max": 18.694,
+        "mean": 0.45
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": 41,
+      "batch_size": null
+    },
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 1,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.92,
+      "load_wait_s": 30.0,
+      "load_after": 4.1,
+      "load_flag": false,
+      "cpu_pct": 167.5,
+      "loop_lag_ms": {
+        "n": 5874,
+        "p50": 0.07,
+        "p95": 0.221,
+        "p99": 0.351,
+        "max": 30.303,
+        "mean": 0.107
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 0.298,
+        "p95": 0.912,
+        "p99": 7.997,
+        "max": 42.679,
+        "mean": 0.602
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": 106,
+      "batch_size": null,
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 48.275,
+          "p95": 475.724,
+          "p99": 625.209,
+          "max": 657.295,
+          "mean": 116.233
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 239.581,
+          "p95": 493.664,
+          "p99": 596.252,
+          "max": 624.759,
+          "mean": 238.091
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 30.443,
+          "p95": 467.421,
+          "p99": 622.004,
+          "max": 657.295,
+          "mean": 91.657
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 60.306,
+          "p95": 81.318,
+          "p99": 124.554,
+          "max": 153.847,
+          "mean": 63.215
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 2.049,
+          "p95": 3.083,
+          "p99": 5.328,
+          "max": 7.565,
+          "mean": 2.2
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 58.276,
+          "p95": 78.951,
+          "p99": 120.492,
+          "max": 147.582,
+          "mean": 61.015
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 109.572,
+          "p95": 535.684,
+          "p99": 685.485,
+          "max": 717.114,
+          "mean": 179.521
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 302.366,
+          "p95": 554.75,
+          "p99": 656.757,
+          "max": 685.089,
+          "mean": 302.353
+        }
+      }
+    },
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 2,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.63,
+      "load_wait_s": 10.0,
+      "load_after": 4.14,
+      "load_flag": false,
+      "cpu_pct": 161.3,
+      "loop_lag_ms": {
+        "n": 5894,
+        "p50": 0.069,
+        "p95": 0.215,
+        "p99": 0.33,
+        "max": 1.855,
+        "mean": 0.09
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 0.287,
+        "p95": 0.631,
+        "p99": 1.159,
+        "max": 4.238,
+        "mean": 0.342
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": 55,
+      "batch_size": null,
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 0.035,
+          "p95": 179.152,
+          "p99": 199.152,
+          "max": 236.873,
+          "mean": 25.145
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 118.066,
+          "p95": 183.444,
+          "p99": 218.457,
+          "max": 236.873,
+          "mean": 96.812
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 0.03,
+          "p95": 83.287,
+          "p99": 181.223,
+          "max": 232.247,
+          "mean": 10.691
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 60.492,
+          "p95": 62.78,
+          "p99": 65.647,
+          "max": 69.261,
+          "mean": 60.789
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 2.088,
+          "p95": 2.526,
+          "p99": 3.086,
+          "max": 3.996,
+          "mean": 2.141
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 58.415,
+          "p95": 60.454,
+          "p99": 63.215,
+          "max": 65.956,
+          "mean": 58.647
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 60.844,
+          "p95": 239.356,
+          "p99": 259.723,
+          "max": 297.353,
+          "mean": 86.001
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 178.399,
+          "p95": 245.067,
+          "p99": 278.999,
+          "max": 297.353,
+          "mean": 157.483
+        }
+      }
+    },
+    {
+      "silero_mode": "per_stream",
+      "st_workers": 4,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.77,
+      "load_wait_s": 20.0,
+      "load_after": 3.84,
+      "load_flag": false,
+      "cpu_pct": 161.0,
+      "loop_lag_ms": {
+        "n": 5895,
+        "p50": 0.068,
+        "p95": 0.211,
+        "p99": 0.323,
+        "max": 1.821,
+        "mean": 0.088
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 0.285,
+        "p95": 0.61,
+        "p99": 0.979,
+        "max": 4.932,
+        "mean": 0.337
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": 21,
+      "batch_size": null,
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 0.033,
+          "p95": 62.347,
+          "p99": 80.166,
+          "max": 116.768,
+          "mean": 7.212
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 58.757,
+          "p95": 64.359,
+          "p99": 98.626,
+          "max": 116.768,
+          "mean": 34.168
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 0.03,
+          "p95": 0.112,
+          "p99": 60.575,
+          "max": 110.228,
+          "mean": 1.776
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 60.644,
+          "p95": 63.147,
+          "p99": 64.247,
+          "max": 65.544,
+          "mean": 60.958
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 2.102,
+          "p95": 2.805,
+          "p99": 3.497,
+          "max": 4.222,
+          "mean": 2.213
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 58.522,
+          "p95": 60.893,
+          "p99": 61.842,
+          "max": 63.248,
+          "mean": 58.744
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 60.781,
+          "p95": 123.792,
+          "p99": 141.304,
+          "max": 180.208,
+          "mean": 68.235
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 119.378,
+          "p95": 126.476,
+          "p99": 160.976,
+          "max": 180.208,
+          "mean": 96.139
+        }
+      }
+    },
+    {
+      "silero_mode": "batched",
+      "st_workers": 0,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.84,
+      "load_wait_s": 0.0,
+      "load_after": 3.63,
+      "load_flag": false,
+      "cpu_pct": 33.6,
+      "loop_lag_ms": {
+        "n": 5851,
+        "p50": 0.095,
+        "p95": 0.286,
+        "p99": 0.535,
+        "max": 7.908,
+        "mean": 0.127
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 15.84,
+        "p95": 31.687,
+        "p99": 36.017,
+        "max": 43.877,
+        "mean": 15.956
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": null,
+      "batch_size": {
+        "mean": 22.39,
+        "min": 1,
+        "max": 64,
+        "calls": 2681
+      }
+    },
+    {
+      "silero_mode": "batched",
+      "st_workers": 1,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.63,
+      "load_wait_s": 0.0,
+      "load_after": 3.77,
+      "load_flag": false,
+      "cpu_pct": 139.5,
+      "loop_lag_ms": {
+        "n": 5879,
+        "p50": 0.084,
+        "p95": 0.231,
+        "p99": 0.322,
+        "max": 1.159,
+        "mean": 0.102
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 15.788,
+        "p95": 30.836,
+        "p99": 33.36,
+        "max": 37.668,
+        "mean": 15.761
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": null,
+      "batch_size": {
+        "mean": 22.45,
+        "min": 1,
+        "max": 64,
+        "calls": 2674
+      },
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 41.5,
+          "p95": 420.556,
+          "p99": 470.116,
+          "max": 513.563,
+          "mean": 103.833
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 238.082,
+          "p95": 425.903,
+          "p99": 463.677,
+          "max": 488.04,
+          "mean": 222.325
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 22.5,
+          "p95": 416.911,
+          "p99": 466.655,
+          "max": 513.563,
+          "mean": 79.935
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 59.547,
+          "p95": 62.159,
+          "p99": 64.882,
+          "max": 68.397,
+          "mean": 59.967
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 1.989,
+          "p95": 2.181,
+          "p99": 2.409,
+          "max": 5.111,
+          "mean": 2.02
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 57.561,
+          "p95": 59.916,
+          "p99": 62.766,
+          "max": 66.072,
+          "mean": 57.947
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 100.881,
+          "p95": 480.191,
+          "p99": 529.217,
+          "max": 573.565,
+          "mean": 163.88
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 297.424,
+          "p95": 485.674,
+          "p99": 523.2,
+          "max": 547.493,
+          "mean": 282.551
+        }
+      }
+    },
+    {
+      "silero_mode": "batched",
+      "st_workers": 2,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.77,
+      "load_wait_s": 0.0,
+      "load_after": 3.91,
+      "load_flag": false,
+      "cpu_pct": 140.5,
+      "loop_lag_ms": {
+        "n": 5876,
+        "p50": 0.087,
+        "p95": 0.234,
+        "p99": 0.334,
+        "max": 0.969,
+        "mean": 0.105
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 15.782,
+        "p95": 30.769,
+        "p99": 33.359,
+        "max": 40.131,
+        "mean": 15.762
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": null,
+      "batch_size": {
+        "mean": 22.65,
+        "min": 1,
+        "max": 64,
+        "calls": 2651
+      },
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 0.038,
+          "p95": 180.811,
+          "p99": 200.25,
+          "max": 238.538,
+          "mean": 25.226
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 118.54,
+          "p95": 183.805,
+          "p99": 219.831,
+          "max": 238.538,
+          "mean": 97.283
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 0.035,
+          "p95": 83.59,
+          "p99": 180.641,
+          "max": 230.136,
+          "mean": 10.694
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 60.149,
+          "p95": 62.28,
+          "p99": 64.494,
+          "max": 65.175,
+          "mean": 60.366
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 2.032,
+          "p95": 2.366,
+          "p99": 3.141,
+          "max": 3.865,
+          "mean": 2.081
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 58.1,
+          "p95": 59.87,
+          "p99": 61.114,
+          "max": 62.745,
+          "mean": 58.285
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 60.513,
+          "p95": 241.224,
+          "p99": 260.323,
+          "max": 298.868,
+          "mean": 85.675
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 180.199,
+          "p95": 244.569,
+          "p99": 280.034,
+          "max": 298.868,
+          "mean": 158.131
+        }
+      }
+    },
+    {
+      "silero_mode": "batched",
+      "st_workers": 4,
+      "switch_interval_ms": 5.0,
+      "load_before": 3.91,
+      "load_wait_s": 0.0,
+      "load_after": 3.53,
+      "load_flag": false,
+      "cpu_pct": 140.7,
+      "loop_lag_ms": {
+        "n": 5877,
+        "p50": 0.086,
+        "p95": 0.234,
+        "p99": 0.328,
+        "max": 1.671,
+        "mean": 0.104
+      },
+      "silero_latency_ms": {
+        "n": 60032,
+        "p50": 15.818,
+        "p95": 30.839,
+        "p99": 33.387,
+        "max": 42.44,
+        "mean": 15.797
+      },
+      "silero_windows": 60032,
+      "silero_windows_expected_approx": 60000,
+      "per_stream_executor_backlog_max": null,
+      "batch_size": {
+        "mean": 23.03,
+        "min": 1,
+        "max": 64,
+        "calls": 2607
+      },
+      "smart_turn": {
+        "model": "v3.2-gpu",
+        "intra_op": 2,
+        "jobs": 286,
+        "queue_ms": {
+          "n": 286,
+          "p50": 0.038,
+          "p95": 60.943,
+          "p99": 81.511,
+          "max": 114.653,
+          "mean": 7.077
+        },
+        "queue_ms_burst": {
+          "n": 48,
+          "p50": 57.414,
+          "p95": 63.249,
+          "p99": 98.638,
+          "max": 114.653,
+          "mean": 33.656
+        },
+        "queue_ms_poisson": {
+          "n": 238,
+          "p50": 0.036,
+          "p95": 0.089,
+          "p99": 58.843,
+          "max": 109.359,
+          "mean": 1.716
+        },
+        "service_ms": {
+          "n": 286,
+          "p50": 60.245,
+          "p95": 63.495,
+          "p99": 67.449,
+          "max": 68.622,
+          "mean": 60.585
+        },
+        "features_ms": {
+          "n": 286,
+          "p50": 2.059,
+          "p95": 2.715,
+          "p99": 3.454,
+          "max": 3.676,
+          "mean": 2.15
+        },
+        "model_ms": {
+          "n": 286,
+          "p50": 58.087,
+          "p95": 60.642,
+          "p99": 64.57,
+          "max": 66.607,
+          "mean": 58.434
+        },
+        "total_ms": {
+          "n": 286,
+          "p50": 60.487,
+          "p95": 121.347,
+          "p99": 141.919,
+          "max": 174.887,
+          "mean": 67.743
+        },
+        "total_ms_burst": {
+          "n": 48,
+          "p50": 117.75,
+          "p95": 123.878,
+          "p99": 158.939,
+          "max": 174.887,
+          "mean": 94.641
+        }
+      }
+    }
+  ]
+}

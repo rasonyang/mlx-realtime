@@ -1,0 +1,3602 @@
+{
+ "spike": "S1.4",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": null,
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.8391855,
+  "first_request_done_s": 3.637931542,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792726873.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 20.4658203125,
+  "loadavg_1m_after": 27.5673828125,
+  "wall_s": 80.1,
+  "footprint_gb": 21.1
+ },
+ "data": {
+  "cases": [],
+  "runs": {
+   "gateway": {
+    "per_case": [
+     {
+      "id": "zh_keypress0",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "(用户通过电话按键输入:0)",
+      "runs": [
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍候。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 1.472989375,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍等。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.181575084,
+        "completion_tokens": 13,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，为您转接人工客服。请稍等，客服代表即将与您联系。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.240696375,
+        "completion_tokens": 18,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 0
+     },
+     {
+      "id": "zh_rma",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "我的维修单号是RMA2048，帮我查一下进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "98ea8f7e-6b41-47f2-840e-6e55b650025b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.506088958,
+        "t_done": 0.516766333,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "5a2c1992-9110-4ad2-911a-79d084511242",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.406714375,
+        "t_done": 0.417795583,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "eb1a2880-8670-4d19-a890-9e83dcbfa2d7",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.404764375,
+        "t_done": 0.415329416,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_contract",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "我想问一下合约机提前解约要交多少违约金？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "e081df0d-fa6a-4737-98d2-d7143faa9d45",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.540344916,
+        "t_done": 0.551261875,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "7d18a5e0-8573-45b6-abfe-063dffeb3069",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.452193,
+        "t_done": 0.462723708,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "bd40c0f3-15cf-4f97-b26a-daf7b47934f1",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.446576083,
+        "t_done": 0.456730041,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_roaming",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "我下个月去日本，国际漫游怎么收费？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "21a15b39-1315-4c4d-9ab8-aff83a089047",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.554956541,
+        "t_done": 0.565923416,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "839fbf5e-df73-4c0e-bee9-d682c39777d9",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.476980833,
+        "t_done": 0.487520416,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "c0b7b62e-7966-4531-8896-716009560e3e",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.484433,
+        "t_done": 0.495236458,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_bye",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "hangup",
+      "text": "好的，没有其他问题了，再见。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "61691c57-5dd2-419a-afbf-b4abfbb9853b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.471046125,
+        "t_done": 0.481778917,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "be7aae2c-827e-4865-87ec-a2c8f4e2ff1c",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.389037041,
+        "t_done": 0.400064208,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "69563c9d-b8eb-4f1f-a6bc-751e720c516d",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.388505625,
+        "t_done": 0.399172708,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_human",
+      "lang": "en",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "I want to talk to a real person, please.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户希望转接人工服务\", \"summary\": \"用户希望转接人工服务\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "d981aed9-1b6b-4732-b7d5-7a509790b1d0",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 1.000849375,
+        "t_done": 1.01107775,
+        "completion_tokens": 75,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"User wants to talk to a real person.\", \"summary\": \"User requested to speak to a real person.\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "708e1c75-d835-43d4-80e2-860d5ee00384",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 1.10514475,
+        "t_done": 1.116799708,
+        "completion_tokens": 81,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求转人工。\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "67b32443-bbbf-4804-b4b7-cb48d49b0891",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 1.119180625,
+        "t_done": 1.130410208,
+        "completion_tokens": 75,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_rma",
+      "lang": "en",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "Can you check my repair? The order number is RMA1001.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "4d76305d-394e-4471-996c-d8834b01f17a",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.558427125,
+        "t_done": 0.569108417,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "ef72e760-5429-40c8-becf-0a518fb2781f",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.409640709,
+        "t_done": 0.420423709,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "0a441ae8-7756-40f7-9689-c93d658ffc5c",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.404661792,
+        "t_done": 0.415544959,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_roaming",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "How much does international roaming cost when I travel to Europe?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "b467d93b-bfe0-444f-ab18-c2a25c812bfb",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.602689084,
+        "t_done": 0.613299459,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "dc20290a-32af-42c2-bfb8-7dc9e731e999",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.507052542,
+        "t_done": 0.518075125,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "c1685b67-a9b9-4aa6-a93b-8236d93a87a5",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.786689416,
+        "t_done": 0.797622625,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_callback",
+      "lang": "en",
+      "should_call": true,
+      "expected": "take_message",
+      "text": "Please have someone call me back at 555-0134 about my cracked screen.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants a callback.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "5dd2a236-c83a-4733-b5c6-4f747bd99a82",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.85234375,
+        "t_done": 0.866948083,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected take_message, got no call",
+        "finish_reason": "stop",
+        "content": "好的，我帮您留言回电号码555-0134，事由是屏幕破裂。稍后会有客服联系您。请问还有其他需要帮助的吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.637147,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"用户手机屏幕破裂，需要回电。\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "07d718cd-f742-472e-986a-0e2074a0f5dd",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.859086625,
+        "t_done": 0.872484083,
+        "completion_tokens": 54,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 2
+     },
+     {
+      "id": "en_contract",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "What's the penalty if I end my phone contract early?",
+      "runs": [
+       {
+        "ok": false,
+        "why": "expected kb_search_slow, got no call",
+        "finish_reason": "stop",
+        "content": "请问您是需要咨询合约机的合约期限和提前解约违约金政策吗？如果是，请提供您的手机号码或合约编号，以便我为您查询具体信息。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.609066292,
+        "completion_tokens": 34,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected kb_search_slow, got no call",
+        "finish_reason": "stop",
+        "content": "请问您是想了解合约机的提前解约违约金政策吗？如果是，请提供您的手机号码，我帮您查询具体条款。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.3767115,
+        "completion_tokens": 27,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"What's the penalty if I end my phone contract early?\"}"
+          },
+          "type": "function",
+          "id": "06d60017-8854-45f5-bfca-dac8dac49bd3",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.5118715,
+        "t_done": 0.524612959,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 1
+     },
+     {
+      "id": "zh_screenshot",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "手机怎么截图？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机型号是什么？不同机型的截图方式可能略有不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.338968958,
+        "completion_tokens": 16,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "不同品牌操作略有不同。多数安卓手机是同时长按“电源键”和“音量减键”；部分华为或旧款机型可能是同时长按“电源键”和“音量加键”。iPhone则是同时快速按下“侧边键”和“音量加键”。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.787968417,
+        "completion_tokens": 59,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "不同品牌的手机截图方法略有不同，通常您可以尝试同时按下“电源键”和“音量减键”，或者在屏幕上快速滑动三指。如果您使用的是特定品牌，可以告诉我，我为您查询具体步骤。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.611936542,
+        "completion_tokens": 46,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_slow_charge",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "我的手机充电很慢怎么办？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "建议您尝试更换原装充电器和数据线，并清理手机充电接口，确保没有灰尘或杂物堵塞。如果问题依旧，可以告诉我您的手机型号，我帮您进一步排查。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.636490958,
+        "completion_tokens": 37,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机最近是否有磕碰、进水，或者是否申请过维修服务？如果没有，我建议您先尝试更换充电线或充电头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.390357125,
+        "completion_tokens": 30,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问是咨询手机使用问题，查询维修进度，还是其它服务？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.215076459,
+        "completion_tokens": 16,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_repair_no_number",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "你好，我想查一下维修进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以“RMA”开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.32775275,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以“RMA”开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.228265291,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.204255541,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_weather",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "今天天气怎么样？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么手机售后问题可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.210587625,
+        "completion_tokens": 9,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您办理手机相关的业务吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.15517875,
+        "completion_tokens": 11,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.092711666,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_incomplete_rma",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "单号是RMA，呃，后面的我忘了。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，麻烦您报一下 RMA 后面的数字，我会逐位记录。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.32480575,
+        "completion_tokens": 18,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您提供完整的维修单号，以“RMA”开头。如果不确定，可以告诉我您记得的部分，我来帮您确认。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.391250791,
+        "completion_tokens": 30,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您告诉我RMA后面具体的数字，我会帮您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.22721425,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_power_off",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "How do I turn off my phone?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "为了关闭您的手机，请长按电源键，然后在屏幕上选择“关机”或“电源选项”中的“关机”。部分机型可能需要长按电源键和音量下键的组合来强制关机。如果您使用的是特定品牌或型号的手机，请告诉我，我可以提供更具体的指导。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.796452959,
+        "completion_tokens": 57,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌？不同品牌的手机关机方式可能略有不同。您可以长按电源键，或者电源键与音量键组合来关机。如果具体操作不清楚，我可以帮您转接人工客服进一步咨询。请问您需要办理什么业务？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.643572791,
+        "completion_tokens": 51,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请您长按手机侧边的电源键，直到屏幕出现关机选项，然后点击“关机”即可。请问还有其他需要帮助的吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.357578791,
+        "completion_tokens": 27,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_storage",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "My phone storage is full, what can I do?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的维修单号是多少？或者您需要办理什么业务？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.280148667,
+        "completion_tokens": 14,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。如果问题依旧，我可以为您转接人工客服进一步协助。请问需要办理什么业务？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.529455375,
+        "completion_tokens": 42,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试以下方法来清理手机存储空间：\n\n1. **删除不需要的应用**：卸载那些长时间未使用或不再需要的应用。\n2. **清除缓存和数据**：进入“设置”>“应用管理”，选择占用空间较大的应用，清除其缓存和数据。\n3. **转移媒体文件**：将照片、视频等大文件备份到云端或外部存储设备。\n4. **使用存储优化功能**：部分手机自带存储优化工具，可以帮助您识别并删除大文件或重复文件。\n5. **减少应用数据**：对于一些应用（如微信、QQ等），可以清理聊天记录中的图片和视频。\n\n希望这些方法能帮到您！如果还有其他问题，请随时告诉我。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 1.84261975,
+        "completion_tokens": 149,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_repair_no_number",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "I want to check my repair status.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以“RMA”开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.314076792,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以“RMA”开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.226161291,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.274399125,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_football",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Who won the football game last night?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.174475,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.091264958,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "I'm sorry, but I can't assist with that. For phone usage and after-sales service, please call 123-456-7890.",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.467393708,
+        "completion_tokens": 37,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_hello",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Hello? Is anyone there?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？您可以直接说出您的问题，或者通过数字键选择服务。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.428614792,
+        "completion_tokens": 27,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.200256667,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.204333291,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     }
+    ],
+    "score_per_rep_out_of_20": [
+     18,
+     17,
+     19
+    ],
+    "silent_drops": 0,
+    "calls_split_over_chunks": 0,
+    "sampling": null,
+    "extra": null
+   },
+   "temp0": {
+    "per_case": [
+     {
+      "id": "zh_keypress0",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "(用户通过电话按键输入:0)",
+      "runs": [
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍候。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.247858291,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍候。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.156459917,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍候。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.156277625,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 0
+     },
+     {
+      "id": "zh_rma",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "我的维修单号是RMA2048，帮我查一下进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "12bd93b7-cf5d-4aca-bfa2-ce338f97e97e",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.47709375,
+        "t_done": 0.48725525,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "457d8794-0a42-4451-86d2-3ee6395198cd",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.379794292,
+        "t_done": 0.389946458,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "8e69b625-f76d-4045-955e-b3ce54e2319f",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.380101041,
+        "t_done": 0.389968583,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_contract",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "我想问一下合约机提前解约要交多少违约金？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "0d2c4a4c-e973-490e-af45-3e7303d93abf",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.512248334,
+        "t_done": 0.522618209,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "c0e5772b-53cc-4940-a824-1f025ab4d97c",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.431693084,
+        "t_done": 0.442224917,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "5e7238f2-de73-414a-b5b3-fed589c24fec",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.426949041,
+        "t_done": 0.437814666,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_roaming",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "我下个月去日本，国际漫游怎么收费？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "1a366930-314e-4f30-b657-2493e8bf9b9c",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.57653125,
+        "t_done": 0.5869215,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "9eac631c-be2c-4c86-aeda-1f5d9c4cb3ac",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.460519583,
+        "t_done": 0.470354958,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "59448f16-4cec-4e55-a554-2c7f3434530b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.46371725,
+        "t_done": 0.474053542,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_bye",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "hangup",
+      "text": "好的，没有其他问题了，再见。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "4dfac35c-d332-4e67-ac49-169ee5bf7c78",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.464959416,
+        "t_done": 0.475587541,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "5f89b3e7-04a1-4d62-8676-54a155eae81f",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.387305,
+        "t_done": 0.397467458,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "ee942e2b-0bee-42af-9e26-741a77495737",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.375648875,
+        "t_done": 0.385587375,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_human",
+      "lang": "en",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "I want to talk to a real person, please.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求转接人工坐席\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "89d5b060-1ccb-4b22-8145-e300f8d11443",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 1.052367209,
+        "t_done": 1.063017334,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求转接人工坐席\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "ebde0e6e-96de-49a2-b20e-9a667aa36f2b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.925655584,
+        "t_done": 0.9358435,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求转接人工坐席\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "4c47bf1b-cf61-40c7-902d-9fa9bd4b805a",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.911292125,
+        "t_done": 0.921030334,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_rma",
+      "lang": "en",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "Can you check my repair? The order number is RMA1001.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "d6c7c4c6-8749-4126-86c6-241fbda0b3a5",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.474806417,
+        "t_done": 0.484966875,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "923b0691-937c-42e2-a1ce-9c247e945760",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.38730125,
+        "t_done": 0.397604125,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "dca95abd-1e38-4e99-9486-e4d1f07c68ad",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.379504375,
+        "t_done": 0.389766375,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_roaming",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "How much does international roaming cost when I travel to Europe?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "fa5c5289-ef6b-4988-8650-34f6c1f6e332",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.5645045,
+        "t_done": 0.574832917,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "b79d9afc-9b7a-413d-9d0c-65376913475d",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.473660583,
+        "t_done": 0.483960125,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "485cd7a1-d8a4-4486-8224-1d741ad792bb",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.472514875,
+        "t_done": 0.482657875,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_callback",
+      "lang": "en",
+      "should_call": true,
+      "expected": "take_message",
+      "text": "Please have someone call me back at 555-0134 about my cracked screen.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants a callback.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "a4b35a7f-30b2-4d23-923d-856af7622e2d",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.740822458,
+        "t_done": 0.750558042,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants a callback.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "b5c5205f-7eee-472b-97e7-77ba1021483f",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.65113575,
+        "t_done": 0.661510166,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants a callback.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "68e68ebb-1cd2-4fbe-b8a1-b30127e56336",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.664232084,
+        "t_done": 0.674647375,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_contract",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "What's the penalty if I end my phone contract early?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"What's the penalty if I end my phone contract early?\"}"
+          },
+          "type": "function",
+          "id": "7d151aeb-fc47-46d7-9af2-edf48467894f",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.547538875,
+        "t_done": 0.557813541,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"What's the penalty if I end my phone contract early?\"}"
+          },
+          "type": "function",
+          "id": "9945b832-f9b4-4681-ad86-076b1d56839b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.455634167,
+        "t_done": 0.465991625,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"What's the penalty if I end my phone contract early?\"}"
+          },
+          "type": "function",
+          "id": "eb835461-8a80-4a37-a7cc-eda1faa5dce6",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.465791958,
+        "t_done": 0.476076833,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_screenshot",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "手机怎么截图？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌是什么？不同品牌的截图按键组合可能不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.280465042,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌是什么？不同品牌的截图按键组合可能不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.204280541,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌是什么？不同品牌的截图按键组合可能不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.197340334,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_slow_charge",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "我的手机充电很慢怎么办？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是最近才开始充电慢，还是用了一段时间后出现的？另外，您使用的是原装充电器和数据线吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.405500541,
+        "completion_tokens": 26,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是最近才开始充电慢，还是用了一段时间后出现的？另外，您使用的是原装充电器和数据线吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.328380125,
+        "completion_tokens": 26,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是最近才开始充电慢，还是用了一段时间后出现的？另外，您使用的是原装充电器和数据线吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.329112708,
+        "completion_tokens": 26,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_repair_no_number",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "你好，我想查一下维修进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.277062708,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.194571625,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.194400375,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_weather",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "今天天气怎么样？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.169840209,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.087830833,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.087698708,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_incomplete_rma",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "单号是RMA，呃，后面的我忘了。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您报一下维修单号，以RMA开头的，后面的数字或字母请逐位告诉我。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.386141291,
+        "completion_tokens": 24,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您报一下维修单号，以RMA开头的，后面的数字或字母请逐位告诉我。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.30924625,
+        "completion_tokens": 24,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您报一下维修单号，以RMA开头的，后面的数字或字母请逐位告诉我。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.303584834,
+        "completion_tokens": 24,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_power_off",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "How do I turn off my phone?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌？不同品牌的关机方式略有不同。例如，大多数智能手机需要长按电源键，然后选择“关机”选项。如果您能告诉我具体型号，我可以提供更详细的指导。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.58352125,
+        "completion_tokens": 41,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌？不同品牌的关机方式略有不同。例如，大多数智能手机需要长按电源键，然后选择“关机”选项。如果您能告诉我具体型号，我可以提供更详细的指导。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.50015525,
+        "completion_tokens": 41,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌？不同品牌的关机方式略有不同。例如，大多数智能手机需要长按电源键，然后选择“关机”选项。如果您能告诉我具体型号，我可以提供更详细的指导。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.50138125,
+        "completion_tokens": 41,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_storage",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "My phone storage is full, what can I do?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。如果问题依旧，我可以为您转接人工客服进一步协助。请问需要我帮您转接吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.622095584,
+        "completion_tokens": 44,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。如果问题依旧，我可以为您转接人工客服进一步协助。请问需要我帮您转接吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.536104042,
+        "completion_tokens": 44,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。如果问题依旧，我可以为您转接人工客服进一步协助。请问需要我帮您转接吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.540410375,
+        "completion_tokens": 44,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_repair_no_number",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "I want to check my repair status.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.350992917,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.2623265,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.265176917,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_football",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Who won the football game last night?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.171368792,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.087730834,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.086266958,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_hello",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Hello? Is anyone there?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.2761875,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.195176667,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.19239775,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     }
+    ],
+    "score_per_rep_out_of_20": [
+     19,
+     19,
+     19
+    ],
+    "silent_drops": 0,
+    "calls_split_over_chunks": 0,
+    "sampling": {
+     "temperature": 0.0,
+     "top_p": 1.0
+    },
+    "extra": null
+   },
+   "temp0.3": {
+    "per_case": [
+     {
+      "id": "zh_keypress0",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "(用户通过电话按键输入:0)",
+      "runs": [
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，正在为您转接人工客服，请稍候。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.496066416,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，为您转接人工客服。请稍等。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.166308875,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected transfer_to_agent, got no call",
+        "finish_reason": "stop",
+        "content": "好的，为您转接人工客服。请稍等。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.16519625,
+        "completion_tokens": 12,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 0
+     },
+     {
+      "id": "zh_rma",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "我的维修单号是RMA2048，帮我查一下进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "03709f44-e1b7-4eba-900a-d4922b8b5ece",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.493188666,
+        "t_done": 0.504003125,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "6eefb06d-f73a-4d40-b013-1b787f857e73",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.409304292,
+        "t_done": 0.420147417,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA2048\"}"
+          },
+          "type": "function",
+          "id": "78b0f11c-5132-42dd-81be-2acc1ff7840e",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.399197834,
+        "t_done": 0.409727334,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_contract",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "我想问一下合约机提前解约要交多少违约金？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "e6832475-b315-496c-a6a0-2a972e1072ec",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.548494,
+        "t_done": 0.559143083,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "45416d03-9e4f-4ba4-84ac-5f8b15760c49",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.447650083,
+        "t_done": 0.457965875,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"合约机提前解约要交多少违约金？\"}"
+          },
+          "type": "function",
+          "id": "3a4ec5f9-9097-4a6c-8c22-e4c4cde76558",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.449987292,
+        "t_done": 0.46071425,
+        "completion_tokens": 36,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_roaming",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "我下个月去日本，国际漫游怎么收费？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "9b4849d2-6cac-461f-891d-73e76c0e8ec9",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.559829875,
+        "t_done": 0.571493667,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "37ac9327-98d0-4d5f-b3f2-2a0e6e8d24e0",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.479565042,
+        "t_done": 0.490578875,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"下个月去日本，国际漫游怎么收费？\"}"
+          },
+          "type": "function",
+          "id": "f037e56e-b5fd-4b52-ba26-de90085007d2",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.472383875,
+        "t_done": 0.483399709,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_bye",
+      "lang": "zh",
+      "should_call": true,
+      "expected": "hangup",
+      "text": "好的，没有其他问题了，再见。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "2494bb0e-21f6-4c08-a1e5-f8e97d0330e1",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.475319083,
+        "t_done": 0.486007708,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "5e7d7ceb-7f14-4210-a93d-36a587946861",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.393051125,
+        "t_done": 0.404003583,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "hangup",
+           "arguments": "{\"isFarewellSpoken\": false}"
+          },
+          "type": "function",
+          "id": "0c9cd4a2-48c9-4fe8-b93c-85a178c1c8c3",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.389679709,
+        "t_done": 0.400685292,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_human",
+      "lang": "en",
+      "should_call": true,
+      "expected": "transfer_to_agent",
+      "text": "I want to talk to a real person, please.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户希望与人工客服沟通。\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "76af8e44-1ff0-452d-98b7-fb9b7cb60be2",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 1.064439583,
+        "t_done": 1.075497833,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求转接人工坐席\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "54195939-cb72-43ab-b607-e30887a85d1c",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.963594708,
+        "t_done": 0.974595792,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "transfer_to_agent",
+           "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户要求转接人工坐席\", \"summary\": \"用户要求与人工客服对话。\", \"slots\": {}}"
+          },
+          "type": "function",
+          "id": "c6e88549-26f0-4074-ae20-b3690eb63742",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.97376375,
+        "t_done": 0.984506709,
+        "completion_tokens": 77,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_rma",
+      "lang": "en",
+      "should_call": true,
+      "expected": "repair_status",
+      "text": "Can you check my repair? The order number is RMA1001.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "7989da50-acb0-4352-a1af-826b7f4a702e",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.493098125,
+        "t_done": 0.503946875,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "8b49a52b-ffe4-403d-b2c1-46856deddfb3",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.402501292,
+        "t_done": 0.413334459,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "repair_status",
+           "arguments": "{\"rma\": \"RMA1001\"}"
+          },
+          "type": "function",
+          "id": "94506645-c900-4d20-8139-5c39ee7eab0e",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.405491625,
+        "t_done": 0.416204833,
+        "completion_tokens": 32,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_roaming",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_too_slow",
+      "text": "How much does international roaming cost when I travel to Europe?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "b122c33e-9e76-44ce-b206-2841303b91ab",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.585024958,
+        "t_done": 0.595966916,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "91a499d4-2baf-466c-ab88-fff701c4eef4",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.503416833,
+        "t_done": 0.514475542,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_too_slow",
+           "arguments": "{\"query\": \"How much does international roaming cost when I travel to Europe?\"}"
+          },
+          "type": "function",
+          "id": "b80366a2-bfb4-4b86-82e2-10290b7d1fd9",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.506987125,
+        "t_done": 0.517743208,
+        "completion_tokens": 40,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_callback",
+      "lang": "en",
+      "should_call": true,
+      "expected": "take_message",
+      "text": "Please have someone call me back at 555-0134 about my cracked screen.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants a callback.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "2f89af8a-7f2f-455f-8c2d-517d15174da5",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.780085,
+        "t_done": 0.791276916,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"Customer has a cracked screen and wants to be called back at 555-0134.\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "5cfcfdaa-9e96-448b-87bc-c7ad932049a8",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.838478375,
+        "t_done": 0.849410375,
+        "completion_tokens": 67,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "take_message",
+           "arguments": "{\"message\": \"用户要求回电，事由：屏幕破裂。\", \"callbackNumber\": \"555-0134\"}"
+          },
+          "type": "function",
+          "id": "8abd1636-7ee2-4a71-aecd-dcfdaa1861ba",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.683923917,
+        "t_done": 0.6943805,
+        "completion_tokens": 55,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_contract",
+      "lang": "en",
+      "should_call": true,
+      "expected": "kb_search_slow",
+      "text": "What's the penalty if I end my phone contract early?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "ok",
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+         {
+          "function": {
+           "name": "kb_search_slow",
+           "arguments": "{\"query\": \"What's the penalty if I end my phone contract early?\"}"
+          },
+          "type": "function",
+          "id": "4b778fe0-d414-47fd-9b5f-71520407b66b",
+          "index": 0
+         }
+        ],
+        "tool_call_chunks": 1,
+        "t_first_tool_call": 0.562710458,
+        "t_done": 0.57419775,
+        "completion_tokens": 38,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected kb_search_slow, got no call",
+        "finish_reason": "stop",
+        "content": "请问您是想咨询合约机的提前解约违约金政策吗？如果是，请提供您的手机号码或合约单号，我帮您查询具体规定。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.401191583,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": false,
+        "why": "expected kb_search_slow, got no call",
+        "finish_reason": "stop",
+        "content": "请问您是想咨询合约机的提前解约违约金政策吗？如果是，请提供您的合约号码或相关详细信息，我将为您查询具体规定。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.39701725,
+        "completion_tokens": 31,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 1
+     },
+     {
+      "id": "zh_screenshot",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "手机怎么截图？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌和型号呢？不同机型的截图方法可能不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.308574833,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌和型号呢？不同机型的截图方法可能不同。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.232176375,
+        "completion_tokens": 17,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌及型号是什么？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.127053,
+        "completion_tokens": 9,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_slow_charge",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "我的手机充电很慢怎么办？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌和型号？另外，您使用的是原装充电器和数据线吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.330155791,
+        "completion_tokens": 18,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机型号是什么？另外，您是否尝试过更换充电线或充电头？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.268597709,
+        "completion_tokens": 20,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌和型号？另外，您使用的是原装充电器和数据线吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.236388958,
+        "completion_tokens": 18,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_repair_no_number",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "你好，我想查一下维修进度。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头的。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.286793125,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请报一下您的维修单号，以RMA开头的。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.218067125,
+        "completion_tokens": 16,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号，以RMA开头。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.204162625,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_weather",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "今天天气怎么样？",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.178808125,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.092962208,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.092203875,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "zh_incomplete_rma",
+      "lang": "zh",
+      "should_call": false,
+      "expected": null,
+      "text": "单号是RMA，呃，后面的我忘了。",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，麻烦您提供完整的维修单号，以“RMA”开头，后面还有数字。您可以慢慢说，我帮您记录。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.471742125,
+        "completion_tokens": 30,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您提供完整的维修单号，以“RMA”开头。您可以直接告诉我后面的数字，或者逐位读出来，我来帮您查询。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.430647667,
+        "completion_tokens": 33,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请您提供完整的维修单号，以“RMA”开头，后面还有几位数字？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.297993333,
+        "completion_tokens": 22,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_power_off",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "How do I turn off my phone?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌是什么？不同品牌关机方式略有不同，您可以告诉我具体型号，我来帮您。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.3721485,
+        "completion_tokens": 22,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机是什么品牌和型号？不同品牌的手机关机方式可能有所不同。一般来说，您可以长按手机侧面的电源键，直到出现关机选项，然后选择“关机”即可。如果您需要更具体的帮助，请告诉我更多细节。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.623650125,
+        "completion_tokens": 49,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问您的手机品牌是什么？不同品牌的关机方式可能有所不同。例如，大多数智能手机需要长按电源键，然后选择“关机”选项。如果您能提供具体型号，我可以为您提供更详细的指导。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.533239666,
+        "completion_tokens": 41,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_storage",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "My phone storage is full, what can I do?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云盘以释放存储空间。如果问题依旧，我可以为您转接人工客服进一步协助。请问您需要哪种帮助？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.618391375,
+        "completion_tokens": 42,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。另外，检查是否有大文件可以移至外部存储设备。如果问题依旧，建议联系我们的技术支持获取进一步帮助。请问还有其他需要协助的吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.677009834,
+        "completion_tokens": 53,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您可以尝试删除不常用的应用、清理缓存文件，或者将照片和视频备份到云端以释放存储空间。如果问题依旧，建议转接人工客服进一步协助。请问需要为您转接吗？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.532296125,
+        "completion_tokens": 42,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_repair_no_number",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "I want to check my repair status.",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.365874917,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.272235,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "好的，请提供您的维修单号（以RMA开头），我将为您查询维修进度。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.274877541,
+        "completion_tokens": 21,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_football",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Who won the football game last night?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "I'm sorry, but I can't assist with that. Please let me know if you need help with a mobile phone issue or repair status.",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.4733535,
+        "completion_tokens": 30,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.092531792,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.093122542,
+        "completion_tokens": 6,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     },
+     {
+      "id": "en_hello",
+      "lang": "en",
+      "should_call": false,
+      "expected": null,
+      "text": "Hello? Is anyone there?",
+      "runs": [
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？您可以直接说出您的问题，或者按电话键选择服务。",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.464870541,
+        "completion_tokens": 27,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.206296542,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       },
+       {
+        "ok": true,
+        "why": "no call",
+        "finish_reason": "stop",
+        "content": "您好，这里是星讯手机售后服务热线。请问有什么可以帮您？",
+        "tool_calls": [],
+        "tool_call_chunks": 0,
+        "t_first_tool_call": null,
+        "t_done": 0.204676167,
+        "completion_tokens": 15,
+        "leak_tool_markup": false
+       }
+      ],
+      "ok_runs": 3
+     }
+    ],
+    "score_per_rep_out_of_20": [
+     19,
+     18,
+     18
+    ],
+    "silent_drops": 0,
+    "calls_split_over_chunks": 0,
+    "sampling": {
+     "temperature": 0.3,
+     "top_p": 0.8
+    },
+    "extra": null
+   }
+  }
+ }
+}

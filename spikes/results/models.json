@@ -1,0 +1,1467 @@
+{
+  "generated_at": "2026-10-23T05:32:40+08:00",
+  "command": "uv run --project spikes/llm hf download <repo>",
+  "huggingface_hub": "2.2.0",
+  "hf_hub_cache": "~/.cache/huggingface/hub",
+  "bandwidth_decision": "HF route through the local proxy measured at ~0.1-2.5 MB/s on 2026-10-22; the orchestrator limited downloads to the essential repos. Deferred repos list Hub metadata only.",
+  "note": "sha = commit the local cache ref 'main' points at after the download; sha_hub = what the Hub resolved 'main' to just before it. download_seconds is the wall time of this run's hf download on a link shared with other downloads; bytes_in_cache_before_run counts blob bytes (partial files included) that an earlier or concurrent hf process had already fetched. first_download keeps the timing of an earlier run that did the real download; earlier_attempts records a run that never finished. transport: hf_xet (default) or plain HTTP (HF_HUB_DISABLE_XET=1), both from huggingface.co and its CDN. lfs_sha256_verified: every LFS file hashed and compared with the Hub's sha256.",
+  "models": [
+    {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
+      "sha_hub": "049ef77fe8816b536193c0c25f9a214d17921282",
+      "last_modified_hub": "2026-01-25T21:57:29+00:00",
+      "expected_total_bytes": 1973575388,
+      "expected_total_gb": 1.974,
+      "expected_n_files": 14,
+      "already_cached_before_run": true,
+      "first_download": {
+        "download_started_at": "2026-10-22T22:05:16+08:00",
+        "download_finished_at": "2026-10-22T22:22:11+08:00",
+        "download_seconds": 1015.7,
+        "download_attempts": 1,
+        "bytes_in_cache_before_run": 378538001,
+        "transport": "xet (hf_xet)"
+      },
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 1973575388,
+      "download_started_at": "2026-10-23T05:32:32+08:00",
+      "download_finished_at": "2026-10-23T05:32:38+08:00",
+      "download_attempts": 1,
+      "download_seconds": 6.1,
+      "status": "ok",
+      "sha": "049ef77fe8816b536193c0c25f9a214d17921282",
+      "sha_cli_path": "049ef77fe8816b536193c0c25f9a214d17921282",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 1973575388,
+      "total_gb": 1.974,
+      "n_files": 14,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit/snapshots/049ef77fe8816b536193c0c25f9a214d17921282",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 1068,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 6058,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 245,
+          "lfs_sha256": null
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671839,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model.safetensors",
+          "size": 1286743170,
+          "lfs_sha256": "3bcb2c4a127e6243e81a30b7126c7865f686d3559de4f938e5d3b150c6a9560d",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 71447,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 127,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/config.json",
+          "size": 2336,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/configuration.json",
+          "size": 76,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/model.safetensors",
+          "size": 682293092,
+          "lfs_sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258",
+          "sha256_ok": true
+        },
+        {
+          "path": "speech_tokenizer/preprocessor_config.json",
+          "size": 234,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 7344,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+      "sha_hub": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "last_modified_hub": "2026-01-29T15:11:55+00:00",
+      "expected_total_bytes": 2467859030,
+      "expected_total_gb": 2.468,
+      "expected_n_files": 11,
+      "already_cached_before_run": false,
+      "earlier_attempts": {
+        "status": "in_progress",
+        "download_started_at": "2026-10-22T22:22:18+08:00"
+      },
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 4551489,
+      "download_started_at": "2026-10-23T00:38:54+08:00",
+      "download_finished_at": "2026-10-23T00:46:48+08:00",
+      "download_attempts": 1,
+      "download_seconds": 473.7,
+      "status": "ok",
+      "sha": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "sha_cli_path": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 2467859030,
+      "total_gb": 2.468,
+      "n_files": 11,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3-ASR-1.7B-8bit/snapshots/a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 1008,
+          "lfs_sha256": null
+        },
+        {
+          "path": "chat_template.json",
+          "size": 1161,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 7188,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 142,
+          "lfs_sha256": null
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671853,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model.safetensors",
+          "size": 2463307541,
+          "lfs_sha256": "bf304b009cc7eca79283056f787b44c952d24ac22cec787b39732bba3c23c13c",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 78968,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 330,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 12487,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Kokoro-82M-bf16",
+      "sha_hub": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+      "last_modified_hub": "2025-12-02T13:59:36+00:00",
+      "expected_total_bytes": 389410807,
+      "expected_total_gb": 0.389,
+      "expected_n_files": 122,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T00:37:08+08:00",
+      "download_finished_at": "2026-10-23T00:38:48+08:00",
+      "download_attempts": 1,
+      "download_seconds": 100.3,
+      "status": "ok",
+      "sha": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+      "sha_cli_path": "a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 389410807,
+      "total_gb": 0.389,
+      "n_files": 122,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Kokoro-82M-bf16/snapshots/a71e4d38b236d968966a2002c4c895dbd12b1c3c",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1928,
+          "lfs_sha256": null
+        },
+        {
+          "path": "DONATE.md",
+          "size": 2562,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 536,
+          "lfs_sha256": null
+        },
+        {
+          "path": "SAMPLES.md",
+          "size": 5956,
+          "lfs_sha256": null
+        },
+        {
+          "path": "VOICES.md",
+          "size": 7625,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 2351,
+          "lfs_sha256": null
+        },
+        {
+          "path": "kokoro-v1_0.safetensors",
+          "size": 327115152,
+          "lfs_sha256": "4e9ecdf03b8b6cf906070390237feda473dc13327cb8d56a43deaa374c02acd8",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/HEARME.wav",
+          "size": 996044,
+          "lfs_sha256": "aad38e96fa60c91c995ac820ce6e86c28b0df7300177c0d3ca0766b9dc78feec",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_0.wav",
+          "size": 237644,
+          "lfs_sha256": "dd7999ebbc8369779d5d3f504399ea466c909339f90231143416a7819a2047fc",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_1.wav",
+          "size": 517244,
+          "lfs_sha256": "2fe4f363b785fdc233f94dd1885c94a2267f7ceeea8c7fb5cce6bfcf0f7b273d",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_2.wav",
+          "size": 496844,
+          "lfs_sha256": "68ee75b2d503415a5b6edbd5230c823fbeb6b430d546b8c37e2284efcf280be8",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_3.wav",
+          "size": 1407644,
+          "lfs_sha256": "e758efcd852e77569772ee5a424df724695903db61a323a6021ee1c6a50ca616",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_4.wav",
+          "size": 1116044,
+          "lfs_sha256": "d50c90f447686200052f4375dee55a3406ec0aa140473cf946e98fdfe860989b",
+          "sha256_ok": true
+        },
+        {
+          "path": "samples/af_heart_5.wav",
+          "size": 1033244,
+          "lfs_sha256": "bc4515b9479c219e4e9347463a859ea6716dd0eb45a520f5f42825a7662b5054",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_alloy.pt",
+          "size": 523425,
+          "lfs_sha256": "6d877149dd8b348fbad12e5845b7e43d975390e9f3b68a811d1d86168bef5aa3",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_alloy.safetensors",
+          "size": 522320,
+          "lfs_sha256": "5bb848d02ade7e37981809acad52a1761ef7a586ff9f30d02d65fd71c4af95f9",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_aoede.pt",
+          "size": 523425,
+          "lfs_sha256": "c03bd1a4c3716c2d8eaa3d50022f62d5c31cfbd6e15933a00b17fefe13841cc4",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_aoede.safetensors",
+          "size": 522320,
+          "lfs_sha256": "23809148777f2a2378983dd856bc14b9c261018279f916f98c23d86e844409a5",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_bella.pt",
+          "size": 523425,
+          "lfs_sha256": "8cb64e02fcc8de0327a8e13817e49c76c945ecf0052ceac97d3081480e8e48d6",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_bella.safetensors",
+          "size": 522320,
+          "lfs_sha256": "112d310468cbb3cf23404d3d0b50ad3adf017b87bf38bf9edd15f4ad572df6a3",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_heart.pt",
+          "size": 523425,
+          "lfs_sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_heart.safetensors",
+          "size": 522320,
+          "lfs_sha256": "2c1c733b0e6576c810e268d3e440c21dea4e0f0131a3ba4cfc98d7fe6136d094",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_jessica.pt",
+          "size": 523435,
+          "lfs_sha256": "cdfdccb8cc975aa34ee6b89642963b0064237675de0e41a30ae64cc958dd4e87",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_jessica.safetensors",
+          "size": 522320,
+          "lfs_sha256": "c358448e4277b79e8b13b92033711660a1a2205c3940c2dfb16698b99fed58a8",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_kore.pt",
+          "size": 523420,
+          "lfs_sha256": "8bfbc512321c3db49dff984ac675fa5ac7eaed5a96cc31104d3a9080e179d69d",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_kore.safetensors",
+          "size": 522320,
+          "lfs_sha256": "c491174280cb1ad25210a842f2f34b46a9ef904ec6f6a8e784839531795fa278",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_nicole.pt",
+          "size": 523430,
+          "lfs_sha256": "c5561808bcf5250fe8c5f5de32caf2d94f27e57e95befdb098c5c85991d4c5da",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_nicole.safetensors",
+          "size": 522320,
+          "lfs_sha256": "574656386022c81a029e9a72558191925f44c3de2dad2fa2e45751938557d062",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_nova.pt",
+          "size": 523420,
+          "lfs_sha256": "e0233676ddc21908c37a1f102f6b88a59e4e5c1bd764983616eb9eda629dbcd2",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_nova.safetensors",
+          "size": 522320,
+          "lfs_sha256": "242b9a0a01eac1ac2865c69fc617a756b20d86df82d5fae3970533e2312ca50e",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_river.pt",
+          "size": 523425,
+          "lfs_sha256": "e149459bd9c084416b74756b9bd3418256a8b839088abb07d463730c369dab8f",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_river.safetensors",
+          "size": 522320,
+          "lfs_sha256": "82c866b0b976d50e82cbd781ac7bc771471ce5bd21decf05ab92812a08fb1c04",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_sarah.pt",
+          "size": 523425,
+          "lfs_sha256": "49bd364ea3be9eb3e9685e8f9a15448c4883112a7c0ff7ab139fa4088b08cef9",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_sarah.safetensors",
+          "size": 522320,
+          "lfs_sha256": "4940072182542f54c1035d1daf4c1cf3136ca9baa9ac57c8e006b4befcc50be6",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_sky.pt",
+          "size": 523351,
+          "lfs_sha256": "c799548aed06e0cb0d655a85a01b48e7f10484d71663f9a3045a5b9362e8512c",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/af_sky.safetensors",
+          "size": 522320,
+          "lfs_sha256": "957af332330db8e9bd7f9dc449475a946cb0d7d689afef64b91007bbbf20eaa0",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_adam.pt",
+          "size": 523420,
+          "lfs_sha256": "ced7e284aba12472891be1da3ab34db84cc05cc02b5889535796dbf2d8b0cb34",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_adam.safetensors",
+          "size": 522320,
+          "lfs_sha256": "a4f60a3b9c20353c2604a17485ba53260502a758681a84d41e8af53cc559d929",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_echo.pt",
+          "size": 523420,
+          "lfs_sha256": "8bcfdc852bc985fb45c396c561e571ffb9183930071f962f1b50df5c97b161e8",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_echo.safetensors",
+          "size": 522320,
+          "lfs_sha256": "031fc608a900332c4e1a29bd0884f5d0e84bd0348261fa79981e5cbd138c950d",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_eric.pt",
+          "size": 523420,
+          "lfs_sha256": "ada66f0eefff34ec921b1d7474d7ac8bec00cd863c170f1c534916e9b8212aae",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_eric.safetensors",
+          "size": 522320,
+          "lfs_sha256": "1fb4a61dcee1f114f90886ecf29bc2feed05e29eed9caa6ddb109f1934d73274",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_fenrir.pt",
+          "size": 523430,
+          "lfs_sha256": "98e507eca1db08230ae3b6232d59c10aec9630022d19accac4f5d12fcec3c37a",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_fenrir.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9abed964b906c4cae6f404d9849e76260689aea862bc6ca85fc3f5207ba96538",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_liam.pt",
+          "size": 523420,
+          "lfs_sha256": "c82550757ddb31308b97f30040dda8c2d609a9e2de6135848d0a948368138518",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_liam.safetensors",
+          "size": 522320,
+          "lfs_sha256": "66b65a96e16c3d91035a6e9019d9986ed524d27ce35b487270cdf61c99e3ebad",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_michael.pt",
+          "size": 523435,
+          "lfs_sha256": "9a443b79a4b22489a5b0ab7c651a0bcd1a30bef675c28333f06971abbd47bd37",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_michael.safetensors",
+          "size": 522320,
+          "lfs_sha256": "3940147ded35deba0bb52e8132f89b719298e0520258c34584358aa5a24da2ea",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_onyx.pt",
+          "size": 523420,
+          "lfs_sha256": "e8452be16cd0f6da7b4579eaf7b1e4506e92524882053d86d72b96b9a7fed584",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_onyx.safetensors",
+          "size": 522320,
+          "lfs_sha256": "b5d6132a5747648d98c82c9c4aaa9cf52d7230e63e403c1cb9c12858446ca5f5",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_puck.pt",
+          "size": 523420,
+          "lfs_sha256": "dd1d8973f4ce4b7d8ae407c77a435f485dabc052081b80ea75c4f30b84f36223",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_puck.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9a8c2e56413bd2063f814cb4c3885fc425876157369117c3f8258d03c8a9ad89",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_santa.pt",
+          "size": 523425,
+          "lfs_sha256": "7f2f7582fa2b1f160e90aafe6d0b442a685e773608b6667e545d743b073e97a7",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/am_santa.safetensors",
+          "size": 522320,
+          "lfs_sha256": "d1f433b57ffccf105ea9e434ea19af6c2a8a7916ba6d1a73c34f0046bd226084",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_alice.pt",
+          "size": 523425,
+          "lfs_sha256": "d292651b6af6c0d81705c2580dcb4463fccc0ff7b8d618a471dbb4e45655b3f3",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_alice.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9c77e390d93d9db7c4a7526c3b1f393290a2be46f233b89a00b8188e850c20a8",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_emma.pt",
+          "size": 523420,
+          "lfs_sha256": "d0a423deabf4a52b4f49318c51742c54e21bb89bbbe9a12141e7758ddb5da701",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_emma.safetensors",
+          "size": 522320,
+          "lfs_sha256": "8878a75a6661305849eeb1d6293a7177250193616e161b4c3100636434dfe69f",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_isabella.pt",
+          "size": 523440,
+          "lfs_sha256": "cdd4c37003805104d1d08fb1e05855c8fb2c68de24ca6e71f264a30aaa59eefd",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_isabella.safetensors",
+          "size": 522320,
+          "lfs_sha256": "f7b6076f025649699fcfed1a6debf13049a87afdc7aafc8c72b7d81246db6ead",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_lily.pt",
+          "size": 523420,
+          "lfs_sha256": "6e09c2e481e2d53004d7e5ae7d3a325369e130a6f45c35a6002de75084be9285",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bf_lily.safetensors",
+          "size": 522320,
+          "lfs_sha256": "ee77a419046a765420ac82cb46e8b8cf5754a0b9d20c340fece1d4b18be7ecdb",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_daniel.pt",
+          "size": 523430,
+          "lfs_sha256": "fc3fce4e9c12ed4dbc8fa9680cfe51ee190a96444ce7c3ad647549a30823fc5d",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_daniel.safetensors",
+          "size": 522320,
+          "lfs_sha256": "b195dec592ee024f57ddc5bf481464596082ba60998a2a295eba90bfc1064f4b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_fable.pt",
+          "size": 523425,
+          "lfs_sha256": "d44935f3135257a9064df99f007fc1342ff1aa767552b4a4fa4c3b2e6e59079c",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_fable.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9fa80184e96d016a744bc13b0b2e7695e55d6b855556fa003325cb1e5ebf2c2b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_george.pt",
+          "size": 523430,
+          "lfs_sha256": "f1bc812213dc59774769e5c80004b13eeb79bd78130b11b2d7f934542dab811b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_george.safetensors",
+          "size": 522320,
+          "lfs_sha256": "a3d9b8995cbbe5536f954b6be2a0f1f312f077118ba0d4d2178fc41dc8306672",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_lewis.pt",
+          "size": 523425,
+          "lfs_sha256": "b5204750dcba01029d2ac9cec17aec3b20a6d64073c579d694a23cb40effbd0e",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/bm_lewis.safetensors",
+          "size": 522320,
+          "lfs_sha256": "e1e68013c21a141efe527aaec561e1174c2f5a6951b3bcecc8396adab315b247",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/ef_dora.pt",
+          "size": 523420,
+          "lfs_sha256": "d9d69b0f8a2b87a345f269d89639f89dfbd1a6c9da0c498ae36dd34afcf35530",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/ef_dora.safetensors",
+          "size": 522320,
+          "lfs_sha256": "13f6dfe8a498ce97a384186af045b586db6292869acbfde123a0fa2798229351",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/em_alex.pt",
+          "size": 523420,
+          "lfs_sha256": "5eac53f767c3f31a081918ba531969aea850bed18fe56419b804d642c6973431",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/em_alex.safetensors",
+          "size": 522320,
+          "lfs_sha256": "e3bc4bf56ab47f0d52074cd3f84cd4f1713187285fdd85a545c6e167dfa3ab77",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/em_santa.pt",
+          "size": 523430,
+          "lfs_sha256": "aa8620cb96cec705823efca0d956a63e158e09ad41aca934d354b7f0778f63cb",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/em_santa.safetensors",
+          "size": 522320,
+          "lfs_sha256": "37c44211b77b3f29512f420bd5a2e146c7769a5ad3d904b3455cccd55055db62",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/ff_siwis.pt",
+          "size": 523425,
+          "lfs_sha256": "8073bf2d2c4b9543a90f2f0fd2144de4ed157e2d4b79ddeb0d5123066171fbc9",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/ff_siwis.safetensors",
+          "size": 522320,
+          "lfs_sha256": "5c659c9b9e12be28b98a4aa0cd6b1e66f359b6381ba5680264e9072945ac32b8",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hf_alpha.pt",
+          "size": 523425,
+          "lfs_sha256": "06906fe05746d13a79c5c01e21fd7233b05027221a933c9ada650f5aafc8f044",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hf_alpha.safetensors",
+          "size": 522320,
+          "lfs_sha256": "e93355a43e6f57e8cfde96874008c858f1fb7fd8b65dd043114d451882cad3f6",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hf_beta.pt",
+          "size": 523420,
+          "lfs_sha256": "63c0a1a6272e98d43f4511bba40e30dd9c8ceaf5f39af869509b9f51a71c503e",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hf_beta.safetensors",
+          "size": 522320,
+          "lfs_sha256": "976ea52ba7edce5da049c41ef06a663f3807fd470d2ea5c359245dfc2fb00d66",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hm_omega.pt",
+          "size": 523425,
+          "lfs_sha256": "b55f02a8e8483fffe0afa566e7d22ed8013acf47ad4f6bbee2795a840155703e",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hm_omega.safetensors",
+          "size": 522320,
+          "lfs_sha256": "227f0c710d1169686bf617fac486e8496982e96cc01617a3acd3579db75dd126",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hm_psi.pt",
+          "size": 523351,
+          "lfs_sha256": "2f0f055cea4f1083f4ef127ece48d71606347f6557dbb961c0ca5740a2da485b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/hm_psi.safetensors",
+          "size": 522320,
+          "lfs_sha256": "03efb26b99e78c8d40ade3217f9c9905f8f84bbad7f21f921e270c036b01144e",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/if_sara.pt",
+          "size": 523425,
+          "lfs_sha256": "6c0b253b955fe32f1a1a86006aebe83d050ea95afd0e7be15182f087deedbf55",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/if_sara.safetensors",
+          "size": 522320,
+          "lfs_sha256": "2f3d092c8ba16f2007e8b234c9a55bdebec614a1e50143e41b39dd7f89fdb45b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/im_nicola.pt",
+          "size": 523341,
+          "lfs_sha256": "234ed06648649f9bd874b37508ea17560b9c993ef85b4ddb3e3a71e062bd2c12",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/im_nicola.safetensors",
+          "size": 522320,
+          "lfs_sha256": "96b62f7d25c3e7efce4f2506beeaa9f63bcc73524c7b2862738c65433fe9ba16",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_alpha.pt",
+          "size": 523425,
+          "lfs_sha256": "1bf4c9dc69e45ee46183b071f4db766349aac5592acbcfeaf051018048a5d787",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_alpha.safetensors",
+          "size": 522320,
+          "lfs_sha256": "455f78a6ebe633929cf314ce7c4a6b595ad1fb0ec7de6de7bc1d62d37e5264d2",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_gongitsune.pt",
+          "size": 523351,
+          "lfs_sha256": "1b171917f18f351e65f2bf9657700cd6bfec4e65589c297525b9cf3c20105770",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_gongitsune.safetensors",
+          "size": 522320,
+          "lfs_sha256": "30d744337db7a7a91185b129dfd24ca86c19f7d46acadf2daf077ba78edaba81",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_nezumi.pt",
+          "size": 523420,
+          "lfs_sha256": "d83f007a7f01783b77014561a7d493d327a0210e143440e91c9b697590d27661",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_nezumi.safetensors",
+          "size": 522320,
+          "lfs_sha256": "65743c88fa1c8d30d7f41e402ce30a6ce461e2b0f8095c252e51905eb0c0754a",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_tebukuro.pt",
+          "size": 523435,
+          "lfs_sha256": "0d6917904438aec85f73a6fa1f7ac2be6481aae47c697834936930a91796c576",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jf_tebukuro.safetensors",
+          "size": 522320,
+          "lfs_sha256": "0cc28d928ce14b2ba4586b4c552edba36828a0961a37649530f80b3ad809bdec",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jm_kumo.pt",
+          "size": 523425,
+          "lfs_sha256": "98340afd68b1cee84fe0cd95528cfa6d4b39e416aa75a9df64049d52c8b55896",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/jm_kumo.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9f6b9d85ae099c409193924add0f1c478d7c9b6904ef181f2297154bfe05cc2c",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pf_dora.pt",
+          "size": 523425,
+          "lfs_sha256": "07e4ff987c5d5a8c3995efd15cc4f0db7c4c15e881b198d8ab7f67ecf51f5eb7",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pf_dora.safetensors",
+          "size": 522320,
+          "lfs_sha256": "9a8d587d60d0e041f593f7e7488943e7a6821f0136961bf0e554572e12c91c77",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pm_alex.pt",
+          "size": 523425,
+          "lfs_sha256": "cf0ba8c573c2480fc54123683a35cf1e2ae130428e441eb91f9149bdb188a526",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pm_alex.safetensors",
+          "size": 522320,
+          "lfs_sha256": "bec864eaeb05cc1a6fa12777ad31faaae1b2ed6d5eb2a6f7370fb9cdc48e3e2f",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pm_santa.pt",
+          "size": 523430,
+          "lfs_sha256": "d42103169c5c872abbafb9129133af7e942bb9d272c3cc3b95c203e7d7198c29",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/pm_santa.safetensors",
+          "size": 522320,
+          "lfs_sha256": "5009747fd93841c0865830be0f577ed50800b41b2122c469dedf51bb8311f78d",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaobei.pt",
+          "size": 523435,
+          "lfs_sha256": "9b76be63dab4f4f96962030acc0126a9aee9728608fbbe115e2b58a2bd504df6",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaobei.safetensors",
+          "size": 522320,
+          "lfs_sha256": "cbda378bbe266c735aa13c94c20b6224f2f8d0e16cf3abe612a4e6d93ebeab51",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoni.pt",
+          "size": 523430,
+          "lfs_sha256": "95b49f169bf1640f4f43c25e13daa39f7b98d15d00823e83ef5c14b3ced59e49",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoni.safetensors",
+          "size": 522320,
+          "lfs_sha256": "ef37a82850e10eb15f18a4549c76707a8eebd682e61facdda6ee4a4dc4eb0bf0",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoxiao.pt",
+          "size": 523440,
+          "lfs_sha256": "cfaf6f2ded1ee56f1ff94fcd2b0e6cdf32e5b794bdc05b44e7439d44aef5887c",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoxiao.safetensors",
+          "size": 522320,
+          "lfs_sha256": "cf507ad2319c50121aca4755cd3b9793bde10eea9aa9caca6cb3b5914d5f258f",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoyi.pt",
+          "size": 523430,
+          "lfs_sha256": "b5235dbaeef85a4c613bf78af9a88ff63c25bac5f26ba77e36186d8b7ebf05e2",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zf_xiaoyi.safetensors",
+          "size": 522320,
+          "lfs_sha256": "1f2b7ce315a84870170ca83b2e4c0a072242bacbbd869f8a3b22377cc7d59e0b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunjian.pt",
+          "size": 523435,
+          "lfs_sha256": "76cbf8bad35901d011d9628a2fdceb7b4f1f127e7a3269cb393b3941eb7fc417",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunjian.safetensors",
+          "size": 522320,
+          "lfs_sha256": "a08940c5dd3d8aadfda8a5576aa0f688a184ccbd5e4408d7a2a8144ab1fb3040",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunxi.pt",
+          "size": 523425,
+          "lfs_sha256": "dbe6e1ce7c3dbaf2f5667432947b638b1c6831ccbe154c4610dbcc44f431e27b",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunxi.safetensors",
+          "size": 522320,
+          "lfs_sha256": "78d8bb5ba4a2ea75a7f22c6148214a7434b436db85dc791a2ddf2aa7f6cc6fab",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunxia.pt",
+          "size": 523430,
+          "lfs_sha256": "bb2b03b08e84d64e1214440ce3b624987fac177f2eeb5bab8571799a3d980acd",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunxia.safetensors",
+          "size": 522320,
+          "lfs_sha256": "59a4ba431ffa7165b95d5b953097affb71110b3039f81c4439cf0f7464bcb2ee",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunyang.pt",
+          "size": 523435,
+          "lfs_sha256": "5238ac22e0c7f8b6cdd2eddd6e444b8a700b73c4674d9a047d59a94ff96379a2",
+          "sha256_ok": true
+        },
+        {
+          "path": "voices/zm_yunyang.safetensors",
+          "size": 522320,
+          "lfs_sha256": "8ad45c1077ab0d973ebb85ebb84f797caf6c6b188255c1178511a6feba3a0611",
+          "sha256_ok": true
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3.6-35B-A3B-4bit",
+      "sha_hub": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "last_modified_hub": "2026-04-16T16:32:41+00:00",
+      "expected_total_bytes": 20429169263,
+      "expected_total_gb": 20.429,
+      "expected_n_files": 17,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T00:46:56+08:00",
+      "download_finished_at": "2026-10-23T01:43:39+08:00",
+      "download_attempts": 1,
+      "download_seconds": 3403.2,
+      "status": "ok",
+      "sha": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "sha_cli_path": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 20429169263,
+      "total_gb": 20.429,
+      "n_files": 17,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1570,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 724,
+          "lfs_sha256": null
+        },
+        {
+          "path": "chat_template.jinja",
+          "size": 7764,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 23591,
+          "lfs_sha256": null
+        },
+        {
+          "path": "configuration.json",
+          "size": 58,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 202,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "size": 5288196018,
+          "lfs_sha256": "09f3e6ecb0b7af6e6a38bc8169a134c821b0924c2679b2bb8f4426ad38d032b8",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "size": 5368472749,
+          "lfs_sha256": "31dcdb1c49eebdb1505bd14e3cb33f9cf900bd2546b638f2464694ae763a033f",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "size": 5368324139,
+          "lfs_sha256": "3e66de06a1f03dade16a612a368cfce4a4c9caa4efd7d28185454384082cec03",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "size": 4377211365,
+          "lfs_sha256": "a5d0cf03519c26f8b506df6b0ba60526e5c08c8cea22d0c21ce92950e58a5422",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 215755,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 390,
+          "lfs_sha256": null
+        },
+        {
+          "path": "processor_config.json",
+          "size": 1312,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 19989343,
+          "lfs_sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+          "sha256_ok": true
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 1139,
+          "lfs_sha256": null
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "size": 385,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 6722759,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3.5-35B-A3B-4bit",
+      "sha_hub": "1e20fd8d42056f870933bf98ca6211024744f7ec",
+      "last_modified_hub": "2026-02-24T18:54:41+00:00",
+      "expected_total_bytes": 20418624545,
+      "expected_total_gb": 20.419,
+      "expected_n_files": 16,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T01:52:21+08:00",
+      "download_finished_at": "2026-10-23T03:46:16+08:00",
+      "download_attempts": 3,
+      "download_seconds": 6837.3,
+      "status": "ok",
+      "sha": "1e20fd8d42056f870933bf98ca6211024744f7ec",
+      "sha_cli_path": "1e20fd8d42056f870933bf98ca6211024744f7ec",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 20418624545,
+      "total_gb": 20.419,
+      "n_files": 16,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.5-35B-A3B-4bit/snapshots/1e20fd8d42056f870933bf98ca6211024744f7ec",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1570,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 656,
+          "lfs_sha256": null
+        },
+        {
+          "path": "chat_template.jinja",
+          "size": 7756,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 3809,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 244,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "size": 5285828971,
+          "lfs_sha256": "0952c2fd5ec5f6163a045003eb0e60465290ac0ebedbe2cecde35dd95abed345",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "size": 5366101807,
+          "lfs_sha256": "ddf163fcbaa7fc1ff2e93ee2e3306b1c31c4fe3c7dd46990cd2737d0cc30197f",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "size": 5364643286,
+          "lfs_sha256": "5e7d8deca9240eec828c9a451fbd8a95389a7cc18494f400c330d0717c41f6e1",
+          "sha256_ok": true
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "size": 4375105375,
+          "lfs_sha256": "b540bac1ef081d7011e32428e0c2da77f00699db2f4f1508da73ee3b8de40551",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 215755,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 390,
+          "lfs_sha256": null
+        },
+        {
+          "path": "processor_config.json",
+          "size": 1300,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 19989343,
+          "lfs_sha256": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4",
+          "sha256_ok": true
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 1139,
+          "lfs_sha256": null
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "size": 385,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 6722759,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3-ASR-0.6B-8bit",
+      "sha_hub": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
+      "last_modified_hub": "2026-01-29T16:06:21+00:00",
+      "expected_total_bytes": 1010773761,
+      "expected_total_gb": 1.011,
+      "expected_n_files": 11,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T01:49:08+08:00",
+      "download_finished_at": "2026-10-23T01:52:15+08:00",
+      "download_attempts": 1,
+      "download_seconds": 187.0,
+      "status": "ok",
+      "sha": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
+      "sha_cli_path": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 1010773761,
+      "total_gb": 1.011,
+      "n_files": 11,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3-ASR-0.6B-8bit/snapshots/89e96d92ba34aca20b3e29fb10cc284097d1219f",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 1008,
+          "lfs_sha256": null
+        },
+        {
+          "path": "chat_template.json",
+          "size": 1161,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 7187,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 142,
+          "lfs_sha256": null
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671853,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model.safetensors",
+          "size": 1006229426,
+          "lfs_sha256": "b5bfe4abc1b4c6e58b633096682ec2b6297298add1527119936107d211adf0e8",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 71815,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 330,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 12487,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
+      "sha_hub": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+      "last_modified_hub": "2026-01-25T21:56:35+00:00",
+      "expected_total_bytes": 1693604738,
+      "expected_total_gb": 1.694,
+      "expected_n_files": 14,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T01:44:03+08:00",
+      "download_finished_at": "2026-10-23T01:49:01+08:00",
+      "download_attempts": 1,
+      "download_seconds": 297.2,
+      "status": "ok",
+      "sha": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+      "sha_cli_path": "08c72cad5e2fd0f41730c8bd1f28149585e46361",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 1693604738,
+      "total_gb": 1.694,
+      "n_files": 14,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit/snapshots/08c72cad5e2fd0f41730c8bd1f28149585e46361",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 1068,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 6058,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 245,
+          "lfs_sha256": null
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671839,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model.safetensors",
+          "size": 1006772520,
+          "lfs_sha256": "4ab02a20be381700f6e73dbb5efdc424cadf9f1d0652cbffd662872ea41e296a",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 71447,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 127,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/config.json",
+          "size": 2336,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/configuration.json",
+          "size": 76,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/model.safetensors",
+          "size": 682293092,
+          "lfs_sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258",
+          "sha256_ok": true
+        },
+        {
+          "path": "speech_tokenizer/preprocessor_config.json",
+          "size": 234,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 7344,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    },
+    {
+      "repo": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit",
+      "sha_hub": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+      "last_modified_hub": "2026-01-26T20:11:42+00:00",
+      "expected_total_bytes": 3080141538,
+      "expected_total_gb": 3.08,
+      "expected_n_files": 14,
+      "already_cached_before_run": false,
+      "transport": "http (HF_HUB_DISABLE_XET=1)",
+      "bytes_in_cache_before_run": 0,
+      "download_started_at": "2026-10-23T03:46:36+08:00",
+      "download_finished_at": "2026-10-23T03:54:40+08:00",
+      "download_attempts": 1,
+      "download_seconds": 483.8,
+      "status": "ok",
+      "sha": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+      "sha_cli_path": "41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+      "sha_matches_hub": true,
+      "complete": true,
+      "total_bytes": 3080141538,
+      "total_gb": 3.08,
+      "n_files": 14,
+      "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3-TTS-12Hz-1.7B-CustomVoice-8bit/snapshots/41d3337e8b7f2843a75841595fc14e4b9a7a4b96",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "lfs_sha256": null
+        },
+        {
+          "path": "README.md",
+          "size": 1118,
+          "lfs_sha256": null
+        },
+        {
+          "path": "config.json",
+          "size": 6058,
+          "lfs_sha256": null
+        },
+        {
+          "path": "generation_config.json",
+          "size": 245,
+          "lfs_sha256": null
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671839,
+          "lfs_sha256": null
+        },
+        {
+          "path": "model.safetensors",
+          "size": 2393308931,
+          "lfs_sha256": "b696f4bf45f54497b6de758981e76f1410bd68af05a657477dee466b0202df1a",
+          "sha256_ok": true
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 71786,
+          "lfs_sha256": null
+        },
+        {
+          "path": "preprocessor_config.json",
+          "size": 127,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/config.json",
+          "size": 2336,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/configuration.json",
+          "size": 76,
+          "lfs_sha256": null
+        },
+        {
+          "path": "speech_tokenizer/model.safetensors",
+          "size": 682293092,
+          "lfs_sha256": "836b7b357f5ea43e889936a3709af68dfe3751881acefe4ecf0dbd30ba571258",
+          "sha256_ok": true
+        },
+        {
+          "path": "speech_tokenizer/preprocessor_config.json",
+          "size": 234,
+          "lfs_sha256": null
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 7344,
+          "lfs_sha256": null
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "lfs_sha256": null
+        }
+      ],
+      "lfs_sha256_verified": true
+    }
+  ]
+}

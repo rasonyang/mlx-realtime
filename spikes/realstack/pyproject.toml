@@ -1,0 +1,15 @@
+[project]
+name = "spike-realstack"
+version = "0.1.0"
+description = "Real-stack validation: AICC's flow with spoken turns, GPU contention (S5), G.711 input quality, the echo bypass's false resumes"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "mlx-realtime",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
+build-constraint-dependencies = ["setuptools==84.0.0"]
+
+[tool.uv.sources]
+mlx-realtime = { path = "../../", editable = true }

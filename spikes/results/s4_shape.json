@@ -1,0 +1,850 @@
+{
+ "spike": "S4",
+ "step": "shape",
+ "started_at": "2026-10-23T06:36:01+08:00",
+ "loadavg1_start": 2.19,
+ "environment": {
+  "recorded_at": "2026-10-23T06:36:01+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "model": {
+  "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+  "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+  "status": "ok",
+  "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+ },
+ "server": {
+  "name": "asr_shape",
+  "port": 8102,
+  "traced": false,
+  "cmd": "uv run --locked --project spikes/audio python -m mlx_audio.server --host 127.0.0.1 --port 8102 --log-dir <log dir>/logs",
+  "env": {
+   "HF_HUB_OFFLINE": "1",
+   "PYTHONUNBUFFERED": "1",
+   "TMPDIR": "<scratch>"
+  },
+  "log": "/tmp/mlxrt/scratchpad/b2/servers/asr_shape_063547/server.log",
+  "seconds_to_ready": 14.32
+ },
+ "conditions": {},
+ "probes": [
+  {
+   "id": "zh_018",
+   "response_format": "verbose_json",
+   "status": 200,
+   "ms": 483.53,
+   "headers_ms": 483.48,
+   "connect_ms": 0.22,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "Chinese"
+    ],
+    "prompt_tokens": 109,
+    "generation_tokens": 28,
+    "total_tokens": 137,
+    "prompt_tps": 228.64341352388487,
+    "generation_tps": 58.734087877695195,
+    "total_time": 0.47672486305236816
+   }
+  },
+  {
+   "id": "zh_018",
+   "response_format": "json",
+   "status": 200,
+   "ms": 369.05,
+   "headers_ms": 369.03,
+   "connect_ms": 0.41,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。"
+   }
+  },
+  {
+   "id": "zh_018",
+   "response_format": "text",
+   "status": 200,
+   "ms": 436.38,
+   "headers_ms": 436.36,
+   "connect_ms": 0.28,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "text/plain; charset=utf-8",
+   "body": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。"
+  },
+  {
+   "id": "en_028",
+   "response_format": "verbose_json",
+   "status": 200,
+   "ms": 433.25,
+   "headers_ms": 433.23,
+   "connect_ms": 0.31,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+      "language": "English",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "English"
+    ],
+    "prompt_tokens": 110,
+    "generation_tokens": 30,
+    "total_tokens": 140,
+    "prompt_tps": 259.4872048683367,
+    "generation_tps": 70.76923769136455,
+    "total_time": 0.42391300201416016
+   }
+  },
+  {
+   "id": "en_028",
+   "response_format": "json",
+   "status": 200,
+   "ms": 515.71,
+   "headers_ms": 515.69,
+   "connect_ms": 0.24,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands."
+   }
+  },
+  {
+   "id": "en_028",
+   "response_format": "text",
+   "status": 200,
+   "ms": 389.0,
+   "headers_ms": 388.97,
+   "connect_ms": 0.35,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "text/plain; charset=utf-8",
+   "body": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands."
+  },
+  {
+   "id": "mix_015",
+   "response_format": "verbose_json",
+   "status": 200,
+   "ms": 274.34,
+   "headers_ms": 274.31,
+   "connect_ms": 0.28,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "那我们的department其实hardware跟software其实就是各半。",
+    "segments": [
+     {
+      "text": "那我们的department其实hardware跟software其实就是各半。",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "Chinese"
+    ],
+    "prompt_tokens": 56,
+    "generation_tokens": 15,
+    "total_tokens": 71,
+    "prompt_tps": 207.3451706476507,
+    "generation_tps": 55.53888499490643,
+    "total_time": 0.2700810432434082
+   }
+  },
+  {
+   "id": "mix_015",
+   "response_format": "json",
+   "status": 200,
+   "ms": 239.53,
+   "headers_ms": 239.51,
+   "connect_ms": 0.34,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "那我们的department其实hardware跟software其实就是各半。"
+   }
+  },
+  {
+   "id": "mix_015",
+   "response_format": "text",
+   "status": 200,
+   "ms": 276.09,
+   "headers_ms": 276.06,
+   "connect_ms": 0.23,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "text/plain; charset=utf-8",
+   "body": "那我们的department其实hardware跟software其实就是各半。"
+  },
+  {
+   "id": "zh_018",
+   "language": "zh",
+   "status": 200,
+   "ms": 389.63,
+   "headers_ms": 389.59,
+   "connect_ms": 0.31,
+   "error": null,
+   "loadavg1_before": 2.18,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+      "language": "zh",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "zh"
+    ],
+    "prompt_tokens": 112,
+    "generation_tokens": 25,
+    "total_tokens": 137,
+    "prompt_tps": 294.3834199488767,
+    "generation_tps": 65.71058481001711,
+    "total_time": 0.38045620918273926
+   }
+  },
+  {
+   "id": "zh_018",
+   "language": "Chinese",
+   "status": 200,
+   "ms": 430.98,
+   "headers_ms": 430.95,
+   "connect_ms": 0.26,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "Chinese"
+    ],
+    "prompt_tokens": 112,
+    "generation_tokens": 25,
+    "total_tokens": 137,
+    "prompt_tps": 264.3086167744317,
+    "generation_tps": 58.997459101435645,
+    "total_time": 0.42374706268310547
+   }
+  },
+  {
+   "id": "zh_018",
+   "language": "chinese",
+   "status": 200,
+   "ms": 375.41,
+   "headers_ms": 375.39,
+   "connect_ms": 0.21,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+      "language": "chinese",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "chinese"
+    ],
+    "prompt_tokens": 112,
+    "generation_tokens": 25,
+    "total_tokens": 137,
+    "prompt_tps": 304.4918102068093,
+    "generation_tps": 67.9669219211628,
+    "total_time": 0.367825984954834
+   }
+  },
+  {
+   "id": "zh_018",
+   "language": "en",
+   "status": 200,
+   "ms": 410.25,
+   "headers_ms": 410.22,
+   "connect_ms": 0.26,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "1940年8月15日，盟军攻入法国南部。这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "1940年8月15日，盟军攻入法国南部。这次进攻被称为“龙骑兵行动”。",
+      "language": "en",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "en"
+    ],
+    "prompt_tokens": 112,
+    "generation_tokens": 26,
+    "total_tokens": 138,
+    "prompt_tps": 278.49484908900877,
+    "generation_tps": 64.65058996709132,
+    "total_time": 0.4021618366241455
+   }
+  },
+  {
+   "id": "zh_018",
+   "language": "English",
+   "status": 200,
+   "ms": 407.98,
+   "headers_ms": 407.96,
+   "connect_ms": 0.33,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "1940年8月15日，盟军攻入法国南部。这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "1940年8月15日，盟军攻入法国南部。这次进攻被称为“龙骑兵行动”。",
+      "language": "English",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "English"
+    ],
+    "prompt_tokens": 112,
+    "generation_tokens": 26,
+    "total_tokens": 138,
+    "prompt_tps": 281.85176087583903,
+    "generation_tps": 65.42987306046263,
+    "total_time": 0.3973720073699951
+   }
+  },
+  {
+   "id": "zh_018",
+   "language": "Cantonese",
+   "status": 200,
+   "ms": 426.93,
+   "headers_ms": 426.9,
+   "connect_ms": 0.25,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+    "segments": [
+     {
+      "text": "一九四零年八月十五日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+      "language": "Cantonese",
+      "start": 0.0,
+      "end": 7.2
+     }
+    ],
+    "language": [
+     "Cantonese"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 25,
+    "total_tokens": 138,
+    "prompt_tps": 269.25681796619665,
+    "generation_tps": 59.57009247039748,
+    "total_time": 0.4196736812591553
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "zh",
+   "status": 200,
+   "ms": 435.41,
+   "headers_ms": 435.37,
+   "connect_ms": 0.26,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+      "language": "zh",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "zh"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 27,
+    "total_tokens": 140,
+    "prompt_tps": 264.4895896462321,
+    "generation_tps": 63.19662761458644,
+    "total_time": 0.42723798751831055
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "Chinese",
+   "status": 200,
+   "ms": 393.4,
+   "headers_ms": 393.37,
+   "connect_ms": 0.32,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "Chinese"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 27,
+    "total_tokens": 140,
+    "prompt_tps": 292.42322843997584,
+    "generation_tps": 69.87103688388804,
+    "total_time": 0.3864262104034424
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "chinese",
+   "status": 200,
+   "ms": 430.42,
+   "headers_ms": 430.4,
+   "connect_ms": 0.24,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in danger due to the threat of desert sands.",
+      "language": "chinese",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "chinese"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 27,
+    "total_tokens": 140,
+    "prompt_tps": 267.13324525766643,
+    "generation_tps": 63.82829753944242,
+    "total_time": 0.42300987243652344
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "en",
+   "status": 200,
+   "ms": 442.59,
+   "headers_ms": 442.57,
+   "connect_ms": 0.25,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+      "language": "en",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "en"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 27,
+    "total_tokens": 140,
+    "prompt_tps": 259.3377588965421,
+    "generation_tps": 61.96565920536846,
+    "total_time": 0.43572521209716797
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "English",
+   "status": 200,
+   "ms": 407.88,
+   "headers_ms": 407.85,
+   "connect_ms": 0.27,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+    "segments": [
+     {
+      "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to the threat of desert sands.",
+      "language": "English",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "English"
+    ],
+    "prompt_tokens": 113,
+    "generation_tokens": 27,
+    "total_tokens": 140,
+    "prompt_tps": 282.7842807578601,
+    "generation_tps": 67.56792549081612,
+    "total_time": 0.3995978832244873
+   }
+  },
+  {
+   "id": "en_028",
+   "language": "Cantonese",
+   "status": 200,
+   "ms": 483.64,
+   "headers_ms": 483.6,
+   "connect_ms": 0.19,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "在1990年，它被添加到世界遺產遺址危機，因應沙漠沙塵的威脅。",
+    "segments": [
+     {
+      "text": "在1990年，它被添加到世界遺產遺址危機，因應沙漠沙塵的威脅。",
+      "language": "Cantonese",
+      "start": 0.0,
+      "end": 7.32
+     }
+    ],
+    "language": [
+     "Cantonese"
+    ],
+    "prompt_tokens": 114,
+    "generation_tokens": 29,
+    "total_tokens": 143,
+    "prompt_tps": 239.48964508599877,
+    "generation_tps": 60.922804451701445,
+    "total_time": 0.4760122299194336
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "zh",
+   "status": 200,
+   "ms": 276.74,
+   "headers_ms": 276.72,
+   "connect_ms": 0.33,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "那我们的 department 其实 hardware 跟 software 其实就是各半。",
+    "segments": [
+     {
+      "text": "那我们的 department 其实 hardware 跟 software 其实就是各半。",
+      "language": "zh",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "zh"
+    ],
+    "prompt_tokens": 59,
+    "generation_tokens": 18,
+    "total_tokens": 77,
+    "prompt_tps": 217.81668868622873,
+    "generation_tps": 66.45254909071384,
+    "total_time": 0.2708699703216553
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "Chinese",
+   "status": 200,
+   "ms": 234.31,
+   "headers_ms": 234.29,
+   "connect_ms": 0.25,
+   "error": null,
+   "loadavg1_before": 2.4,
+   "content_type": "application/json",
+   "json": {
+    "text": "那我们的department其实hardware跟software其实就是各半。",
+    "segments": [
+     {
+      "text": "那我们的department其实hardware跟software其实就是各半。",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "Chinese"
+    ],
+    "prompt_tokens": 59,
+    "generation_tokens": 12,
+    "total_tokens": 71,
+    "prompt_tps": 257.19490523974576,
+    "generation_tps": 52.310828184355074,
+    "total_time": 0.22939801216125488
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "chinese",
+   "status": 200,
+   "ms": 225.17,
+   "headers_ms": 225.15,
+   "connect_ms": 0.25,
+   "error": null,
+   "loadavg1_before": 2.29,
+   "content_type": "application/json",
+   "json": {
+    "text": "那我们的department其实hardware跟software其实就是各半。",
+    "segments": [
+     {
+      "text": "那我们的department其实hardware跟software其实就是各半。",
+      "language": "chinese",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "chinese"
+    ],
+    "prompt_tokens": 59,
+    "generation_tokens": 12,
+    "total_tokens": 71,
+    "prompt_tps": 266.81524529555037,
+    "generation_tps": 54.26750751773906,
+    "total_time": 0.22112679481506348
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "en",
+   "status": 200,
+   "ms": 273.67,
+   "headers_ms": 273.63,
+   "connect_ms": 0.23,
+   "error": null,
+   "loadavg1_before": 2.29,
+   "content_type": "application/json",
+   "json": {
+    "text": "那么我们的department其实hardware跟software其实就是各半。",
+    "segments": [
+     {
+      "text": "那么我们的department其实hardware跟software其实就是各半。",
+      "language": "en",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "en"
+    ],
+    "prompt_tokens": 59,
+    "generation_tokens": 11,
+    "total_tokens": 70,
+    "prompt_tps": 219.05162582123137,
+    "generation_tps": 40.8401336276872,
+    "total_time": 0.26934289932250977
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "English",
+   "status": 200,
+   "ms": 321.68,
+   "headers_ms": 321.66,
+   "connect_ms": 0.23,
+   "error": null,
+   "loadavg1_before": 2.29,
+   "content_type": "application/json",
+   "json": {
+    "text": "那么我们的 department 其实 hardware 跟 software 其实就是各半。",
+    "segments": [
+     {
+      "text": "那么我们的 department 其实 hardware 跟 software 其实就是各半。",
+      "language": "English",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "English"
+    ],
+    "prompt_tokens": 59,
+    "generation_tokens": 18,
+    "total_tokens": 77,
+    "prompt_tps": 185.97319942313604,
+    "generation_tps": 56.73758626468557,
+    "total_time": 0.31725001335144043
+   }
+  },
+  {
+   "id": "mix_015",
+   "language": "Cantonese",
+   "status": 200,
+   "ms": 278.94,
+   "headers_ms": 278.91,
+   "connect_ms": 0.21,
+   "error": null,
+   "loadavg1_before": 2.29,
+   "content_type": "application/json",
+   "json": {
+    "text": "咁，我們的department其實hardware跟software其實就各半。",
+    "segments": [
+     {
+      "text": "咁，我們的department其實hardware跟software其實就各半。",
+      "language": "Cantonese",
+      "start": 0.0,
+      "end": 3.16
+     }
+    ],
+    "language": [
+     "Cantonese"
+    ],
+    "prompt_tokens": 60,
+    "generation_tokens": 15,
+    "total_tokens": 75,
+    "prompt_tps": 219.7136351572213,
+    "generation_tps": 54.92840878930532,
+    "total_time": 0.2730827331542969
+   }
+  },
+  {
+   "id": "zh_021+zh_022+zh_023+zh_024+zh_025+zh_026",
+   "seconds": 49.26,
+   "note": "long clip",
+   "status": 200,
+   "ms": 1950.35,
+   "headers_ms": 1950.3,
+   "connect_ms": 0.24,
+   "error": null,
+   "loadavg1_before": 2.29,
+   "content_type": "application/json",
+   "json": {
+    "text": "事故发生后，吉布森被送往医院，但很快就一命呜呼。摩尔多瓦的首都是新基纳乌，当地的语言是罗马尼亚语，但俄语也被广泛使用。Scoturb 403路公交汽车定期发车前往新特拉，在罗卡角停靠。他没有设定削减数额，只是表示将根据中国的经济产出来决定数额。 大脑病理和行为之间的相关性可为科学家们的研究提供支持。这并不是告别，这是一个篇章的结束，也是新篇章的开始。",
+    "segments": [
+     {
+      "text": "事故发生后，吉布森被送往医院，但很快就一命呜呼。摩尔多瓦的首都是新基纳乌，当地的语言是罗马尼亚语，但俄语也被广泛使用。Scoturb 403路公交汽车定期发车前往新特拉，在罗卡角停靠。他没有设定削减数额，只是表示将根据中国的经济产出来决定数额。",
+      "language": "Chinese",
+      "start": 0.0,
+      "end": 31.97
+     },
+     {
+      "text": "大脑病理和行为之间的相关性可为科学家们的研究提供支持。这并不是告别，这是一个篇章的结束，也是新篇章的开始。",
+      "language": "English",
+      "start": 31.97,
+      "end": 49.26
+     }
+    ],
+    "language": [
+     "Chinese",
+     "English"
+    ],
+    "prompt_tokens": 671,
+    "generation_tokens": 119,
+    "total_tokens": 790,
+    "prompt_tps": 351.8608468480678,
+    "generation_tps": 62.40155108035778,
+    "total_time": 1.9070038795471191
+   }
+  }
+ ],
+ "references": {
+  "zh_018": "1940 年 8 月 15 日，盟军攻入法国南部，这次进攻被称为“龙骑兵行动”。",
+  "en_028": "In 1990, it was added to the list of world heritage sites in danger, due to the threat of desert sands.",
+  "mix_015": "我们的department其实hardware跟software其实是各半"
+ },
+ "long_clip_reference": "事故发生后，吉布森被送往医院，但很快就一命呜呼。 摩尔多瓦的首都是基希讷乌。当地语言是罗马尼亚语，但俄语也被广泛使用。 Scotturb 403 路公共汽车定期发车前往辛特拉 (Sintra)，在罗卡角停靠。 他没有设定削减数额，只是表示将根据中国的经济产出来决定数额。 大脑病理和行为之间的相关性可以为科学家们的研究提供支持。 “这并不是告别。这是一个篇章的结束，也是新篇章的开始。”",
+ "loadavg1_end": 2.29,
+ "finished_at": "2026-10-23T06:36:15+08:00",
+ "server_footprint_bytes_end": 2914159856,
+ "server_log_interesting": [
+  "14192.6 ms: INFO:     Started server process [39756]",
+  "14192.7 ms: INFO:     Waiting for application startup.",
+  "14193.0 ms: INFO:     Application startup complete.",
+  "14193.2 ms: INFO:     Uvicorn running on http://127.0.0.1:8102 (Press CTRL+C to quit)"
+ ],
+ "server_stop": {
+  "stopped_with": "SIGTERM",
+  "returncode": 143,
+  "port_free_after": true
+ }
+}

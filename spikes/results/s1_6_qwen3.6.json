@@ -1,0 +1,302 @@
+{
+ "spike": "S1.6",
+ "conditions": {
+  "model": "mlx-community/Qwen3.6-35B-A3B-4bit",
+  "revision": "38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "snapshot": "~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46",
+  "flags": [
+   "--chat-template-args",
+   "{\"enable_thinking\":false}",
+   "--max-tokens",
+   "2048",
+   "--temp",
+   "0.7",
+   "--top-p",
+   "0.8",
+   "--top-k",
+   "20",
+   "--min-p",
+   "0.0"
+  ],
+  "env": null,
+  "command": "uv run --project ~/workspaces/github/mlx-realtime/spikes/llm mlx_lm.server --model ~/.cache/huggingface/hub/models--mlx-community--Qwen3.6-35B-A3B-4bit/snapshots/38740b847e4cb78f352aba30aa41c76e08e6eb46 --host 127.0.0.1 --port 8101 --chat-template-args {\"enable_thinking\":false} --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0",
+  "ready_s": 0.839969166,
+  "first_request_done_s": 2.105083916,
+  "log": "/tmp/mlxrt/scratchpad/logs/mlx_lm_server_s1_qwen3.6_1792724662.log",
+  "concurrency": 1,
+  "loadavg_1m_before": 4.83984375,
+  "loadavg_1m_after": 4.07470703125,
+  "wall_s": 85.6,
+  "footprint_gb": 21.51
+ },
+ "data": {
+  "idle_probe": [
+   {
+    "ttft": 0.027376875,
+    "decode_tps": 87.25943065801881,
+    "t_done": 0.519127166,
+    "completion_tokens": 43,
+    "cached": 52
+   },
+   {
+    "ttft": 0.027185958,
+    "decode_tps": 89.96148511067058,
+    "t_done": 0.503953458,
+    "completion_tokens": 43,
+    "cached": 52
+   },
+   {
+    "ttft": 0.026519541,
+    "decode_tps": 90.16815555939009,
+    "t_done": 0.502231666,
+    "completion_tokens": 43,
+    "cached": 52
+   },
+   {
+    "ttft": 0.026361,
+    "decode_tps": 88.92875795664125,
+    "t_done": 0.509030625,
+    "completion_tokens": 43,
+    "cached": 52
+   },
+   {
+    "ttft": 0.029217708,
+    "decode_tps": 87.2477766747743,
+    "t_done": 0.520770458,
+    "completion_tokens": 43,
+    "cached": 52
+   }
+  ],
+  "long_gen_reference": {
+   "completion_tokens": 800,
+   "t_done": 10.299917833,
+   "decode_tps": 78.5363433594164
+  },
+  "close_after_first_content": [
+   {
+    "closed_at": 0.028919167,
+    "probe": {
+     "ttft": 0.553720916,
+     "decode_tps": 88.59083612973998,
+     "t_done": 1.037790583,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "log": "e/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1657, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:10,459 - INFO - Prompt Cache: 10 sequences, 0.75 GB\n2026-10-23 11:07:10,459 - INFO - - assistant: 3 sequences, 0.21 GB\n2026-10-23 11:07:10,459 - INFO - - user: 3 sequences, 0.23 GB\n2026-10-23 11:07:10,459 - INFO - - system: 4 sequences, 0.30 GB\n127.0.0.1 - - [23/Oct/2026 11:07:10] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:07:10,509 - INFO - Prompt processing progress: 3/4\n2026-10-23 11:07:10,525 - INFO - Prompt processing progress: 4/4\n"
+   },
+   {
+    "closed_at": 0.056516125,
+    "probe": {
+     "ttft": 0.474617291,
+     "decode_tps": 90.21655989010542,
+     "t_done": 0.950121125,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "log": "asonyang/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1657, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:12,529 - INFO - Prompt Cache: 10 sequences, 0.73 GB\n2026-10-23 11:07:12,529 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:07:12,529 - INFO - - user: 3 sequences, 0.23 GB\n2026-10-23 11:07:12,529 - INFO - - system: 4 sequences, 0.30 GB\n127.0.0.1 - - [23/Oct/2026 11:07:12] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:07:12,545 - INFO - Prompt processing progress: 1/1\n"
+   },
+   {
+    "closed_at": 0.061010833,
+    "probe": {
+     "ttft": 0.480175583,
+     "decode_tps": 89.75164437834167,
+     "t_done": 0.95807725,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "log": "asonyang/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1657, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:14,551 - INFO - Prompt Cache: 10 sequences, 0.73 GB\n2026-10-23 11:07:14,551 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:07:14,551 - INFO - - user: 3 sequences, 0.23 GB\n2026-10-23 11:07:14,552 - INFO - - system: 4 sequences, 0.30 GB\n127.0.0.1 - - [23/Oct/2026 11:07:14] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:07:14,567 - INFO - Prompt processing progress: 1/1\n"
+   },
+   {
+    "closed_at": 0.06238125,
+    "probe": {
+     "ttft": 0.470046375,
+     "decode_tps": 90.38723667655815,
+     "t_done": 0.94488525,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "log": "asonyang/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1657, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:16,572 - INFO - Prompt Cache: 10 sequences, 0.73 GB\n2026-10-23 11:07:16,572 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:07:16,572 - INFO - - user: 3 sequences, 0.23 GB\n2026-10-23 11:07:16,572 - INFO - - system: 4 sequences, 0.30 GB\n127.0.0.1 - - [23/Oct/2026 11:07:16] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:07:16,587 - INFO - Prompt processing progress: 1/1\n"
+   },
+   {
+    "closed_at": 0.067883542,
+    "probe": {
+     "ttft": 0.47479825,
+     "decode_tps": 87.94124832807198,
+     "t_done": 0.962063583,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "log": "asonyang/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1657, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:18,596 - INFO - Prompt Cache: 10 sequences, 0.73 GB\n2026-10-23 11:07:18,596 - INFO - - assistant: 3 sequences, 0.20 GB\n2026-10-23 11:07:18,596 - INFO - - user: 3 sequences, 0.23 GB\n2026-10-23 11:07:18,596 - INFO - - system: 4 sequences, 0.30 GB\n127.0.0.1 - - [23/Oct/2026 11:07:18] \"POST /v1/chat/completions HTTP/1.1\" 200 -\n2026-10-23 11:07:18,611 - INFO - Prompt processing progress: 1/1\n"
+   }
+  ],
+  "prefill16k_reference": {
+   "prompt_tokens": 18611,
+   "ttft": 17.97375675,
+   "keepalives": 13
+  },
+  "close_during_16k_prefill": [
+   {
+    "closed_after_s": "0.0935",
+    "probe": {
+     "ttft": 6.841047792,
+     "decode_tps": 88.8631702888107,
+     "t_done": 7.326173792,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "progress_lines_after": [
+     "2026-10-23 11:07:38,594 - INFO - Prompt processing progress: 42/18607",
+     "2026-10-23 11:07:40,319 - INFO - Prompt processing progress: 2090/18607",
+     "2026-10-23 11:07:43,625 - INFO - Prompt processing progress: 4138/18607",
+     "2026-10-23 11:07:43,625 - INFO - Prompt processing progress: 3/4",
+     "2026-10-23 11:07:45,422 - INFO - Prompt processing progress: 4/4"
+    ],
+    "log_tail": "lm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1611, in handle_completion\n    for gen in response:\n               ^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1182, in _inner\n    progress_callback(*response)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1567, in keepalive_callback\n    self.wfile.write(msg)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n2026-10-23 11:07:45,422 - INFO - Prompt processing progress: 4/4\n"
+   },
+   {
+    "closed_after_s": "0.1217",
+    "probe": {
+     "ttft": 5.618899708,
+     "decode_tps": 86.30479102039739,
+     "t_done": 6.118410833,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "progress_lines_after": [
+     "2026-10-23 11:07:47,049 - INFO - Prompt processing progress: 44/18609",
+     "2026-10-23 11:07:48,790 - INFO - Prompt processing progress: 2092/18609",
+     "2026-10-23 11:07:50,662 - INFO - Prompt processing progress: 1/1",
+     "2026-10-23 11:07:50,662 - INFO - Prompt processing progress: 4140/18609"
+    ],
+    "log_tail": "\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1611, in handle_completion\n    for gen in response:\n               ^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1182, in _inner\n    progress_callback(*response)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1567, in keepalive_callback\n    self.wfile.write(msg)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   },
+   {
+    "closed_after_s": "0.1264",
+    "probe": {
+     "ttft": 5.389677625,
+     "decode_tps": 83.65408333845252,
+     "t_done": 5.904381542,
+     "completion_tokens": 43,
+     "cached": 52
+    },
+    "progress_lines_after": [
+     "2026-10-23 11:07:54,302 - INFO - Prompt processing progress: 47/18612",
+     "2026-10-23 11:07:56,055 - INFO - Prompt processing progress: 2095/18612",
+     "2026-10-23 11:07:57,871 - INFO - Prompt processing progress: 1/1",
+     "2026-10-23 11:07:57,871 - INFO - Prompt processing progress: 4143/18612"
+    ],
+    "log_tail": "\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1611, in handle_completion\n    for gen in response:\n               ^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1182, in _inner\n    progress_callback(*response)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1567, in keepalive_callback\n    self.wfile.write(msg)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   }
+  ],
+  "tool_span_reference": [
+   {
+    "t_headers": 0.021852792,
+    "t_first_tool_call": 3.451984417,
+    "completion_tokens": 147,
+    "content": "",
+    "tool_calls": [
+     {
+      "function": {
+       "name": "transfer_to_agent",
+       "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户投诉屏幕维修进度缓慢，要求转人工处理。\", \"summary\": \"用户手机屏幕于上周送修，维修单号RMA3344，但一直未收到维修消息。用户已三次致电均未得到处理，对此表示强烈不满，要求转接人工客服并要求今日给予答复。\", \"slots\": {\"rma\": \"RMA3344\", \"complaint\": \"屏幕维修进度慢，多次致电无果\"}}"
+      },
+      "type": "function",
+      "id": "9bc8fdef-081d-41dc-90c2-e903f387d2be",
+      "index": 0
+     }
+    ]
+   },
+   {
+    "t_headers": 0.004503875,
+    "t_first_tool_call": 1.536953167,
+    "completion_tokens": 119,
+    "content": "",
+    "tool_calls": [
+     {
+      "function": {
+       "name": "transfer_to_agent",
+       "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户投诉维修进度缓慢，要求转人工处理\", \"summary\": \"用户手机屏幕碎了，上周送修，单号RMA3344，一直无消息。用户已拨打三次电话均未处理，非常不满，要求今天答复。\", \"slots\": {\"rma\": \"RMA3344\"}}"
+      },
+      "type": "function",
+      "id": "e1912359-182f-49c0-bec1-be4bb44c01ed",
+      "index": 0
+     }
+    ]
+   },
+   {
+    "t_headers": 0.004327167,
+    "t_first_tool_call": 1.494473584,
+    "completion_tokens": 113,
+    "content": "",
+    "tool_calls": [
+     {
+      "function": {
+       "name": "transfer_to_agent",
+       "arguments": "{\"queue\": \"mobile_support\", \"reason\": \"用户投诉维修进度缓慢，要求转人工处理。\", \"summary\": \"用户屏幕碎了，上周送修，单号RMA3344，一直没消息，打了三次电话没人处理，要求今天答复。\", \"slots\": {\"rma\": \"RMA3344\"}}"
+      },
+      "type": "function",
+      "id": "cb8d10de-8622-4628-8a78-8ae62c5ec2ea",
+      "index": 0
+     }
+    ]
+   }
+  ],
+  "close_inside_tool_span": [
+   {
+    "closed_after_s": "0.0220",
+    "probe": {
+     "ttft": 0.753643041,
+     "decode_tps": 57.66885326270682,
+     "t_done": 1.505564791,
+     "completion_tokens": 43,
+     "cached": 0
+    },
+    "log_tail": "/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1680, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   },
+   {
+    "closed_after_s": "0.0556",
+    "probe": {
+     "ttft": 0.550073917,
+     "decode_tps": 55.121229794009004,
+     "t_done": 1.332837042,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "log_tail": "/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1680, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   },
+   {
+    "closed_after_s": "0.0291",
+    "probe": {
+     "ttft": 0.557515292,
+     "decode_tps": 57.44355657677434,
+     "t_done": 1.309512583,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "log_tail": "/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1680, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   },
+   {
+    "closed_after_s": "0.0508",
+    "probe": {
+     "ttft": 0.544344625,
+     "decode_tps": 67.97249379750994,
+     "t_done": 1.180335041,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "log_tail": "/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1680, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   },
+   {
+    "closed_after_s": "0.0302",
+    "probe": {
+     "ttft": 0.55244475,
+     "decode_tps": 55.340601386684206,
+     "t_done": 1.332130416,
+     "completion_tokens": 43,
+     "cached": 49
+    },
+    "log_tail": "/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1887, in <lambda>\n    lambda *args, **kwargs: handler_class(\n                            ^^^^^^^^^^^^^^\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1211, in __init__\n    super().__init__(*args, **kwargs)\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 766, in __init__\n    self.handle()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 436, in handle\n    self.handle_one_request()\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/http/server.py\", line 424, in handle_one_request\n    method()\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1352, in do_POST\n    self.handle_completion(request, stop_words)\n  File \"~/workspaces/github/mlx-realtime/spikes/llm/.venv/lib/python3.12/site-packages/mlx_lm/server.py\", line 1680, in handle_completion\n    self.wfile.write(f\"data: {json.dumps(resp)}\\n\\n\".encode())\n  File \"~/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/lib/python3.12/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+   }
+  ]
+ }
+}

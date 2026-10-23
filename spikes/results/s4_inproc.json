@@ -1,0 +1,3482 @@
+{
+ "spike": "S4",
+ "step": "inproc_asr",
+ "started_at": "2026-10-23T05:56:57+08:00",
+ "environment": {
+  "recorded_at": "2026-10-23T05:56:57+08:00",
+  "python": "3.12.12",
+  "macos": "26.6.2",
+  "versions": {
+   "mlx": "0.32.4",
+   "mlx-metal": "0.32.4",
+   "mlx-audio": "0.6.1",
+   "transformers": "5.20.2",
+   "numpy": "2.5.4",
+   "soxr": "1.1.0",
+   "misaki": "0.9.4",
+   "fastapi": "0.159.1",
+   "uvicorn": "0.54.0",
+   "starlette": "1.9.0",
+   "httptools": "0.9.0",
+   "huggingface-hub": "2.2.0"
+  },
+  "mx_device_info": {
+   "device_name": "Apple M3 Max",
+   "max_recommended_working_set_size": 115448725504,
+   "memory_size": 137438953472,
+   "architecture": "applegpu_g15s",
+   "max_buffer_length": 86586540032,
+   "resource_limit": 499000
+  },
+  "sysctl": {
+   "iogpu.wired_limit_mb": "0",
+   "hw.memsize": "137438953472",
+   "machdep.cpu.brand_string": "Apple M3 Max",
+   "vm.swapusage": "total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)"
+  },
+  "uv": "uv 0.13.5 (46776a95d 2026-10-21 aarch64-apple-darwin)"
+ },
+ "model": {
+  "repo": "mlx-community/Qwen3-ASR-1.7B-8bit",
+  "sha_models_json": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+  "status": "ok",
+  "sha_local_ref": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55"
+ },
+ "load_model_ms": 1548.09,
+ "kwargs": {
+  "verbose": false,
+  "chunk_duration": 30.0,
+  "stream": false,
+  "prefill_step_size": 2048,
+  "word_timestamps": false,
+  "max_tokens": 8192
+ },
+ "loadavg1_start": 3.12,
+ "cold_first_generate_ms": 178.76,
+ "summary": {
+  "zh|2s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 180.94,
+    "p95": 224.77,
+    "max": 251.41,
+    "min": 143.18,
+    "mean": 189.01
+   }
+  },
+  "zh|2s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 170.19,
+    "p95": 200.08,
+    "max": 212.58,
+    "min": 130.48,
+    "mean": 167.3
+   }
+  },
+  "zh|5s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 325.22,
+    "p95": 365.9,
+    "max": 396.01,
+    "min": 247.61,
+    "mean": 324.76
+   }
+  },
+  "zh|5s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 286.38,
+    "p95": 342.92,
+    "max": 389.79,
+    "min": 219.7,
+    "mean": 293.67
+   }
+  },
+  "zh|10s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 417.62,
+    "p95": 610.95,
+    "max": 666.13,
+    "min": 294.18,
+    "mean": 454.3
+   }
+  },
+  "zh|10s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 428.31,
+    "p95": 516.81,
+    "max": 544.31,
+    "min": 335.62,
+    "mean": 428.0
+   }
+  },
+  "en|2s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 229.26,
+    "p95": 267.47,
+    "max": 271.03,
+    "min": 164.21,
+    "mean": 224.04
+   }
+  },
+  "en|2s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 189.71,
+    "p95": 253.67,
+    "max": 289.66,
+    "min": 121.65,
+    "mean": 196.11
+   }
+  },
+  "en|5s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 347.03,
+    "p95": 444.56,
+    "max": 448.84,
+    "min": 249.48,
+    "mean": 353.03
+   }
+  },
+  "en|5s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 309.34,
+    "p95": 415.47,
+    "max": 436.81,
+    "min": 236.2,
+    "mean": 314.66
+   }
+  },
+  "en|10s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 521.1,
+    "p95": 646.5,
+    "max": 659.47,
+    "min": 389.96,
+    "mean": 528.3
+   }
+  },
+  "en|10s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 489.93,
+    "p95": 631.16,
+    "max": 667.85,
+    "min": 379.67,
+    "mean": 492.91
+   }
+  },
+  "mix|2s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 221.01,
+    "p95": 250.15,
+    "max": 263.24,
+    "min": 177.94,
+    "mean": 221.13
+   }
+  },
+  "mix|2s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 182.36,
+    "p95": 212.69,
+    "max": 212.87,
+    "min": 133.91,
+    "mean": 182.35
+   }
+  },
+  "mix|5s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 319.88,
+    "p95": 405.32,
+    "max": 454.35,
+    "min": 251.03,
+    "mean": 325.18
+   }
+  },
+  "mix|5s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 301.03,
+    "p95": 366.49,
+    "max": 373.16,
+    "min": 240.18,
+    "mean": 305.1
+   }
+  },
+  "mix|10s|auto": {
+   "ms": {
+    "n": 20,
+    "p50": 515.7,
+    "p95": 652.34,
+    "max": 683.26,
+    "min": 312.27,
+    "mean": 513.71
+   }
+  },
+  "mix|10s|lang": {
+   "ms": {
+    "n": 20,
+    "p50": 500.73,
+    "p95": 618.25,
+    "max": 667.7,
+    "min": 359.83,
+    "mean": 497.75
+   }
+  }
+ },
+ "records": [
+  {
+   "file": "en_02s_16.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 238.18,
+   "text": "Throughout 1960s.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_10s_05.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 454.67,
+   "text": "If you have watched the movie National Treasure, you may think a treasure map was written on the back of the Declaration of Independence. He was subsequently relocated.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_05s_09.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 254.55,
+   "text": "These couples may choose to make an adoption plan for.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_02s_01.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 160.19,
+   "text": "卷心菜汁的颜色。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "mix_02s_02.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 180.15,
+   "text": "也不是，也不完全是AI。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_02s_12.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 180.8,
+   "text": "你也可以咨询。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_10s_07.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 479.75,
+   "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed. Also, after the Revolution, occupations were open to.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_10s_16.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 401.32,
+   "text": "但鸟类还是有很多地方和恐龙相似。电视报道显示，有白烟囱从工厂里冒出。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_02s_00.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 169.72,
+   "text": "他随后被传转。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_05s_06.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 346.94,
+   "text": "一九四零年八月十五日，盟军攻入法国南部。这次进攻被。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_02s_16.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 145.09,
+   "text": "一个。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_02s_00.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 160.92,
+   "text": "This is an important way to distinguish.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_10s_02.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 385.93,
+   "text": "在中东温暖的气候中，房子并不是多重要。州长办公室表示。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_10s_11.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 502.6,
+   "text": "Alloys are basically a mixture of two or more metals. Don't forget there are many elements on the periodic table. All nouns.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_05s_02.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 316.77,
+   "text": "In some areas, boiling water for a minute is enough, and others several minutes are needed.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "en_02s_15.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 212.73,
+   "text": "Alloys are basically a mixture.",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_02s_11.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 154.69,
+   "text": "大脑病理。",
+   "loadavg1_before": 3.02
+  },
+  {
+   "file": "zh_05s_01.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 219.7,
+   "text": "执政党西南非洲人民组织也在议会选举中保住了多。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_05s_06.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 281.98,
+   "text": "The hot chocolate is up to Belgian standards. Fruit juices are priced.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "mix_10s_01.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 549.98,
+   "text": "呃，workshop学校应该也有统一的workshop。哦，那个是那个是wind，好像是做。那个我们的department其实hardware跟software其实就各半。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_10s_01.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 560.87,
+   "text": "The cabbage juice changes color depending on how acidic, basic, alkaline the chemical is. This is called the chemical's pH. You can make an indicator using red cabbage.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_10s_13.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 419.95,
+   "text": "The U.S. Corps of Engineers estimated that six inches of rainfall could breach the previously damaged levees. Last week.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "zh_05s_06.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 337.02,
+   "text": "一九四零年八月十五日，盟军攻入法国南部。这次进攻被。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_05s_13.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 321.06,
+   "text": "The Pyramids Sound and Light Show is one of the most interesting things.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "mix_02s_02.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 226.47,
+   "text": "也不是，也不完全是AI。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "zh_02s_18.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 175.23,
+   "text": "如果只是。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "zh_10s_03.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 492.36,
+   "text": "二十世纪的研究表明，基因变异有有两种库：显性和隐性。一九四零年八月十五日。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_05s_12.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 303.39,
+   "text": "Hydrogen ions are protons that had their electrons stripped off them. Since hydrogen atoms.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_05s_14.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 299.36,
+   "text": "All nouns alongside the world say for you always begin with a.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_05s_07.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 236.2,
+   "text": "One bomb exploded outside the governor general's office.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "en_02s_13.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 194.05,
+   "text": "As a result, two fish species have.",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "mix_10s_13.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 458.28,
+   "text": "所以你平时就现在大部分时间还是，tennis就打网球，就是会有很多呃，比如说跟。",
+   "loadavg1_before": 2.86
+  },
+  {
+   "file": "mix_05s_04.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 324.06,
+   "text": "哦，那个是那个是wind，好像是做，那个我们的department其实hardware。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "zh_10s_10.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 367.08,
+   "text": "pH值被测化学品中的氢pH中的H离子数量表示。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_02s_17.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 165.27,
+   "text": "所以你平时就现在。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "zh_05s_12.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 308.34,
+   "text": "钙、钾等元素属于金属，银和金等元素。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "zh_05s_02.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 364.31,
+   "text": "罗兰多·门多萨架起他的M十六步枪，对。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_02s_18.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 181.23,
+   "text": "当时其实有。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "en_02s_11.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 164.21,
+   "text": "20th century.",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "en_05s_05.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 444.33,
+   "text": "Scientists hope to understand how planets form, especially how the Earth forms, since comets collided with the Earth.",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "en_10s_08.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 497.56,
+   "text": "Travelers are strongly advised to be aware of any risk of severe weather affecting their area, as it may affect any travel plans. In 1990, it was added.",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_05s_06.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 354.14,
+   "text": "就之前运用到的一些，都是一些现成的package，然后再建一个model。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_10s_04.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 643.86,
+   "text": "然后再建一个 model 去 optimization，这样对，反正我们就只能做一些这种比较 entry level 的东西。我并不是要做 NLP 的，就我并不是要。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "zh_02s_18.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 180.58,
+   "text": "如果只是。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_02s_13.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 133.91,
+   "text": "去全部堵在A。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "en_02s_07.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 243.8,
+   "text": "Danielle Lantigim, a UNX.",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_10s_18.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 402.29,
+   "text": "也是那个hardware。你觉得Mac跟Windows比哪个？也不是，也不完全是AI。It's too risky。我们不能就是。",
+   "loadavg1_before": 2.79
+  },
+  {
+   "file": "mix_05s_16.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 298.92,
+   "text": "就是会有很多呃，比如说跟Luminize聚会啊，一起吃。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_05s_03.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 272.72,
+   "text": "The internet combines elements of both mass and interpersonal communication.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_02s_05.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 236.18,
+   "text": "The cabbage juice changes color depending.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_05s_03.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 281.25,
+   "text": "这里几乎都是沙滩，游泳很安全。大部分地方都有新西兰。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_10s_04.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 492.79,
+   "text": "Everything in the universe is made of matter. All matter is made of tiny particles called atoms. One bomb exploded outside the government.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_10s_12.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 532.14,
+   "text": "Throughout 1960s, Brzezinski worked for John F. Kennedy as his advisor, and then the Lyndon B. Johnson administration. The aspect",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_10s_15.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 659.47,
+   "text": "It was ruled by the Vichy French. These were French people who had made peace with the Germans in 1940 and worked with the invaders instead of fighting them.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_02s_08.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 162.79,
+   "text": "Everything in the universe is made.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_02s_03.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 130.48,
+   "text": "战争结束两年后。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_10s_19.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 453.52,
+   "text": "For the Springboks, it ended a five-match losing streak. Television reports show white smoke coming from the plant.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_05s_03.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 302.13,
+   "text": "能就是帮人类做很多work，呃，workshop学校应该。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_02s_16.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 165.72,
+   "text": "",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_10s_15.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 389.57,
+   "text": "这座城市与该国其他城市形成了鲜明的对比，因为它更多的是阿拉伯风格，而不是非洲风格。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_02s_17.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 249.46,
+   "text": "所以你平时就现在。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_10s_06.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 389.96,
+   "text": "Most modern research telescopes are enormous facilities in remote areas with favorable atmospheric conditions. These couples may choose to make.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_05s_14.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 257.75,
+   "text": "对啊，大家最近都是觉得AI有一天能够replace。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_05s_09.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 364.82,
+   "text": "感觉还不错，Robotics就是Robotics mixed with language application，嗯。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_11.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 528.62,
+   "text": "呃，你觉得？那你为什么会？呃，你就是觉得国外更open mind，然后有更多？对啊，大家最近都是觉得AI有。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_02s_14.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 212.58,
+   "text": "pH值被测化。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_10.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 596.65,
+   "text": "就你要申请去交换，你并不需要去说哦，我要去哪一个department交换，是直接选school。还有就是，比如说会呃，我们上次就。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_05s_08.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 273.13,
+   "text": "摩尔多瓦的首都是新基纳乌，当地的语言是罗马尼亚语。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_05s_11.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 351.86,
+   "text": "因此，一个组织在共同努力克服障碍的过程中，往往会带来新。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_01.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 571.57,
+   "text": "呃，workshop学校应该也有统一的workshop。哦，那个是那个是wind，好像是做。那个我们的department其实hardware跟software其实就各半。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_08.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 381.93,
+   "text": "做 optimization，然后再去做预测，主要还是做预测。然后，但是我当时读了很多相关的 paper。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_02s_13.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 235.33,
+   "text": "As a result, two fish species have.",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_02s_04.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 185.22,
+   "text": "A.I.做出了一个错误的判断。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_10s_11.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 414.88,
+   "text": "一夜之间印刷了一百五十到两百份，就是现在众所周知的邓拉普宽边版。中。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_02s_14.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 239.82,
+   "text": "就你要申请去交换，你并不需要。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_05s_17.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 278.49,
+   "text": "大四上学期，好像是，反正好像是。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_02s_03.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 229.59,
+   "text": "But there are a lot of things that.",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_02s_03.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 231.42,
+   "text": "But there are a lot of things that.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_02s_01.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 183.49,
+   "text": "也是那个哈维尔。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_10s_01.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 487.06,
+   "text": "The cabbage juice changes color depending on how acidic, basic, alkaline the chemical is. This is called the chemical's pH. You can make an indicator using red cabbage.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_10s_14.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 404.96,
+   "text": "如果只是在乘船游览的情况下登岸，则不需要单独的签证。规定截至二零零九年。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_05s_19.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 414.35,
+   "text": "The scenes are displayed on the pyramids, and the different pyramids are lit up.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_02s_18.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 182.89,
+   "text": "Cuomo fifty-three.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_02s_06.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 191.74,
+   "text": "那么我们的department其实hardware跟software。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_05s_15.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 380.13,
+   "text": "The aspect ratio of this format, dividing by twelve, to obtain the simplest whole number.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_02s_01.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 184.08,
+   "text": "卷心菜汁的颜色。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_02s_06.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 157.58,
+   "text": "那么我们的department其实hardware跟software。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_10s_10.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 379.67,
+   "text": "First, most riders wearing riding boots with a heel and a smooth, quite narrow sole. The pyramids.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_02s_17.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 157.19,
+   "text": "昨天。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_02s_19.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 212.87,
+   "text": "sandwiches，或者是其他东。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_02s_01.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 209.33,
+   "text": "也是那个哈维尔。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_10s_13.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 465.98,
+   "text": "昨天，马尔泰利在由九名成员组成的新临时选举委员会（CEP）中宣誓就职。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "en_02s_17.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 181.18,
+   "text": "The U.S.",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_02s_13.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 151.22,
+   "text": "该大学的研究人员。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "zh_05s_11.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 323.32,
+   "text": "因此，一个组织在共同努力克服障碍的过程中，往往会带来新。",
+   "loadavg1_before": 2.47
+  },
+  {
+   "file": "mix_10s_06.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 472.92,
+   "text": "那图像识别其实上学上个semester我们感觉还不错，robotics就是robotics mixed with language application。呃，对它。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_10s_07.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 489.34,
+   "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed. Also, after the Revolution, occupations were open to.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_10s_18.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 444.6,
+   "text": "也是那个hardware。你觉得Mac跟Windows比哪个？也不是，也不完全是AI。It's too risky。我们不能就是。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_05s_11.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 441.94,
+   "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_02s_14.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 178.27,
+   "text": "First.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_02s_00.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 178.21,
+   "text": "他随后被传转。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_02s_03.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 236.61,
+   "text": "就是Still a long way to go。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_18.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 452.78,
+   "text": "卷心菜汁的颜色将根据化学物质的酸碱性发生变化。沧龙是那个时代的顶级掠食者，除了同类，它什么都不怕。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_05s_05.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 355.75,
+   "text": "Scientists hope to understand how planets form, especially how the Earth forms, since comets collided with the Earth.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_10s_05.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 588.05,
+   "text": "If you have watched the movie National Treasure, you may think a treasure map was written on the back of the Declaration of Independence. He was subsequently relocated.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_05s_18.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 372.76,
+   "text": "也就是我现在是个 advisor 呢，就跟我说，哎，那你过来跟我做，我就给你一些。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_10s_19.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 491.73,
+   "text": "也不是，也不完全是AI。It's too risky。我们不能，就是still a long way to go。比如说给一些data set，然后你。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_14.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 412.88,
+   "text": "如果只是在乘船游览的情况下登岸，则不需要单独的签证。规定截至二零零九年。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_05s_19.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 322.39,
+   "text": "三件套，Mac嘛，AI最近这么火，然后一直在考虑。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_10s_10.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 683.26,
+   "text": "就你要申请去交换，你并不需要去说哦，我要去哪一个department交换，是直接选school。还有就是，比如说会呃，我们上次就。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_10s_14.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 395.93,
+   "text": "当时其实有一个就是做communication的professor想招我进组，大四上学期。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_02s_06.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 182.58,
+   "text": "在中东。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_05s_10.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 247.61,
+   "text": "这并不是告别，这是一个篇章的结束，也是新。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_05s_13.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 341.09,
+   "text": "还有就是，比如说会，呃，我们上次就我上次做的一个。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_10s_05.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 440.85,
+   "text": "事故发生后，吉布森被送往医院，但很快就一命呜呼。摩尔多瓦的首都是。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "mix_02s_11.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 208.76,
+   "text": "呃，data analyst，或者是。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_10s_09.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 403.17,
+   "text": "该大学的研究人员表示，这两种化合物相互作用形成的晶体可能会造成肾脏功能障碍。钙。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_05s_02.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 321.71,
+   "text": "罗兰多·门多萨架起他的M十六步枪，对。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_02s_19.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 174.19,
+   "text": "制作。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_05s_18.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 428.96,
+   "text": "As light pollution in their heyday was not the kind of problem it is today, they are usually located in.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "en_05s_17.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 346.48,
+   "text": "In the north, the region is bounded by the Sahel, and in the south.",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_10s_07.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 363.57,
+   "text": "大脑病理和行为之间的相关性，可为科学家们的研究提供支持。这并不。",
+   "loadavg1_before": 2.65
+  },
+  {
+   "file": "zh_02s_08.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 213.6,
+   "text": "当所有可用的资源在。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_02s_08.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 208.26,
+   "text": "Everything in the universe is made.",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_10s_02.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 497.65,
+   "text": "Rolando Mendoza fired his M16 rifle at the tourists. Scientists hope to understand how planets form, especially how the Earth forms.",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_05s_04.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 350.23,
+   "text": "起初，他被送往位于大雅茅斯的詹姆斯·佩吉特。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_05s_14.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 310.09,
+   "text": "中国的古代的不同时期各有特点。中国的每个时期或每。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_05s_00.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 299.7,
+   "text": "你觉得Mac跟Windows比哪个？也不是，也不完全是AI。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "zh_02s_17.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 172.62,
+   "text": "昨天。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_05s_19.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 264.54,
+   "text": "三件套，Mac嘛，AI最近这么火，然后一直在考虑。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_05s_08.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 329.43,
+   "text": "He was subsequently relocated to Addenbrooke's Hospital in Cambridge.",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_10s_12.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 532.06,
+   "text": "Throughout 1960s, Brzezinski worked for John F. Kennedy as his advisor, and then the Lyndon B. Johnson administration. The aspect",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_11.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 547.11,
+   "text": "呃，你觉得？那你为什么会？呃，你就是觉得国外更open mind，然后有更多？对啊，大家最近都是觉得AI有。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_10s_03.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 416.27,
+   "text": "self-driving方面，自动驾驶方面，就之前运用到的一些都是一些现成的package，然后再建一个model去optimize。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "mix_05s_02.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 454.35,
+   "text": "比如说，给一些 data set，然后你 AI 做出了一个错误的判断。",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_10s_16.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 572.3,
+   "text": "Many people don't think about them as dinosaurs because they have feathers and can fly. The scenes are displayed on the pyramids, and the different pyramids are lit up. This is the",
+   "loadavg1_before": 2.51
+  },
+  {
+   "file": "en_05s_17.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 311.18,
+   "text": "In the north, the region is bounded by the Sahel, and in the south.",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "en_10s_17.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 457.58,
+   "text": "This is an important way to distinguish between some verbs and objects. The find also grants insight into the evolution of feathers and birds.",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "mix_10s_14.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 371.22,
+   "text": "当时其实有一个就是做communication的professor想招我进组，大四上学期。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_10s_19.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 489.05,
+   "text": "弗兰克群岛的官方货币是弗兰克英镑，与英镑等值。执政党西南非洲人民组织也在议会。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_02s_15.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 207.73,
+   "text": "一夜之间，印刷。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "mix_10s_12.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 359.83,
+   "text": "对，我的我undergraduate的时候学的major也是，然后在打算申请grad。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_10s_06.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 502.5,
+   "text": "Scoturb四零三路公交汽车定期发车，前往新特拉，在罗卡角停靠。他没有。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "en_05s_04.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 307.5,
+   "text": "This is called a chemical's pH. You can make an indicator using red cabbage juice.",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "mix_02s_10.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 226.51,
+   "text": "那图像识别其实上。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "mix_10s_02.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 416.48,
+   "text": "那个我们的department其实hardware跟software其实就是各半。我认为现在的AI，比如说在self driving方面，自动驾驶方面。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_10s_01.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 477.95,
+   "text": "具体说来，据说可以通过正确解读微表情来判断一个人是否在撒谎。起初，他被送往位于大。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "en_02s_02.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 214.88,
+   "text": "For the spring box.",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_05s_18.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 232.36,
+   "text": "宇宙中的一切都由物质构成，而所有的物质。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "zh_05s_05.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 260.75,
+   "text": "州长办公室表示，伤者中有十九人是。",
+   "loadavg1_before": 2.55
+  },
+  {
+   "file": "mix_02s_04.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 231.04,
+   "text": "A.I.做出了一个错误的判断。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_05s_09.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 337.5,
+   "text": "感觉还不错，Robotics就是Robotics mixed with language application，嗯。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_02s_11.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 247.67,
+   "text": "A data analyst,或者是。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_03.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 539.08,
+   "text": "二十世纪的研究表明，基因变异有有两种库：显性和隐性。一九四零年八月十五日。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_19.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 420.37,
+   "text": "弗兰克群岛的官方货币是弗兰克英镑，与英镑等值。执政党西南非洲人民组织也在议会。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_02s_15.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 215.56,
+   "text": "呃，你觉得？那你为？",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_10.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 335.62,
+   "text": "pH值被测化学品中的氢pH中的H离子数量表示。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_10s_16.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 515.36,
+   "text": "但鸟类还是有很多地方和恐龙相似。电视报道显示，有白烟囱从工厂里冒出。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_10s_15.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 535.42,
+   "text": "It was ruled by the Vichy French. These were French people who had made peace with the Germans in 1940 and worked with the invaders instead of fighting them.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "zh_05s_09.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 303.15,
+   "text": "他没有设定削减数额，只是表示将根据中国。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_10s_13.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 476.81,
+   "text": "所以你平时就现在大部分时间还是，tennis就打网球，就是会有很多呃，比如说跟。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_10s_05.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 502.3,
+   "text": "我并不是要做NLP的，就我并不是要做natural language processing。不过后来就是focus在先把GPA提高嘛。那图像识别其实上。",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "en_05s_06.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 308.65,
+   "text": "The hot chocolate is up to Belgian standards. Fruit juices are priced.",
+   "loadavg1_before": 2.35
+  },
+  {
+   "file": "mix_10s_16.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 494.67,
+   "text": "是不是感觉很 fancy？三件套 Mac 嘛。AI 最近这么火，然后一直在考虑 budget 的问题。也是那个 hardware。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "en_05s_00.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 370.93,
+   "text": "It has brought us the train, the car, and many other transportation devices.",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_05s_16.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 350.7,
+   "text": "研究该疾病的联合国专家丹尼尔·拉塔涅表示。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "en_02s_19.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 267.28,
+   "text": "It was ruled by the Vicky.",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_05s_03.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 304.21,
+   "text": "能就是帮人类做很多work，呃，workshop学校应该。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_05s_11.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 286.12,
+   "text": "然后，但是我当时读了很多相关的paper。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_10s_02.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 502.78,
+   "text": "那个我们的department其实hardware跟software其实就是各半。我认为现在的AI，比如说在self driving方面，自动驾驶方面。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_10s_15.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 352.84,
+   "text": "这座城市与该国其他城市形成了鲜明的对比，因为它更多的是阿拉伯风格，而不是非洲风格。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_05s_15.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 314.47,
+   "text": "你手上的水分层会与外层发生反应。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_02s_02.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 186.54,
+   "text": "弗兰克。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_05s_09.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 242.44,
+   "text": "他没有设定削减数额，只是表示将根据中国。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_05s_11.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 291.96,
+   "text": "然后，但是我当时读了很多相关的paper。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_10s_04.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 603.03,
+   "text": "当所有可用的资源在一个组织的职能部门之间得到有效利用时，创造力和独创性就会发生。一九九零年，由于",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "zh_02s_07.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 176.25,
+   "text": "二十世纪的演",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_02s_14.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 176.99,
+   "text": "就你要申请去交换，你并不需要。",
+   "loadavg1_before": 2.32
+  },
+  {
+   "file": "mix_02s_16.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 215.5,
+   "text": "对，我的我。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_05s_07.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 389.79,
+   "text": "一九九零年，由于沙漠的威胁，它被列列入了濒危。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_05s_07.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 249.48,
+   "text": "One bomb exploded outside the governor general's office.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_05s_05.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 300.15,
+   "text": "州长办公室表示，伤者中有十九人是。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_05s_17.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 240.18,
+   "text": "大四上学期，好像是，反正好像是。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_10s_19.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 612.27,
+   "text": "It's too risky. We cannot. It's still a long way to go. For example, give some data sets, and then you.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_10s_00.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 538.76,
+   "text": "AI做出了一个错误的判断，能就是帮人类做很多work。呃，workshop学校应该也有统一的workshop。哦，那个是。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_05s_01.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 246.37,
+   "text": "Television reports show white smoke coming from the plant.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_10s_05.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 595.63,
+   "text": "我并不是要做NLP的，就我并不是要做natural language processing。不过后来就是focus在先把GPA提高嘛。那图像识别其实上。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_02s_09.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 263.24,
+   "text": "我并不是要做NLP的，就我不。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_02s_03.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 223.37,
+   "text": "战争结束两年后。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_10s_06.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 440.33,
+   "text": "Most modern research telescopes are enormous facilities in remote areas with favorable atmospheric conditions. These couples may choose to make.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_05s_10.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 318.87,
+   "text": "That's the reason. 我来就是最后决定做那个。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_05s_02.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 366.14,
+   "text": "比如说，给一些 data set，然后你 AI 做出了一个错误的判断。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_10s_09.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 494.92,
+   "text": "As a result, two fish species have become extinct, and two others have become endangered, including the humpback chub. Hydrogen ions are protons that have their",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "mix_05s_01.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 334.84,
+   "text": "It's too risky. We cannot.就是still a long way to go.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_05s_13.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 340.45,
+   "text": "这被称为化学物质的pH值。你可以用红甘蓝。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "en_05s_14.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 294.9,
+   "text": "All nouns alongside the world say for you always begin with a.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_05s_07.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 346.44,
+   "text": "一九九零年，由于沙漠的威胁，它被列列入了濒危。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_02s_08.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 191.9,
+   "text": "当所有可用的资源在。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "mix_05s_01.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 251.8,
+   "text": "It's too risky。我们不能就是still long way to go。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "mix_10s_09.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 534.83,
+   "text": "去全部赌在A，去全部压在AI身上。对，毕竟那边搜索的活动多一点，就有很多活动要参加。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "en_05s_11.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 361.94,
+   "text": "In 1990, it was added to the list of World Heritage Sites in Danger due to.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "en_02s_16.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 251.78,
+   "text": "Throughout 1960s.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "en_05s_09.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 291.39,
+   "text": "These couples may choose to make an adoption plan for.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "mix_02s_05.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 171.53,
+   "text": "呃，workshop学校应该也。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_10s_04.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 458.34,
+   "text": "当所有可用的资源在一个组织的职能部门之间得到有效利用时，创造力和独创性就会发生。一九九零年，由于",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "en_10s_10.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 450.13,
+   "text": "First, most riders wearing riding boots with a heel and a smooth, quite narrow sole. The pyramids.",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_05s_15.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 296.02,
+   "text": "你手上的水分层会与外层发生反应。",
+   "loadavg1_before": 2.12
+  },
+  {
+   "file": "zh_05s_03.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 343.92,
+   "text": "这里几乎都是沙滩，游泳很安全。大部分地方都有新西兰。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_19.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 235.6,
+   "text": "sandwiches，或者是其他东。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_08.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 177.94,
+   "text": "然后再建一个model去。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "zh_10s_00.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 387.33,
+   "text": "跳羚队以五连败收官。这里几乎都是沙滩，游泳很安。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_07.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 193.45,
+   "text": "Self-driving方面。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "zh_02s_15.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 170.66,
+   "text": "一夜之间，印刷。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_05.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 233.7,
+   "text": "呃，workshop学校应该也。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_05s_16.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 356.09,
+   "text": "就是会有很多呃，比如说跟Luminize聚会啊，一起吃。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_10s_04.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 550.85,
+   "text": "然后再建一个 model 去 optimization，这样对，反正我们就只能做一些这种比较 entry level 的东西。我并不是要做 NLP 的，就我并不是要。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "zh_05s_12.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 285.01,
+   "text": "钙、钾等元素属于金属，银和金等元素。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_03.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 190.57,
+   "text": "就是Still a long way to go。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "zh_02s_12.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 192.91,
+   "text": "你也可以咨询。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "en_05s_19.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 435.91,
+   "text": "The scenes are displayed on the pyramids, and the different pyramids are lit up.",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "en_10s_11.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 437.73,
+   "text": "Alloys are basically a mixture of two or more metals. Don't forget there are many elements on the periodic table. All nouns.",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "en_10s_08.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 539.42,
+   "text": "Travelers are strongly advised to be aware of any risk of severe weather affecting their area, as it may affect any travel plans. In 1990, it was added.",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "mix_02s_13.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 211.44,
+   "text": "去全部堵在A。",
+   "loadavg1_before": 2.03
+  },
+  {
+   "file": "en_10s_13.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 382.23,
+   "text": "The U.S. Corps of Engineers estimated that six inches of rainfall could breach the previously damaged levees. Last week.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "mix_10s_07.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 529.96,
+   "text": "呃，data analyst，或者是啊，对，就刚刚你刚刚说的那些东西。That's the reason我来就是最后决定做那个。做。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "en_10s_00.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 547.23,
+   "text": "Virtual teams are held to the same standard of excellence as conventional teams, but there are subtle differences. The internet combines elements of both mass and interpersonal communication.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "en_10s_18.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 629.23,
+   "text": "Through the night, between 150 and 200 copies were made, now known as Dunlap broadsides. It has brought us the train, the car, and many other transportation devices.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "en_02s_12.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 213.11,
+   "text": "Travelers are strongly advised to be up.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "en_05s_18.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 436.81,
+   "text": "As light pollution in their heyday was not the kind of problem it is today, they are usually located in.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "zh_10s_02.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 374.55,
+   "text": "在中东温暖的气候中，房子并不是多重要。州长办公室表示。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "zh_10s_12.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 340.31,
+   "text": "因此，很可能这个符号只是作为一个标签添加的。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "en_10s_14.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 510.06,
+   "text": "Cuomo 53 began his governorship earlier this year and signed a bill last month legalizing same-sex marriage.",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "zh_05s_13.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 285.25,
+   "text": "这被称为化学物质的pH值。你可以用红甘蓝。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "zh_02s_06.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 138.93,
+   "text": "在中东。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "mix_05s_18.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 373.16,
+   "text": "也就是我现在是个 advisor 呢，就跟我说，哎，那你过来跟我做，我就给你一些。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "mix_05s_04.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 402.74,
+   "text": "哦，那个是那个是wind，好像是做，那个我们的department其实hardware。",
+   "loadavg1_before": 2.26
+  },
+  {
+   "file": "zh_02s_14.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 251.41,
+   "text": "pH值被测化。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_02s_00.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 202.46,
+   "text": "A.I.最近这么火。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_10s_17.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 483.91,
+   "text": "A.I.最近这么火，然后一直在考虑budget的问题，也是那个hardware。你觉得Mac跟Windows比哪个？也不是，也不完全。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_10s_13.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 433.49,
+   "text": "昨天，马尔泰利在由九名成员组成的新临时选举委员会（CEP）中宣誓就职。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_02s_04.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 179.3,
+   "text": "",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_02s_09.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 212.68,
+   "text": "我并不是要做NLP的，就我不。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "en_02s_18.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 180.1,
+   "text": "Cuomo fifty-three.",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_10s_03.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 556.23,
+   "text": "self-driving方面，自动驾驶方面，就之前运用到的一些都是一些现成的package，然后再建一个model去optimize。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_05s_15.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 262.5,
+   "text": "然后在打算申请graduate school的时候，我考。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_02s_04.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 138.5,
+   "text": "嗯。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "en_05s_12.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 359.21,
+   "text": "Hydrogen ions are protons that had their electrons stripped off them. Since hydrogen atoms.",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_10s_17.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 468.05,
+   "text": "他随后被转转送到剑桥的阿登布鲁克医院。巴黎人是出了名的以自我为中心、粗鲁和傲慢。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_10s_07.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 402.72,
+   "text": "大脑病理和行为之间的相关性可为科学家们的研究提供支持。这并不。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_05s_00.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 334.12,
+   "text": "苍龙是那个时代的顶级掠食者，除了同类，它什么都不怕。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "mix_10s_16.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 494.59,
+   "text": "是不是感觉很 fancy？三件套 Mac 嘛。AI 最近这么火，然后一直在考虑 budget 的问题。也是那个 Hardware。",
+   "loadavg1_before": 2.24
+  },
+  {
+   "file": "zh_05s_08.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 396.01,
+   "text": "摩尔多瓦的首都是新基纳乌，当地的语言是罗马尼亚语。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_02s_18.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 202.83,
+   "text": "当时其实有。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "en_02s_10.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 166.12,
+   "text": "Most modern research telescopes.",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "zh_02s_09.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 158.94,
+   "text": "事故发生后。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "en_10s_18.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 644.13,
+   "text": "Through the night, between 150 and 200 copies were made, now known as Dunlap broadsides. It has brought us the train, the car, and many other transportation devices.",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_05s_13.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 297.75,
+   "text": "还有就是，比如说会，呃，我们上次就我上次做的一个。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "zh_10s_01.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 666.13,
+   "text": "具体说来，据说可以通过正确解读微表情来判断一个人是否在撒谎。起初，他被送往位于大。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_10s_07.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 312.27,
+   "text": "That's the reason I来就是最后决定做那个。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "en_05s_01.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 322.81,
+   "text": "Television reports show white smoke coming from the plant.",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "zh_10s_00.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 365.01,
+   "text": "跳羚队以五连败收官。这里几乎都是沙滩，游泳很安。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "en_02s_02.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 185.69,
+   "text": "For the spring box.",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_10s_15.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 667.7,
+   "text": "三文鱼 cheese 或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share 他的一些他们公司的一些东西。也就是我现在是不是白水？",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_10s_12.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 337.03,
+   "text": "对，我的我undergraduate的时候学的major也是，然后在打算申请grad。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_05s_05.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 256.07,
+   "text": "我认为现在的AI，比如说在self driving方。",
+   "loadavg1_before": 2.14
+  },
+  {
+   "file": "mix_02s_00.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 193.77,
+   "text": "A.I.最近这么火。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_05s_10.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 337.48,
+   "text": "这并不是告别，这是一个篇章的结束，也是新。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_10s_08.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 438.12,
+   "text": "你也可以咨询除贵国以外其他政府的建议，但他们的建议是为他们的公民而制定的，因此一。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_10s_06.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 499.15,
+   "text": "那图像识别其实上学上个semester我们感觉还不错，Robotics就是Robotics mixed with language application。呃，对它。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_10s_17.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 445.76,
+   "text": "This is an important way to distinguish between some verbs and objects. The find also grants insight into the evolution of feathers and birds.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_02s_12.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 212.18,
+   "text": "做optimization，然后。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_10s_09.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 645.82,
+   "text": "As a result, two fish species have become extinct, and two others have become endangered, including the humpback chub. Hydrogen ions are protons that have their",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_02s_05.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 178.97,
+   "text": "The cabbage juice changes color depending.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "en_10s_19.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 469.0,
+   "text": "For the Springboks, it ended a five-match losing streak. Television reports show white smoke coming from the plant.",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_10s_08.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 428.94,
+   "text": "你也可以咨询除贵国以外其他政府的建议，但他们的建议是为他们的公民而制定的，因此一。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_05s_17.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 300.14,
+   "text": "自由派人士对重建工作的批判，主要集中在把重建。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "mix_05s_08.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 303.14,
+   "text": "不过后来就是focus在先把GPA提高嘛，那。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_10s_05.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 544.15,
+   "text": "事故发生后，吉布森被送往医院，但很快就一命呜呼。摩尔多瓦的首都是。",
+   "loadavg1_before": 2.21
+  },
+  {
+   "file": "zh_05s_00.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 345.36,
+   "text": "苍龙是那个时代的顶级掠食者，除了同类，它什么都不怕。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_05s_16.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 329.28,
+   "text": "Last week, Meddy announced that Apple had informed it of 34 additional over.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "mix_02s_10.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 186.78,
+   "text": "那图像识别其实上。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_10s_00.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 551.86,
+   "text": "Virtual teams are held to the same standard of excellence as conventional teams, but there are subtle differences. The internet combines elements of both mass and interpersonal communication.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "mix_02s_07.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 171.68,
+   "text": "self-driving方面。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_10s_03.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 526.15,
+   "text": "Daniel Lantagne, a UN expert on the disease, stated that the outbreak was likely caused by the peacekeepers. The hot chocolate is up to Belgians.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_10s_14.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 402.8,
+   "text": "Cuomo 53 began his governorship earlier this year and signed a bill last month legalizing same-sex marriage.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "zh_02s_10.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 199.42,
+   "text": "Scoturb四零三。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "mix_05s_12.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 285.03,
+   "text": "对，毕竟那边搜索的活动多一点，就有很多活动要参加。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_02s_10.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 258.65,
+   "text": "Most modern research telescopes.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_05s_03.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 274.65,
+   "text": "The internet combines elements of both mass and interpersonal communication.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "zh_05s_14.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 287.76,
+   "text": "中国的古代的不同时期各有特点。中国的每个时期或每。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "zh_05s_01.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 335.96,
+   "text": "执政党西南非洲人民组织也在议会选举中保住了多。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "en_02s_00.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 252.34,
+   "text": "This is an important way to distinguish.",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "zh_02s_02.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 205.81,
+   "text": "弗兰克。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "zh_10s_06.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 423.14,
+   "text": "Scoturb四零三路公交汽车定期发车，前往新特拉，在罗卡角停靠。他没有。",
+   "loadavg1_before": 2.19
+  },
+  {
+   "file": "mix_05s_00.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 290.45,
+   "text": "你觉得Mac跟Windows比哪个？也不是，也不完全是AI。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "mix_10s_00.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 615.65,
+   "text": "AI做出了一个错误的判断，能就是帮人类做很多work。呃，workshop学校应该也有统一的workshop。哦，那个是。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_05s_19.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 250.09,
+   "text": "电视报道显示，有白烟从工厂里冒出。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "en_05s_00.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 295.83,
+   "text": "It has brought us the train, the car, and many other transportation devices.",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_02s_09.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 192.67,
+   "text": "事故发生后。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_05s_04.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 326.31,
+   "text": "起初，他被送往位于大雅茅斯的詹姆斯·佩吉特。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_10s_09.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 422.59,
+   "text": "该大学的研究人员表示，这两种化合物相互作用形成的晶体可能会造成肾脏功能障碍。钙。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_10s_18.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 608.05,
+   "text": "卷心菜汁的颜色将根据化学物质的酸碱性发生变化。沧龙是那个时代的顶级掠食者，除了同类，它什么都不怕。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "mix_05s_14.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 283.19,
+   "text": "对啊，大家最近都是觉得AI有一天能够replace。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "zh_05s_18.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 295.78,
+   "text": "宇宙中的一切都由物质构成，而所有的物质。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "en_02s_11.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 177.68,
+   "text": "20th century.",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "mix_10s_08.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 401.85,
+   "text": "做 optimization，然后再去做预测，主要还是做预测。然后，但是我当时读了很多相关的 paper。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "mix_10s_17.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 549.59,
+   "text": "A.I.最近这么火，然后一直在考虑budget的问题，也是那个hardware。你觉得Mac跟Windows比哪个？也不是，也不完全。",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "en_02s_17.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 203.25,
+   "text": "The U.S.",
+   "loadavg1_before": 2.1
+  },
+  {
+   "file": "en_02s_09.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 176.49,
+   "text": "If you have watched the movie National.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_02s_15.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 198.13,
+   "text": "呃，你觉得？那你为？",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_05s_02.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 366.8,
+   "text": "In some areas, boiling water for a minute is enough, and others several minutes are needed.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_02s_01.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 271.03,
+   "text": "For the night between 150 and 200.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_05s_08.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 320.88,
+   "text": "不过后来就是focus在先把GPA提高嘛，那。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_05s_15.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 281.68,
+   "text": "然后在打算申请graduate school的时候，我考。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_02s_08.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 170.05,
+   "text": "然后再建一个model去。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_02s_12.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 196.13,
+   "text": "做optimization，然后。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "zh_05s_19.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 298.4,
+   "text": "电视报道显示，有白烟从工厂里冒出。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_02s_04.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 265.4,
+   "text": "Virtual teams are held to the same standard.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_02s_09.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 195.68,
+   "text": "If you have watched the movie National.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "zh_02s_07.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 171.62,
+   "text": "二十世纪的演",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_10s_09.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 588.95,
+   "text": "去全部赌在A，去全部压在AI身上。对，毕竟那边搜索的活动多一点，就有很多活动要参加。",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "zh_02s_10.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 212.28,
+   "text": "Scoturb 403.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_05s_04.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 448.84,
+   "text": "This is called a chemical's pH. You can make an indicator using red cabbage juice.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_05s_15.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 320.65,
+   "text": "The aspect ratio of this format, dividing by twelve, to obtain the simplest whole number.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "en_02s_06.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 159.99,
+   "text": "Rolando Mendoza.",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_10s_15.wav",
+   "set": "mix",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 650.71,
+   "text": "三文鱼 cheese 或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share 他的一些他们公司的一些东西。也就是我现在是不是白水？",
+   "loadavg1_before": 2.17
+  },
+  {
+   "file": "mix_05s_07.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 349.87,
+   "text": "对，反正我们就只能做一些这种比较严肃一点的我的东西。我并不是说让你。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_10s_17.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 544.31,
+   "text": "他随后被转转送到剑桥的阿登布鲁克医院。巴黎人是出了名的以自我为中心、粗鲁和傲慢。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_02s_12.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 217.14,
+   "text": "Travelers are strongly advised to be up.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_02s_13.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 135.27,
+   "text": "该大学的研究人员。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_02s_14.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 121.65,
+   "text": "First.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_05s_17.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 262.04,
+   "text": "自由派人士对重建工作的批判，主要集中在把重建。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_05s_16.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 347.59,
+   "text": "Last week, Meddy announced that Apple had informed it of 34 additional over.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "mix_05s_12.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 339.18,
+   "text": "对，毕竟那边搜索的活动多一点，就有很多活动要参加。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_10s_16.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 667.85,
+   "text": "Many people don't think about them as dinosaurs because they have feathers and can fly. The scenes are displayed on the pyramids, and the different pyramids are lit up. This is the",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_05s_16.wav",
+   "set": "zh",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 272.63,
+   "text": "研究该疾病的联合国专家丹尼尔·拉塔涅表示。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_02s_05.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 221.76,
+   "text": "具体说来，据说。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_10s_03.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 596.46,
+   "text": "Daniel Lantagne, a UN expert on the disease, stated that the outbreak was likely caused by the peacekeepers. The hot chocolate is up to Belgians.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "mix_05s_05.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 251.03,
+   "text": "我认为现在的AI，比如说在self driving方。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "zh_02s_11.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 143.18,
+   "text": "大脑病理。",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_05s_10.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 336.55,
+   "text": "Also, after the revolution, occupations were open to all male applicants, allowing the most ambitious.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "mix_05s_07.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 365.87,
+   "text": "对，反正我们就只能做一些这种比较严肃一点的我的东西。我并不是说让你。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_02s_06.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": false,
+   "ms": 227.11,
+   "text": "Rolando Mendoza.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "mix_05s_10.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 260.77,
+   "text": "That's the reason我来就是最后决定做那个。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_02s_15.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 219.74,
+   "text": "Alloys are basically a mixture.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_05s_08.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 296.96,
+   "text": "He was subsequently relocated to Addenbrooke's Hospital in Cambridge.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_02s_19.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 209.66,
+   "text": "It was ruled by the Vicky.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "zh_10s_12.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 294.18,
+   "text": "因此，很可能这个符号只是作为一个标签添加的。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_10s_02.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 573.59,
+   "text": "Rolando Mendoza fired his M16 rifle at the tourists. Scientists hope to understand how planets form, especially how the Earth forms.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "zh_02s_19.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 148.48,
+   "text": "制作。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_10s_04.wav",
+   "set": "en",
+   "seconds": 10,
+   "language_given": false,
+   "ms": 487.14,
+   "text": "Everything in the universe is made of matter. All matter is made of tiny particles called atoms. One bomb exploded outside the government.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "zh_02s_05.wav",
+   "set": "zh",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 190.61,
+   "text": "具体说来，据说。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_05s_13.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 261.7,
+   "text": "The Pyramids Sound and Light Show is one of the most interesting things.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "mix_05s_06.wav",
+   "set": "mix",
+   "seconds": 5,
+   "language_given": true,
+   "ms": 359.42,
+   "text": "就之前运用到的一些，都是一些现成的package，然后再建一个model。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_02s_01.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 289.66,
+   "text": "For the night between 150 and 200.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_05s_10.wav",
+   "set": "en",
+   "seconds": 5,
+   "language_given": false,
+   "ms": 350.47,
+   "text": "Also, after the revolution, occupations were open to all male applicants, allowing the most ambitious.",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "mix_02s_16.wav",
+   "set": "mix",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 170.28,
+   "text": "对，我的我。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "zh_10s_11.wav",
+   "set": "zh",
+   "seconds": 10,
+   "language_given": true,
+   "ms": 415.48,
+   "text": "一夜之间印刷了一百五十到两百份，就是现在众所周知的邓拉普宽边版。中。",
+   "loadavg1_before": 1.91
+  },
+  {
+   "file": "en_02s_07.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 246.04,
+   "text": "Danielle Lantigim, a UNX.",
+   "loadavg1_before": 2.08
+  },
+  {
+   "file": "en_02s_04.wav",
+   "set": "en",
+   "seconds": 2,
+   "language_given": true,
+   "ms": 193.73,
+   "text": "Virtual teams are held to the same standard.",
+   "loadavg1_before": 2.08
+  }
+ ],
+ "loadavg1_end": 2.08,
+ "finished_at": "2026-10-23T05:59:04+08:00"
+}

@@ -1,0 +1,10 @@
+[project]
+name = "spike-llm"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "mlx-lm==0.32.2",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
