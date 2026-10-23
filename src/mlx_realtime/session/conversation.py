@@ -10,7 +10,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Literal
 
-from mlx_realtime.audio.pcm import WIRE_RATE, bytes_to_ms
+from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.session.settings import Modality
 
 type ItemStatus = Literal["in_progress", "completed", "incomplete"]
@@ -62,10 +62,11 @@ class SpokenSegment:
     # For each character of ``spoken``, its index in ``text`` (and len(text) at the end);
     # None when ``spoken`` is ``text``.
     source: tuple[int, ...] | None = None
+    audio_format: AudioFormat = PCM  # the wire format ``audio_bytes`` counts
 
     @property
     def audio_ms(self) -> int:
-        return bytes_to_ms(self.audio_bytes, WIRE_RATE)
+        return self.audio_format.bytes_to_ms(self.audio_bytes)
 
 
 @dataclass(slots=True)
@@ -79,10 +80,11 @@ class AssistantMessage:
     truncated_text: str | None = None  # what the client heard, after conversation.item.truncate
     fallback_text: str | None = None  # D5: what it can have heard, when cut without a truncate
     status: ItemStatus = "in_progress"
+    audio_format: AudioFormat = PCM  # its response's output format
 
     @property
     def audio_ms(self) -> int:
-        return bytes_to_ms(sum(segment.audio_bytes for segment in self.segments), WIRE_RATE)
+        return self.audio_format.bytes_to_ms(sum(segment.audio_bytes for segment in self.segments))
 
     @property
     def history_text(self) -> str:

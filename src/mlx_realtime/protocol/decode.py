@@ -12,6 +12,7 @@ import binascii
 import json
 from typing import cast
 
+from mlx_realtime.audio.formats import AudioFormat
 from mlx_realtime.protocol.fields import (
     ProtocolError,
     check_keys,
@@ -99,7 +100,7 @@ def _decode(obj: dict[str, object], event_id: str | None) -> Command:
     match event_type:
         case "input_audio_buffer.append":
             check_keys(obj, "", ("type", "event_id", "audio"))
-            return AppendAudio(_decode_pcm(require(obj, "audio", "")))
+            return AppendAudio(_decode_base64(require(obj, "audio", "")), event_id)
         case "input_audio_buffer.commit":
             check_keys(obj, "", ("type", "event_id"))
             return CommitAudio(event_id)
@@ -147,15 +148,14 @@ def _decode(obj: dict[str, object], event_id: str | None) -> Command:
             raise ProtocolError("invalid_value", message, "type")
 
 
-def _decode_pcm(value: object) -> bytes:
+def _decode_base64(value: object) -> bytes:
+    """The audio bytes; whether they are whole samples depends on the session's input format,
+    which the actor checks."""
     text = expect_str(value, "audio")
     try:
-        pcm = base64.b64decode(text, validate=True)
+        return base64.b64decode(text, validate=True)
     except binascii.Error:
         raise value_error("audio", "expected base64-encoded audio.") from None
-    if len(pcm) % 2:
-        raise value_error("audio", "audio/pcm needs whole 16-bit samples (an even byte count).")
-    return pcm
 
 
 def _create_item(obj: dict[str, object], event_id: str | None) -> CreateItem:
@@ -266,33 +266,40 @@ def _response_params(value: object, path: str) -> ResponseParams:
         )
     if "tool_choice" in obj:
         tool_choice = decode_tool_choice(obj["tool_choice"], child(path, "tool_choice"))
+    voice, output_format = _response_audio(obj.get("audio"), child(path, "audio"))
     return ResponseParams(
         instructions=instructions,
         output_modality=modality,
         max_output_tokens=max_output_tokens,
         tool_choice=tool_choice,
-        voice=_response_voice(obj.get("audio"), child(path, "audio")),
+        voice=voice,
+        output_format=output_format,
         metadata=_metadata(obj.get("metadata"), child(path, "metadata")),
     )
 
 
-def _response_voice(value: object, path: str) -> str | None:
+def _response_audio(value: object, path: str) -> tuple[str | None, AudioFormat | None]:
+    """The response's own voice and output format, when it sets them."""
     if value is None:
-        return None
+        return None, None
     audio = expect_object(value, path)
     check_keys(audio, path, ("output",))
     if audio.get("output") is None:
-        return None
+        return None, None
     output_path = child(path, "output")
     output = expect_object(audio["output"], output_path)
     check_keys(output, output_path, ("voice", "format"))
-    if "format" in output:
-        decode_audio_format(output["format"], child(output_path, "format"))
-    return (
+    output_format = (
+        None
+        if "format" not in output
+        else decode_audio_format(output["format"], child(output_path, "format"))
+    )
+    voice = (
         None
         if "voice" not in output
         else decode_voice(output["voice"], child(output_path, "voice"))
     )
+    return voice, output_format
 
 
 def _metadata(value: object, path: str) -> dict[str, str] | None:

@@ -710,3 +710,63 @@ Speex linear or with its preprocessor (only if it can be built reproducibly thro
 BSD sources compiled as a project extension), or raw audio. A follow-up task after M5 (effort max)
 measures the ASR input on barge-in-realistic double talk and implements it. Until then,
 `aec.asr_input` stays `processed` (AEC3).
+
+### S1 / S2 — LLM behaviour and performance (B1, 2026-10-23)
+
+Report: `spikes/results/s1s2_report.md`. Conditions: AC power mode was Automatic (powermode 0); no GPU
+step-down was seen (prefill 920–1140 tok/s throughout). An external Go stress test loaded the CPU
+for part of the run; every result records the load.
+
+**Thinking.** Off in 20/20 replies on both models; per request it switches back on.
+
+**Tool calls** (20 prompts per run, AICC's 6 tools):
+
+| Sampling | Qwen3.6 | Qwen3.5 |
+|---|---|---|
+| temp 0.7 | 16–19 | 17–20 |
+| temp 0 | 19, 19, 19 | 19, 19, 19 |
+
+**Hard defect in Qwen3.6.** 11% of realistic transfer turns end with `finish_reason: tool_calls` and
+no parsed call: the model writes `<transfer_to_agent>` instead of `<function=transfer_to_agent>`.
+Rewriting that form for declared tools recovered 7/7 dropped calls offline. Qwen3.5 does not do this,
+but it silently says "好的，我查一下" and never calls (6/40 lookups).
+
+**LLM latency, Qwen3.6** (TTFT p50 / p95 s; first segment boundary p95):
+
+| Case | TTFT | Boundary p95 |
+|---|---|---|
+| warm, a turn appended | 0.14 / 0.18 | 0.33 |
+| cold start | 1.49 / 1.63 | 1.72 |
+| instructions-only change | 1.50 / 1.64 | 1.84 |
+| new per-response override | 0.24 / 1.15 | 1.22 |
+
+- **Cache warming after an instructions change** cuts the real request's TTFT from 1.79 to 0.15 s, but
+  only if it finishes first (≈ 1.7 s). Racing it makes things worse.
+- **Tool-only `transfer_to_agent`** to `[DONE]` takes 1.41 / 1.68 s warm, and 2.65 / 3.12 s (max 3.69)
+  after an instructions change.
+- **Concurrency:** streams are batched (58 tok/s each at 2, 39 at 4). A new request can wait up to
+  0.5 s behind a decoding stream.
+- **Cancellation** stops at the next write, but not inside a tool-call span, and up to 2 more prefill
+  steps run during a long prefill.
+
+**G2 decision (2026-10-23).**
+
+- **Model:** `mlx-community/Qwen3.6-35B-A3B-4bit` @ `38740b84`, with a lenient tool-call parser in
+  `backends/llm` (rewriting `<NAME>` to `<function=NAME>` for declared tools) and one gateway retry on a
+  dropped call.
+- **Server:** `--chat-template-args '{"enable_thinking":false}' --max-tokens 2048 --temp 0.7 --top-p 0.8
+  --top-k 20 --min-p 0.0`.
+- **Per request:** temperature 0 and top_p 1.0 whenever tools are attached; `max_completion_tokens`
+  512; no presence_penalty.
+- **Gateway follow-ups:**
+  - the empty-conversation cue becomes "(The call has connected. Greet the caller as instructed.)";
+  - filter JSON-like pseudo-calls out of replies sent without tools;
+  - warm the cache after an instructions change, and make the real request wait for the warm-up;
+  - a larger `--prompt-cache-size`.
+
+**G4, LLM part — AICC's windows are at risk.**
+
+- First audio after a cold start, an instructions change or a new override: ≈ 2.6 s p95 before GPU
+  contention.
+- A tool-only transfer after an instructions change misses the 3 s window (p95 3.12 s).
+- An LLM-hardening task (effort max, per the owner's rule) addresses these before S5/S6/S10.

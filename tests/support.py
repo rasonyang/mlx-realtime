@@ -14,10 +14,13 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any, get_args
 
+import numpy as np
 from openai import BaseModel as SDKModel
 from openai.types.realtime import RealtimeServerEvent, RealtimeSessionCreateRequest
 from websockets.asyncio.client import ClientConnection, connect
 
+from mlx_realtime.audio import g711
+from mlx_realtime.audio.g711 import Law
 from mlx_realtime.config import validate_config
 from mlx_realtime.providers.mock import EchoLLM, ScriptedASR, SineTTS
 from mlx_realtime.providers.registry import Providers
@@ -253,8 +256,10 @@ class Client:
         await self.send({"type": "conversation.item.create", "item": item})
         await self.until("conversation.item.done")
 
-    async def append(self, pcm: bytes, chunk_ms: int = 100) -> None:
-        step = WIRE_RATE * 2 * chunk_ms // 1000
+    async def append(self, pcm: bytes, chunk_ms: int = 100, *, bytes_per_ms: int = 48) -> None:
+        """``pcm`` in appends of ``chunk_ms``: 24 kHz PCM by default, ``bytes_per_ms=8`` for
+        G.711."""
+        step = bytes_per_ms * chunk_ms
         for start in range(0, len(pcm), step):
             audio = base64.b64encode(pcm[start : start + step]).decode()
             await self.send({"type": "input_audio_buffer.append", "audio": audio})
@@ -272,6 +277,22 @@ async def http_get(address: str, path: str) -> tuple[int, Event]:
     return int(head.split()[1]), json.loads(body)
 
 
+def g711_tone(ms: int, law: Law = "ulaw", *, frequency: float = 220.0) -> bytes:
+    """``ms`` of an 8 kHz G.711 tone (client audio in an ``audio/pcmu`` or ``pcma`` session)."""
+    samples = 8 * ms
+    values = np.rint(8000 * np.sin(2 * np.pi * frequency * np.arange(samples) / 8000))
+    return g711.encode_samples(values.astype(np.int16), law)
+
+
+G711_SESSION: dict[str, object] = {
+    "audio": {
+        "input": {"format": {"type": "audio/pcmu"}},
+        "output": {"format": {"type": "audio/pcmu"}},
+    }
+}
+"""A session in G.711 μ-law both ways, as AICC's G.711 path asks for it (no rate)."""
+
+
 def tone(ms: int, *, frequency: float = 220.0) -> bytes:
     """``ms`` of a 24 kHz PCM16 tone (client audio; the scripted detector ignores its content)."""
     samples = WIRE_RATE * ms // 1000
@@ -284,8 +305,8 @@ _ID = re.compile(r"\b(?:sess|conv|item|resp|call)_[a-z0-9]{16}\b")
 
 def normalize(trace: Sequence[tuple[str, Event]]) -> list[list[object]]:
     """Golden form: ids become ``<item:1>``-style placeholders numbered by first appearance,
-    base64 audio becomes its byte count, and server event ids must count up from where they
-    left off."""
+    base64 audio becomes its format and byte count (``<pcm:4800>``, ``<pcmu:160>``), and server
+    event ids must count up from where they left off."""
     names: dict[str, str] = {}
     counts: dict[str, int] = {}
     last_event = 0
@@ -308,15 +329,29 @@ def normalize(trace: Sequence[tuple[str, Event]]) -> list[list[object]]:
         return value
 
     normalized: list[list[object]] = []
-    audio_types = ("response.output_audio.delta", "input_audio_buffer.append")
+    input_label = "pcm"  # the session's input format, from its latest session event
+    output_labels: dict[str, str] = {}  # each response's output format
     for direction, event in trace:
+        kind = event.get("type")
         if direction == "server":
             number = int(event["event_id"].removeprefix("event_"))
             assert number == last_event + 1, f"event ids out of order at {event}"
             last_event = number
             event = {key: item for key, item in event.items() if key != "event_id"}
-        if event.get("type") in audio_types:
-            field = "delta" if direction == "server" else "audio"
-            event = {**event, field: f"<pcm:{len(base64.b64decode(event[field]))}>"}
+            if kind in ("session.created", "session.updated"):
+                input_label = _label(event["session"]["audio"]["input"]["format"])
+            elif kind == "response.created":
+                response = event["response"]
+                output_labels[response["id"]] = _label(response["audio"]["output"]["format"])
+        if kind == "response.output_audio.delta" and direction == "server":
+            label = output_labels.get(event["response_id"], "pcm")
+            event = {**event, "delta": f"<{label}:{len(base64.b64decode(event['delta']))}>"}
+        elif kind == "input_audio_buffer.append" and direction == "client":
+            event = {**event, "audio": f"<{input_label}:{len(base64.b64decode(event['audio']))}>"}
         normalized.append([direction, walk(event)])
     return normalized
+
+
+def _label(audio_format: Event) -> str:
+    """``pcm``, ``pcmu`` or ``pcma``: how a golden trace shows audio (its byte count follows)."""
+    return str(audio_format["type"]).removeprefix("audio/")

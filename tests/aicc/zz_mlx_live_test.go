@@ -14,6 +14,11 @@
 // in for AICC's call session where it drives the client, and TestMLXBargeIn plays the caller's
 // speech from MLX_REALTIME_CALLER_CLIP: 24 kHz mono PCM16, which probe.py writes from
 // tests/fixtures/speech/en_dinosaurs.wav.
+//
+// With MLX_REALTIME_G711 set (probe.py --g711; M7) the profile is GatewayProfile with
+// AcceptsG711: true, as a dedicated AICC profile for the gateway would be: G.711 μ-law both ways,
+// passed through untouched ({"type": "audio/pcmu"}, 160-byte frames every 20 ms). The caller's
+// clip is converted to the session's format by AICC's own media.Converter.
 
 package provider
 
@@ -40,6 +45,9 @@ func mlxProfile(t *testing.T) Profile {
 	}
 	p := GatewayProfile()
 	p.Endpoint = url
+	if os.Getenv("MLX_REALTIME_G711") != "" {
+		p.AcceptsG711 = true // a dedicated profile: telephone audio passed through (M7)
+	}
 	if m := os.Getenv("MLX_REALTIME_MODEL"); m != "" {
 		p.Model = m
 	}
@@ -49,7 +57,7 @@ func mlxProfile(t *testing.T) Profile {
 	return p
 }
 
-// Handshake, opening turn on an empty conversation, 24 kHz audio back.
+// Handshake, opening turn on an empty conversation, audio back (24 kHz PCM, or G.711).
 func TestMLXGreeting(t *testing.T) {
 	p := mlxProfile(t)
 	_, output := p.FormatsFor(media.LawMu)
@@ -635,9 +643,17 @@ func listen(t *testing.T, session *Realtime, d time.Duration) {
 	}
 }
 
-// audioDuration is how long this much PCM16 audio plays.
+// audioDuration is how long this much audio plays: PCM16 has 2 bytes a sample, G.711 one.
 func audioDuration(bytes int, format media.AudioFormat) time.Duration {
-	return time.Duration(bytes/2) * time.Second / time.Duration(format.RateHz)
+	return time.Duration(bytes/bytesPerSample(format)) * time.Second / time.Duration(format.RateHz)
+}
+
+// bytesPerSample is 2 for PCM16 and 1 for G.711.
+func bytesPerSample(format media.AudioFormat) int {
+	if format.Encoding == media.EncodingPCM16 {
+		return 2
+	}
+	return 1
 }
 
 // playedLikeAICC is what AICC's session reports heard of a turn it cuts short
@@ -660,24 +676,30 @@ func checkNoWarnings(t *testing.T, calls *callLog) {
 }
 
 // callerClip is the caller's speech (en_dinosaurs.wav, speech from 0.24 to 3.92 s) in the session's
-// input format, 24 kHz mono PCM16, as probe.py writes it.
+// input format: 24 kHz mono PCM16 as probe.py writes it, or converted to G.711 the way AICC's media
+// path converts (media.Converter) when the session passes G.711 through.
 func callerClip(t *testing.T, input media.AudioFormat) []byte {
 	t.Helper()
 	path := os.Getenv("MLX_REALTIME_CALLER_CLIP")
 	if path == "" {
 		t.Skip("MLX_REALTIME_CALLER_CLIP is not set (tests/aicc/probe.py writes the caller's speech)")
 	}
-	if input != media.PCM16Format(media.RateProviderOut) {
-		t.Fatalf("the caller's speech is 24 kHz PCM16; the session takes %s", input)
-	}
 	clip, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("the caller's speech: %v", err)
 	}
-	if len(clip)%2 != 0 || audioDuration(len(clip), input) < time.Second {
+	wide := media.PCM16Format(media.RateProviderOut)
+	if len(clip)%2 != 0 || audioDuration(len(clip), wide) < time.Second {
 		t.Fatalf("%s holds %d bytes: not a second or more of PCM16", path, len(clip))
 	}
-	return clip
+	if input == wide {
+		return clip
+	}
+	converter, err := media.NewConverter(wide, input)
+	if err != nil {
+		t.Fatalf("the caller's speech for %s: %v", input, err)
+	}
+	return converter.Convert(nil, clip)
 }
 
 // callerLine is a call's input as AICC's media loop sends it: one 20 ms frame per tick, room tone
@@ -687,14 +709,21 @@ type callerLine struct {
 	frames [][]byte
 }
 
-// say queues speech in the session's input format (PCM16), cut into 20 ms frames, the last one
-// padded with silence. It goes out in place of room tone from the next tick.
+// say queues speech in the session's input format (PCM16 or G.711), cut into 20 ms frames, the
+// last one padded with silence. It goes out in place of room tone from the next tick.
 func (c *callerLine) say(speech []byte, input media.AudioFormat) {
-	size := input.RateHz * frameMs / 1000 * 2
+	size := input.RateHz * frameMs / 1000 * bytesPerSample(input)
+	var pad byte
+	if law, ok := g711Law(input); ok {
+		pad = law.Silence()
+	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	for start := 0; start < len(speech); start += size {
 		frame := make([]byte, size)
+		for i := range frame {
+			frame[i] = pad
+		}
 		copy(frame, speech[start:])
 		c.frames = append(c.frames, frame)
 	}
@@ -820,4 +849,15 @@ func (c *callLog) warnings() string {
 		}
 	}
 	return text.String()
+}
+
+// g711Law is the law of a G.711 format.
+func g711Law(format media.AudioFormat) (media.Law, bool) {
+	switch format.Encoding {
+	case media.EncodingMuLaw:
+		return media.LawMu, true
+	case media.EncodingALaw:
+		return media.LawAlaw, true
+	}
+	return 0, false
 }

@@ -12,7 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Awaitable, Callable, Coroutine, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Protocol
 
 from mlx_realtime import logs
@@ -21,6 +21,7 @@ from mlx_realtime.config import (
     AecConfig,
     AudioReserveConfig,
     BargeInConfig,
+    G711Config,
     LimitsConfig,
     SegmenterConfig,
     SilenceTrimConfig,
@@ -29,9 +30,13 @@ from mlx_realtime.config import (
 from mlx_realtime.providers.base import (
     ASRProvider,
     LLMProvider,
+    Message,
+    PrefixWarmer,
     ProviderError,
     ProviderErrorKind,
     ToolCall,
+    ToolChoice,
+    ToolDef,
     TTSProvider,
 )
 from mlx_realtime.providers.voices import VoiceBook
@@ -181,6 +186,7 @@ class SessionDeps:
     reserve: AudioReserveConfig | None = None  # the audio reserve (M6); None: off
     first_segment_grace_s: float = 0.0  # TTS queue order: see PipelineContext (M6)
     observer: SessionObserver = NULL_OBSERVER  # metrics and the debug endpoint (M6)
+    g711: G711Config = field(default_factory=G711Config)  # G.711 resampling, both ways (M7)
 
 
 class SessionActor:
@@ -213,7 +219,9 @@ class SessionActor:
         self._echo: EchoReference | None = None
         stage: EchoStage | None = None
         if deps.echo is not None or deps.barge_in.active:
-            self._echo = EchoReference(EchoParams.of(deps.aec, deps.barge_in), deps.clock)
+            self._echo = EchoReference(
+                EchoParams.of(deps.aec, deps.barge_in), deps.clock, deps.g711.input_quality
+            )
             ledger.listener = self._echo
             if deps.echo is not None:
                 stage = EchoStage(deps.echo.engine(), self._echo, deps.echo.executor)
@@ -221,6 +229,8 @@ class SessionActor:
             deps.limits.input_audio_buffer_max_ms,
             processed=stage is not None,
             asr_processed=deps.aec.asr_input == "processed",
+            input_format=settings.input_format,
+            g711_quality=deps.g711.input_quality,
         )
         # Audio the detector has not seen is never trimmed from the input buffer, so the
         # buffer's bound is the backlog's too: a client may send faster than real time.
@@ -248,6 +258,8 @@ class SessionActor:
         self._generation = 0
         self._voice_locked = False  # GA: no voice change once the session has spoken
         self._tasks: asyncio.TaskGroup | None = None
+        self._warmup: asyncio.Task[None] | None = None  # the LLM prefix warm-up (M0 S2)
+        self._warm_pending = False  # the instructions changed while this session's LLM ran
         self._pipeline_context = PipelineContext(
             llm=deps.llm,
             tts=deps.tts,
@@ -263,6 +275,7 @@ class SessionActor:
             reserve=deps.reserve,
             first_segment_grace_s=deps.first_segment_grace_s,
             observer=deps.observer,
+            g711_quality=deps.g711.output_quality,
         )
 
     async def run(self) -> None:
@@ -279,8 +292,8 @@ class SessionActor:
 
     def _handle(self, message: Command | Signal) -> None:
         match message:
-            case AppendAudio(pcm=pcm):
-                self._append(pcm)
+            case AppendAudio():
+                self._append(message)
             case CommitAudio(event_id=event_id):
                 self._commit_buffer(event_id)
             case ClearAudio():
@@ -314,8 +327,19 @@ class SessionActor:
 
     # Input audio and turn detection
 
-    def _append(self, pcm: bytes) -> None:
-        start, canonical = self._input.append(pcm)
+    def _append(self, command: AppendAudio) -> None:
+        audio_format = self._input.input_format
+        if len(command.audio) % audio_format.sample_width:
+            message = (
+                "Invalid value for 'audio': audio/pcm needs whole 16-bit samples "
+                "(an even byte count)."
+            )
+            self._reject("invalid_value", message, command.event_id, "audio")
+            return
+        self._input_arrived(*self._input.append(command.audio))
+
+    def _input_arrived(self, start: int, canonical: bytes) -> None:
+        """Canonical audio from ``start`` on the input timeline: to the detectors."""
         self._arrivals.record(self._input.end_ms, self._now())
         if self._echo is not None:
             self._echo.capture_arrived(start + len(canonical) // SAMPLE_WIDTH)
@@ -593,14 +617,48 @@ class SessionActor:
             if self._voice_locked and voice != self._settings.voice:
                 param = "session.audio.output.voice"
                 self._reject("cannot_update_voice", _VOICE_LOCKED, command.event_id, param)
+                if patch.input_format is not UNSET:
+                    self._inbox.input_format_settled(self._settings.input_format)
                 return
             patch = replace(patch, voice=voice)
+        previous = self._settings
         previous_vad = self._settings.turn_detection
         self._settings = self._settings.apply(patch, self._defaults)
+        if (previous.instructions, previous.tools) != (
+            self._settings.instructions,
+            self._settings.tools,
+        ):
+            self._warm_prefix()
+        if patch.input_format is not UNSET:
+            # Later appends decode in the new format (GA allows the change at any time); what
+            # the old decoder still holds goes onto the timeline first.
+            start, tail = self._input.set_format(self._settings.input_format)
+            if tail:
+                self._input_arrived(start, tail)
+            self._inbox.input_format_settled(self._settings.input_format)
         if self._settings.turn_detection != previous_vad:
             self._turns = self._new_turn_manager()
             self._restart_turn_detection()
         self._emit(SessionUpdated(self._session_id, self._settings))
+
+    def _warm_prefix(self) -> None:
+        """The instructions or tools changed (M0 S2): put the next LLM request's prefix in the
+        backend's prompt cache now, so the response that needs it does not pay the prefill.
+        A response created meanwhile waits for the warm-up in the provider. While this
+        session's LLM is generating, the warm-up starts when it finishes."""
+        llm, settings, response = self._deps.llm, self._settings, self._response
+        if not isinstance(llm, PrefixWarmer) or not (settings.instructions or settings.tools):
+            self._warm_pending = False
+            return
+        if response is not None and response.task is not None and not response.llm_done:
+            self._warm_pending = True
+            return
+        self._warm_pending = False
+        if self._warmup is not None:
+            self._warmup.cancel()  # an older prefix nobody will ask for
+        messages = build_messages(self._conversation, settings.instructions)
+        warm = _warm(llm, messages, settings.tools, settings.tool_choice)
+        self._warmup = self._spawn(warm)
 
     def _create_item(self, command: CreateItem) -> None:
         spec = command.item
@@ -730,6 +788,7 @@ class SessionActor:
             metadata=params.metadata,
             turn_item_id=turn_item_id,
             verbatim=verbatim,
+            output_format=params.output_format or settings.output_format,
             timeline=timeline,
             tts_done=modality == "text",
         )
@@ -781,6 +840,7 @@ class SessionActor:
             modality=response.modality,
             voice=response.voice,
             verbatim=response.verbatim,
+            output_format=response.output_format,
         )
         with logs.bound(response=response.id):
             response.task = self._spawn(run_pipeline(request, self._pipeline_context))
@@ -801,6 +861,8 @@ class SessionActor:
                 response.llm_done = True
                 response.usage = done.usage
                 response.finish_reason = done.finish_reason
+                if self._warm_pending:
+                    self._warm_prefix()
                 self._finish_if_done(response)
             case SegmentStarted():
                 self._segment_started(response, signal)
@@ -820,7 +882,9 @@ class SessionActor:
                         response.timeline.note(key, value)
 
     def _open_message(self, response: Response) -> AssistantMessage:
-        message = AssistantMessage(self._ids.item(), response.modality)
+        message = AssistantMessage(
+            self._ids.item(), response.modality, audio_format=response.output_format
+        )
         previous = self._last_item_id()
         self._conversation.append(message)
         if message.modality == "audio" and self._echo is not None:
@@ -844,7 +908,11 @@ class SessionActor:
     def _segment_started(self, response: Response, signal: SegmentStarted) -> None:
         message = response.message or self._open_message(response)
         segment = SpokenSegment(
-            signal.text, signal.spoken, start_ms=message.audio_ms, source=signal.source
+            signal.text,
+            signal.spoken,
+            start_ms=message.audio_ms,
+            source=signal.source,
+            audio_format=message.audio_format,
         )
         message.segments.append(segment)
         message.text += signal.text
@@ -857,7 +925,13 @@ class SessionActor:
             return
         message.segments[signal.index].audio_bytes += len(signal.pcm)
         delivery = Delivery(
-            response.generation, message.id, signal.index, "audio", len(signal.pcm), signal.pcm
+            response.generation,
+            message.id,
+            signal.index,
+            "audio",
+            len(signal.pcm),
+            signal.pcm,
+            message.audio_format,
         )
         self._emit(OutputAudioDelta(response, message, signal.pcm, delivery))
         if self._echo is not None:
@@ -930,6 +1004,8 @@ class SessionActor:
         response.status = status
         response.status_details = details
         self._response = None
+        if self._warm_pending:
+            self._warm_prefix()  # the response ended before its LLM did (cancelled, failed)
         if self._echo is not None:
             self._echo.response_finished(response.generation)
         self._emit(ResponseFinished(response))
@@ -981,3 +1057,16 @@ class SessionActor:
 
 def _backend_error(stage: str, error: ProviderError) -> ErrorInfo:
     return ErrorInfo("server_error", _BACKEND_CODES[error.kind], f"{stage} failed: {error}")
+
+
+async def _warm(
+    llm: PrefixWarmer,
+    messages: Sequence[Message],
+    tools: Sequence[ToolDef],
+    tool_choice: ToolChoice,
+) -> None:
+    """A warm-up never fails its session: whatever goes wrong is logged here."""
+    try:
+        await llm.warm_prefix(messages, tools, tool_choice=tool_choice)
+    except Exception:
+        logger.exception("LLM prefix warm-up failed")

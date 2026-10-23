@@ -210,7 +210,10 @@ async def test_protocol_errors(golden: GoldenCheck) -> None:
         {
             "type": "session.update",
             "event_id": "e7",
-            "session": {"type": "realtime", "audio": {"input": {"format": {"type": "audio/pcmu"}}}},
+            "session": {
+                "type": "realtime",
+                "audio": {"input": {"format": {"type": "audio/pcmu", "rate": 16000}}},
+            },
         },
         {
             "type": "session.update",

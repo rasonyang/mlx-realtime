@@ -16,6 +16,9 @@ gateway, and checks AICC's deadlines on the result:
   ``speech_stopped``; keypresses over a line cancel it, its unheard item is deleted, and the
   keypress gets a spoken reply. The caller's speech is ``tests/fixtures/speech/en_dinosaurs.wav``
   at 24 kHz, handed to the Go tests as ``MLX_REALTIME_CALLER_CLIP``.
+- ``--g711`` (M7): the same harness on a G.711 variant of the profile (``AcceptsG711: true``, as
+  a dedicated AICC profile for the gateway would set it): μ-law passed through both ways,
+  ``{"type": "audio/pcmu"}`` with 160-byte frames. The Go side converts the caller's clip.
 
 Usage (the gateway must be running, or let the script start one with ``--serve``)::
 
@@ -131,6 +134,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--model", default=None, help="the ?model= AICC asks for")
     parser.add_argument("--run", default="^TestMLX", help="go test -run pattern")
+    parser.add_argument(
+        "--g711",
+        action="store_true",
+        help="the profile with AcceptsG711: true (G.711 μ-law passed through, M7)",
+    )
     args = parser.parse_args(argv)
 
     aicc: Path = args.aicc_repo.expanduser().resolve()
@@ -146,7 +154,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         url: str = args.url
         if args.serve is not None:
             gateway, url = serve(args.serve)
-        print(f"AICC harness against {url}", flush=True)
+        profile = "gateway profile, AcceptsG711" if args.g711 else "gateway profile"
+        print(f"AICC harness ({profile}) against {url}", flush=True)
         exit_code, report = run_harness(go, aicc, url, args)
     finally:
         if gateway is not None:
@@ -158,6 +167,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def run_harness(go: str, aicc: Path, url: str, args: argparse.Namespace) -> tuple[int, Report]:
     environ = {**os.environ, "MLX_REALTIME_URL": url}
+    if args.g711:
+        environ["MLX_REALTIME_G711"] = "1"
     if args.api_key is not None:
         environ["REALTIME_API_KEY"] = args.api_key
     if args.model is not None:

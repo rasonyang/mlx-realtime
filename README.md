@@ -143,7 +143,8 @@ src/mlx_realtime/
   text/        segmenter, normalizer, language tag, the overlap of echo turns
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
-backends/llm · backends/audio      the model processes, each its own uv project
+backends/llm · backends/audio      the model processes, each its own uv project; backends/llm runs
+                                   mlx_lm.server through mlxrt_llm (a lenient tool-call parser)
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256
 bench/                             the benchmark: input, replay over /v1/realtime, scoring, report
 tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes · tests/aicc

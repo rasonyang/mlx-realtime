@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import base64
 
-from mlx_realtime.protocol.session import WIRE_FORMAT, render_max_output_tokens, render_session
+from mlx_realtime.protocol.session import render_format, render_max_output_tokens, render_session
 from mlx_realtime.providers.base import Usage
 from mlx_realtime.session.conversation import (
     AssistantMessage,
@@ -354,7 +354,9 @@ def _render_response(response: Response) -> Event:
         "conversation_id": response.conversation_id,
         "output_modalities": [response.modality],
         "max_output_tokens": render_max_output_tokens(response.max_output_tokens),
-        "audio": {"output": {"format": dict(WIRE_FORMAT), "voice": response.voice}},
+        "audio": {
+            "output": {"format": render_format(response.output_format), "voice": response.voice}
+        },
         "usage": _render_usage(response.usage),
         "metadata": None if response.metadata is None else dict(response.metadata),
     }

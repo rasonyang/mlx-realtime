@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
-from mlx_realtime.audio.pcm import WIRE_RATE, bytes_to_ms
+from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.session.clock import Clock
 
 
@@ -23,11 +23,14 @@ class Delivery:
     segment_index: int
     kind: Literal["audio", "transcript"]
     audio_bytes: int = 0
-    pcm: bytes = b""  # the audio itself (audio deliveries)
+    pcm: bytes = b""  # the audio itself (audio deliveries), in ``audio_format``
+    audio_format: AudioFormat = PCM
 
 
 class OutputListener(Protocol):
-    def audio_sent(self, item_id: str, generation: int, pcm: bytes) -> None: ...
+    def audio_sent(
+        self, item_id: str, generation: int, audio: bytes, audio_format: AudioFormat = PCM
+    ) -> None: ...
     def audio_dropped(self, generation: int) -> None: ...
 
 
@@ -38,6 +41,7 @@ class OutputLedger:
         self._clock = clock
         self._stale: set[int] = set()
         self._audio_bytes: dict[str, int] = {}
+        self._formats: dict[str, AudioFormat] = {}  # each item's audio has one format
         self._first_audio: dict[str, float] = {}
         self._transcripts: dict[str, set[int]] = {}
         self.listener: OutputListener | None = None
@@ -54,10 +58,13 @@ class OutputLedger:
         if delivery.kind == "audio":
             total = self._audio_bytes.get(delivery.item_id, 0)
             self._audio_bytes[delivery.item_id] = total + delivery.audio_bytes
+            self._formats.setdefault(delivery.item_id, delivery.audio_format)
             if self._clock is not None:
                 self._first_audio.setdefault(delivery.item_id, self._clock.now())
             if self.listener is not None:
-                self.listener.audio_sent(delivery.item_id, delivery.generation, delivery.pcm)
+                self.listener.audio_sent(
+                    delivery.item_id, delivery.generation, delivery.pcm, delivery.audio_format
+                )
         else:
             self._transcripts.setdefault(delivery.item_id, set()).add(delivery.segment_index)
 
@@ -71,8 +78,9 @@ class OutputLedger:
         return self._first_audio.get(item_id)
 
     def sent_ms(self, item_id: str) -> int:
-        """Milliseconds of the item's audio handed to the socket."""
-        return bytes_to_ms(self._audio_bytes.get(item_id, 0), WIRE_RATE)
+        """Milliseconds of the item's audio handed to the socket (in its own format)."""
+        audio_format = self._formats.get(item_id, PCM)
+        return audio_format.bytes_to_ms(self._audio_bytes.get(item_id, 0))
 
     def transcript_sent(self, item_id: str, segment_index: int) -> bool:
         return segment_index in self._transcripts.get(item_id, set())

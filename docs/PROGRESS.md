@@ -1234,3 +1234,473 @@ reserve holds anything back for long, and event order is unchanged by design.
 - DECISIONS: the reserve and EDF are on by default; one TTS stream supports about 2 concurrently
   speaking sessions at S3's capped pace (3 uncapped), so more TTS capacity is needed for more; the
   overload trade-off (`queue_timeout_ms`) is for the owner.
+
+## M7 — G.711 8 kHz telephony (2026-10-23)
+
+**Goal.** `audio/pcmu` and `audio/pcma` (G.711 at 8 kHz, D2, D3) in both directions, on the same
+canonical path as 24 kHz PCM, so AICC can pass a call's G.711 through untouched with a dedicated
+profile (`AcceptsG711: true`, written on the AICC side, D11).
+
+**Not yet run on the real backends.** M0's GPU spikes hold the GPU. Everything ran on mocks, the
+fake servers, the real Silero VAD and the real echo canceller; the G.711 backend tests are
+written but not run (see "Pending").
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `audio/g711.py` | μ-law and A-law from `audioop.c`'s algorithm: 256-entry decode and 65 536-entry encode tables per law, built with numpy at import; `decode`/`encode` (bytes) and `decode_samples`/`encode_samples` (arrays); silence codes |
+| `audio/formats.py` | `AudioFormat` (`audio/pcm` 24 kHz 2 bytes a sample; `audio/pcmu`, `audio/pcma` 8 kHz 1 byte): rate, sample width, law, bytes ↔ ms. Every wire byte ↔ ms conversion goes through it |
+| `audio/resample.py` | a soxr `quality` per stream (HQ unless asked) |
+| `audio/codec.py` | `InputDecoder(format, g711_quality)`: G.711 → LUT decode → 8 → 16 kHz; `OutputEncoder(max_delta_ms, format, quality)`: one per response, resample to the format's rate, encode, ≤ `max_delta_ms` deltas, flushed per segment |
+| `config.py`, `config.yaml` | `g711: {input_quality: LQ, output_quality: HQ}` |
+| `protocol/` | `decode_audio_format` returns the format (`rate` absent or the format's own, else `invalid_value` on `.rate`); `render_format` (G.711 echoed without `rate`, as the SDK types it); the response's own `audio.output.format`; appends are only base64-decoded here |
+| `session/settings.py`, `commands.py`, `response.py` | `input_format` / `output_format` in the session and its patch; `ResponseParams.output_format`; `Response.output_format` |
+| `session/actor.py` | the whole-sample check of appends (by the input format); format changes mid-session; each response's format into the pipeline, its message, segments and deliveries |
+| `session/input_buffer.py` | decodes in the session's input format; `set_format` flushes the old decoder's tail onto the timeline |
+| `session/inbox.py` | queued audio charged by its duration in the format it will be decoded in |
+| `session/pipeline.py` | one encoder per response in its format; deltas carry their duration, so pacing, the reserve, the TTS deadline horizon and `max_response_audio_ms` count 8 kHz audio |
+| `session/output.py`, `conversation.py` | the ledger, segments and messages count bytes in their own format (truncation, its clamp, D5) |
+| `session/echo.py` | the reference decodes what was sent in its format (G.711 → 8 → 16 kHz at `input_quality`), framed per 20 ms of that format |
+| `bench/` | `--codec pcmu|pcma` sets both directions; a response in another format stops the run; the dataset's G.711 is the gateway's codec |
+| `tests/phone.py` | `codec=`: AICC's G.711 passthrough (no 24 ↔ 8 kHz conversion, the line's own 160-byte frames) |
+| `tests/aicc/` | `zz_mlx_live_test.go`: `MLX_REALTIME_G711` turns `GatewayProfile` into its `AcceptsG711: true` variant (format-aware durations; the caller clip converted by AICC's `media.Converter`); `probe.py --g711` |
+
+**Resampling quality** (M0 S7, measured again here with 20 ms appends). 8 → 16 kHz: LQ lags
+32 ms on average (61 max), HQ 63 ms (115). LQ is flat to 3 kHz (-0.3 dB), -8 dB at 3.4 kHz;
+HQ is flat to 3.6 kHz. Input defaults to LQ (every speech event of a G.711 call comes ~30 ms
+sooner); the ASR's CER on LQ vs HQ input is pending the GPU and decides whether it stays.
+Output (24 → 8 kHz) defaults to HQ: its lag delays no delta, because each segment's tail is
+flushed when the segment ends, and LQ would cut the caller's 3–3.4 kHz band by up to 8 dB.
+
+### How to run and verify
+
+```sh
+uv run --locked pytest tests/unit/test_g711.py tests/integration/test_g711.py   # the codec, goldens
+uv run --locked pytest                                                           # everything
+uv run --locked python tests/aicc/probe.py --aicc-repo ~/src/ai-native-callcenter \
+    --serve config.mock.yaml --g711                 # AICC's harness on AcceptsG711: true
+uv run --locked python -m bench.bench --serve config.mock.yaml --codec pcmu --limit 4
+# The real stack (pending the GPU):
+uv run --locked python -m bench.bench --url ws://127.0.0.1:8000/v1/realtime \
+    --input spikes/data/manifest.jsonl --variant tel8k --codec pcmu --out bench/results/real-g711
+uv run --locked pytest -m backend -k g711
+```
+
+### Test results
+
+On 2026-10-23, the whole suite: **1618 passed, 3 failed, 22 skipped** (about 250 s). The three
+failures are in `tests/unit/test_mlx_lm_chat.py` (the empty-conversation cue and the warmup's
+request), from the LLM-hardening work in progress in the same tree, not from M7; every other
+test passes. `ruff check`, `ruff format --check` and `pyright` (strict on `src/` and `bench/`)
+report nothing in M7's files (the in-progress `providers/chat_wire.py` and `mlx_lm_chat.py`
+have findings of their own).
+
+| Suite | New in M7 (72 tests) |
+|---|---|
+| unit | `test_g711.py` (22: decode on all 256 codes and encode on all 65 536 samples against `audioop`, both laws; round trips; the formats' arithmetic; G.711 in → 16 kHz and 24 kHz → G.711 deltas, with 20 ms appends and any byte count; LQ vs HQ lag and passband; the `g711` config); the session (5: merges, the ledger at 8 kHz, segments' ms, the inbox's duration charge across format updates); the input buffer (4: G.711 held at 16 kHz on the same timeline, LQ's smaller hold-back, the flush at a format change); the protocol (+13: G.711 accepted with no rate or 8000, input ≠ output, the response's own format; rejected: a wrong `rate` per format, a string rate, beta names, unknown keys) |
+| integration | `test_g711.py` (13: golden `g711_turn` and `g711_barge_in`; the same speech-event ms at 8 and 24 kHz; D5 and the truncate clamp at 8 kHz; pacing and the paced flush; `max_response_audio_ms`; format changes after audio flowed; odd byte counts; G.711 session defaults); the AICC replays in the G.711 shape (+8); the simulated echo in μ-law and A-law passthrough (+2: the echo never interrupts, the caller still does, ERLE ≥ 10 dB); the bench with `--codec pcmu` and `pcma` (+2) |
+| tests/aicc | the harness on the `AcceptsG711: true` variant (+1, needs `AICC_REPO`) |
+| backend | +2, not run (below) |
+
+Golden traces: two new (`g711_turn`, `g711_barge_in`); `protocol_errors` changed in one place,
+because `audio/pcmu` is no longer an error: its `e7` is now a μ-law format at 16 kHz, refused
+on `.rate`. Every other golden is unchanged.
+
+AICC's own harness ran here against `config.mock.yaml`, both profiles: `gateway` (24 kHz PCM)
+and its `AcceptsG711: true` variant (μ-law passed through): all five `TestMLX*` pass
+(greeting `0.66s of audio interpreted as PCMU@8000`; barge-in: speech_started 3.2 s into the
+line, cancelled at once, the truncate acknowledged, a reply after speech_stopped; both
+keypresses), `response.created` worst 2 ms.
+
+### Pending the GPU runs
+
+- `test_sdk_g711_spoken_turn_with_the_real_stack`: the official SDK in μ-law both ways, 160-byte
+  frames in real time: transcript, a spoken answer within AICC's deadlines, and that answer's
+  μ-law decoded and heard right by the ASR.
+- `test_aicc_harness_with_g711_against_the_real_stack`: AICC's harness with `--g711`.
+- The bench on `tel8k` with `--codec pcmu` (the original μ-law streams, untouched): latency and
+  CER, once with `MLXRT__G711__INPUT_QUALITY=LQ` and once with `HQ`, which settles the default.
+
+### Known gaps, by milestone
+
+| Milestone | What M7 leaves |
+|---|---|
+| open | the AICC-side profile itself (AICC's repository); a live G.711 call; the input-quality default (CER above) |
+
+### Deviations from ARCHITECTURE, with reasons
+
+1. **One output stream per response, flushed at each segment's end** (the brief: one stateful
+   stream per response). Without the flush a segment's last few ms would wait in the resampler
+   for the next segment's synthesis, which under multi-session load can be seconds (M6), and a
+   segment the fallback speaks may come at another rate. Segments start and end in trimmed
+   near-silence, so the joins are inaudible; every count stays exact per segment.
+2. **The first G.711 delta needs ≥ ~41 ms of TTS audio** (24 → 8 kHz HQ lets nothing out of a
+   shorter first chunk). Qwen3-TTS's first chunk is 160 ms (S3), from which 122 ms goes out at
+   once; no delta waits.
+3. **G.711 is echoed without `rate`.** The SDK's `AudioPCMU`/`AudioPCMA` have no `rate`; a
+   `rate` of 8000 is accepted on input.
+4. **The whole-sample check of an append moved from the protocol layer to the session** (only
+   the session knows the input format). Same error, same position in the event order
+   (`protocol_errors.jsonl` unchanged for it).
+5. **Format changes after audio has flowed are accepted**, as GA allows: the input decoder's
+   tail is flushed onto the timeline first; output changes apply from the next response (a
+   response may set its own, GA's `response.audio.output.format`).
+6. **The inbox bound counts duration**, not bytes: an append is charged in the format of the
+   latest queued `session.update` that set one, until the actor has handled it.
+7. **A missing format `type` means `audio/pcm`** (as before), not "keep the current format".
+8. **Golden traces show audio as `<format:bytes>`** (`<pcmu:160>`); PCM traces are unchanged.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §4.3: the per-step soxr quality (`g711.input_quality` LQ, `output_quality` HQ; 24 kHz PCM stays
+  HQ), the per-response output encoder flushed per segment, and that the echo reference decodes
+  G.711 output.
+- §4.4: the inbox bound in milliseconds of the input format.
+- §10: the `g711` section.
+- §2 / D11: a dedicated AICC profile can now set `AcceptsG711: true` (with `tool_choice`).
+- DECISIONS: LQ for the 8 → 16 kHz input step, pending the CER comparison; formats may change
+  mid-session.
+- Makefile (outside M7's write scope): an `aicc-probe-g711` target (`probe.py --g711`).
+
+## LLM hardening — Qwen3.6's tool calls and AICC's 3 s windows (2026-10-23)
+
+**Goal.** G2 accepted Qwen3.6-35B-A3B-4bit on conditions (B1, M0 S1/S2): a lenient tool-call
+parser in `backends/llm`, one gateway retry on a dropped call, greedy sampling for requests with
+tools, B1's empty-conversation cue, a filter for JSON pseudo-calls, and prompt-cache warming after
+instructions changes. S2 also found AICC's two 3 s windows at risk (first audio after
+`response.created`; `response.done` of a tool-only response after `response.created`) after a cold
+start and after AICC's instructions-only `session.update`. This task builds the conditions,
+measures AICC's cases on the real LLM through the gateway, and adds the mitigations the numbers
+called for.
+
+**Run on the GPU** (Qwen3.6 @38740b84, mlx-lm 0.32.2, AC powermode 0 (Automatic), M7 code-only in
+the same tree): ~3 hours of measurements, every server stopped after each run.
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `backends/llm` (now the package `mlxrt_llm`) | `serve.py`: `python -m mlxrt_llm.serve`, `mlx_lm.server`'s own CLI plus `--tools-checkpoint` and `--shared-prefix-checkpoint`; `lenient.py`: the lenient qwen3_coder parser; `checkpoints.py`: prompt-cache checkpoints inside the system message. Both patches refuse to start on anything but mlx-lm 0.32.2's internals (version, the hooks' source, a self-test). `tests/` (73); `pyproject.toml`: a uv_build package, pytest (dev), pyright strict, ruff extending the root config |
+| `providers/chat_wire.py` | per-request sampling (`Sampling.of`); `warmup_messages`, `prefix_key`; `PseudoCallFilter`, `is_pseudo_call`; `ChunkReader.dropped_call` |
+| `providers/mlx_lm_chat.py` | the dropped-call retry; the pseudo-call filter on replies without tools; `warm_prefix` (one warm-up per prefix in flight, at most `max_warmups_in_flight`, none once a real request for the prefix went out, a sent one runs to its end); a request waits for the warm-up of its prefix |
+| `providers/base.py`, `http.py` | `PrefixWarmer` (an optional capability: mocks need nothing); `RequestClock(total_at=…)` |
+| `session/actor.py` | a `session.update` that changes the instructions or the tools warms the prefix; while the session's LLM is generating, when it finishes |
+| `config.py`, `config.yaml` | `providers.llm`: `tool_temperature` 0, `tool_top_p` 1.0, `retry_dropped_call`, `warm_on_update`, `max_warmups_in_flight`, the cue; `backends.llm`: `python -m mlxrt_llm.serve` with the G2 flags (`--max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0`) and `--prompt-cache-size 64 --prompt-cache-bytes 8GB --tools-checkpoint --shared-prefix-checkpoint` |
+| `tests/fakes/mlx_lm.py` | a one-token request is a warm-up: its own scripts (`warmup()`), recorded in `warmups` |
+| `spikes/llm_hardening/` | `run.py` (the measurements), `probe_parser.py` (B1's transfer probe against the wrapper), `summarize.py` (the tables below) |
+| `Makefile` | `make test-llm-backend` |
+
+### The LLM backend: `python -m mlxrt_llm.serve`
+
+- **The lenient parser.** mlx-lm picks a tool parser when it loads the model: `tokenizer_utils.load`
+  imports `mlx_lm.tool_parsers.<type>` (qwen3_coder for Qwen3.6's template) and reads its
+  `parse_tool_call` then, and every request's `ToolCallFormatter` calls that function. So the hook
+  is one module attribute, replaced before the server starts. The replacement runs the stock
+  parser; only when it fails, the call text has no `<function=` tag and opens with `<NAME>` for a
+  NAME the request declared, is that tag rewritten to `<function=NAME>` (and a closing `</NAME>`
+  to `</function>`) and the stock parser run again. Everything else parses, or fails, exactly as
+  before; an undeclared name is never turned into a call.
+- **Guards.** `install()` refuses to start (exit 2, with what changed) unless mlx-lm is 0.32.2,
+  `tokenizer_utils.load` still imports the parser module and reads `tool_module.parse_tool_call`,
+  `ToolCallFormatter` still calls `self._tool_parser(tool_text, self._tools)`, the markers are
+  still `<tool_call>`/`</tool_call>`, the stock parser still rejects a `<NAME>` call and the
+  lenient one parses it to the expected call. The checkpoint patch checks
+  `ResponseGenerator._tokenize`'s signature and the lines it builds on, and the
+  `LRUPromptCache` lines the refresh relies on.
+- **Tests** (`make test-llm-backend`, 73): every call B1 captured as dropped (7) is recovered with
+  typed arguments (`slots` → `{}`); the 23 it parsed parse identically through the wrapper; an
+  undeclared name, a call cut short, prose and an empty text fail as before; mlx-lm's own
+  `ToolCallFormatter` drops the captured text with the stock parser and streams it with the
+  lenient one; loading the real Qwen3.6 tokenizer after `install()` yields the lenient parser;
+  each guard refuses a changed mlx-lm; the CLI flags are taken out before `mlx_lm.server` parses
+  its arguments.
+- **Cache checkpoints** (`checkpoints.py`). Qwen3.6 is hybrid (Gated DeltaNet + attention): its
+  cache cannot be trimmed back, so the server reuses only prefixes it saved whole, at the end of
+  the system message (plus the next role token), of the last user message and of the whole
+  sequence, and only for requests that end with a user message. The template renders the tools
+  first, inside the system message. `--tools-checkpoint` splits the system segment where the
+  instructions begin (827 of AICC's 1519 system tokens are its six tools);
+  `--shared-prefix-checkpoint` also where the system message stops matching the most similar of
+  the last 16 (AICC's instructions up to `当前环节：`, 575 more tokens, which its phase changes
+  keep: the first change saves it, every later change of any call of that flow starts there).
+  Prompts and outputs are unchanged; only where the cache is saved changes. With either flag a
+  cache hit also makes its entry the newest of its type: mlx-lm evicts the oldest *insertion*
+  first, so the checkpoints every request starts from (and never re-inserts) aged out first.
+  Tested on the real tokenizer: the tools segment ends at `</IMPORTANT>`, the shared one at
+  `当前环节：\n`, the segments always concatenate to the prompt, and requests without tools, without
+  a system message or ending with a tool result keep the stock segments; and on mlx-lm's own
+  `LRUPromptCache`: stock, a checkpoint used by every request is evicted after 3 of 5 one-off
+  entries; refreshed, it survives all 5.
+
+### The gateway
+
+- **Sampling (G2).** A request with tools attached goes at `tool_temperature` 0 / `tool_top_p`
+  1.0; one without tools at `temperature` 0.7 / `top_p` 0.8, the server's own flags (with
+  `--top-k 20 --min-p 0.0`). `max_completion_tokens` 512.
+- **The cue** for a conversation without a user message: "(The call has connected. Greet the
+  caller as instructed.)" (B1: the full greeting 5/5).
+- **A dropped call** (`finish_reason: tool_calls`, no call: the server's parser still rejected
+  it) is asked for once more inside the provider, in the same stream, when nothing visible was
+  produced yet: the consumer sees one answer whose call comes later. The retry runs at the reply
+  sampling (0.7 / 0.8): at temperature 0 the model would write the same call again. It keeps the
+  first request's absolute total deadline and is cancelled like any request. After visible text,
+  or a second drop, the response fails as before (`bad_response` → `provider_error`), logged
+  with the reason. `providers.llm.retry_dropped_call`.
+- **Pseudo-calls.** A reply made without tools passes through `PseudoCallFilter`: text flows
+  through untouched until a `{` whose next non-blank character is `"` (or a code fence) starts;
+  that stretch is held until it closes, then dropped if it is valid JSON shaped like a call (a
+  name key — `name`, `tool_name`, `function`, `tool`, `action` — with an arguments key, or such an
+  object under `tool_call`/`function_call`/`function`), else released as it was. An object that
+  never closes is released at the end (or past 4000 characters). M0's case,
+  `好的，我查一下。\n{"tool_name": "repair_status", "tool_input": {...}}`, is spoken as "好的，我查一下。"
+  whichever way the stream splits it.
+- **Prefix warming.** A `session.update` that changes the instructions or the tools (AICC's phase
+  changes, and every session's first update) makes the session send a one-token request with the
+  prefix of its next request: the new system message and tools, and the conversation up to its
+  last user message (with no user message yet, `[system, assistant "", cue]`, so that the system
+  checkpoint ends before the next role token and serves a history that opens with the greeting).
+  While this session's LLM is generating — AICC sends the update as soon as a call's arguments are
+  done, before `response.done` — it starts when the LLM finishes; while a response only speaks,
+  at once. A request whose system message and tools match a warm-up in flight waits for it (at
+  most the first-token deadline): racing it prefills the same prompt twice (B1: 2.93 s). The
+  server cannot drop a request it is prefilling (it notices a closed connection at its next
+  write), so warm-ups must not pile up: at most one per prefix in flight (others are skipped),
+  `max_warmups_in_flight` (1) in all, none once a real request for the prefix has gone out, and
+  a sent one runs to its end even when its session no longer needs it. The first measurement
+  showed why: the 20 calls of the `line` case each sent their warm-up and hung up, and the next
+  call's request waited 6.2 s behind 19 abandoned prefills.
+
+### Measurements
+
+**How.** `spikes/llm_hardening/run.py` starts the backend (`python -m mlxrt_llm.serve`, the G2
+flags plus each run's own) on :8101 and a gateway on :8103 (`config.mock.yaml` with the real LLM
+provider; mock ASR and TTS at zero delay, so the LLM is what is measured), and replays AICC's
+cases over `/v1/realtime` with AICC's `line_session_zh.json` (its instructions, announce and 6
+tools), one call at a time, n = 20 per case (40 for R2). Spoken replies: the first segment
+boundary, the gateway's `first_sentence_ready` after `response_created`. Tool-only replies:
+`response.done` after `response.created` at the client. p50 / p95 in s (p95 nearest-rank, which
+at n = 20 is the maximum). Caller turns are text items: their ASR is not in the numbers.
+
+**First audio and AICC's windows** are estimated as the brief says: ASR 0.3–0.5 s when a caller
+turn created the response (the gateway creates it at the commit, before the transcript, so the
+ASR runs inside AICC's window) + the boundary + the TTS's first chunk (0.12 s); a tool-only reply
+to a caller turn adds the ASR to its `response.done`. A reply to `response.create` (R2, an
+override, a line) has no ASR.
+
+**Cases** (B1's S2, through the gateway). *cold*: a new call whose instructions the server has
+never seen (a nonce in front); its first caller turn comes 3 s after the `session.update` (the
+greeting line plays first). *warm*: that call's next two turns. *B1 case 3* and *B1's transfer*:
+after two turns, an unseen instructions-only update, 3 s, then a caller turn ("好的，没有别的问题了。"
+alternating with a question: the former mostly ends in a `hangup` call) or "你说的我都试过了没用，给我转人工客服，
+把我的情况跟他们说清楚。". *AICC's own sequence*: after one turn the caller gives an RMA number; the
+model calls `repair_status`; as soon as its arguments are done the client sends the update (an
+unseen phase) and the `function_call_output`, and `response.create` once `response.done`
+arrives (AICC's `SendToolResult` and owed turn): **R2** is that reply, **R3** the caller's next
+turn (a question, or "转人工…"). *override*: a new per-response instructions text after a turn.
+*line*: "Say exactly this…" (D16).
+
+**Runs** (`spikes/results/llm_hardening_<name>.json`): `baseline` = G2 alone (the lenient parser,
+greedy tool sampling, no warming, the stock 10-entry prompt cache); `warm` = + warming;
+`cache_both` = the checkpoints and a 64-entry cache, no warming; `final` = warming + checkpoints
++ 64 entries (config.yaml). Prefilled tokens (p50): cold 1625 → 47; R2 1668 → 74; R3 1711 → 123;
+override 1025 → 163.
+
+| case | baseline | warm | cache_both | final | est. p95 vs 3 s (final) |
+|---|---|---|---|---|---|
+| cold: a call whose instructions are new (first caller turn 3 s after the update) | 1.32 / 1.38 | 0.22 / 0.28 | 1.12 / 1.66 | 0.41 / 0.49 | 0.91–1.11 |
+| warm: the next caller turns | 0.19 / 0.28 | 0.18 / 0.24 | 0.18 / 0.28 | 0.18 / 0.25 | 0.67–0.87 |
+| B1 case 3: unseen instructions update, 3 s, a caller turn (spoken replies) | 1.37 / 1.93 | 0.22 / 0.26 | 0.60 / 1.20 | 0.45 / 0.49 | 0.91–1.11 |
+|   … the same turns answered by a hangup call | 1.70 / 2.27 | 0.50 / 0.57 | 0.89 / 1.57 | 0.68 / 1.43 | 1.73–1.93 |
+| B1's transfer: unseen update, 3 s, "转人工…" (tool-only) | 2.89 / 3.46 | 1.33 / 1.56 | 1.67 / 1.92 | 1.50 / 1.88 | 2.17–2.38 |
+| the same transfer turn without an update | 1.29 / 1.70 | 1.30 / 1.71 | 1.29 / 1.66 | 1.31 / 1.66 | 1.96–2.16 |
+| AICC R2: update + tool result → response.create (spoken) | 1.48 / 1.80 | 1.74 / 1.89 | 0.35 / 0.46 | 0.52 / 0.64 | 0.76 |
+| AICC R3: the next caller turn (spoken) | 1.45 / 1.49 | 0.28 / 0.33 | 0.38 / 0.47 | 0.30 / 0.32 | 0.74–0.94 |
+| AICC R3: the next caller turn is "转人工…" (tool-only) | 3.02 / 4.29 | 1.65 / 2.47 | 1.69 / 3.15 | 1.53 / 2.08 | 2.38–2.58 |
+| a new per-response instructions override | 1.38 / 1.56 | 1.24 / 1.45 | 0.32 / 0.38 | 0.40 / 1.15 | 1.27 |
+| a verbatim line (no LLM) | 0.00 / 0.00 | 0.00 / 0.00 | 0.00 / 0.00 | 0.00 / 0.00 | 0.12 |
+
+The intermediate runs (same cases) isolate each step: `warm_cache` (+64 entries: no change for
+one call at a time), `warm_cache_tools` (+ the tools checkpoint: R2 0.94 / 1.22, override 0.37 /
+1.10, R3 transfer 1.58 / 2.15), `warm_cache_both` (+ the shared prefix: R2 0.55 / 0.68, R3
+transfer 1.59 / 1.98), `final_nowarm` (the final flags without warming), `final_run1` (the final
+flags, a run during which the GPU slowed: decode fell from ~75 to ~52 tok/s and R2 drifted from
+0.57 to 0.98 s; the same flags without warming, run right after, were normal, and `final` was
+re-run; kept as evidence of the risk below).
+
+**No lead time** (`gap0_both`, `gap0_both_nowarm`: the caller turn right after the update, final
+flags; tool-only for the transfer):
+
+| case | warming | no warming |
+|---|---|---|
+| cold (first turn right after the first update) | 0.81 / 1.59 | 1.08 / 1.90 |
+| B1 case 3, spoken | 0.50 / 0.95 | 0.50 / 1.40 |
+| B1's transfer | 1.74 / 3.28 (one outlier; the rest ≤ 2.02) | 1.77 / 2.23 |
+
+A response that meets its warm-up in flight waits for it and then sends its own small request,
+which costs about 0.2 s against one request doing both; racing would prefill twice (B1: 2.93 s).
+
+**Contention** (`contended`, final flags, n = 10): the warm transfer turn while 1 or 2 other
+calls decode a long answer (batched): 1.88 / 2.26 and 2.07 / 2.31 s (2.56–2.81 s p95 with ASR),
+against 1.31 / 1.66 alone. The transfer call is 96–176 tokens (`queue`, `reason`, a 40–90
+character `summary`, `slots`) decoded at 75–90 tok/s alone.
+
+**The prompt cache and memory.** Four calls of different flows taking turns (5 rounds,
+`interleaved_*`): with the stock 10 entries each turn re-prefills more of its history as the
+others evict it (p50 by round 49, 84, 139, 175, 260 tokens); with 64 it stays flat (35–75 tokens;
+under the final flags p50 49, max 164). Footprint of the backend after a run: 21.1 GB with 10
+entries, 26.2 GB with 64 (64 cached prompts, 6.25 GB: ~100 MB each, 63 MB of it the linear
+layers' fixed state). `--prompt-cache-bytes 8GB` is not the limit that binds: mlx-lm 0.32.2 builds
+the cache without it and trims to it only when a request joins a batch. With 64 entries and many
+one-off system messages, mlx-lm's eviction (oldest insertion first, hits not counted) dropped the
+tools and shared-prefix checkpoints after ~40 phase changes (`cache_both`'s last iteration
+re-prefilled 1660 and 1713 tokens: a 3.16 s transfer); with hits counted (`final_nowarm`, same
+flags) that iteration prefilled 173.
+
+**The lenient parser, live** (`llm_hardening_parser.json`, B1's transfer probe against the wrapper,
+60 turns each): at B1's sampling (0.7 / 0.8) 60/60 transfers delivered, 4 of them written as
+`<transfer_to_agent>` and recovered (B1's stock server dropped 11%); at the G2 tool sampling
+(greedy) 60/60, none malformed. No call was dropped.
+
+**Ending a tool-only response at its call** instead of at `[DONE]` would save 10.6 ms p50 (13.5
+p95, 135 tool-only responses): the stream ends one or two tokens after the call. Not worth losing
+a second, parallel call; not done.
+
+### What the numbers say
+
+- **G2 alone misses AICC's windows** in two places: a transfer after an instructions change
+  (B1's sequence: 2.89 / 3.46 s, ~3.8–4.0 s with ASR) and, in AICC's own sequence, the caller's
+  next turn after the tool-result reply: R2 ends with a tool result, so the server saves no
+  checkpoint for the new instructions and R3 re-prefills them all again (1711 tokens; a transfer
+  3.02 / 4.29 s, ~4.6–4.8 s with ASR).
+- **Warming** fixes every case with lead time (cold, B1's cases) and R3 (its warm-up saves the
+  checkpoints R2 cannot), but not R2: AICC's update and `response.create` arrive together, so R2
+  waits for the warm-up's full prefill (1.74 / 1.89 s, 0.26 s slower than without warming).
+- **The checkpoints** fix what warming cannot: an instructions change re-prefills only the
+  changed phase text and the history (R2 0.35–0.55 s), a new override only its own text.
+- **Together** (`final`, config.yaml): every case is inside AICC's 3 s windows at p95 one call at
+  a time; the tightest is a tool-only transfer on a caller turn, 2.17–2.58 s with ASR.
+- Measured but small or not adopted: the 64-entry cache does nothing for one call but keeps several
+  calls' turns cheap; ending at the call saves 11 ms. All 5,260 measured responses completed
+  without an `error`; the lenient parser recovered 9 `<NAME>` calls among them (tool requests
+  greedy) and 4 in the probe, so the retry never fired. It guards correctness, not the deadline
+  (B1: a retry does not fit 3 s).
+
+### Remaining risks
+
+1. **Tool-only transfers are decode-bound.** AICC's `transfer_to_agent` call is ~100–176 tokens;
+   alone it decodes in 1.2–2.0 s, so a transfer on a caller turn is 2.0–2.6 s p95 with ASR, 2.6–
+   2.8 s with one or two other calls decoding, and more with more calls or with S5's TTS/ASR GPU
+   contention, which these numbers do not include. Nothing in the gateway shortens the model's
+   arguments; AICC can (a short `reason`, the `summary` and `slots` filled after the transfer or
+   from the transcript).
+2. **Throttling.** `final_run1` lost ~30% of decode speed mid-run with no code change (AC power
+   mode 0, "Automatic"; DECISIONS records High Power, `pmset` reads 0; a VM and `syspolicyd` were
+   busy); its R3 transfer reached 2.83 s (3.1–3.3 s with ASR).
+3. **The first phase change of a flow after a backend start** has no shared-prefix checkpoint yet:
+   R2 re-prefills ~1650 tokens once (`final`: 1.76 s, the first iteration).
+4. **Calls of different flows starting together** queue their warm-ups (one at a time): in the
+   4-call burst some first turns waited 0.9–2.1 s (2.7 s worst with ASR and TTS).
+5. **Small prefills that resume from a warm-up's checkpoint** took 0.30–0.40 s instead of 0.15 s
+   with the checkpoint flags on (same ~50 tokens prefilled, server pickup unchanged at ~75 ms
+   p50); not isolated. It costs the cold and B1 case-3 turns ~0.2 s, well inside their budget.
+6. **The patches are version-pinned** to mlx-lm 0.32.2 (they refuse to start otherwise); the
+   checkpoints and the LRU refresh change the server's cache bookkeeping, not its outputs.
+7. A call dropped **after** visible text still fails the response (as before, now logged).
+
+### How to run and verify
+
+```sh
+make test-llm-backend                      # backends/llm: the parser, the checkpoints, the guards
+uv run --locked pytest -m "not e2e"        # the gateway (the hardening: test_chat_wire.py,
+                                           # test_mlx_lm_chat.py, test_prefix_warming.py,
+                                           # test_llm_hardening.py)
+make lint typecheck
+make dev                                   # the LLM backend is now python -m mlxrt_llm.serve
+# The measurements (each run starts its own backend on :8101 and gateway on :8103, ~10 min):
+SPIKE_LOG_DIR=<scratch> uv run --project spikes/llm_hardening python spikes/llm_hardening/run.py \
+    --name final --warm on --server-args "--prompt-cache-size 64 --prompt-cache-bytes 8GB \
+    --tools-checkpoint --shared-prefix-checkpoint"
+uv run --project spikes/llm_hardening python spikes/llm_hardening/summarize.py baseline final
+SPIKE_LOG_DIR=<scratch> uv run --project spikes/llm_hardening python spikes/llm_hardening/probe_parser.py
+```
+
+### Test results
+
+On 2026-10-23, after M7 finished, on the whole tree: the gateway suite **1756 passed, 20
+skipped** (`uv run --locked pytest -m "not e2e"`, about 260 s; the skips need the real backends
+or an AICC checkout), e2e **5 passed, 2 skipped**; `backends/llm` **73 passed** (`make
+test-llm-backend`, the tokenizer tests on the local Qwen3.6 snapshot). `ruff check`, `ruff format
+--check`, `pyright` (strict on `src/` and `bench/`) and `pyright -p backends/llm` (strict on
+`src/`) report nothing; every `uv.lock` checks. M7's section above lists three failures in
+`test_mlx_lm_chat.py` (the cue and the warmup request): they came from this work in progress and
+pass now.
+
+New and changed tests:
+
+- `backends/llm/tests/` (73): the lenient parser on B1's captured outputs (7 dropped, 23 parsed)
+  and on edge cases; mlx-lm's `ToolCallFormatter` with either parser; the real tokenizer picking
+  the lenient parser; every guard; the checkpoints on the real tokenizer and template with AICC's
+  instructions and tools; the LRU refresh on mlx-lm's own `LRUPromptCache` (stock: the checkpoint
+  is evicted after 3 hits; patched: kept through all 5).
+- `tests/unit/test_chat_wire.py` (+112 cases): sampling by tools; the warm-up prefix with and
+  without a user message; the prefix key; `dropped_call`; the pseudo-call filter on M0's reply
+  split at each of its 81 positions, on 11 call shapes, and on 12 texts it must leave alone (one
+  character per delta too).
+- `tests/unit/test_mlx_lm_chat.py` (+19): the retry (transparent, twice dropped, after text, off,
+  under the first total deadline, cancelled); the filter in a stream, and its release at the end;
+  the warm-up request; a request waiting for its prefix's warm-up, another prefix not waiting,
+  cancelling the wait; warm-ups failing, off, deduplicated, one at a time, dropped once their
+  request went out, dropped when cancelled while queued, outliving their caller once sent, stopped
+  by `aclose`.
+- `tests/integration/test_prefix_warming.py` (6) and `test_llm_hardening.py` (4): through the
+  gateway: when the session warms and with what, the deferral while the LLM generates, a failing
+  warm-up; the retry, the filter and the wait on the wire with the real provider; a burst of 20
+  calls warming once.
+- Changed: `test_mlx_lm_chat.py`'s request-shape test (tool requests at 0 / 1.0), its warmup test
+  (the new cue; the fake records it as a warm-up), its malformed-streams test (a dropped call is
+  now retried: tested on its own), and its between-tokens cancellation test, which raced (it
+  cancelled on the server's hold, sometimes before the client had read the token; it now waits for
+  the token first); `test_config.py` (the backend command and the G2 sampling). The fake
+  `mlx_lm.server` answers a one-token request as a warm-up, from its own scripts, so tests that
+  script their real replies are unaffected by warm-ups. **No golden trace changed** (the goldens
+  run the mock LLM).
+
+### Deviations from the brief, with reasons
+
+1. **The retry samples at the reply temperature** (0.7 / 0.8), not the tools' 0: greedy decoding
+   would write the same malformed call again (B1: identical output 4/4 at temperature 0).
+2. **Warming is not only for instructions-only updates and idle sessions.** Any update that
+   changes the instructions or the tools warms (the first update's warm-up is what fixes the cold
+   case); and an update that arrives while a response is running does not skip it: it waits until
+   this session's LLM is done (AICC sends its update right after a call's arguments, before
+   `response.done`, so "no response running" would never warm AICC's own sequence), and starts at
+   once while the response is only speaking.
+3. **Warm-ups are deduplicated and serialized** (`max_warmups_in_flight`), and a sent one runs to
+   its end: mlx_lm.server cannot drop a request it is prefilling, and the first measurement lost a
+   cold turn to 6.2 s of queued, abandoned prefills.
+4. **Two server-side cache checkpoints and a true LRU** (`--tools-checkpoint`,
+   `--shared-prefix-checkpoint`) were not asked for: they are task 8's mitigation (and are what
+   keep AICC's own sequence fast; warming alone cannot, because AICC's update and response.create
+   come together). Opt-in flags, version-guarded like the parser.
+5. **`--prompt-cache-bytes` only binds when a request joins a batch** in mlx-lm 0.32.2
+   (`LRUPromptCache` is built without it); `--prompt-cache-size 64` is the limit that holds.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §2 (process table, Startup): the llm process is `python -m mlxrt_llm.serve` (mlx_lm.server plus
+  the lenient parser and the cache checkpoints) with `--max-tokens 2048 --temp 0.7 --top-p 0.8
+  --top-k 20 --min-p 0.0 --prompt-cache-size 64 --prompt-cache-bytes 8GB --tools-checkpoint
+  --shared-prefix-checkpoint`; sessions warm the prompt cache on `session.update`.
+- §5.1: `PrefixWarmer`, an optional provider capability (`warm_prefix`).
+- §5.2 (the LLM provider): per-request sampling (tools → 0 / 1.0); the cue; tool calls: the
+  backend's lenient parser, the retry of a dropped call before visible text, `bad_response`
+  after; the pseudo-call filter; prefix warming and the wait for it, with its rules.
+- §5.3: the hybrid model's cache (whole prefixes only, at segment ends, only for requests ending
+  with a user message); the server notices a closed connection only at its next write, so
+  prefills are never cancelled; the checkpoints and the LRU refresh; ~100 MB per cached prompt.
+- §10: the new `providers.llm` keys.
+- DECISIONS: the warming policy (any instructions/tools change; deferred while the session's LLM
+  generates; one per prefix, one at a time, a sent one runs to its end); the retry's sampling;
+  the cache checkpoints and refresh, opt-in flags on; `--prompt-cache-size 64` (+6 GB resident);
+  AICC's transfer call is decode-bound (Remaining risks, 1): a request to AICC, not a gateway fix.

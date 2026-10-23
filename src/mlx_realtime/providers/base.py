@@ -180,3 +180,14 @@ class Queued(Protocol):
 def queue_depth(provider: object) -> int:
     """The requests waiting in ``provider``'s queue now (0 for a provider without one)."""
     return provider.queue_depth if isinstance(provider, Queued) else 0
+
+
+@runtime_checkable
+class PrefixWarmer(Protocol):
+    """An LLM provider that can put the prefix of a session's next request in its backend's
+    prompt cache ahead of time (M0 S2). It never raises a ``ProviderError``: a failed warm-up
+    only costs the time it would have saved."""
+
+    async def warm_prefix(
+        self, messages: Sequence[Message], tools: Sequence[ToolDef], *, tool_choice: ToolChoice
+    ) -> None: ...

@@ -6,13 +6,13 @@ Three parts handle it:
 - ``CaptureClock`` maps the session's input timeline to loop time, from when the audio arrived:
   the client streams its capture in real time, so the earliest arrivals pin the offset.
 - ``EchoReference`` is what the client is modelled to play: every audio delta as the writer
-  hands it to the socket, resampled 24 → 16 kHz, framed in 20 ms and played on the AICC playout
-  model (``audio/playout.py``). From it come the canceller's reference for any stretch of the
-  input (placed ``lead`` early, so it precedes its echo, and moved by the GCC-PHAT guard), whether
-  the client was playing at a point of the input (the barge-in rules), and which assistant audio
-  played around a user turn (echo-turn suppression). A barge-in or cancel flushes the frames
-  the client never played; a client truncate drops the rest of that item and re-anchors the
-  model's timing.
+  hands it to the socket, decoded (G.711) and resampled to 16 kHz, framed in 20 ms and played
+  on the AICC playout model (``audio/playout.py``). From it come the canceller's reference for
+  any stretch of the input (placed ``lead`` early, so it precedes its echo, and moved by the
+  GCC-PHAT guard), whether the client was playing at a point of the input (the barge-in rules),
+  and which assistant audio played around a user turn (echo-turn suppression). A barge-in or
+  cancel flushes the frames the client never played; a client truncate drops the rest of that
+  item and re-anchors the model's timing.
 - ``EchoStage`` runs the canceller on the VAD feeder's path: whole 10 ms frames, each fed in lock
   step with the reference frame for the same input positions (zeros when nothing plays, so the
   delay is carried in the content), on the canceller executor, in order. While a response may
@@ -43,8 +43,10 @@ import numpy as np
 import numpy.typing as npt
 
 from mlx_realtime.audio.aec import FRAME_SAMPLES, EchoEngine, EngineName, make_engine
+from mlx_realtime.audio.codec import InputDecoder
 from mlx_realtime.audio.delay import HOP, DelayEstimate, DelayEstimator
-from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, WIRE_RATE
+from mlx_realtime.audio.formats import PCM, AudioFormat
+from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH
 from mlx_realtime.audio.playout import (
     Played,
     PlayoutModel,
@@ -52,7 +54,7 @@ from mlx_realtime.audio.playout import (
     RunStart,
     TickPhaseLearner,
 )
-from mlx_realtime.audio.resample import Resampler
+from mlx_realtime.audio.resample import Quality
 from mlx_realtime.config import AecConfig, BargeInConfig
 from mlx_realtime.session.clock import Clock
 
@@ -60,7 +62,6 @@ logger = logging.getLogger(__name__)
 
 RATE = CANONICAL_RATE
 _FRAME_BYTES = FRAME_SAMPLES * SAMPLE_WIDTH
-_WIRE_PER_FRAME = WIRE_RATE // 50  # 24 kHz samples in one 20 ms client frame
 _CAPTURE_WINDOW = 10 * RATE  # the capture clock's sliding window
 _MAX_ANCHOR = RATE // 2  # re-anchoring moves the model by at most 500 ms
 _HISTORY = 60 * RATE  # how long played audio is remembered for echo-turn matching
@@ -141,12 +142,16 @@ class CaptureClock:
 class _ItemAudio:
     """One assistant item's output audio as sent, and how the client played it."""
 
-    def __init__(self, item_id: str, generation: int) -> None:
+    def __init__(
+        self, item_id: str, generation: int, audio_format: AudioFormat, g711_quality: Quality
+    ) -> None:
         self.item_id = item_id
         self.generation = generation
-        self._resampler = Resampler(WIRE_RATE, RATE)
+        self._decoder = InputDecoder(audio_format, g711_quality)  # as the caller's audio comes in
+        self._sample_width = audio_format.sample_width
+        self._per_frame = audio_format.rate // 50  # wire samples in one 20 ms client frame
         self._reference = bytearray()  # 16 kHz, as resampled so far
-        self._wire = 0  # 24 kHz samples sent
+        self._wire = 0  # wire samples sent
         self.frames = 0  # 20 ms frames handed to the client model
         self.complete = False
         self.plays: list[int] = []  # play start of frame i (frames play in order)
@@ -156,11 +161,11 @@ class _ItemAudio:
     def last_end(self) -> int | None:
         return None if not self.plays else self.plays[-1]
 
-    def add(self, pcm: bytes) -> int:
+    def add(self, audio: bytes) -> int:
         """Audio sent; returns how many whole 20 ms frames it completed."""
-        self._reference += self._resampler.process(pcm)
-        self._wire += len(pcm) // SAMPLE_WIDTH
-        whole = self._wire // _WIRE_PER_FRAME
+        self._reference += self._decoder.decode(audio)
+        self._wire += len(audio) // self._sample_width
+        whole = self._wire // self._per_frame
         added, self.frames = whole - self.frames, whole
         return added
 
@@ -170,8 +175,8 @@ class _ItemAudio:
         if self.complete:
             return 0
         self.complete = True
-        self._reference += self._resampler.flush()
-        if self._wire % _WIRE_PER_FRAME:
+        self._reference += self._decoder.flush()
+        if self._wire % self._per_frame:
             self.frames += 1
             return 1
         return 0
@@ -261,9 +266,11 @@ class EchoReference:
     the writer through the output ledger (audio queued, sent, dropped); read by the VAD feeder.
     """
 
-    def __init__(self, params: EchoParams, clock: Clock) -> None:
+    def __init__(self, params: EchoParams, clock: Clock, g711_quality: Quality = "HQ") -> None:
+        """``g711_quality``: the 8 → 16 kHz resampling of G.711 output, as its echo comes in."""
         self.params = params
         self._clock = clock
+        self._g711_quality: Quality = g711_quality
         self._model = PlayoutModel[_Frame](params.playout, on_run_start=self._run_started)
         self._capture = CaptureClock()
         self._items: dict[str, _ItemAudio] = {}
@@ -297,13 +304,16 @@ class EchoReference:
     def audio_queued(self, generation: int) -> None:
         self._pending[generation] = self._pending.get(generation, 0) + 1
 
-    def audio_sent(self, item_id: str, generation: int, pcm: bytes) -> None:
-        """The writer handed an audio delta to the socket."""
+    def audio_sent(
+        self, item_id: str, generation: int, audio: bytes, audio_format: AudioFormat = PCM
+    ) -> None:
+        """The writer handed an audio delta (in ``audio_format``) to the socket."""
         item = self._items.get(item_id)
         if item is None:
-            item = self._items[item_id] = _ItemAudio(item_id, generation)
+            item = _ItemAudio(item_id, generation, audio_format, self._g711_quality)
+            self._items[item_id] = item
         first = item.frames
-        added = item.add(pcm)
+        added = item.add(audio)
         self._arrive(item, first, added)
         self._settle(generation)
 

@@ -56,8 +56,11 @@ class Connection:
         self._session_id = gateway.ids.session()
         self._write_timeout_s = config.limits.client_write_timeout_ms / 1000
         self._max_duration_s = config.gateway.max_session_s
+        settings = gateway.defaults if model is None else replace(gateway.defaults, model=model)
         self._inbox = Inbox(
-            max_audio_ms=config.limits.inbox_max_ms, max_commands=config.limits.inbox_max_commands
+            max_audio_ms=config.limits.inbox_max_ms,
+            max_commands=config.limits.inbox_max_commands,
+            input_format=settings.input_format,
         )
         self._outbox = Outbox(config.limits.outbound_queue_events)
         deps = gateway.session_deps()
@@ -65,7 +68,6 @@ class Connection:
         self._encoder = EventEncoder()
         self._stopping = asyncio.Event()
         self._stop = _Stop(1001, "server shutting down")
-        settings = gateway.defaults if model is None else replace(gateway.defaults, model=model)
         self._actor = SessionActor(
             session_id=self._session_id,
             conversation_id=gateway.ids.conversation(),

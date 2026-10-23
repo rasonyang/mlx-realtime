@@ -12,6 +12,7 @@ import enum
 from dataclasses import dataclass, replace
 from typing import Literal
 
+from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.providers.base import ToolChoice, ToolDef
 
 type Modality = Literal["audio", "text"]
@@ -46,6 +47,8 @@ class SessionSettings:
     model: str = "mlx-realtime"
     instructions: str = ""
     output_modality: Modality = "audio"
+    input_format: AudioFormat = PCM
+    output_format: AudioFormat = PCM
     transcription: Transcription | None = Transcription()
     turn_detection: ServerVad | None = ServerVad()
     voice: str = "default"
@@ -59,6 +62,8 @@ class SessionSettings:
             model=_pick(patch.model, self.model),
             instructions=_pick(patch.instructions, self.instructions),
             output_modality=_pick(patch.output_modality, self.output_modality),
+            input_format=_pick(patch.input_format, self.input_format),
+            output_format=_pick(patch.output_format, self.output_format),
             transcription=_merge_transcription(
                 patch.transcription, self.transcription, defaults.transcription
             ),
@@ -93,6 +98,8 @@ class SessionPatch:
     model: Maybe[str] = UNSET
     instructions: Maybe[str] = UNSET
     output_modality: Maybe[Modality] = UNSET
+    input_format: Maybe[AudioFormat] = UNSET
+    output_format: Maybe[AudioFormat] = UNSET
     transcription: Maybe[TranscriptionPatch | None] = UNSET
     turn_detection: Maybe[ServerVadPatch | None] = UNSET
     voice: Maybe[str] = UNSET

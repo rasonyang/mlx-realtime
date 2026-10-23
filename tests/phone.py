@@ -16,6 +16,11 @@ Uplink, one frame per tick: the echo, the caller's speech (injected), line noise
 
 AICC's barge-in is modelled too: on ``speech_started`` once its 800 ms guard has passed, or on a
 cancelled ``response.done``, it flushes its queue and truncates the item to the frames it played.
+
+``codec="pcmu"`` or ``"pcma"`` (M7) is AICC's G.711 passthrough (a profile with
+``AcceptsG711: true``): the session takes G.711 both ways, so our deltas are 8 kHz G.711 that
+AICC frames as they come (no downsampler), and each uplink frame is the line's own 160 G.711
+bytes (no upsampler), coded with the gateway's codec (``audio/g711.py``).
 """
 
 from __future__ import annotations
@@ -25,10 +30,12 @@ import base64
 import contextlib
 from collections import deque
 from dataclasses import dataclass, field
+from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
 
+from mlx_realtime.audio import g711
 from mlx_realtime.audio.pcm import CANONICAL_RATE
 from mlx_realtime.audio.resample import Resampler
 from tests.support import Client, Event
@@ -40,6 +47,7 @@ UNDERRUN_TICKS = 2
 AICC_BARGE_GUARD_S = 0.8
 
 type Floats = npt.NDArray[np.float64]
+type Codec = Literal["pcm", "pcmu", "pcma"]
 
 
 def _down_taps(factor: int = 3, taps: int = 33) -> Floats:
@@ -80,6 +88,10 @@ def echo_path(seed: int, *, taps: int = 96, erl_db: float = 10.0) -> Floats:
     return response * 10 ** (-erl_db / 20)
 
 
+def g711_law(codec: Codec) -> g711.Law:
+    return "ulaw" if codec == "pcmu" else "alaw"
+
+
 def to_pcm(samples: Floats) -> bytes:
     return np.clip(np.rint(samples), -32768, 32767).astype("<i2").tobytes()
 
@@ -118,8 +130,10 @@ class SimulatedCall:
         noise_db: float = -65.0,
         seed: int = 7,
         phase_s: float = 0.007,
+        codec: Codec = "pcm",
     ) -> None:
         self.client = client
+        self._law: g711.Law | None = None if codec == "pcm" else g711_law(codec)
         self.log = CallLog()
         self.events: list[tuple[float, Event]] = []
         self._echo = None if echo_db is None else echo_path(seed, erl_db=echo_db)
@@ -205,18 +219,21 @@ class SimulatedCall:
                 case _:
                     pass
 
-    def _downlink(self, item_id: str, pcm24: bytes) -> None:
+    def _downlink(self, item_id: str, audio: bytes) -> None:
         if item_id != self._item:
             self._end_of_audio()
             self._item = item_id
         if item_id in self._flushed:
             return
-        samples = from_pcm(pcm24)
-        stream = np.concatenate([self._down_history, samples])
-        filtered = np.convolve(stream, _DOWN, mode="valid")  # one output per input sample
-        self._down_history = stream[len(stream) - (len(_DOWN) - 1) :]
-        picked = filtered[(-self._down_phase) % 3 :: 3]
-        self._down_phase = (self._down_phase + len(samples)) % 3
+        if self._law is not None:  # G.711 passthrough: already the line's 8 kHz
+            picked = g711.decode_samples(audio, self._law).astype(np.float64)
+        else:
+            samples = from_pcm(audio)
+            stream = np.concatenate([self._down_history, samples])
+            filtered = np.convolve(stream, _DOWN, mode="valid")  # one output per input sample
+            self._down_history = stream[len(stream) - (len(_DOWN) - 1) :]
+            picked = filtered[(-self._down_phase) % 3 :: 3]
+            self._down_phase = (self._down_phase + len(samples)) % 3
         self._pending8 = np.concatenate([self._pending8, picked])
         while len(self._pending8) >= FRAME_8K:
             self._queue.append(_Frame(item_id, self._pending8[:FRAME_8K]))
@@ -293,8 +310,10 @@ class SimulatedCall:
     async def _uplink(self, played: Floats) -> None:
         echo = np.zeros(FRAME_8K)
         if self._echo is not None:
-            # What played, G.711-coded, through the echo path, after the bulk delay.
-            full = np.convolve(ulaw_roundtrip(played), self._echo)
+            # What played, G.711-coded, through the echo path, after the bulk delay. (In
+            # passthrough what played is G.711 already.)
+            coded = played if self._law is not None else ulaw_roundtrip(played)
+            full = np.convolve(coded, self._echo)
             full[: len(self._overlap)] += self._overlap
             produced, self._overlap = full[:FRAME_8K], full[FRAME_8K:]
             line = np.concatenate([self._line, produced])
@@ -303,6 +322,11 @@ class SimulatedCall:
         for index in range(min(FRAME_8K, len(self._caller))):
             caller[index] = self._caller.popleft()
         noise = self._rng.standard_normal(FRAME_8K) * self._noise_rms
-        uplink = ulaw_roundtrip(echo + caller + noise)
-        audio = base64.b64encode(to_pcm(upsample_frame(uplink))).decode()
+        line = echo + caller + noise
+        if self._law is not None:  # the line's G.711 frame, as is
+            samples = np.clip(np.rint(line), -32768, 32767).astype(np.int16)
+            frame = g711.encode_samples(samples, self._law)
+        else:
+            frame = to_pcm(upsample_frame(ulaw_roundtrip(line)))
+        audio = base64.b64encode(frame).decode()
         await self.client.send({"type": "input_audio_buffer.append", "audio": audio})

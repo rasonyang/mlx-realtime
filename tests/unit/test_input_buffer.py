@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import pytest
 
+from mlx_realtime.audio.formats import PCMU
+from mlx_realtime.audio.resample import Quality
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.input_buffer import InputBuffer
-from tests.support import tone
+from tests.support import g711_tone, tone
 
 CANONICAL_BYTES_PER_MS = 32
 
@@ -109,3 +111,39 @@ def test_without_the_canceller_there_is_one_track() -> None:
     _, canonical = buffer.append(tone(200))
     buffer.apply_processed(0, bytes(len(canonical)))  # no processed track: nothing changes
     assert buffer.slice(0, 100) == canonical[: 100 * CANONICAL_BYTES_PER_MS]
+
+
+@pytest.mark.parametrize("quality", ["LQ", "HQ"])
+def test_g711_input_is_held_at_16_khz_on_the_same_timeline(quality: Quality) -> None:
+    buffer = InputBuffer(max_ms=60_000, input_format=PCMU, g711_quality=quality)
+    for _ in range(25):
+        buffer.append(g711_tone(20))  # 160 bytes: AICC's 20 ms frames
+    assert 380 <= buffer.end_ms <= 500  # the 8 → 16 kHz resampler holds some back
+    audio = buffer.commit()
+    assert audio is not None
+    assert (audio.start_ms, audio.end_ms) == (0, 500)
+    assert len(audio.pcm) == 500 * CANONICAL_BYTES_PER_MS
+
+
+def test_lq_holds_back_less_8_khz_audio_than_hq() -> None:
+    held: dict[str, int] = {}
+    for quality in ("LQ", "HQ"):
+        buffer = InputBuffer(max_ms=60_000, input_format=PCMU, g711_quality=quality)
+        for _ in range(50):
+            buffer.append(g711_tone(20))
+        held[quality] = 1000 - buffer.end_ms
+    assert held["LQ"] < held["HQ"]
+    assert held["LQ"] <= 62
+
+
+def test_a_format_change_flushes_the_old_decoder_onto_the_timeline() -> None:
+    buffer = InputBuffer(max_ms=60_000)
+    buffer.append(tone(300))  # 24 kHz PCM
+    start, tail = buffer.set_format(PCMU)
+    assert start + len(tail) // 2 == 300 * 16  # the PCM resampler's tail, to 300 ms exactly
+    assert buffer.input_format == PCMU
+    assert buffer.set_format(PCMU) == (300 * 16, b"")  # unchanged: nothing to flush
+    buffer.append(g711_tone(200))
+    audio = buffer.commit()
+    assert audio is not None
+    assert (audio.start_ms, audio.end_ms) == (0, 500)

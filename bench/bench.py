@@ -17,7 +17,9 @@ and as markdown tables.
         --input spikes/data/manifest.jsonl --variant tel8k --concurrency 1 --out bench/results/run
     uv run --locked python -m bench.bench --serve config.mock.yaml --limit 4    # no backends
 
-``--codec pcmu|pcma`` sends 8 kHz G.711 instead of 24 kHz PCM; the gateway accepts it from M7.
+``--codec pcmu|pcma`` runs the session in 8 kHz G.711 both ways (M7) instead of 24 kHz PCM: the
+utterances go out as 160-byte frames (the original 8 kHz stream when its law matches), and a
+response in any other format stops the run.
 """
 
 from __future__ import annotations
@@ -141,6 +143,9 @@ class _Session:
             case "conversation.item.input_audio_transcription.failed":
                 current.transcripts[str(event["item_id"])] = ""
             case "response.created":
+                found = _field(event, "response", "audio", "output", "format", "type")
+                if found != f"audio/{self.options.codec}":
+                    self.failure = f"a response in {found}, not audio/{self.options.codec}"
                 response = _Response(str(_field(event, "response", "id")))
                 self._responses[response.id] = response
                 current.responses.append(response)
@@ -176,6 +181,7 @@ class _Session:
         session: dict[str, object] = {
             "type": "realtime",
             "audio": {
+                "output": {"format": audio_format},
                 "input": {
                     "format": audio_format,
                     "transcription": transcription,
@@ -185,7 +191,7 @@ class _Session:
                         "create_response": True,
                         "interrupt_response": True,
                     },
-                }
+                },
             },
         }
         if options.instructions is not None:

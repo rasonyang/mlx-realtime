@@ -13,6 +13,10 @@ no 2 s gap between audio deltas.
 Since M3 the "Say exactly this" lines are spoken verbatim without the LLM (D16), and a flow voice
 that is not configured is spoken by the default voice and echoed as such (D19).
 
+M7 replays every trace again in AICC's G.711 session shape (``CODECS``): what a dedicated AICC
+profile with ``AcceptsG711: true`` sends, ``{"type": "audio/pcmu"}`` both ways with no rate and
+160-byte (20 ms) appends, and the deltas it must get back: G.711 of at most 100 ms.
+
 M4 (AICC acceptance, part 2) adds barge-in, with AICC simulated in real time
 (``tests/phone.py``: 20 ms appends, its playout model and its barge-in: on ``speech_started``
 after its 800 ms guard, or on a cancelled ``response.done``, it flushes and truncates to the
@@ -24,6 +28,7 @@ an answer nobody heard, truncates it to 0 and deletes it.
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -32,6 +37,9 @@ from pathlib import Path
 
 import pytest
 
+from mlx_realtime.audio import g711
+from mlx_realtime.audio.pcm import WIRE_RATE
+from mlx_realtime.audio.resample import Resampler
 from mlx_realtime.config import MlxAudioSpeechConfig, MlxLmChatConfig, VoicesConfig, validate_config
 from mlx_realtime.providers.base import LLMBackend, LLMDone, TextDelta, ToolCall
 from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
@@ -44,7 +52,7 @@ from tests.fakes.mlx_audio import Chunks, FakeMlxAudio, Gate, Hold, Rest, serve_
 from tests.fakes.mlx_lm import Calls, Done, FakeMlxLm, Finish, Text, reply, tool_call
 from tests.fakes.mlx_lm import Usage as UsageChunk
 from tests.integration.deadlines import check_deadlines
-from tests.phone import SimulatedCall
+from tests.phone import Codec, SimulatedCall, g711_law
 from tests.qwen_template import render
 from tests.speech import EN, SILERO, ZH, clip, needs_models, to_wire
 from tests.support import Client, Event, running
@@ -54,9 +62,36 @@ LOOKUP = ToolCall("provider-call", "lookup_balance", '{"accountId":"42"}')
 QWEN = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
 
 
-def frames(name: str) -> list[Event]:
+CODECS = ["pcm", "pcmu"]
+"""The traces as captured (24 kHz PCM), and in AICC's G.711 passthrough shape (M7)."""
+
+
+def frames(name: str, codec: Codec = "pcm") -> list[Event]:
     lines = (TRACES / f"{name}.jsonl").read_text(encoding="utf-8").splitlines()
-    return [json.loads(line) for line in lines]
+    captured = [json.loads(line) for line in lines]
+    return captured if codec == "pcm" else [g711_frame(frame, codec) for frame in captured]
+
+
+def g711_frame(frame: Event, codec: Codec) -> Event:
+    """``frame`` as AICC's G.711 path sends it: formats ``{"type": "audio/pcmu"}`` (no rate),
+    and each 20 ms append as its 160 G.711 bytes at 8 kHz."""
+    law = g711_law(codec)
+    match frame["type"]:
+        case "session.update" if "audio" in frame["session"]:
+            audio = {
+                direction: {**settings, "format": {"type": f"audio/{codec}"}}
+                if "format" in settings
+                else settings
+                for direction, settings in frame["session"]["audio"].items()
+            }
+            return {**frame, "session": {**frame["session"], "audio": audio}}
+        case "input_audio_buffer.append":
+            resampler = Resampler(WIRE_RATE, 8000)
+            pcm = base64.b64decode(frame["audio"])
+            narrow = resampler.process(pcm) + resampler.flush()
+            return {**frame, "audio": base64.b64encode(g711.encode(narrow, law)).decode()}
+        case _:
+            return frame
 
 
 @dataclass
@@ -68,10 +103,16 @@ class Session:
 
 @asynccontextmanager
 async def aicc_session(
-    packs: Path, *, silero: bool = False, provider: LLMBackend | None = None
+    packs: Path,
+    *,
+    silero: bool = False,
+    provider: LLMBackend | None = None,
+    codec: Codec = "pcm",
 ) -> AsyncIterator[Session]:
     """``silero``: the real Silero VAD hears the caller (else a detector that never does).
-    ``provider``: the LLM provider to use instead of the scripted mock (``Session.llm``)."""
+    ``provider``: the LLM provider to use instead of the scripted mock (``Session.llm``).
+    ``codec``: the session's audio format once the trace's update is applied; every response's
+    audio is checked to be in it."""
     llm, tts = EchoLLM(), FakeMlxAudio()
     async with serve_asgi(tts) as tts_url:
         speech = MlxAudioSpeechConfig.model_validate(
@@ -100,6 +141,32 @@ async def aicc_session(
     asked = [event for _, way, event in client.timeline if way == "client"]
     requests = sum(1 for event in asked if event.get("type") == "response.create")
     assert len(report.created_s) == requests > 0  # every request answered (VAD turns add more)
+    check_audio_format(client.events, codec)
+
+
+def check_audio_format(events: list[Event], codec: Codec) -> None:
+    """Every response speaks the session's format; deltas are at most 100 ms of it."""
+    expected = (
+        {"type": "audio/pcm", "rate": 24000} if codec == "pcm" else {"type": f"audio/{codec}"}
+    )
+    formats = [
+        event["response"]["audio"]["output"]["format"]
+        for event in events
+        if event["type"] == "response.created"
+    ]
+    assert formats
+    assert all(found == expected for found in formats)
+    limit = 4800 if codec == "pcm" else 800
+    sizes = [
+        len(base64.b64decode(event["delta"]))
+        for event in events
+        if event["type"] == "response.output_audio.delta"
+    ]
+    assert all(0 < size <= limit for size in sizes)
+    if codec != "pcm":
+        updates = [event["session"] for event in events if event["type"] == "session.updated"]
+        assert updates[0]["audio"]["input"]["format"] == expected
+        assert updates[0]["audio"]["output"]["format"] == expected
 
 
 @pytest.fixture
@@ -151,11 +218,12 @@ def line_of(frame: Event) -> str:
     return frame["response"]["instructions"].split("\n", 1)[1]
 
 
-async def test_call_gateway(packs: Path) -> None:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_call_gateway(packs: Path, codec: Codec) -> None:
     update, opening, audio, truncate, closing, keypress, create, tool_result, create_again, line = (
-        frames("call_gateway")
+        frames("call_gateway", codec)
     )
-    async with aicc_session(packs) as session:
+    async with aicc_session(packs, codec=codec) as session:
         client, llm = session.client, session.llm
         updated_session = await updated(client, update)
         assert updated_session["audio"]["input"]["turn_detection"]["silence_duration_ms"] == 500
@@ -185,9 +253,10 @@ async def test_call_gateway(packs: Path) -> None:
         assert len(llm.requests) == llm_requests  # the line skipped the LLM (D16)
 
 
-async def test_opening_with_a_flow_voice(packs: Path) -> None:
-    update, opening = frames("opening_gateway_with_voice")
-    async with aicc_session(packs) as session:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_opening_with_a_flow_voice(packs: Path, codec: Codec) -> None:
+    update, opening = frames("opening_gateway_with_voice", codec)
+    async with aicc_session(packs, codec=codec) as session:
         client = session.client
         assert update["session"]["audio"]["output"]["voice"] == "flow-voice"
         accepted = await updated(client, update)  # never rejected (D19)...
@@ -202,9 +271,10 @@ async def test_opening_with_a_flow_voice(packs: Path) -> None:
         assert bodies[-1]["input"] == "Good morning, NovaNet support."
 
 
-async def test_wait_line_during_a_tool_call(packs: Path) -> None:
-    update, opening, line, tool_result, delete, owed = frames("waitline_gateway")
-    async with aicc_session(packs) as session:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_wait_line_during_a_tool_call(packs: Path, codec: Codec) -> None:
+    update, opening, line, tool_result, delete, owed = frames("waitline_gateway", codec)
+    async with aicc_session(packs, codec=codec) as session:
         client, llm = session.client, session.llm
         await updated(client, update)
         llm.script(LOOKUP, LLMDone("tool_calls", None))
@@ -230,11 +300,12 @@ async def test_wait_line_during_a_tool_call(packs: Path) -> None:
         ]
 
 
-async def test_unheard_answer_then_keypress(packs: Path) -> None:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_unheard_answer_then_keypress(packs: Path, codec: Codec) -> None:
     update, opening, tool_result, create, delete, note, cancel, truncate, keypress, owed = frames(
-        "unheard_keypress_gateway"
+        "unheard_keypress_gateway", codec
     )
-    async with aicc_session(packs) as session:
+    async with aicc_session(packs, codec=codec) as session:
         client, llm = session.client, session.llm
         await updated(client, update)
         llm.script(LOOKUP, LLMDone("tool_calls", None))
@@ -378,9 +449,10 @@ async def test_wait_line_through_the_llm_provider(packs: Path) -> None:
     render(messages, fake.requests[-1]["tools"])
 
 
-async def test_dropped_line_retry(packs: Path) -> None:
-    update, opening, line, direction, retry = frames("dropped_line_retry_gateway")
-    async with aicc_session(packs) as session:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_dropped_line_retry(packs: Path, codec: Codec) -> None:
+    update, opening, line, direction, retry = frames("dropped_line_retry_gateway", codec)
+    async with aicc_session(packs, codec=codec) as session:
         client = session.client
         await updated(client, update)
         await respond(client, opening)
@@ -430,17 +502,18 @@ TERMINAL = {
 
 
 @needs_models
-async def test_barge_in_over_a_long_line(packs: Path) -> None:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_barge_in_over_a_long_line(packs: Path, codec: Codec) -> None:
     """The caller talks over a long line: ``speech_started``, then ``response.done{cancelled}``
     in the same step; AICC's truncate (its played frames) is accepted; the caller's turn is
     answered after ``speech_stopped``."""
-    update, *_ = frames("call_gateway")
-    async with aicc_session(packs, silero=True) as session:
+    update, *_ = frames("call_gateway", codec)
+    async with aicc_session(packs, silero=True, codec=codec) as session:
         client = session.client
         await updated(client, update)
         session.tts.voice = to_wire(clip(EN))  # the line is speech (a tone fools the canceller)
         session.tts.ms_per_char = 150
-        async with SimulatedCall(client, echo_db=None) as call:
+        async with SimulatedCall(client, echo_db=None, codec=codec) as call:
             await asyncio.sleep(0.3)  # AICC streams from the start of the call
             await client.send(
                 {"type": "response.create", "response": {"instructions": SAY + LONG_LINE}}
@@ -470,18 +543,19 @@ async def test_barge_in_over_a_long_line(packs: Path) -> None:
 
 
 @needs_models
-async def test_speech_over_the_tail_of_a_finished_line(packs: Path) -> None:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_speech_over_the_tail_of_a_finished_line(packs: Path, codec: Codec) -> None:
     """AICC's most common barge-in: the line was all sent (its response done), AICC is still
     playing it, and the caller talks. There is no response to cancel: ``speech_started``, AICC
     flushes and truncates (accepted, and the client model stops playing it), and the caller's
     turn is answered."""
-    update, *_ = frames("call_gateway")
-    async with aicc_session(packs, silero=True) as session:
+    update, *_ = frames("call_gateway", codec)
+    async with aicc_session(packs, silero=True, codec=codec) as session:
         client = session.client
         await updated(client, update)
         session.tts.voice = to_wire(clip(EN))
         session.tts.ms_per_char = 80  # about 7 s: all of it sent at once (10 s lead)
-        async with SimulatedCall(client, echo_db=None) as call:
+        async with SimulatedCall(client, echo_db=None, codec=codec) as call:
             await asyncio.sleep(0.3)
             line = {"type": "response.create", "response": {"instructions": SAY + LONG_LINE[:90]}}
             await client.send(line)
@@ -507,12 +581,15 @@ async def test_speech_over_the_tail_of_a_finished_line(packs: Path) -> None:
     ]  # nothing was cancelled: the line was over on the server's side
 
 
-async def test_keypress_cancels_an_unheard_answer_truncates_and_deletes_it(packs: Path) -> None:
+@pytest.mark.parametrize("codec", CODECS)
+async def test_keypress_cancels_an_unheard_answer_truncates_and_deletes_it(
+    packs: Path, codec: Codec
+) -> None:
     """AICC's keypress over an answer nobody heard yet: ``response.cancel``, a truncate to 0,
     the delete of the unheard item once its response is done, the keypress note and the owed
     reply. No ``error`` at any step."""
-    update, *_, keypress, owed = frames("unheard_keypress_gateway")
-    async with aicc_session(packs) as session:
+    update, *_, keypress, owed = frames("unheard_keypress_gateway", codec)
+    async with aicc_session(packs, codec=codec) as session:
         client = session.client
         await updated(client, update)
         gate = Gate()

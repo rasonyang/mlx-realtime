@@ -6,10 +6,11 @@ import asyncio
 
 import pytest
 
+from mlx_realtime.audio.formats import PCM, PCMA, PCMU
 from mlx_realtime.providers.base import ToolDef
 from mlx_realtime.server.outbox import Outbound, Outbox
-from mlx_realtime.session.commands import AppendAudio, CommitAudio
-from mlx_realtime.session.conversation import SpokenSegment
+from mlx_realtime.session.commands import AppendAudio, CommitAudio, UpdateSession
+from mlx_realtime.session.conversation import AssistantMessage, SpokenSegment
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.inbox import Inbox
 from mlx_realtime.session.output import Delivery, OutputLedger
@@ -197,3 +198,63 @@ async def test_outbox_backpressure_and_overflow() -> None:
         outbox.put(Outbound("f", None))
     assert (raised.value.code, raised.value.close_code) == ("slow_client", 1008)
     assert [entry.payload for entry in outbox.drain()] == ["b", "c", "d", "e"]
+
+
+def test_g711_formats_merge_and_input_and_output_differ() -> None:
+    patched = DEFAULTS.apply(SessionPatch(input_format=PCMU, output_format=PCMA), DEFAULTS)
+    assert (patched.input_format, patched.output_format) == (PCMU, PCMA)
+    kept = patched.apply(SessionPatch(instructions="x"), DEFAULTS)
+    assert (kept.input_format, kept.output_format) == (PCMU, PCMA)
+    back = kept.apply(SessionPatch(output_format=PCM), DEFAULTS)
+    assert (back.input_format, back.output_format) == (PCMU, PCM)
+
+
+def test_ledger_counts_g711_at_8_khz_one_byte_a_sample() -> None:
+    ledger = OutputLedger()
+    ledger.record(Delivery(1, "item_1", 0, "audio", 800, audio_format=PCMU))
+    ledger.record(Delivery(1, "item_1", 0, "audio", 812, audio_format=PCMU))
+    ledger.record(Delivery(2, "item_2", 0, "audio", 4800))  # 24 kHz PCM
+    assert ledger.sent_ms("item_1") == 201  # 1612 bytes: 201.5 ms, rounded down
+    assert ledger.sent_ms("item_2") == 100
+
+
+def test_g711_segments_count_their_own_milliseconds() -> None:
+    spoken = [
+        SpokenSegment("你好。", "你好。", 0, 600 * 8, audio_format=PCMA),
+        SpokenSegment("我是小王，", "我是小王，", 600, 1000 * 8, audio_format=PCMA),
+    ]
+    assert [segment.audio_ms for segment in spoken] == [600, 1000]
+    assert heard_text(spoken, 300) == heard_text(SPOKEN[:2], 300) == "你"
+    assert heard_text(spoken, 1100) == "你好。我是"
+    message = AssistantMessage("item_1", "audio", segments=spoken, audio_format=PCMA)
+    assert message.audio_ms == 1600
+
+
+async def test_inbox_charges_g711_audio_by_its_duration() -> None:
+    inbox = Inbox(max_audio_ms=100, max_commands=8, input_format=PCMU)
+    inbox.put_command(AppendAudio(bytes(800)))  # 100 ms at 8 kHz
+    with pytest.raises(SessionFatal):
+        inbox.put_command(AppendAudio(bytes(1)))
+    assert isinstance(await inbox.get(), AppendAudio)
+    # A queued update to 24 kHz PCM: appends after it are charged at 48 bytes a millisecond.
+    inbox.put_command(UpdateSession(SessionPatch(input_format=PCM)))
+    inbox.put_command(AppendAudio(bytes(4800)))
+    with pytest.raises(SessionFatal):
+        inbox.put_command(AppendAudio(bytes(2)))
+    assert isinstance(await inbox.get(), UpdateSession)
+    assert isinstance(await inbox.get(), AppendAudio)
+    # The actor rejected that update (the voice lock): back to the session's format.
+    inbox.input_format_settled(PCMU)
+    inbox.put_command(AppendAudio(bytes(800)))
+    with pytest.raises(SessionFatal):
+        inbox.put_command(AppendAudio(bytes(1)))
+
+
+async def test_inbox_keeps_the_latest_queued_format_until_every_update_is_handled() -> None:
+    inbox = Inbox(max_audio_ms=100, max_commands=8)
+    inbox.put_command(UpdateSession(SessionPatch(input_format=PCMU)))
+    inbox.put_command(UpdateSession(SessionPatch(input_format=PCMA)))
+    inbox.input_format_settled(PCMU)  # the first is handled; the second is still queued
+    inbox.put_command(AppendAudio(bytes(800)))  # charged as G.711: 100 ms
+    with pytest.raises(SessionFatal):
+        inbox.put_command(AppendAudio(bytes(1)))

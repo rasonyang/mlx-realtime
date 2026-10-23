@@ -1,6 +1,6 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M6 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> **Status: M7 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
 > (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
 > the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
@@ -11,6 +11,7 @@
 > the LLM server's parser, `tool_choice` enforced in the gateway, and the round trip's history
 > shaped for the Qwen template (§11.5, §11.14). M6 added `/metrics` and the opt-in `/debug/turns`
 > (§1), and the multi-session TTS mitigations, which change only when audio deltas are sent (§11.8).
+> M7 added G.711: `audio/pcmu` and `audio/pcma` at 8 kHz, in either direction or both (§3, §11.15).
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -70,7 +71,7 @@ causes echoes it in `error.event_id`.
 | Event | SDK type | Status | Notes |
 |---|---|---|---|
 | `session.update` | `SessionUpdateEvent` | **Supported** | Validated as a whole (§3), then merged field by field; answered by `session.updated` with the full effective session. A rejected update changes nothing. |
-| `input_audio_buffer.append` | `InputAudioBufferAppendEvent` | **Supported** | `audio`: base64 of `audio/pcm` 24 kHz mono s16le, whole samples (an odd byte count is `invalid_value`, `param: "audio"`). No confirmation event. Never dropped: an inbox over `limits.inbox_max_ms` of queued audio is fatal. |
+| `input_audio_buffer.append` | `InputAudioBufferAppendEvent` | **Supported** | `audio`: base64 of the session's input format: `audio/pcm` 24 kHz mono s16le, whole samples (an odd byte count is `invalid_value`, `param: "audio"`), or G.711 at 8 kHz, one byte a sample (any byte count; AICC sends 160 bytes every 20 ms). No confirmation event. Never dropped: an inbox over `limits.inbox_max_ms` of queued audio (counted in the input format's duration) is fatal. |
 | `input_audio_buffer.commit` | `InputAudioBufferCommitEvent` | **Supported** | Commits the whole buffer, the resampler's tail included → `input_audio_buffer.committed`, `conversation.item.added`. Creates no response. Allowed in `server_vad` mode too (a speech turn in progress ends without `speech_stopped`). An empty buffer: `invalid_event`. |
 | `input_audio_buffer.clear` | `InputAudioBufferClearEvent` | **Supported** | → `input_audio_buffer.cleared`; a speech turn in progress is dropped. |
 | `conversation.item.create` | `ConversationItemCreateEvent` | **Partial** | Messages and `function_call_output` (§5); `previous_item_id` absent (append), `"root"` (first) or an existing id. → `conversation.item.added`, `conversation.item.done`. Client-created `function_call` items: Unsupported. |
@@ -100,11 +101,11 @@ the configured session defaults, so its absent fields take their configured valu
 | `model` | **Supported** | any string; echoed only | last value set, else `?model=`, else the default | `session.model` |
 | `instructions` | **Supported** | any string (`""` clears) | effective | `session.instructions` |
 | `output_modalities` | **Supported** | `["audio"]` or `["text"]` (D12) | effective | `session.output_modalities` |
-| `audio.input.format` (`RealtimeAudioFormats`) | **Partial** | `{type: "audio/pcm", rate: 24000}`; both keys optional. `audio/pcmu`, `audio/pcma`: **Unsupported (M7)** | `{type: "audio/pcm", rate: 24000}` | `session.audio.input.format.type` / `.rate` |
+| `audio.input.format` (`RealtimeAudioFormats`) | **Supported** | `{type: "audio/pcm", rate: 24000}`, `{type: "audio/pcmu"}` or `{type: "audio/pcma"}` (G.711 at 8 kHz, D3). `type` defaults to `audio/pcm`; `rate`, when present, must be the format's (24000, or 8000 for G.711), else `invalid_value` on `.rate`. Beta names (`g711_ulaw`, …) are rejected (D2). May change at any time (GA): later appends decode in the new format (§11.15) | `{type: "audio/pcm", rate: 24000}`; G.711 as `{type: "audio/pcmu"}` / `{type: "audio/pcma"}` (the SDK's `AudioPCMU`/`AudioPCMA` have no `rate`) | `session.audio.input.format.type` / `.rate` |
 | `audio.input.transcription` (`AudioTranscription`) | **Partial** | object or `null`; `model` (echoed only: the ASR is Qwen3-ASR, `providers.asr.model`), `language` (an ISO 639 code such as `zh` or `en`, passed to the ASR as its language name; absent: the ASR detects it), `prompt` (echoed only). `delay`, `keywords`, `languages`: Unsupported | effective object (unset keys omitted), or `null`. On by default (D15) | `session.audio.input.transcription.<key>` |
 | `audio.input.turn_detection` (`RealtimeAudioInputTurnDetection`) | **Supported** | `null` (manual turns), or `ServerVad`: Silero VAD v6.2.3 plus Smart Turn v3.2 (D4, §11.9). `threshold` [0, 1] (speech enters at it, leaves below it − 0.15), `prefix_padding_ms` ≥ 0, `silence_duration_ms` ≥ 0 (the silence before an end-of-turn evaluation; session default 200), `create_response`, `interrupt_response`; `idle_timeout_ms` only `null`. `SemanticVad`: **Unsupported** | every field filled, `idle_timeout_ms: null`; or `null` | `…turn_detection.type` (`semantic_vad`), `….idle_timeout_ms` (non-null), `….<field>` |
 | `audio.input.noise_reduction` (`NoiseReduction`) | **Unsupported** | `null` only (echo cancellation is internal and always configured server-side: §11.13) | `null` | `session.audio.input.noise_reduction` |
-| `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | as input | `session.audio.output.format.type` / `.rate` |
+| `audio.output.format` | **Supported** | as `audio.input.format`, independently of it (μ-law in and A-law out is accepted). A change applies from the next response; a response in progress keeps its format | as input | `session.audio.output.format.type` / `.rate` |
 | `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19): a name in `voices.map` is that voice, any other name is spoken by `voices.default` and logged as a warning (§11.10). Locked once the session has produced audio, as in GA: a different voice then gets `cannot_update_voice`; the same voice, or no voice field, passes. `VoiceID` objects: Unsupported | the effective voice (default `vivian`) | `session.audio.output.voice` (object; or `cannot_update_voice`) |
 | `audio.output.speed` | **Partial** | `1.0` only (D14: the TTS has no speed control) | `1.0` | `session.audio.output.speed` |
 | `tools` (`RealtimeToolsConfig`) | **Supported** | `RealtimeFunctionTool`: `type: "function"` and `name` required, `description`, `parameters` (an object, passed through). Duplicate names rejected. `Mcp`: Unsupported | effective list; `[]` when unset | `session.tools[i].type` / `.name` / `.parameters` / `.<key>` |
@@ -134,7 +135,7 @@ this response only. `response: null` or absent means the session's settings.
 | `max_output_tokens` | **Supported** | `"inf"` or 1–4096; reaching it ends the response `incomplete` (`max_output_tokens`) | `response.max_output_tokens` |
 | `tool_choice` | **Partial** | `"auto"`, `"none"`, for this response only; `"required"` and forced functions **Unsupported** (`invalid_value`, as for the session) | `response.tool_choice` |
 | `audio.output.voice` (`OutputVoice`) | **Partial** | this response's voice, resolved as the session's (D19); once the session has produced audio only the session voice is accepted, any other draws `cannot_update_voice` and no response. `OutputVoiceID`: Unsupported | `response.audio.output.voice` |
-| `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | `response.audio.output.format.type` |
+| `audio.output.format` | **Supported** | this response's format, as the session's (`audio/pcm` 24 kHz, `audio/pcmu`, `audio/pcma`); echoed in its `audio.output.format` | `response.audio.output.format.type` / `.rate` |
 | `metadata` | **Supported** | at most 16 pairs; keys ≤ 64 characters, values strings ≤ 512; echoed on the response | `response.metadata` / `response.metadata.<key>` |
 | `conversation` | **Partial** | `"auto"` (or `null`) only; out-of-band responses (`"none"`) Unsupported | `response.conversation` |
 | `input` | **Unsupported** | out-of-band context | `response.input` |
@@ -199,7 +200,7 @@ session).
 | `response.created` | `ResponseCreatedEvent` | **Supported** | at once on `response.create`, or at a VAD commit with `create_response` (D7) |
 | `response.output_item.added` / `.done` | `ResponseOutputItemAddedEvent` / `ResponseOutputItemDoneEvent` | **Supported** | per output item; the message item is created lazily, on the first text delta |
 | `response.content_part.added` / `.done` | `ResponseContentPartAddedEvent` / `ResponseContentPartDoneEvent` | **Supported** | `part: {type: "audio", transcript}` or `{type: "text", text}` |
-| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 `audio/pcm` 24 kHz, whole samples, at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (Kokoro when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
+| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 of the response's output format (`audio/pcm` 24 kHz whole samples, or G.711 8 kHz: 800 bytes per 100 ms), at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (Kokoro when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
 | `response.output_audio_transcript.delta` / `.done` | `ResponseAudioTranscriptDeltaEvent` / `ResponseAudioTranscriptDoneEvent` | **Supported** | one delta per synthesized segment, sent just before the segment's first audio; `.done` carries the text whose deltas reached the client |
 | `response.output_text.delta` / `.done` | `ResponseTextDeltaEvent` / `ResponseTextDoneEvent` | **Supported** | text modality (D12): one delta per LLM delta; TTS is never opened |
 | `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Supported** | complete calls only, the arguments in one delta (§11.5); several calls per response, each its own item |
@@ -300,6 +301,10 @@ output item yet): `speech_started → response.done{cancelled}`. Speech over the
 whose response is already done (its audio all sent, the client still playing it) emits
 `speech_started` alone: there is nothing to cancel, and the client's truncate stops our model of
 its playback. In every case the reply follows `speech_stopped`.
+
+**G.711** (`g711_turn.jsonl`: μ-law in, A-law out, a `server_vad` turn and a clamped truncate;
+`g711_barge_in.jsonl`: μ-law both ways): the same orders as with PCM; only the audio payloads
+(8 kHz G.711, at most 800 bytes a delta) and the echoed formats differ.
 
 **`response.cancel`** (`response_cancel.jsonl`): as barge-in without `speech_started`, with
 `reason: "client_cancelled"`. A second cancel: `error` `response_cancel_not_active`.
@@ -419,17 +424,28 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
      never parses arguments, the server's parser already did.
    - `tool_choice: "none"` sends no tools to the LLM. A call the model makes anyway (the server
      parses call markup whether or not tools were sent), or a call to a function the session does
-     not declare, is dropped with a warning in the log, never delivered.
-   - A call the server's parser rejects is dropped by the server itself. When that leaves the
-     response with no call at all (`finish_reason: tool_calls` and nothing parsed), the response
-     fails (`server_error`, `provider_error`); when another call was delivered, the dropped one is
-     invisible.
+     not declare, is dropped with a warning in the log, never delivered. A JSON "call" the model
+     writes into the text of such a reply (`{"tool_name": …, "tool_input": …}`, `{"name": …,
+     "arguments": …}`, alone or in a code fence) is removed from the reply before the
+     segmenter, so it is neither spoken nor in the transcript; any other text, other JSON
+     included, is left as written (LLM hardening).
+   - Qwen3.6 sometimes opens a call with the bare function name (`<transfer_to_agent>` for
+     `<function=transfer_to_agent>`); the LLM backend's parser accepts that form for a declared
+     function (M0: 11% of transfer turns), so such a call is delivered like any other.
+   - A call the server's parser still rejects is dropped by the server itself. When that leaves
+     the response with no call at all (`finish_reason: tool_calls` and nothing parsed) before
+     any text of the response was produced, the gateway asks the LLM once more, within the same
+     response (sampled at the reply temperature, since the tools' greedy setting would repeat
+     the same call); the client sees one response whose call is simply later. If that also
+     fails, or text was already produced, the response fails (`server_error`,
+     `provider_error`); when another call was delivered, the dropped one is invisible.
 6. **`audio_end_ms`** of `speech_stopped` is the acoustic end of speech (ARCHITECTURE §6.2), not GA's
    end of the silence window; the committed audio ends there. With Smart Turn deciding, the commit
    comes some time after it; logs record that delay as the turn's `turn_confirmed` stage.
 7. **Input timeline.** `audio_start_ms` and `audio_end_ms` count milliseconds of audio since the
-   session's first append (GA). Audio is held at 16 kHz internally; the resampler's tail is flushed at
-   a manual commit, so no trailing audio is lost.
+   session's first append (GA). Audio is held at 16 kHz internally, whatever the input format (24 kHz
+   PCM or 8 kHz G.711), so the milliseconds are the same for the same audio; the resampler's tail is
+   flushed at a manual commit, and at an input format change, so no trailing audio is lost.
 8. **Output pacing (D6).** Audio is synthesized as fast as the TTS allows (one request per segment,
    the next as soon as the previous has finished generating) and sent as soon as it is ready, but
    never more than `output.max_lead_ms` (10 s) ahead of real time, counted from the response's first
@@ -556,10 +572,60 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
 
     How the real model behaves with each setting is checked by M0's LLM spike and the backend
     tests; the defaults may change with their findings.
+15. **G.711 (M7, D2, D3).** `{type: "audio/pcmu"}` (μ-law) and `{type: "audio/pcma"}` (A-law),
+    8 kHz mono, one byte a sample, in either direction; the two directions are independent.
+    - **Codec.** Lookup tables built from CPython `audioop.c`'s algorithm (256 entries to decode,
+      65 536 to encode), equal to `audioop` on every code and every sample (M0 S7: not Sun's later
+      `g711.c`).
+    - **Input.** Decoded, then resampled 8 → 16 kHz (`g711.input_quality`, default soxr LQ: 32 ms
+      mean lag instead of HQ's 64, flat to 3 kHz, -8 dB at 3.4 kHz); from there the path is the
+      PCM path's (echo canceller, Silero on 16 kHz audio, Smart Turn, input buffer, ASR). The
+      timeline stays in milliseconds of audio, so `audio_start_ms`, `audio_end_ms` and the
+      transcription's `usage.seconds` are those of the same audio sent as PCM.
+    - **Output.** The TTS's 24 kHz resampled to 8 kHz (`g711.output_quality`, default HQ; one
+      stream per response, flushed at each segment's end), then encoded; deltas of at most
+      `max_delta_ms` (800 bytes). Pacing (D6), the reserve, the delivery ledger, truncation and
+      its clamp (D18), D5 and `max_response_audio_ms` all count 8 kHz milliseconds (bytes / 8).
+    - **Echo (D17).** The canceller's reference is the G.711 we sent, decoded and resampled to
+      16 kHz the way the caller's audio is; AICC's playout model frames it in 160-byte frames.
+    - **Format changes** after audio has flowed are accepted, as GA allows: later appends decode
+      in the new input format (what the old decoder held goes onto the timeline first), later
+      responses speak the new output format, and `response.create` may set its own.
+16. **LLM requests and the prompt cache (LLM hardening), invisible on the wire but for timing.**
+    - **Sampling (G2).** A request with tools attached is greedy (temperature 0, top_p 1.0:
+      Qwen3.6 makes 19 of 20 expected calls, 16–19 at 0.7); one without tools is sampled at
+      `providers.llm.temperature` / `top_p` (0.7 / 0.8, the server's own `--temp`/`--top-p`, with
+      its `--top-k 20 --min-p 0.0`). A reply has at most 512 tokens; `max_output_tokens` can only
+      lower that.
+    - **Prefix warming.** When a `session.update` changes the instructions or the tools (AICC's
+      phase changes, and every session's first update), the gateway sends the LLM a one-token
+      request with the prefix of the session's next request: the new system message and tools,
+      and the conversation up to its last user message. The model's prompt cache then holds that
+      prefix when the request comes, so its first token does not wait for a full prefill. While
+      the session's LLM is still generating (AICC sends the update as soon as a call's arguments
+      are done, before `response.done`), the warm-up starts when it finishes. A response whose
+      instructions and tools match a warm-up still in flight waits for it, at most the
+      first-token deadline (5 s): racing it would prefill the same prompt twice (M0 S2). The
+      LLM cannot drop a request it is prefilling, so warm-ups never pile up: one per
+      instructions-and-tools at a time (a burst of new calls with the same flow warms it
+      once), at most `max_warmups_in_flight` (1) in all, and none once a real request with
+      those instructions has gone out. A failed warm-up is logged and costs nothing else
+      (`providers.llm.warm_on_update`).
+    - **Cache checkpoints.** The LLM backend also keeps its prompt cache where the tool
+      definitions end and where new instructions stop matching recent ones (AICC's instructions
+      before `当前环节：`), so a phase change or a per-response override prefills only what changed
+      (`--tools-checkpoint`, `--shared-prefix-checkpoint` in `backends.llm.args`). Outputs are
+      unchanged.
 
 ## 12. AICC compatibility
 
-ai-native-callcenter attaches through its existing `gateway` profile with no change (D11). Its five
+ai-native-callcenter attaches through its existing `gateway` profile with no change (D11).
+**Since M7 a dedicated AICC profile can set `AcceptsG711: true`**: the gateway then gets the call's
+G.711 untouched (`{"type": "audio/pcmu"}` or `audio/pcma` both ways, 160-byte appends every
+20 ms) and answers in it, so neither AICC nor the gateway converts telephone audio to 24 kHz
+(and back). The five traces are also replayed in that shape, and AICC's harness runs on a
+`GatewayProfile` with `AcceptsG711: true` (`tests/aicc/probe.py --g711`); `tool_choice`
+(`none`/`auto`) can be enabled in the same profile (D11). Its five
 client traces in `spikes/aicc/traces/` are replayed in `tests/integration/test_aicc_replay.py`, on the
 real TTS path (the TTS provider and its fallback against a fake `mlx_audio.server` paced as M0
 measured): every frame is sent as captured, AICC's fake-server ids are swapped for this server's ids,
@@ -571,7 +637,7 @@ requirements (ARCHITECTURE §2) at M5:
 | Area | M5 |
 |---|---|
 | Handshake | `session.updated` answers the first `session.update` at once; every AICC `session.update` (tools, `server_vad` with only `silence_duration_ms: 500`, flow voice) is accepted. |
-| Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted, spoken by the default voice when not configured, and the effective voice echoed (D19); instructions-only updates merge and never meet the voice lock. |
+| Session shape | GA, `audio/pcm` 24 kHz both ways (the `gateway` profile), or G.711 passed through both ways (a profile with `AcceptsG711: true`, M7); flat function tools; a flow-chosen voice is accepted, spoken by the default voice when not configured, and the effective voice echoed (D19); instructions-only updates merge and never meet the voice lock. |
 | Turn-taking | `server_vad` is Silero VAD + Smart Turn (§11.9): AICC's `silence_duration_ms: 500` is the silence before Smart Turn decides. One response per commit, at the commit (D7); an empty transcript completes it empty. |
 | Deadlines | `response.created` is immediate. First audio: ASR + LLM first token + first segment + TTS first chunk (~110 ms warm in M0); checked on every replayed response and by AICC's own watchdog in its harness. Gaps between deltas: one TTS request per segment, back to back, and paced deltas at the playback rate (D6). The real budget on the real backends is pending (G4). |
 | One response at a time | `conversation_already_has_active_response`, not queued. |
@@ -581,7 +647,7 @@ requirements (ARCHITECTURE §2) at M5:
 | Lines | "Say exactly this…" lines are spoken verbatim, without the LLM (D16): on an empty conversation, mid-call, and as the wait line while a call is unanswered; their latency is the TTS's first chunk. |
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
 | Errors | only the codes of §9, and only where required (D18); AICC never meets `cannot_update_voice`. |
-| Audio | 20 ms appends at any time, also while the bot speaks; output deltas of whole samples, at most 100 ms, at most 10 s ahead of real time (D6; AICC queues at most 30 s). |
+| Audio | 20 ms appends at any time, also while the bot speaks (960 bytes of PCM, or 160 of G.711); output deltas of whole samples, at most 100 ms, at most 10 s ahead of real time (D6; AICC queues at most 30 s). |
 
 Trace by trace (what each replay checks beyond "no error"):
 
@@ -593,4 +659,5 @@ Trace by trace (what each replay checks beyond "no error"):
 | `unheard_keypress_gateway` | an unheard answer deleted; a system note; the keypress `response.cancel` of a reply in progress (started by the test: the trace's reply came from caller speech); the truncate clamped to the audio sent; the keypress note and the owed response |
 | `dropped_line_retry_gateway` | the line, the direction re-sent as a user item, and the retry all complete; both lines spoken verbatim |
 | barge-in (M4, from `call_gateway`'s session) | AICC simulated in real time (20 ms appends, its playout and barge-in) with the real Silero VAD and canceller: the caller talks over a long line → `speech_started` → `response.done{cancelled}` in one step → AICC's truncate (its played frames) accepted → a reply after `speech_stopped`; and over the tail of a finished line → `speech_started`, truncate, reply |
+| G.711 (M7) | every trace above, the barge-in and keypress replays included, again in AICC's G.711 passthrough shape: `{"type": "audio/pcmu"}` both ways with no rate, 160-byte appends; every response in μ-law, deltas of at most 800 bytes, the same checks passing |
 | keypress (M4, from `unheard_keypress_gateway`) | `response.cancel` of an answer nobody heard, a truncate to 0, its delete after `response.done`, the keypress note and the owed reply, with no `error`; the next request has no trace of the answer |

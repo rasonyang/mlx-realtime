@@ -29,7 +29,8 @@ def assert_causal(events: Sequence[Event], *, ended: bool = True) -> None:
     - Deltas follow their content part's ``added`` and precede their stream's ``done``; each
       stream is closed exactly once, and its deltas add up to the final text.
     - An item's closing events come in the GA order, before ``response.done``.
-    - Items are added before they are done; audio is whole 16-bit samples.
+    - Items are added before they are done; audio is whole samples of the response's output
+      format (16-bit for ``audio/pcm``; any byte count for G.711).
 
     ``ended=False``: the session was cut off (a disconnect), so responses may stay open.
     """
@@ -40,6 +41,7 @@ def assert_causal(events: Sequence[Event], *, ended: bool = True) -> None:
     deltas: dict[tuple[str | None, str], str] = {}
     items_added: set[str | None] = set()
     closing_seen: dict[str | None, list[str]] = {}
+    widths: dict[str | None, int] = {}  # bytes per sample of each response's audio
     for index, event in enumerate(events):
         kind: str = event["type"]
         where = f"event {index} ({kind})"
@@ -48,6 +50,8 @@ def assert_causal(events: Sequence[Event], *, ended: bool = True) -> None:
         )
         if kind == "response.created":
             created.add(response_id)
+            audio_format = event["response"]["audio"]["output"]["format"]["type"]
+            widths[response_id] = 2 if audio_format == "audio/pcm" else 1
         elif response_id is not None:
             assert response_id in created, f"{where}: response not created yet"
             assert response_id not in finished, f"{where}: response already done"
@@ -61,7 +65,8 @@ def assert_causal(events: Sequence[Event], *, ended: bool = True) -> None:
             assert item_id in parts_open, f"{where}: delta before its content part"
             assert (item_id, _DELTAS[kind]) not in closed, f"{where}: delta after done"
             if kind == "response.output_audio.delta":
-                assert len(base64.b64decode(event["delta"])) % 2 == 0, f"{where}: half a sample"
+                width = widths.get(response_id, 2)
+                assert len(base64.b64decode(event["delta"])) % width == 0, f"{where}: half a sample"
             else:
                 deltas[(item_id, kind)] = deltas.get((item_id, kind), "") + event["delta"]
         if kind in _CLOSING_ORDER:

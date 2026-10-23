@@ -51,12 +51,21 @@ class Deadlines:
 
 
 class RequestClock:
-    def __init__(self, deadlines: Deadlines) -> None:
+    def __init__(self, deadlines: Deadlines, *, total_at: float | None = None) -> None:
+        """``total_at``: an earlier absolute total deadline to keep (a retry within one
+        response runs under its first request's), on the event loop's clock."""
         now = asyncio.get_running_loop().time()
         self._deadlines = deadlines
         self._first_item_at = now + deadlines.first_item_s
         self._total_at = now + deadlines.total_s
+        if total_at is not None:
+            self._total_at = min(self._total_at, total_at)
         self._got_item = False
+
+    @property
+    def total_at(self) -> float:
+        """When the total deadline expires, on the event loop's clock."""
+        return self._total_at
 
     def item(self) -> None:
         """An item arrived: from now on each wait is bounded by the idle deadline."""

@@ -119,11 +119,22 @@ def test_the_caller_clip_is_the_english_fixture_as_wire_audio(tmp_path: Path) ->
     not AICC_REPO or shutil.which("go") is None,
     reason="set AICC_REPO to an AICC checkout (and install Go) to run AICC's own client",
 )
-def test_aiccs_client_against_the_mock_gateway() -> None:
+@pytest.mark.parametrize("g711", [False, True], ids=["pcm", "g711"])
+def test_aiccs_client_against_the_mock_gateway(g711: bool) -> None:
     """``make aicc-probe-mock``: AICC's client, unchanged, against the gateway with mocks,
-    including the barge-in scenarios."""
+    including the barge-in scenarios; and (M7) on the profile's G.711 variant
+    (``AcceptsG711: true``), μ-law passed through both ways."""
+    extra = ["--g711"] if g711 else []
     finished = subprocess.run(
-        [sys.executable, str(PROBE), "--aicc-repo", AICC_REPO, "--serve", "config.mock.yaml"],
+        [
+            sys.executable,
+            str(PROBE),
+            "--aicc-repo",
+            AICC_REPO,
+            "--serve",
+            "config.mock.yaml",
+            *extra,
+        ],
         cwd=REPO,
         capture_output=True,
         text=True,

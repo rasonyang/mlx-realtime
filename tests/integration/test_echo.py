@@ -8,6 +8,9 @@ upsampler, 20 ms appends in real time), through the real canceller and Silero VA
   speaks, and cancels it.
 - With the canceller and the rules off, the same echo interrupts the answer: the simulated
   echo is strong enough to matter.
+- M7: the same call in G.711 passthrough (AICC with ``AcceptsG711: true``): μ-law or A-law both
+  ways, 160-byte frames; the canceller's reference is our G.711 output decoded and resampled to
+  16 kHz, as the caller's audio is.
 """
 
 from __future__ import annotations
@@ -24,7 +27,7 @@ from mlx_realtime.providers.base import Lang, PCMChunk, Readiness, SpeechTiming
 from mlx_realtime.providers.mock import EchoLLM, ScriptedASR
 from mlx_realtime.providers.registry import Providers
 from mlx_realtime.server.gateway import Gateway
-from tests.phone import SimulatedCall
+from tests.phone import Codec, SimulatedCall
 from tests.speech import EN, SILERO, ZH, clip, needs_models, to_wire
 from tests.support import Client, running
 
@@ -78,7 +81,9 @@ class ClipTTS:
 
 
 @asynccontextmanager
-async def echo_session(config: Mapping[str, object]) -> AsyncIterator[Client]:
+async def echo_session(
+    config: Mapping[str, object], session: Mapping[str, object] = AICC_SESSION
+) -> AsyncIterator[Client]:
     """A gateway with the real Silero VAD (no Smart Turn), mock LLM and ASR, the clip TTS."""
     settings = validate_config(
         {
@@ -93,11 +98,23 @@ async def echo_session(config: Mapping[str, object]) -> AsyncIterator[Client]:
     gateway = Gateway(settings, providers)
     async with running(gateway) as address, Client.connect(address) as client:
         await client.until("conversation.created")
-        await client.send(
-            {"type": "session.update", "session": {"type": "realtime", **AICC_SESSION}}
-        )
+        await client.send({"type": "session.update", "session": {"type": "realtime", **session}})
         await client.until("session.updated")
         yield client
+
+
+def g711_session(codec: Codec) -> dict[str, object]:
+    audio_format = {"type": f"audio/{codec}"}
+    return {
+        **AICC_SESSION,
+        "audio": {
+            "input": {
+                "format": audio_format,
+                "turn_detection": {"silence_duration_ms": 500, "type": "server_vad"},
+            },
+            "output": {"format": audio_format},
+        },
+    }
 
 
 async def until_playing(call: SimulatedCall, timeout_s: float = 5.0) -> float:
@@ -107,11 +124,16 @@ async def until_playing(call: SimulatedCall, timeout_s: float = 5.0) -> float:
     return call.log.playback_starts[0]
 
 
+@pytest.mark.parametrize("codec", ["pcm", "pcmu", "pcma"])
 async def test_the_echo_never_interrupts_and_the_caller_still_does(
-    caplog: pytest.LogCaptureFixture,
+    codec: Codec, caplog: pytest.LogCaptureFixture
 ) -> None:
     caplog.set_level(logging.INFO, logger="mlx_realtime.session.echo")
-    async with echo_session({}) as client, SimulatedCall(client, echo_db=10.0) as call:
+    session = AICC_SESSION if codec == "pcm" else g711_session(codec)
+    async with (
+        echo_session({}, session) as client,
+        SimulatedCall(client, echo_db=10.0, codec=codec) as call,
+    ):
         await asyncio.sleep(0.5)  # the call is up: room noise flows before anything is said
         await client.send({"type": "response.create", "response": {"instructions": SAY + LINE}})
         started = await until_playing(call)
@@ -137,6 +159,10 @@ async def test_the_echo_never_interrupts_and_the_caller_still_does(
             await call.done.wait()
     replies = [event for _, event in call.events if event["type"] == "response.done"]
     assert replies[-1]["response"]["status"] == "completed"
+    expected = (
+        {"type": "audio/pcm", "rate": 24000} if codec == "pcm" else {"type": f"audio/{codec}"}
+    )
+    assert replies[-1]["response"]["audio"]["output"]["format"] == expected
     (summary,) = [record for record in caplog.records if record.getMessage() == "echo summary"]
     erle = summary.__dict__["erle_db"]
     assert erle is not None

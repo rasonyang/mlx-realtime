@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 
+from mlx_realtime.audio.formats import FORMAT_TYPES, AudioFormat
 from mlx_realtime.protocol.fields import (
     ProtocolError,
     check_keys,
@@ -37,7 +38,6 @@ from mlx_realtime.session.settings import (
     TranscriptionPatch,
 )
 
-WIRE_FORMAT: dict[str, object] = {"type": "audio/pcm", "rate": 24000}
 MAX_OUTPUT_TOKENS = 4096
 
 _TOOL_CHOICES: tuple[ToolChoice, ...] = ("auto", "none")
@@ -69,6 +69,8 @@ def decode_session(value: object, path: str, *, require_type: bool = True) -> Se
     transcription: Maybe[TranscriptionPatch | None] = UNSET
     turn_detection: Maybe[ServerVadPatch | None] = UNSET
     voice: Maybe[str] = UNSET
+    input_format: Maybe[AudioFormat] = UNSET
+    output_format: Maybe[AudioFormat] = UNSET
     tools: Maybe[tuple[ToolDef, ...]] = UNSET
     tool_choice: Maybe[ToolChoice] = UNSET
     max_output_tokens: Maybe[int | None] = UNSET
@@ -79,7 +81,8 @@ def decode_session(value: object, path: str, *, require_type: bool = True) -> Se
     if "output_modalities" in obj:
         modality = decode_modalities(obj["output_modalities"], child(path, "output_modalities"))
     if "audio" in obj:
-        transcription, turn_detection, voice = _decode_audio(obj["audio"], child(path, "audio"))
+        audio = _decode_audio(obj["audio"], child(path, "audio"))
+        transcription, turn_detection, voice, input_format, output_format = audio
     if "tools" in obj:
         tools = _decode_tools(obj["tools"], child(path, "tools"))
     if "tool_choice" in obj:
@@ -97,6 +100,8 @@ def decode_session(value: object, path: str, *, require_type: bool = True) -> Se
         model=model,
         instructions=instructions,
         output_modality=modality,
+        input_format=input_format,
+        output_format=output_format,
         transcription=transcription,
         turn_detection=turn_detection,
         voice=voice,
@@ -149,20 +154,26 @@ def decode_max_output_tokens(value: object, param: str) -> int | None:
     return expect_int(value, param, minimum=1, maximum=MAX_OUTPUT_TOKENS)
 
 
-def decode_audio_format(value: object, path: str) -> None:
-    """Only ``audio/pcm`` at 24 kHz is served; G.711 arrives later (ARCHITECTURE §13, M7)."""
+def decode_audio_format(value: object, path: str) -> AudioFormat:
+    """``audio/pcm`` at 24 kHz, or G.711 (``audio/pcmu``, ``audio/pcma``) at 8 kHz (D3, M7).
+    ``type`` defaults to ``audio/pcm``; ``rate``, when present, must be the format's rate."""
     obj = expect_object(value, path)
     check_keys(obj, path, ("type", "rate"))
-    param = child(path, "type")
-    audio_type = expect_str(obj.get("type", "audio/pcm"), param)
-    if audio_type in ("audio/pcmu", "audio/pcma"):
-        message = (
-            f"Unsupported value: '{audio_type}' is not supported yet; use 'audio/pcm' at 24000 Hz."
-        )
-        raise ProtocolError("invalid_value", message, param)
-    expect_choice(audio_type, param, ("audio/pcm",))
-    if "rate" in obj and expect_int(obj["rate"], child(path, "rate")) != 24000:
-        raise value_error(child(path, "rate"), "only 24000 is supported.")
+    audio_format = AudioFormat(
+        expect_choice(obj.get("type", "audio/pcm"), child(path, "type"), FORMAT_TYPES)
+    )
+    if "rate" in obj and expect_int(obj["rate"], child(path, "rate")) != audio_format.rate:
+        what = "audio/pcm is" if audio_format.law is None else "G.711 is"
+        raise value_error(child(path, "rate"), f"{what} {audio_format.rate} Hz only.")
+    return audio_format
+
+
+def render_format(audio_format: AudioFormat) -> dict[str, object]:
+    """As GA echoes it: ``audio/pcm`` with its rate; G.711 by type alone (the SDK's
+    ``AudioPCMU`` and ``AudioPCMA`` have no ``rate``)."""
+    if audio_format.law is None:
+        return {"type": audio_format.type, "rate": audio_format.rate}
+    return {"type": audio_format.type}
 
 
 def decode_voice(value: object, param: str) -> str:
@@ -181,14 +192,23 @@ def _decode_session_type(value: object, param: str) -> None:
     expect_choice(value, param, ("realtime",))
 
 
-def _decode_audio(
-    value: object, path: str
-) -> tuple[Maybe[TranscriptionPatch | None], Maybe[ServerVadPatch | None], Maybe[str]]:
+type _AudioPatch = tuple[
+    Maybe[TranscriptionPatch | None],
+    Maybe[ServerVadPatch | None],
+    Maybe[str],
+    Maybe[AudioFormat],
+    Maybe[AudioFormat],
+]
+
+
+def _decode_audio(value: object, path: str) -> _AudioPatch:
     audio = expect_object(value, path)
     check_keys(audio, path, ("input", "output"))
     transcription: Maybe[TranscriptionPatch | None] = UNSET
     turn_detection: Maybe[ServerVadPatch | None] = UNSET
     voice: Maybe[str] = UNSET
+    input_format: Maybe[AudioFormat] = UNSET
+    output_format: Maybe[AudioFormat] = UNSET
     if "input" in audio:
         path_in = child(path, "input")
         audio_in = expect_object(audio["input"], path_in)
@@ -196,7 +216,7 @@ def _decode_audio(
             audio_in, path_in, ("format", "transcription", "turn_detection", "noise_reduction")
         )
         if "format" in audio_in:
-            decode_audio_format(audio_in["format"], child(path_in, "format"))
+            input_format = decode_audio_format(audio_in["format"], child(path_in, "format"))
         if audio_in.get("noise_reduction") is not None:
             raise value_error(child(path_in, "noise_reduction"), "only null is supported.")
         if "transcription" in audio_in:
@@ -212,14 +232,14 @@ def _decode_audio(
         audio_out = expect_object(audio["output"], path_out)
         check_keys(audio_out, path_out, ("format", "voice", "speed"))
         if "format" in audio_out:
-            decode_audio_format(audio_out["format"], child(path_out, "format"))
+            output_format = decode_audio_format(audio_out["format"], child(path_out, "format"))
         if "voice" in audio_out:
             voice = decode_voice(audio_out["voice"], child(path_out, "voice"))
         if "speed" in audio_out:
             param = child(path_out, "speed")
             if expect_number(audio_out["speed"], param) != 1.0:
                 raise value_error(param, "only 1.0 is supported.")
-    return transcription, turn_detection, voice
+    return transcription, turn_detection, voice, input_format, output_format
 
 
 def _decode_transcription(value: object, path: str) -> TranscriptionPatch | None:
@@ -364,12 +384,16 @@ def render_session(session_id: str, settings: SessionSettings) -> dict[str, obje
         "include": None,
         "audio": {
             "input": {
-                "format": dict(WIRE_FORMAT),
+                "format": render_format(settings.input_format),
                 "transcription": _render_transcription(settings.transcription),
                 "noise_reduction": None,
                 "turn_detection": _render_turn_detection(settings.turn_detection),
             },
-            "output": {"format": dict(WIRE_FORMAT), "voice": settings.voice, "speed": 1.0},
+            "output": {
+                "format": render_format(settings.output_format),
+                "voice": settings.voice,
+                "speed": 1.0,
+            },
         },
     }
 

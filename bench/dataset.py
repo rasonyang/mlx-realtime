@@ -29,6 +29,7 @@ import numpy as np
 import numpy.typing as npt
 
 from bench.scoring import norm_text
+from mlx_realtime.audio import g711
 from mlx_realtime.audio.resample import Resampler
 
 WIRE_RATE = 24_000
@@ -227,57 +228,13 @@ def speech_end_ms(pcm: bytes, *, floor_dbfs: float = -50.0, below_peak_db: float
     return 0 if len(voiced) == 0 else int(voiced[-1] + 1) * FRAME_MS
 
 
-# G.711 (ITU-T G.711), for the 8 kHz telephone copies; the gateway's own codec arrives in M7.
-
-_ULAW_BIAS = 0x84
-
-
-def _ulaw_table() -> npt.NDArray[np.int16]:
-    codes = ~np.arange(256, dtype=np.int32) & 0xFF
-    sign = codes & 0x80
-    exponent = (codes >> 4) & 0x07
-    mantissa = codes & 0x0F
-    magnitude = (((mantissa << 3) + _ULAW_BIAS) << exponent) - _ULAW_BIAS
-    return np.where(sign != 0, -magnitude, magnitude).astype(np.int16)
-
-
-def _alaw_table() -> npt.NDArray[np.int16]:
-    codes = np.arange(256, dtype=np.int32) ^ 0x55
-    sign = codes & 0x80
-    exponent = (codes >> 4) & 0x07
-    mantissa = codes & 0x0F
-    magnitude = np.where(
-        exponent == 0, (mantissa << 4) + 8, ((mantissa << 4) + 0x108) << (exponent - 1)
-    )
-    return np.where(sign != 0, magnitude, -magnitude).astype(np.int16)
-
-
-_DECODE: dict[Law, npt.NDArray[np.int16]] = {"ulaw": _ulaw_table(), "alaw": _alaw_table()}
+# G.711 (ITU-T G.711), for the 8 kHz telephone copies: the gateway's own codec (M7), which
+# matches ``audioop`` on every code and every 16-bit sample.
 
 
 def g711_decode(data: bytes, law: Law) -> npt.NDArray[np.int16]:
-    return _DECODE[law][np.frombuffer(data, dtype=np.uint8)]
-
-
-_ULAW_SEG_END = np.array([0x3F, 0x7F, 0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF])
-_ALAW_SEG_END = np.array([0x1F, 0x3F, 0x7F, 0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF])
+    return g711.decode_samples(data, law)
 
 
 def g711_encode(samples: npt.NDArray[np.int16], law: Law) -> bytes:
-    """The standard G.711 encoders (the reference C code that ``audioop`` uses)."""
-    values = samples.astype(np.int32)
-    if law == "ulaw":
-        scaled = values >> 2
-        mask = np.where(scaled < 0, 0x7F, 0xFF)
-        magnitude = np.minimum(np.abs(scaled), 8159) + (_ULAW_BIAS >> 2)
-        segment = np.searchsorted(_ULAW_SEG_END, magnitude)
-        code = (segment << 4) | ((magnitude >> (segment + 1)) & 0xF)
-    else:
-        scaled = values >> 3
-        mask = np.where(scaled >= 0, 0xD5, 0x55)
-        magnitude = np.where(scaled >= 0, scaled, -scaled - 1)
-        segment = np.searchsorted(_ALAW_SEG_END, magnitude)
-        shift = np.where(segment < 2, 1, segment)
-        code = (segment << 4) | ((magnitude >> shift) & 0xF)
-    code = np.where(segment >= 8, 0x7F, code)
-    return (code ^ mask).astype(np.uint8).tobytes()
+    return g711.encode_samples(samples, law)

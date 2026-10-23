@@ -1,12 +1,45 @@
 [project]
 name = "mlxrt-backend-llm"
 version = "0.1.0"
-description = "mlx-realtime LLM backend: runs mlx_lm.server (ARCHITECTURE §2, D10)"
+description = "mlx-realtime LLM backend: mlx_lm.server with a lenient tool-call parser (ARCHITECTURE §2, D10)"
 requires-python = ">=3.12"
 dependencies = [
     "huggingface-hub>=2.2.0",
     "mlx-lm==0.32.2",
 ]
 
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14.0"]
+build-backend = "uv_build"
+
 [tool.uv]
 required-version = ">=0.13.5"
+
+[tool.uv.build-backend]
+module-name = "mlxrt_llm"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+
+# `uv run --locked pyright -p backends/llm` from the repository root (pyright is a root dev tool).
+[tool.pyright]
+include = ["src", "tests"]
+exclude = ["**/.venv", "**/__pycache__"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+strict = ["src"]
+venvPath = "."
+venv = ".venv"
+
+# The root configuration, except that this backend is where mlx-lm belongs.
+[tool.ruff]
+extend = "../../pyproject.toml"
+
+[tool.ruff.lint.flake8-tidy-imports]
+banned-api = {}
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

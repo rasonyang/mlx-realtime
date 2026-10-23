@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Literal
 
+from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.providers.base import FinishReason, ToolChoice, Usage
 from mlx_realtime.session.conversation import AssistantMessage, FunctionCall
 from mlx_realtime.session.errors import ErrorInfo
@@ -39,6 +40,7 @@ class Response:
     metadata: Mapping[str, str] | None
     turn_item_id: str | None  # the user audio item this response answers (D7)
     verbatim: str | None = None  # a line said as written, without the LLM (D16)
+    output_format: AudioFormat = PCM  # this response's wire audio (session or response.create)
     timeline: TurnTimeline | None = None  # its turn's, or its own when it answers no audio turn
     status: ResponseStatus = "in_progress"
     status_details: StatusDetails | None = None

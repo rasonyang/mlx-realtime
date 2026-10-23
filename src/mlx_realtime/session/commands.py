@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Literal
 
+from mlx_realtime.audio.formats import AudioFormat
 from mlx_realtime.providers.base import ToolChoice
 from mlx_realtime.session.errors import ErrorInfo
 from mlx_realtime.session.settings import UNSET, Maybe, Modality, SessionPatch
@@ -13,7 +14,8 @@ from mlx_realtime.session.settings import UNSET, Maybe, Modality, SessionPatch
 
 @dataclass(frozen=True, slots=True)
 class AppendAudio:
-    pcm: bytes  # audio/pcm, 24 kHz s16le, whole samples
+    audio: bytes  # in the session's input format; the actor checks for whole samples
+    event_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,6 +79,7 @@ class ResponseParams:
     tool_choice: ToolChoice | None = None
     voice: str | None = None
     metadata: Mapping[str, str] | None = None
+    output_format: AudioFormat | None = None
 
 
 @dataclass(frozen=True, slots=True)

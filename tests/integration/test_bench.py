@@ -1,6 +1,6 @@
 """The benchmark end to end against the mock stack (``config.mock.yaml``: real Silero VAD, mock
 providers), run in-process with ``--serve``: two utterances, one of them 8 kHz telephone audio,
-in two parallel sessions, replayed at real-time speed."""
+in two parallel sessions, replayed at real-time speed; in 24 kHz PCM and in G.711 (M7)."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from bench.bench import Options, benchmark, main, write
+from bench.bench import Codec, Options, benchmark, main, write
 from bench.dataset import load
 from tests.speech import EN, SILERO, SPEECH, ZH, needs_models
 
@@ -43,13 +43,15 @@ def dataset(tmp_path: Path) -> Path:
 
 
 @needs_models
+@pytest.mark.parametrize("codec", ["pcm", "pcmu", "pcma"])
 async def test_the_bench_measures_the_mock_stack(
-    dataset: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    codec: Codec, dataset: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """``--codec pcmu|pcma`` (M7): the sessions run in G.711 both ways, end to end."""
     monkeypatch.setenv("MLXRT__TURN__VAD__MODEL", str(SILERO))
     utterances = load(dataset)
     assert {u.source_rate for u in utterances} == {8000, 16000}
-    options = Options(concurrency=2, min_silence_ms=600)
+    options = Options(concurrency=2, min_silence_ms=600, codec=codec)
     report = await benchmark(utterances, options, serve_config=REPO / "config.mock.yaml")
     assert report["counts"] == {
         "utterances": 2,

@@ -79,7 +79,7 @@ class SegmentStarted:
 class SegmentAudio:
     generation: int
     index: int
-    pcm: bytes  # audio/pcm, 24 kHz, at most max_delta_ms
+    pcm: bytes  # in the response's output format, at most max_delta_ms
 
 
 @dataclass(frozen=True, slots=True)

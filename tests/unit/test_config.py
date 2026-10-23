@@ -54,8 +54,14 @@ def test_repository_config_points_at_the_real_backends() -> None:
     llm = config.backends.llm
     assert llm is not None
     assert llm.args[:2] == ["--chat-template-args", '{"enable_thinking":false}']
+    assert llm.command == ["python", "-m", "mlxrt_llm.serve"]  # G2: the lenient parser
     assert isinstance(config.providers.llm, MlxLmChatConfig)
     assert config.providers.llm.model is None  # the backend serves a local snapshot
+    sampling = config.providers.llm
+    assert (sampling.tool_temperature, sampling.tool_top_p) == (0.0, 1.0)  # G2
+    assert (sampling.temperature, sampling.top_p) == (0.7, 0.8)  # = the server's flags
+    assert llm.args[llm.args.index("--temp") + 1] == "0.7"
+    assert llm.args[llm.args.index("--top-p") + 1] == "0.8"
     assert isinstance(config.providers.asr, MlxAudioAsrConfig)
     asr = config.backends.asr
     assert asr is not None

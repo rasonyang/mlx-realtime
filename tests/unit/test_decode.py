@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+from mlx_realtime.audio.formats import PCM as PCM_FORMAT
+from mlx_realtime.audio.formats import PCMA, PCMU, AudioFormat
 from mlx_realtime.protocol.decode import decode_text_frame, reject_binary_frame
 from mlx_realtime.protocol.session import decode_session
 from mlx_realtime.providers.base import ToolDef
@@ -83,12 +85,6 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
     (
         "append bad base64",
         {"type": "input_audio_buffer.append", "audio": "!!"},
-        "invalid_value",
-        "audio",
-    ),
-    (
-        "append half a sample",
-        {"type": "input_audio_buffer.append", "audio": "AAAA"},
         "invalid_value",
         "audio",
     ),
@@ -202,16 +198,40 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
         "session.audio.input.foo",
     ),
     (
-        "pcmu input",
-        session_update({"audio": {"input": {"format": {"type": "audio/pcmu"}}}}),
+        "pcmu input at 16 kHz",
+        session_update({"audio": {"input": {"format": {"type": "audio/pcmu", "rate": 16000}}}}),
+        "invalid_value",
+        "session.audio.input.format.rate",
+    ),
+    (
+        "pcma output at 24 kHz",
+        session_update({"audio": {"output": {"format": {"type": "audio/pcma", "rate": 24000}}}}),
+        "invalid_value",
+        "session.audio.output.format.rate",
+    ),
+    (
+        "pcm at 8 kHz",
+        session_update({"audio": {"input": {"format": {"type": "audio/pcm", "rate": 8000}}}}),
+        "invalid_value",
+        "session.audio.input.format.rate",
+    ),
+    (
+        "rate as a string",
+        session_update({"audio": {"input": {"format": {"type": "audio/pcmu", "rate": "8000"}}}}),
+        "invalid_value",
+        "session.audio.input.format.rate",
+    ),
+    (
+        "beta format name",
+        session_update({"audio": {"input": {"format": {"type": "g711_ulaw"}}}}),
         "invalid_value",
         "session.audio.input.format.type",
     ),
     (
-        "pcma output",
-        session_update({"audio": {"output": {"format": {"type": "audio/pcma"}}}}),
+        "format unknown key",
+        session_update({"audio": {"input": {"format": {"type": "audio/pcmu", "law": "mu"}}}}),
         "invalid_value",
-        "session.audio.output.format.type",
+        "session.audio.input.format.law",
     ),
     (
         "other format",
@@ -641,8 +661,14 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
         "response.audio.output.voice",
     ),
     (
-        "response format",
-        response_create({"audio": {"output": {"format": {"type": "audio/pcmu"}}}}),
+        "response format rate",
+        response_create({"audio": {"output": {"format": {"type": "audio/pcmu", "rate": 24000}}}}),
+        "invalid_value",
+        "response.audio.output.format.rate",
+    ),
+    (
+        "response format type",
+        response_create({"audio": {"output": {"format": {"type": "audio/opus"}}}}),
         "invalid_value",
         "response.audio.output.format.type",
     ),
@@ -784,6 +810,8 @@ def test_full_ga_session_update() -> None:
             model="gpt-realtime",
             instructions="Be brief.",
             output_modality="text",
+            input_format=PCM_FORMAT,
+            output_format=PCM_FORMAT,
             transcription=TranscriptionPatch(model="whisper-1", language="zh", prompt="names"),
             turn_detection=ServerVadPatch(0.6, 200, 400, False, True),
             voice="marin",
@@ -869,7 +897,16 @@ def test_response_create_fields() -> None:
         )
     )
     assert command == CreateResponse(
-        ResponseParams("Say hi.", "text", 50, "auto", "cedar", {"purpose": "greeting"}), "c1"
+        ResponseParams(
+            "Say hi.",
+            "text",
+            50,
+            "auto",
+            "cedar",
+            {"purpose": "greeting"},
+            output_format=PCM_FORMAT,
+        ),
+        "c1",
     )
     assert decode(response_create({"max_output_tokens": "inf"})) == CreateResponse(
         ResponseParams(max_output_tokens=None), "c1"
@@ -880,3 +917,51 @@ def test_session_defaults_need_no_type() -> None:
     assert decode_session(
         {"instructions": "x"}, "session_defaults", require_type=False
     ) == SessionPatch(instructions="x")
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        ({"type": "audio/pcmu"}, PCMU),
+        ({"type": "audio/pcmu", "rate": 8000}, PCMU),
+        ({"type": "audio/pcma"}, PCMA),
+        ({"type": "audio/pcma", "rate": 8000}, PCMA),
+        ({"type": "audio/pcm"}, PCM_FORMAT),
+        ({"rate": 24000}, PCM_FORMAT),  # the type defaults to audio/pcm
+        ({}, PCM_FORMAT),
+    ],
+)
+def test_g711_formats_are_accepted_with_no_rate_or_8000(
+    given: dict[str, object], expected: AudioFormat
+) -> None:
+    """M7 (D2, D3): GA's G.711 names, at 8 kHz; input and output may differ."""
+    command = decode(
+        session_update({"audio": {"input": {"format": given}, "output": {"format": given}}})
+    )
+    assert command == UpdateSession(
+        SessionPatch(input_format=expected, output_format=expected), "c1"
+    )
+    mixed = decode(
+        session_update(
+            {
+                "audio": {
+                    "input": {"format": {"type": "audio/pcmu"}},
+                    "output": {"format": {"type": "audio/pcm", "rate": 24000}},
+                }
+            }
+        )
+    )
+    assert mixed == UpdateSession(SessionPatch(input_format=PCMU, output_format=PCM_FORMAT), "c1")
+
+
+def test_a_response_may_set_its_own_output_format() -> None:
+    command = decode(response_create({"audio": {"output": {"format": {"type": "audio/pcma"}}}}))
+    assert command == CreateResponse(ResponseParams(output_format=PCMA), "c1")
+
+
+def test_appends_are_checked_for_whole_samples_by_the_session() -> None:
+    """Any byte count is whole G.711 samples, so the protocol layer only decodes base64; the
+    session rejects half a PCM sample (``protocol_errors.jsonl``)."""
+    assert decode({"type": "input_audio_buffer.append", "audio": "AAAA", "event_id": "a"}) == (
+        AppendAudio(b"\x00\x00\x00", "a")
+    )

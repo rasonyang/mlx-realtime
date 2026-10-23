@@ -8,6 +8,10 @@ With the echo canceller on (D17) the buffer keeps a second track: the canceller'
 written over the same positions as it arrives (it lags the input). Smart Turn reads that track;
 commits give the ASR the track ``asr_input`` names. Where the canceller has not run yet the
 processed track holds the input as received.
+
+Client audio arrives in the session's input format (24 kHz PCM, or G.711 at 8 kHz) and is held
+at 16 kHz either way, so positions and milliseconds never depend on the format. A format change
+flushes the old decoder's tail onto the timeline first.
 """
 
 from __future__ import annotations
@@ -15,7 +19,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from mlx_realtime.audio.codec import InputDecoder
+from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, ms_to_samples, samples_to_ms
+from mlx_realtime.audio.resample import Quality
 from mlx_realtime.session.errors import SessionFatal
 
 
@@ -31,9 +37,19 @@ class CommittedAudio:
 
 
 class InputBuffer:
-    def __init__(self, max_ms: int, *, processed: bool = False, asr_processed: bool = True) -> None:
-        """``processed``: keep the echo canceller's track; ``asr_processed``: commits take it."""
-        self._decoder = InputDecoder()
+    def __init__(
+        self,
+        max_ms: int,
+        *,
+        processed: bool = False,
+        asr_processed: bool = True,
+        input_format: AudioFormat = PCM,
+        g711_quality: Quality = "HQ",
+    ) -> None:
+        """``processed``: keep the echo canceller's track; ``asr_processed``: commits take it.
+        ``g711_quality``: the 8 → 16 kHz resampling of G.711 input."""
+        self._g711_quality: Quality = g711_quality
+        self._decoder = InputDecoder(input_format, g711_quality)
         self._max_samples = ms_to_samples(max_ms, CANONICAL_RATE)
         self._pcm = bytearray()
         self._clean: bytearray | None = bytearray() if processed else None
@@ -52,10 +68,25 @@ class InputBuffer:
     def _end(self) -> int:
         return self._start + len(self._pcm) // SAMPLE_WIDTH
 
-    def append(self, pcm: bytes) -> tuple[int, bytes]:
+    @property
+    def input_format(self) -> AudioFormat:
+        return self._decoder.audio_format
+
+    def set_format(self, input_format: AudioFormat) -> tuple[int, bytes]:
+        """Decode later audio as ``input_format``. The old decoder's tail goes onto the timeline
+        first; returns where it starts, and it (empty when the format is unchanged)."""
+        if input_format == self._decoder.audio_format:
+            return self._end, b""
+        tail = self._decoder.flush()
+        self._decoder = InputDecoder(input_format, self._g711_quality)
+        return self._add(tail)
+
+    def append(self, audio: bytes) -> tuple[int, bytes]:
         """Decode client audio; return the timeline sample where the new audio starts, and it."""
+        return self._add(self._decoder.decode(audio))
+
+    def _add(self, canonical: bytes) -> tuple[int, bytes]:
         start = self._end
-        canonical = self._decoder.decode(pcm)
         self._pcm += canonical
         if self._clean is not None:
             self._clean += canonical

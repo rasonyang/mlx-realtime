@@ -35,6 +35,10 @@ output:
   # segment waits in the shared TTS queue.
   reserve: {enabled: true, hold_ms: 1500, keepalive_ms: 1000, min_lead_ms: 400}
 
+# M7: G.711 sessions (audio/pcmu, audio/pcma at 8 kHz). soxr quality of the caller's 8 -> 16 kHz
+# step (LQ: 32 ms mean lag vs HQ's 64, M0 S7; -8 dB at 3.4 kHz) and of the TTS's 24 -> 8 kHz.
+g711: {input_quality: LQ, output_quality: HQ}
+
 # D16: a response whose own instructions start with one of these is spoken as written, without
 # the LLM (AICC's greetings, announces, wait and closing lines). [] turns lines off.
 lines:
@@ -129,10 +133,17 @@ providers:
     type: mlx_lm_chat
     base_url: http://127.0.0.1:8101
     # No `model`: requests leave it out, so the server uses the snapshot it was started on.
-    max_completion_tokens: 512   # placeholder until G2
-    temperature: 0.7             # placeholder until G2
-    top_p: 0.8                   # placeholder until G2
-    empty_conversation_cue: "(The conversation has just started.)"
+    # G2 (M0 S1): requests with tools attached are greedy (19/20 expected calls); the others use
+    # the server's sampling (backends.llm.args).
+    max_completion_tokens: 512
+    temperature: 0.7
+    top_p: 0.8
+    tool_temperature: 0.0
+    tool_top_p: 1.0
+    retry_dropped_call: true     # a call the server's parser dropped, before any text: asked again
+    warm_on_update: true         # new instructions or tools: warm the server's prompt cache (S2)
+    max_warmups_in_flight: 1     # one per prefix; a burst of calls with one flow warms it once
+    empty_conversation_cue: "(The call has connected. Greet the caller as instructed.)"
     system_note: "(System note: {text})"
     # M5 history shaping (the Qwen template): a tool result always follows its call. A wait
     # line spoken between a call and its result is merged into the call's message (merge) or
@@ -194,13 +205,17 @@ backends:
   env: {HF_HUB_OFFLINE: "1"}   # every model is fetched ahead of time; none is fetched mid-call
   llm:
     project: backends/llm
-    command: [mlx_lm.server]
+    # mlx_lm.server with the lenient qwen3_coder tool-call parser (backends/llm, G2); same CLI.
+    command: [python, -m, mlxrt_llm.serve]
     port: 8101
-    # Placeholder until G2 picks the repo and revision (this is the revision M0 downloaded).
     model: {repo: mlx-community/Qwen3.6-35B-A3B-4bit, revision: 38740b847e4cb78f352aba30aa41c76e08e6eb46}
-    # Thinking off server-wide (and per request). Length and sampling: placeholders until G2.
-    args: [--chat-template-args, '{"enable_thinking":false}', --max-tokens, "512", --temp, "0.7",
-           --top-p, "0.8"]
+    # G2: thinking off server-wide (and per request); the model card's non-thinking sampling.
+    # LLM hardening: 64 cached prompts, at most 8 GB (~100 MB each; +6 GB resident); cache
+    # checkpoints where the tool definitions end and where instructions stop matching recent
+    # ones (an AICC phase change then prefills ~190 tokens, not ~1650); hits keep entries alive.
+    args: [--chat-template-args, '{"enable_thinking":false}', --max-tokens, "2048", --temp, "0.7",
+           --top-p, "0.8", --top-k, "20", --min-p, "0.0", --prompt-cache-size, "64",
+           --prompt-cache-bytes, 8GB, --tools-checkpoint, --shared-prefix-checkpoint]
   asr:
     project: backends/audio
     command: [mlx_audio.server]

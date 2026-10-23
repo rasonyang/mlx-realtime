@@ -1,5 +1,5 @@
 # Every target runs in the locked uv environment: a stale uv.lock fails loudly (CLAUDE.md).
-.PHONY: fmt lint typecheck test test-e2e test-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock bench bench-mock fairness
+.PHONY: fmt lint typecheck test test-e2e test-backend test-llm-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock bench bench-mock fairness
 
 fmt:
 	uv sync --locked
@@ -27,6 +27,14 @@ test-e2e:
 test-backend:
 	uv sync --locked
 	uv run --locked pytest -m backend
+
+# The LLM backend's own code (backends/llm: the lenient tool-call parser, the tool-definitions
+# cache checkpoint) in its own environment; no GPU (the tokenizer test needs the Qwen3.6 snapshot).
+test-llm-backend:
+	uv sync --locked
+	uv sync --locked --project backends/llm
+	uv run --locked --project backends/llm pytest backends/llm/tests
+	uv run --locked pyright -p backends/llm
 
 # The ONNX models (Silero VAD, Smart Turn) into models/, verified against models/MANIFEST.json.
 models:

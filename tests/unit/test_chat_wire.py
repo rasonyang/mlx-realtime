@@ -11,10 +11,14 @@ from mlx_realtime.config import PENDING_TOOL_OUTPUT
 from mlx_realtime.providers.base import Message, ProviderError, TextDelta, ToolCall, ToolDef, Usage
 from mlx_realtime.providers.chat_wire import (
     ChunkReader,
+    PseudoCallFilter,
     Sampling,
     Shaping,
     chat_messages,
+    is_pseudo_call,
+    prefix_key,
     request_body,
+    warmup_messages,
 )
 from mlx_realtime.providers.sse import sse_data
 
@@ -175,3 +179,174 @@ async def test_sse_events_from_split_chunks() -> None:
             yield part
 
     assert [data async for data in sse_data(chunks())] == ['{"a": 1}', "[DONE]", "one\ntwo"]
+
+
+# LLM hardening (M0 S1/S2, G2)
+
+
+def test_requests_with_tools_are_greedy() -> None:
+    """G2: tools attached → tool_temperature / tool_top_p; otherwise the configured sampling."""
+    with_tools = body()
+    assert (with_tools["temperature"], with_tools["top_p"]) == (0.0, 1.0)
+    without = body(tool_choice="none")
+    assert (without["temperature"], without["top_p"]) == (0.7, 0.8)
+    no_tools = request_body(
+        [Message("user", "hi")],
+        [],
+        tool_choice="auto",
+        max_output_tokens=None,
+        sampling=Sampling(512, 0.7, 0.8),
+        model=None,
+        shaping=SHAPING,
+    )
+    assert (no_tools["temperature"], no_tools["top_p"]) == (0.7, 0.8)
+    custom = body(sampling=Sampling(512, 0.7, 0.8, tool_temperature=0.2, tool_top_p=0.9))
+    assert (custom["temperature"], custom["top_p"]) == (0.2, 0.9)
+
+
+CALL = ToolCall("p1", "transfer_to_agent", '{"queue": "mobile_support"}')
+
+
+def test_the_warmup_prefix_ends_at_the_last_user_message() -> None:
+    """The next request (the call's result) will extend exactly this prefix; the placeholder
+    result of the still unanswered call is not part of it."""
+    adapted = adapt(
+        Message("system", "Phase 2."),
+        Message("assistant", "您好。"),
+        Message("user", "转人工"),
+        Message("assistant", "", tool_calls=(CALL,)),
+    )
+    assert adapted[-1]["content"] == PENDING_TOOL_OUTPUT
+    assert warmup_messages(adapted, CUE) == [
+        {"role": "system", "content": "Phase 2."},
+        {"role": "assistant", "content": "您好。"},
+        {"role": "user", "content": "转人工"},
+    ]
+
+
+@pytest.mark.parametrize(
+    "messages",
+    [
+        pytest.param([Message("system", "Greet.")], id="empty"),
+        pytest.param([Message("system", "Greet."), Message("assistant", "您好。")], id="greeted"),
+    ],
+)
+def test_the_warmup_prefix_before_any_user_message(messages: list[Message]) -> None:
+    """Its system checkpoint must serve a history that opens with the assistant (the greeting)
+    as well as the cue, so the message after the system is an empty assistant one."""
+    assert warmup_messages(adapt(*messages), CUE) == [
+        {"role": "system", "content": "Greet."},
+        {"role": "assistant", "content": ""},
+        {"role": "user", "content": CUE},
+    ]
+
+
+def test_prefix_key_is_the_system_message_and_the_tools() -> None:
+    def key(messages: list[Message], tools: list[ToolDef]) -> str:
+        return prefix_key(
+            request_body(
+                messages,
+                tools,
+                tool_choice="auto",
+                max_output_tokens=None,
+                sampling=Sampling(512, 0.7, 0.8),
+                model=None,
+                shaping=SHAPING,
+            )
+        )
+
+    system, f = Message("system", "S."), ToolDef("f", None, None)
+    first = key([system, Message("user", "hi")], [f])
+    later = [system, Message("user", "hi"), Message("assistant", "嗯"), Message("user", "x")]
+    assert key(later, [f]) == first
+    assert key([system, Message("user", "hi")], [ToolDef("g", None, None)]) != first
+    assert key([Message("system", "T."), Message("user", "hi")], [f]) != first
+    assert key([Message("user", "hi")], [f]) != first
+
+
+def test_a_dropped_call() -> None:
+    reader = ChunkReader()
+    reader.read(chunk({}, "tool_calls"))
+    assert reader.dropped_call
+    with pytest.raises(ProviderError, match="dropped a malformed call"):
+        reader.finish()
+    stop = ChunkReader()
+    stop.read(chunk({"content": "好"}, "stop"))
+    assert not stop.dropped_call
+
+
+B1_PSEUDO_CALL = (  # M0 S1, the reply to an RMA lookup made without tools
+    '好的，我查一下。\n{"tool_name": "repair_status", "tool_input": {"rma_number": "RMA2048"}}'
+)
+
+
+def filtered(*pieces: str) -> tuple[str, list[str]]:
+    texts = PseudoCallFilter()
+    out = "".join(texts.push(piece) for piece in pieces) + texts.flush()
+    return out, texts.dropped
+
+
+@pytest.mark.parametrize("cut", range(len(B1_PSEUDO_CALL) + 1))
+def test_the_pseudo_call_m0_saw_is_removed_wherever_the_stream_splits_it(cut: int) -> None:
+    out, dropped = filtered(B1_PSEUDO_CALL[:cut], B1_PSEUDO_CALL[cut:])
+    assert out == "好的，我查一下。\n"
+    assert dropped == ['{"tool_name": "repair_status", "tool_input": {"rma_number": "RMA2048"}}']
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        '{"name": "hangup", "arguments": {}}',
+        '{"name": "repair_status", "parameters": {"rma": "RMA1"}}',
+        '{"function": "transfer_to_agent", "arguments": "{\\"queue\\": \\"x\\"}"}',
+        '{"tool": "kb_search_slow", "input": {"query": "违约金 {多少}"}}',
+        '{"action": "hangup", "action_input": {}}',
+        '{"tool_call": {"name": "hangup", "arguments": {}}}',
+        '{"tool_calls": [{"name": "hangup", "arguments": {}}]}',
+        '{"type": "function", "function": {"name": "hangup", "arguments": "{}"}}',
+        '```json\n{"name": "hangup", "arguments": {}}\n```',
+        '```\n{"name": "hangup", "arguments": {}}\n```',
+        '{\n  "name": "hangup",\n  "arguments": {"isFarewellSpoken": true}\n}',
+    ],
+)
+def test_pseudo_call_shapes(call: str) -> None:
+    assert is_pseudo_call(call)
+    out, dropped = filtered("请稍等。", call, "好的。")
+    assert (out, dropped) == ("请稍等。好的。", [call])
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param("请按{1}键确认。", id="braces-in-speech"),
+        pytest.param("价格是 {大约} 一百元。", id="braces-not-json"),
+        pytest.param('返回 {"found": 1, "status": "维修中"}。', id="json-not-a-call"),
+        pytest.param('{"name": "张三"}', id="a-name-alone"),
+        pytest.param('{"arguments": {}}', id="arguments-alone"),
+        pytest.param('{"name": 3, "arguments": {}}', id="a-name-that-is-not-text"),
+        pytest.param("{}", id="empty-object"),
+        pytest.param("一个 ` 反引号和 `` 两个。", id="backticks"),
+        pytest.param("```\n普通文本\n```", id="a-fence-around-text"),
+        pytest.param('{"name": "hangup", "arguments": {', id="never-closed"),
+        pytest.param("左括号 { 没有右括号", id="an-open-brace"),
+        pytest.param('{"name": "a\\"}", "x": "{"}', id="braces-and-quotes-in-strings"),
+    ],
+)
+def test_everything_else_passes_unchanged(text: str) -> None:
+    assert filtered(text) == (text, [])
+    assert filtered(*text) == (text, [])  # one character per delta
+
+
+def test_text_after_an_open_brace_waits_for_it_to_close() -> None:
+    texts = PseudoCallFilter()
+    assert texts.push('好的。{"name": "hangup", ') == "好的。"
+    assert texts.push('"arguments": {}}') == ""
+    assert texts.push("再见。") == "再见。"
+    assert texts.flush() == ""
+
+
+def test_a_held_object_is_released_past_the_limit() -> None:
+    texts = PseudoCallFilter()
+    long = '{"name": "x", "note": "' + "长" * 5000 + '"}'
+    assert texts.push(long) + texts.flush() == long
+    assert texts.dropped == []

@@ -99,6 +99,21 @@ class OutputConfig(_Section):
         return self
 
 
+type ResampleQuality = Literal["QQ", "LQ", "MQ", "HQ", "VHQ"]
+
+
+class G711Config(_Section):
+    """G.711 sessions (``audio/pcmu``, ``audio/pcma`` at 8 kHz, D3; M7): the soxr quality of each
+    resampling step. ``input_quality`` resamples the caller's 8 kHz audio to the canonical
+    16 kHz before the echo canceller and the VAD (M0 S7: LQ lags 32 ms on average, HQ 64 ms; LQ
+    rolls off above 3 kHz, -8 dB at 3.4 kHz); the echo reference of G.711 output takes the
+    same path. ``output_quality`` resamples the TTS's 24 kHz to 8 kHz (its lag delays no
+    delta: a segment's tail is flushed when it ends)."""
+
+    input_quality: ResampleQuality = "LQ"
+    output_quality: ResampleQuality = "HQ"
+
+
 DEFAULT_VERBATIM_PREFIXES = (
     "Say exactly this, word for word, and add nothing else:\n",
     "请一字不差地说出下面这句话，不要添加任何其它内容：\n",
@@ -351,11 +366,22 @@ class MlxLmChatConfig(_Section):
     type: Literal["mlx_lm_chat"]
     base_url: str = "http://127.0.0.1:8101"
     model: str | None = None  # omitted from requests, or exactly the server's --model value
-    # Sampling and length: placeholders until the M0 LLM spike (G2) decides them.
+    # Sampling and length (G2, M0 S1): requests with tools attached go at tool_temperature /
+    # tool_top_p (greedy: 19/20 expected calls), the others at temperature / top_p, which match
+    # the server's flags (--temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0).
     max_completion_tokens: int = Field(default=512, ge=1)
     temperature: float = Field(default=0.7, ge=0.0)
     top_p: float = Field(default=0.8, gt=0.0, le=1.0)
-    empty_conversation_cue: str = "(The conversation has just started.)"
+    tool_temperature: float = Field(default=0.0, ge=0.0)
+    tool_top_p: float = Field(default=1.0, gt=0.0, le=1.0)
+    # A call the server's parser dropped (finish_reason tool_calls, no call) before any text is
+    # asked for once more, in the same response, at temperature / top_p (M0 S1).
+    retry_dropped_call: bool = True
+    # Warm the server's prompt cache when a session's instructions or tools change (M0 S2), at
+    # most max_warmups_in_flight warm-ups at a time (one per prefix).
+    warm_on_update: bool = True
+    max_warmups_in_flight: int = Field(default=1, ge=1)
+    empty_conversation_cue: str = "(The call has connected. Greet the caller as instructed.)"
     system_note: str = "(System note: {text})"  # how a later system item reaches the model
     # M5 history shaping for the Qwen template (providers/chat_wire.py). A tool result always
     # follows its call. tool_interlude: an assistant text between a call and its result (AICC's
@@ -578,6 +604,7 @@ class Config(_Section):
     gateway: GatewayConfig = GatewayConfig()
     limits: LimitsConfig = LimitsConfig()
     output: OutputConfig = OutputConfig()
+    g711: G711Config = G711Config()
     lines: LinesConfig = LinesConfig()
     voices: VoicesConfig = VoicesConfig()
     session_defaults: dict[str, object] = Field(default_factory=dict[str, object])

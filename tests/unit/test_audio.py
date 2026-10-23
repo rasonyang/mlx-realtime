@@ -64,7 +64,11 @@ def test_output_encoder_splits_into_bounded_deltas() -> None:
 def test_output_encoder_resamples_other_rates_to_the_wire_rate() -> None:
     encoder = OutputEncoder(max_delta_ms=100)
     pcm = noise(16_000)  # 1 s at 16 kHz
-    out = b"".join(encoder.encode(pcm, 16_000)) + b"".join(encoder.flush())
-    assert len(out) == ms_to_bytes(1000, 24_000)
+    out = b"".join(encoder.encode(pcm, 16_000))
     with pytest.raises(ValueError, match="sample rate changed"):
-        encoder.encode(pcm, 22_050)
+        encoder.encode(pcm, 22_050)  # within one synthesis request
+    out += b"".join(encoder.flush())
+    assert len(out) == ms_to_bytes(1000, 24_000)
+    # The next request (a segment the fallback speaks) may come at another rate.
+    out = b"".join(encoder.encode(noise(22_050), 22_050)) + b"".join(encoder.flush())
+    assert len(out) == ms_to_bytes(1000, 24_000)

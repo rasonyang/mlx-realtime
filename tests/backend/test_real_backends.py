@@ -30,6 +30,7 @@ import pytest
 from openai import AsyncOpenAI
 from openai.types.realtime import RealtimeServerEvent
 
+from mlx_realtime.audio import g711
 from mlx_realtime.audio.pcm import CANONICAL_RATE, WIRE_RATE
 from mlx_realtime.audio.resample import Resampler
 from mlx_realtime.audio.trim import SilenceTrimmer
@@ -59,6 +60,7 @@ from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.registry import build_speech
 from mlx_realtime.providers.voices import VoiceBook
 from mlx_realtime.server.gateway import pinned_snapshots
+from mlx_realtime.text.similarity import overlap
 from tests.speech import EN, ZH, clip, silence, to_wire
 
 pytestmark = pytest.mark.backend
@@ -650,4 +652,107 @@ def test_aicc_harness_against_the_real_stack(config: Config) -> None:
     print(finished.stdout[-6000:])
     assert finished.returncode == 0, finished.stdout[-4000:] + finished.stderr[-2000:]
     for name in ("TestMLXBargeIn", "TestMLXKeypressCancel"):
+        assert f"--- PASS: {name} " in finished.stdout, name
+
+
+def to_g711(pcm16k: bytes, law: g711.Law = "ulaw") -> bytes:
+    """Canonical PCM as a telephone line carries it: 8 kHz G.711."""
+    resampler = Resampler(CANONICAL_RATE, 8000)
+    return g711.encode(resampler.process(pcm16k) + resampler.flush(), law)
+
+
+async def test_sdk_g711_spoken_turn_with_the_real_stack(config: Config, asr: MlxAudioASR) -> None:
+    """M7: the official SDK in G.711 μ-law both ways (``{"type": "audio/pcmu"}``, 160-byte
+    frames every 20 ms): speech in → transcript → LLM → TTS → μ-law out, within AICC's
+    deadlines, and the answer's audio, decoded, is heard right by the ASR."""
+    gateway = config.gateway
+    client = AsyncOpenAI(base_url=f"http://{gateway.host}:{gateway.port}/v1", api_key="local")
+    audio = to_g711(silence(500) + clip(ZH) + silence(2500))
+    session = {
+        "type": "realtime",
+        "instructions": "你是客服助手，用一句话简短回答。",
+        "audio": {
+            "input": {
+                "format": {"type": "audio/pcmu"},
+                "turn_detection": {"type": "server_vad", "silence_duration_ms": 500},
+            },
+            "output": {"format": {"type": "audio/pcmu"}},
+        },
+    }
+    received: list[tuple[float, RealtimeServerEvent]] = []
+    async with client.realtime.connect(model="gpt-realtime") as connection:
+        await connection.session.update(session=session)  # pyright: ignore[reportArgumentType]
+
+        async def stream_audio() -> None:
+            for start in range(0, len(audio), 160):
+                encoded = base64.b64encode(audio[start : start + 160]).decode()
+                await connection.input_audio_buffer.append(audio=encoded)
+                await asyncio.sleep(0.02)
+
+        sender = asyncio.create_task(stream_audio())
+        async with asyncio.timeout(40):
+            async for event in connection:
+                received.append((time.monotonic(), event))
+                if event.type == "response.done":
+                    break
+        await sender
+    transcript, spoken = "", ""
+    created_at: float | None = None
+    deltas: list[tuple[float, bytes]] = []
+    for at, event in received:
+        if event.type == "session.updated":
+            assert event.session.model_dump(exclude_none=True)["audio"]["output"]["format"] == {
+                "type": "audio/pcmu"
+            }
+        elif event.type == "conversation.item.input_audio_transcription.completed":
+            transcript = event.transcript
+        elif event.type == "response.created":
+            created_at = at
+        elif event.type == "response.output_audio_transcript.delta":
+            spoken += event.delta
+        elif event.type == "response.output_audio.delta":
+            deltas.append((at, base64.b64decode(event.delta)))
+        elif event.type == "response.done":
+            assert event.response.status == "completed"
+    assert "恐龙" in transcript
+    assert created_at is not None
+    assert deltas, "no audio came back"
+    assert all(len(data) <= 800 for _, data in deltas)  # 100 ms of 8 kHz μ-law
+    first = deltas[0][0] - created_at
+    print(f"first audio {first * 1000:.0f} ms after response.created (G.711)")
+    assert first <= 3.0
+    times = [at for at, _ in deltas]
+    assert max((b - a for a, b in itertools.pairwise(times)), default=0.0) < 2.0
+    narrow = g711.decode(b"".join(data for _, data in deltas), "ulaw")
+    resampler = Resampler(8000, CANONICAL_RATE)
+    heard = await asr.transcribe(resampler.process(narrow) + resampler.flush(), language="zh")
+    print(f"spoken {spoken!r}, heard back {heard.text!r}")
+    assert overlap(spoken, heard.text) >= 0.6  # of the spoken characters, heard in order
+
+
+@pytest.mark.skipif(
+    not os.environ.get("AICC_REPO") or shutil.which("go") is None,
+    reason="set AICC_REPO to an AICC checkout (and install Go)",
+)
+def test_aicc_harness_with_g711_against_the_real_stack(config: Config) -> None:
+    """M7: AICC's harness on the profile's G.711 variant (``AcceptsG711: true``, probe.py
+    ``--g711``): μ-law passed through both ways on the real VAD, canceller, ASR, LLM and TTS."""
+    gateway = config.gateway
+    url = f"ws://{gateway.host}:{gateway.port}/v1/realtime"
+    probe = REPO / "tests" / "aicc" / "probe.py"
+    command = [
+        sys.executable,
+        str(probe),
+        "--aicc-repo",
+        os.environ["AICC_REPO"],
+        "--url",
+        url,
+        "--g711",
+    ]
+    finished = subprocess.run(
+        command, cwd=REPO, capture_output=True, text=True, timeout=900, check=False
+    )
+    print(finished.stdout[-6000:])
+    assert finished.returncode == 0, finished.stdout[-4000:] + finished.stderr[-2000:]
+    for name in ("TestMLXGreeting", "TestMLXBargeIn", "TestMLXKeypressCancel"):
         assert f"--- PASS: {name} " in finished.stdout, name

@@ -45,7 +45,8 @@ from dataclasses import dataclass
 from typing import Literal
 
 from mlx_realtime.audio.codec import OutputEncoder
-from mlx_realtime.audio.pcm import SAMPLE_WIDTH, WIRE_RATE, ms_to_bytes
+from mlx_realtime.audio.formats import PCM, AudioFormat
+from mlx_realtime.audio.resample import Quality
 from mlx_realtime.audio.trim import SilenceTrimmer
 from mlx_realtime.config import AudioReserveConfig, SegmenterConfig, SilenceTrimConfig
 from mlx_realtime.providers.base import (
@@ -93,6 +94,7 @@ class PipelineRequest:
     modality: Modality
     voice: str
     verbatim: str | None = None  # D16: say this, as written, instead of asking the LLM
+    output_format: AudioFormat = PCM  # the response's wire audio
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,12 +113,14 @@ class PipelineContext:
     reserve: AudioReserveConfig | None = None  # the audio reserve (M6); None: off
     first_segment_grace_s: float = 0.0  # a first segment's TTS deadline after the start (M6)
     observer: SessionObserver = NULL_OBSERVER  # TTS fallback uses and absorbed primary errors
+    g711_quality: Quality = "HQ"  # the TTS rate → 8 kHz resampling of G.711 output (M7)
 
 
 @dataclass(frozen=True, slots=True)
 class _Delta:
     segment: SegmentStarted
-    pcm: bytes  # at most max_delta_ms
+    pcm: bytes  # in the response's output format, at most max_delta_ms
+    ms: float  # its duration
 
 
 @dataclass(frozen=True, slots=True)
@@ -305,12 +309,26 @@ async def _synthesize(
     context: PipelineContext,
     started_at: float,
 ) -> None:
-    """One TTS request per segment, in order; every stream is read as fast as it arrives."""
-    limit_bytes = ms_to_bytes(context.max_audio_ms, WIRE_RATE)
+    """One TTS request per segment, in order; every stream is read as fast as it arrives.
+
+    One encoder serves the response: the resampler to the output format's rate (24 → 8 kHz for
+    G.711) is flushed at each segment's end, so a segment's audio is whole when it is sent."""
+    audio_format = request.output_format
+    limit_bytes = audio_format.ms_to_bytes(context.max_audio_ms)
     produced = 0
     first_chunk = True
     index = 0
     horizon = _Horizon(context.clock)
+    quality: Quality = "HQ" if audio_format.law is None else context.g711_quality
+    encoder = OutputEncoder(context.max_delta_ms, audio_format, quality)
+
+    def delta(segment: SegmentStarted, pcm: bytes) -> _Delta:
+        nonlocal produced
+        produced += len(pcm)
+        ms = audio_format.duration_ms(len(pcm))
+        horizon.add(ms)
+        return _Delta(segment, pcm, ms)
+
     while (text := await segments.get()) is not None:
         lang = detect_lang(text)  # mixed text is zh
         spoken, source = normalize_with_map(text, context.normalizer, lang=lang)
@@ -324,7 +342,6 @@ async def _synthesize(
             )
             slack_s = max(deadline - context.clock.now(), 0.0)
             timing = SpeechTiming(deadline=deadline, slack_s=slack_s)
-            encoder = OutputEncoder(context.max_delta_ms)
             trimmer: SilenceTrimmer | None = None
             rate = 0
             stream = context.tts.stream(spoken.strip(), request.voice, lang, timing=timing)
@@ -336,10 +353,8 @@ async def _synthesize(
                     if not rate:
                         rate, trimmer = chunk.sample_rate, _trimmer(chunk.sample_rate, context)
                     pcm = chunk.pcm if trimmer is None else trimmer.push(chunk.pcm)
-                    for delta in encoder.encode(pcm, chunk.sample_rate):
-                        audio.put_nowait(_Delta(segment, delta))
-                        produced += len(delta)
-                        horizon.add(len(delta))
+                    for data in encoder.encode(pcm, chunk.sample_rate):
+                        audio.put_nowait(delta(segment, data))
                     if produced > limit_bytes:
                         break
             _report_fallback(timing, context)
@@ -347,10 +362,8 @@ async def _synthesize(
             # truncation, D5 and the echo reference all count what is sent.
             tail = b"" if trimmer is None else trimmer.flush()
             deltas = encoder.encode(tail, rate) if tail else []
-            for pcm in [*deltas, *encoder.flush()]:
-                audio.put_nowait(_Delta(segment, pcm))
-                produced += len(pcm)
-                horizon.add(len(pcm))
+            for data in [*deltas, *encoder.flush()]:
+                audio.put_nowait(delta(segment, data))
         audio.put_nowait(_SegmentEnd(segment))
         if produced > limit_bytes:
             break  # the actor ends the response incomplete once this much audio is sent
@@ -365,10 +378,10 @@ class _Horizon:
         self._clock = clock
         self.dry_at: float | None = None
 
-    def add(self, nbytes: int) -> None:
+    def add(self, ms: float) -> None:
         now = self._clock.now()
         start = now if self.dry_at is None else max(self.dry_at, now)
-        self.dry_at = start + _audio_ms(nbytes) / 1000
+        self.dry_at = start + ms / 1000
 
 
 def _report_fallback(timing: SpeechTiming, context: PipelineContext) -> None:
@@ -376,10 +389,6 @@ def _report_fallback(timing: SpeechTiming, context: PipelineContext) -> None:
         context.observer.tts_fallback()
     if timing.primary_error is not None:
         context.observer.provider_error("tts", timing.primary_error)
-
-
-def _audio_ms(nbytes: int) -> float:
-    return nbytes / SAMPLE_WIDTH * 1000 / WIRE_RATE
 
 
 def _trimmer(sample_rate: int, context: PipelineContext) -> SilenceTrimmer | None:
@@ -419,7 +428,7 @@ async def _send(generation: int, audio: asyncio.Queue[_Audio], context: Pipeline
     while (item := await audio.get()) is not None:
         segment = item.segment
         if isinstance(item, _Delta):
-            await pacer.admit(_audio_ms(len(item.pcm)))
+            await pacer.admit(item.ms)
             await context.wait_for_room()
             if segment.index not in announced:
                 announced.add(segment.index)
@@ -493,11 +502,11 @@ class _ReserveSender:
             return
         self._pending.append(item)
         if isinstance(item, _Delta):
-            self._pending_ms += _audio_ms(len(item.pcm))
+            self._pending_ms += item.ms
 
     def _hold_s(self, head: _Delta) -> float:
         """How long the head delta may still wait; 0 or less: send it now."""
-        if self._finished or self._pending_ms - _audio_ms(len(head.pcm)) >= self._hold_ms:
+        if self._finished or self._pending_ms - head.ms >= self._hold_ms:
             return 0.0
         if self._last_sent is None:
             return 0.0  # the response's first audio never waits
@@ -508,8 +517,8 @@ class _ReserveSender:
 
     async def _send(self, item: _Delta) -> None:
         self._pending.popleft()
-        self._pending_ms -= _audio_ms(len(item.pcm))
-        await self._pacer.admit(_audio_ms(len(item.pcm)))
+        self._pending_ms -= item.ms
+        await self._pacer.admit(item.ms)
         await self._context.wait_for_room()
         self._announce(item.segment)
         self._context.post(SegmentAudio(self._generation, item.segment.index, item.pcm))

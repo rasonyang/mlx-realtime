@@ -167,6 +167,7 @@ class Gateway:
             reserve=config.output.reserve,
             first_segment_grace_s=_first_segment_grace_s(config),
             observer=self.metrics,
+            g711=config.g711,
         )
 
     async def aclose(self) -> None:

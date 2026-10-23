@@ -9,6 +9,10 @@ closing the connection. What it writes copies ``mlx_lm/server.py``: ``: keepaliv
 Each POST plays the next script: a list of steps. A ``Hold`` waits for the test; while holding
 (and between steps) the handler watches the socket, so a client that closes the connection is
 seen at once, as the real server sees it at its next write.
+
+A request for one token is a warm-up (the provider's startup warmup, a prefix warm-up): it is
+recorded in ``warmups``, not ``requests``, and plays the next ``warmup`` script (by default one
+token), so the scripts of a test's real requests are never spent on warm-ups.
 """
 
 from __future__ import annotations
@@ -140,16 +144,29 @@ class FakeMlxLm:
     default: list[Step] = field(default_factory=lambda: reply("好的", "。"))
     health: int = 200
     requests: list[Json] = field(default_factory=list[Json])
+    warmups: list[Json] = field(default_factory=list[Json])  # the one-token requests
     disconnects: int = 0
     finished: int = 0
     _scripts: deque[list[Step]] = field(default_factory=deque[list[Step]])
+    _warmup_scripts: deque[list[Step]] = field(default_factory=deque[list[Step]])
     _lock: threading.Lock = field(default_factory=threading.Lock)
 
     def script(self, *steps: Step) -> None:
         self._scripts.append(list(steps))
 
-    def next_script(self) -> list[Step]:
+    def warmup(self, *steps: Step) -> None:
+        """Script the next one-token request (a warm-up)."""
+        self._warmup_scripts.append(list(steps))
+
+    def take(self, body: Json) -> list[Step]:
+        """Record a request and return the script it plays."""
         with self._lock:
+            if body.get("max_completion_tokens") == 1:
+                self.warmups.append(body)
+                if self._warmup_scripts:
+                    return self._warmup_scripts.popleft()
+                return reply("好", finish="length")
+            self.requests.append(body)
             return self._scripts.popleft() if self._scripts else list(self.default)
 
     def count(self, what: str) -> None:
@@ -200,12 +217,12 @@ class _Handler(BaseHTTPRequestHandler):
             return
         length = int(self.headers.get("Content-Length", "0"))
         body: Json = json.loads(self.rfile.read(length))
-        self.server_fake.requests.append(body)
+        script = self.server_fake.take(body)
         self._model = body.get("model", "default_model")
         self._id = f"chatcmpl-{uuid.uuid4()}"
         self._started = False
         try:
-            self._play(self.server_fake.next_script())
+            self._play(script)
         except (BrokenPipeError, ConnectionResetError):
             self.server_fake.count("disconnects")
 
