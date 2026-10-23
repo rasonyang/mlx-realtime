@@ -168,6 +168,17 @@ async def test_the_echo_never_interrupts_and_the_caller_still_does(
     assert erle is not None
     assert erle >= 10, erle  # the canceller, not the barge-in rules alone, kept the echo out
     assert summary.__dict__["barge_ins"] == 1
+    # G7 dual path: the ASR path's Speex reference was aligned from the guard's estimates a few
+    # seconds into the answer (its ERLE, a median that the caller's double talk pulls down, is
+    # measured offline: spikes/g7dual), and its filter never diverged.
+    keys = ("speex", "anchor", "realign", "shift", "tick")
+    fields = {key: value for key, value in summary.__dict__.items() if key.startswith(keys)}
+    print(f"{codec}: AEC3 ERLE {erle} dB; {fields}")
+    aligned = summary.__dict__["speex_aligned_at_ms"]
+    assert aligned is not None
+    assert aligned <= 5000, fields  # input ms: 0.5 s of room noise, then the answer plays
+    assert summary.__dict__["speex_erle_db"] is not None
+    assert summary.__dict__["speex_resets"] == 0
 
 
 async def test_without_the_defences_the_echo_interrupts() -> None:

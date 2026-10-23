@@ -1,9 +1,10 @@
 """Session voice names and what each TTS model is asked for (D19).
 
 A session names a voice in ``audio.output.voice``. The voice map in the configuration says,
-for each name, which speaker the primary model uses, how its lang_code is chosen, and which
-voice the fallback model uses for each segment language. A name that is not in the map is never
-rejected: it resolves to the default voice, and the session echoes the effective name.
+for each name, which speaker speaks it (per segment language, optionally) and how its lang_code
+is chosen. The primary and the fallback model are builds of one Qwen3-TTS model (D13), so both
+speak a voice with the same speaker. A name that is not in the map is never rejected: it
+resolves to the default voice, and the session echoes the effective name.
 """
 
 from __future__ import annotations
@@ -21,13 +22,12 @@ SEGMENT_LANG = "segment"
 @dataclass(frozen=True, slots=True)
 class Voice:
     name: str
-    speaker: str  # the primary model's speaker
-    lang: str  # SEGMENT_LANG, or the lang_code the primary model always gets
-    fallback: Mapping[Lang, str]  # the fallback model's voice per segment language
+    speaker: str
+    lang: str  # SEGMENT_LANG, or the lang_code the models always get
     speakers: Mapping[Lang, str] = field(default_factory=dict[Lang, str])  # per-language speaker
 
     def speaker_for(self, lang: Lang) -> str:
-        """The primary model's speaker for a segment in ``lang``."""
+        """The speaker for a segment in ``lang`` (on either model)."""
         return self.speakers.get(lang, self.speaker)
 
 
@@ -35,7 +35,7 @@ class VoiceBook:
     def __init__(self, config: VoicesConfig) -> None:
         self.default = config.default
         self._voices = {
-            name: Voice(name, entry.speaker, entry.lang, dict(entry.fallback), dict(entry.speakers))
+            name: Voice(name, entry.speaker, entry.lang, dict(entry.speakers))
             for name, entry in config.map.items()
         }
 

@@ -22,9 +22,12 @@ class VadUpdate:
     epoch: int
     events: tuple[GateEvent, ...]
     keep_from_ms: int  # earliest input position a turn not yet ended can start at
-    # The echo canceller's output for this stretch of the input timeline (D17), if it ran.
+    # The echo cancellers' output for this stretch of the input timeline (D17), if they ran:
+    # AEC3's (speech detection, Smart Turn) and the ASR path's (G7 dual path; empty where the
+    # ASR keeps the input as received).
     processed_start: int = 0  # input timeline sample
     processed: bytes = b""
+    processed_asr: bytes = b""
 
 
 @dataclass(frozen=True, slots=True)

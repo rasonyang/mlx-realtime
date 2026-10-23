@@ -1,11 +1,12 @@
 """``MlxAudioTTS``: the TTS provider for ``mlx_audio.server`` (ARCHITECTURE §5.2, §5.3).
 
 One streamed ``POST /v1/audio/speech`` per segment, JSON: ``model``, ``input``, ``voice``,
-``lang_code``, ``response_format: "pcm"``, ``stream: true``, ``streaming_interval``, and the
-sampling fields only when configured. Without ``stream`` the server takes a slower batch path
-and sends nothing until synthesis ends, so every request streams. The body is chunked raw
-s16le mono PCM (24 kHz), read under the request's deadlines: the first chunk, the idle gap
-between chunks, and the total. Chunks are passed on as they arrive, whole samples only.
+``lang_code``, ``response_format: "pcm"``, ``stream: true``, ``streaming_interval``, the
+``max_tokens`` of ``token_cap``, and the sampling fields only when configured. Without
+``stream`` the server takes a slower batch path and sends nothing until synthesis ends, so every
+request streams. The body is chunked raw s16le mono PCM (24 kHz), read under the request's
+deadlines: the first chunk, the idle gap between chunks, and the total. Chunks are passed on as
+they arrive, whole samples only.
 
 The backend's behaviour (mlx-audio 0.6.1, checked in M0) shapes the provider:
 
@@ -15,24 +16,20 @@ The backend's behaviour (mlx-audio 0.6.1, checked in M0) shapes the provider:
   earliest ``SpeechTiming.deadline`` first, M6) and bounded (``queue_timeout_ms`` past the
   deadline, then ``overloaded``).
 - Each request first has the worker confirm its model is loaded, and models load lazily, so a
-  cold model costs seconds: the warmup speaks one Chinese and one English sentence per
-  configured voice.
+  cold model costs seconds: the warmup loads each model before the first call needs it.
 - Errors before the audio are FastAPI's ``{"detail": ...}`` with a status (404: unknown model;
   500: the model failed to load). A failure inside generation cuts the chunked body after the
-  200 status (M0 A1 saw it with a Kokoro voice name); it is a ``bad_response``, as is a stream
-  that ends without audio or inside a sample.
+  200 status (a speaker the model does not have, for one); it is a ``bad_response``, as is a
+  stream that ends without audio or inside a sample.
 - The worker checks for cancellation once per chunk and sees a client disconnect at once, so
   closing the response is the cancel signal.
 
-There is one provider per model and role, sharing one ``SpeechServer`` (client and slots):
-
-- ``qwen3_tts`` (primary): ``voice`` is the session voice's speaker; ``lang_code`` is the
-  segment's language tag through ``lang_codes`` (``chinese``, ``english``) unless the voice
-  fixes one. An unknown lang_code would silently become ``auto``.
-- ``kokoro`` (fallback): ``voice`` is the path of the voice pack inside the pinned snapshot
-  (``voices/<name>.safetensors``): given a name, mlx-audio looks the pack up in a hardcoded
-  Hub repository, which fails offline. ``lang_code`` is ``z`` (Mandarin, needs misaki[zh]) or
-  ``a`` (US English); the voice is the session voice's fallback voice for that language.
+There is one provider per model and role (primary, fallback), sharing one ``SpeechServer``
+(client and slots). Both models are builds of Qwen3-TTS-12Hz-0.6B-CustomVoice (D13: 8-bit and
+4-bit) with the same speakers, and both are asked the same way: ``voice`` is the session
+voice's speaker for the segment's language; ``lang_code`` is the segment's language tag through
+``lang_codes`` (``chinese``, ``english``) unless the voice fixes one. An unknown lang_code would
+silently become ``auto``.
 """
 
 from __future__ import annotations
@@ -43,13 +40,12 @@ import logging
 import math
 from collections.abc import AsyncGenerator, Mapping
 from contextlib import aclosing
-from pathlib import Path
 from typing import Literal, cast
 
 import httpx2
 
 from mlx_realtime.audio.pcm import SAMPLE_WIDTH
-from mlx_realtime.config import MlxAudioSpeechConfig, TokenCapConfig, TtsFamily, TtsModelConfig
+from mlx_realtime.config import MlxAudioSpeechConfig, TokenCapConfig, TtsModelConfig
 from mlx_realtime.providers.base import (
     Lang,
     PCMChunk,
@@ -74,10 +70,8 @@ SPEECH = "/v1/audio/speech"
 MODELS = "/v1/models"
 SERVER_MAX_TOKENS = 1200  # mlx_audio.server's default max_tokens (codec frames)
 
-FAMILY_LANG_CODES: dict[TtsFamily, dict[Lang, str]] = {
-    "qwen3_tts": {"zh": "chinese", "en": "english"},
-    "kokoro": {"zh": "z", "en": "a"},
-}
+LANG_CODES: dict[Lang, str] = {"zh": "chinese", "en": "english"}
+"""Qwen3-TTS's lang_code for each segment language tag (``lang_codes`` overrides them)."""
 _SAMPLING = ("temperature", "top_p", "top_k", "repetition_penalty", "max_tokens")
 
 type Role = Literal["primary", "fallback"]
@@ -135,15 +129,13 @@ class MlxAudioTTS:
         *,
         role: Role,
         warmup_texts: Mapping[Lang, str],
-        voices_dir: Path | None = None,
     ) -> None:
         self._server = server
         self._config = config
         self._voices = voices
         self._role: Role = role
         self._warmup_texts = dict(warmup_texts)
-        self._voices_dir = Path(config.voices_dir) if config.voices_dir else voices_dir
-        self._lang_codes = {**FAMILY_LANG_CODES[config.family], **config.lang_codes}
+        self._lang_codes = {**LANG_CODES, **config.lang_codes}
         self._deadlines = Deadlines.of(config.timeouts)
         self._warmup_deadlines = Deadlines.warmup(config.timeouts)
 
@@ -169,11 +161,14 @@ class MlxAudioTTS:
         return self._speak(text, voice, lang, timing or SpeechTiming(), self._deadlines)
 
     def request_body(self, text: str, voice: str, lang: Lang) -> Json:
+        """The request for one segment; the same on either model but for ``model`` (D13)."""
+        chosen = self._voices.voice(voice)
+        lang_code = self._lang_codes[lang] if chosen.lang == SEGMENT_LANG else chosen.lang
         body: Json = {
             "model": self._config.model,
             "input": text,
-            "voice": self._voice_field(voice, lang),
-            "lang_code": self._lang_code(voice, lang),
+            "voice": chosen.speaker_for(lang),
+            "lang_code": lang_code,
             "response_format": "pcm",
             "stream": True,
             "streaming_interval": self._config.streaming_interval,
@@ -182,15 +177,20 @@ class MlxAudioTTS:
             value = getattr(self._config, name)
             if value is not None:
                 body[name] = value
-        if self._config.token_cap is not None and self._config.family == "qwen3_tts":
+        if self._config.token_cap is not None:
             body["max_tokens"] = token_cap(text, self._config.token_cap, self._config.max_tokens)
         return body
 
     async def warmup(self) -> None:
-        """Speak one sentence per configured voice and language: the server loads the model on
-        its first request, and a request for every voice catches a misconfigured one."""
+        """Load the model before the first call needs it: the server loads a model on its first
+        request. The primary speaks one Chinese and one English sentence in every configured
+        voice, so a speaker the model lacks keeps the gateway not ready. The fallback has the
+        same speakers (D13), so it speaks the two sentences in the default voice only."""
+        voices = self._voices.voices()
+        if self._role == "fallback":
+            voices = (self._voices.voice(self._voices.default),)
         spoken: set[tuple[object, object]] = set()
-        for voice in self._voices.voices():
+        for voice in voices:
             for lang, text in self._warmup_texts.items():
                 body = self.request_body(text, voice.name, lang)
                 key = (body["voice"], body["lang_code"])
@@ -213,30 +213,6 @@ class MlxAudioTTS:
 
     async def aclose(self) -> None:
         await self._server.aclose()
-
-    def _voice_field(self, name: str, lang: Lang) -> str:
-        voice = self._voices.voice(name)
-        chosen = voice.speaker_for(lang) if self._role == "primary" else voice.fallback.get(lang)
-        if self._config.family != "kokoro":
-            return chosen or voice.speaker_for(lang)
-        if chosen is None:
-            raise ProviderError("internal", f"tts: voice '{voice.name}' has no {lang} voice pack")
-        if self._voices_dir is None:
-            raise ProviderError(
-                "unavailable",
-                f"tts: no voice packs for {self.model}: download it (mlxrt models --mlx) "
-                "or set voices_dir",
-            )
-        pack = self._voices_dir / f"{chosen}.safetensors"
-        if not pack.is_file():
-            raise ProviderError("unavailable", f"tts: voice pack not found: {pack}")
-        return str(pack)
-
-    def _lang_code(self, name: str, lang: Lang) -> str:
-        policy = self._voices.voice(name).lang
-        if self._role == "primary" and policy != SEGMENT_LANG:
-            return policy
-        return self._lang_codes[lang]
 
     async def _speak(
         self, text: str, voice: str, lang: Lang, timing: SpeechTiming, deadlines: Deadlines

@@ -14,11 +14,14 @@ from mlx_realtime.config import (
     MockASRConfig,
     MockLLMConfig,
     NormalizerConfig,
+    SpeexConfig,
     load_config,
     validate_config,
 )
+from mlx_realtime.providers.base import Lang
 from mlx_realtime.providers.fallback import FallbackTTS
 from mlx_realtime.providers.mlx_audio_asr import MlxAudioASR
+from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS
 from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.providers.registry import build_providers
@@ -29,6 +32,8 @@ from tests.speech import needs_models
 REPO = Path(__file__).parents[2]
 REPO_CONFIG = REPO / "config.yaml"
 MOCK_CONFIG = REPO / "config.mock.yaml"
+QWEN3_TTS_8BIT = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
+QWEN3_TTS_4BIT = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
 
 
 def write(tmp_path: Path, text: str) -> Path:
@@ -66,15 +71,30 @@ def test_repository_config_points_at_the_real_backends() -> None:
     asr = config.backends.asr
     assert asr is not None
     assert [pin.repo for pin in asr.fetch] == [config.providers.asr.model]
-    # M3: the TTS backend, Qwen3-TTS with Kokoro behind it (D13), both pinned for the tts process.
-    assert isinstance(gateway.providers.tts, FallbackTTS)
+    # D13: the TTS backend, Qwen3-TTS 8-bit with its 4-bit build behind it, both pinned for the
+    # tts process; the fallback is asked exactly like the primary, Latin letters included.
+    speech = gateway.providers.tts
+    assert isinstance(speech, FallbackTTS)
     tts = config.providers.tts
     assert isinstance(tts, MlxAudioSpeechConfig)
-    assert (tts.primary.family, tts.fallback.family) == ("qwen3_tts", "kokoro")
+    assert (tts.primary.model, tts.fallback.model) == (QWEN3_TTS_8BIT, QWEN3_TTS_4BIT)
+    primary, fallback = speech.primary, speech.fallback
+    assert isinstance(primary, MlxAudioTTS)
+    assert isinstance(fallback, MlxAudioTTS)
+    segments: list[tuple[str, str, Lang]] = [
+        ("请登录 App 查看。", "vivian", "zh"),
+        ("Hi.", "aiden", "en"),
+    ]
+    for text, voice, lang in segments:
+        asked = primary.request_body(text, voice, lang)
+        assert fallback.request_body(text, voice, lang) == {**asked, "model": QWEN3_TTS_4BIT}
     assert tts.max_in_flight == 1  # the server runs one stream at a time
     backend = config.backends.tts
     assert backend is not None
-    assert [pin.repo for pin in backend.fetch] == [tts.primary.model, tts.fallback.model]
+    assert [(pin.repo, pin.revision[:8]) for pin in backend.fetch] == [
+        (QWEN3_TTS_8BIT, "049ef77f"),
+        (QWEN3_TTS_4BIT, "08c72cad"),
+    ]
     assert gateway.defaults.voice == config.voices.default == "vivian"
     assert config.output.max_lead_ms == 10_000  # D6
     assert tuple(config.lines.verbatim_prefixes) == DEFAULT_VERBATIM_PREFIXES  # D16
@@ -95,9 +115,10 @@ def test_repository_config_points_at_the_real_backends() -> None:
     )
     assert (normalizer.min_cardinal_digits, normalizer.en_amount_min) == (5, 1000)
     assert normalizer_options(normalizer) == NormalizerOptions()
-    # M4: D17 as G7 decided it.
+    # M4: D17 as G7 decided it; the G7 dual path: Speex for the ASR.
     aec = config.aec
-    assert (aec.enabled, aec.engine, aec.asr_input) == (True, "webrtc_aec3", "processed")
+    assert (aec.enabled, aec.engine, aec.asr_input) == (True, "webrtc_aec3", "speex")
+    assert aec.speex == SpeexConfig()
     assert (aec.client_tick_ms, aec.client_prebuffer_ms, aec.client_underrun_ticks) == (20, 60, 2)
     assert (aec.reference_lead_ms, aec.learn_tick_phase) == (60, True)
     assert (aec.min_residual_delay_ms, aec.max_residual_delay_ms) == (5, 450)
@@ -143,6 +164,12 @@ def test_echo_defaults_are_g7s() -> None:
         ({"aec": {"reference_lead_ms": 500}}, "reference_lead_ms must lie within"),
         ({"aec": {"engine": "speex"}}, "aec.engine"),
         ({"aec": {"asr_input": "both"}}, "aec.asr_input"),
+        ({"aec": {"asr_input": "processed"}}, "aec.asr_input"),  # M4's name for aec3
+        ({"aec": {"delay_guard": False}}, "asr_input speex needs delay_guard"),
+        ({"aec": {"speex": {"target_delay_ms": 50}}}, "target_delay_ms <= max_delay_ms"),
+        ({"aec": {"speex": {"max_delay_ms": 64}}}, "max_delay_ms < filter_ms"),
+        ({"aec": {"speex": {"prefilter_hz": 8000}}}, "aec.speex.prefilter_hz"),
+        ({"aec": {"speex": {"filter_ms": 0}}}, "aec.speex.filter_ms"),
         ({"barge_in": {"echo_match_threshold": 0}}, "barge_in.echo_match_threshold"),
         ({"barge_in": {"echo_guard_ms": -1}}, "barge_in.echo_guard_ms"),
     ],
@@ -150,6 +177,30 @@ def test_echo_defaults_are_g7s() -> None:
 def test_echo_settings_are_validated(section: dict[str, object], message: str) -> None:
     with pytest.raises(ConfigError, match=message):
         validate_config(section)
+
+
+def test_the_g7_dual_path_and_the_capacity_defaults() -> None:
+    """G7 final: Speex feeds the ASR (64 ms filter, the echo kept 0-44 ms behind its reference,
+    20 ms after a move, the 3.8 kHz pre-filter, the preprocessor); 3 concurrent calls."""
+    config = validate_config({})
+    assert config.aec.asr_input == "speex"
+    speex = config.aec.speex
+    assert (speex.filter_ms, speex.target_delay_ms, speex.max_delay_ms) == (64, 20, 44)
+    assert (speex.prefilter_hz, speex.preprocess) == (3800, True)
+    assert config.gateway.max_sessions == 3
+    repository = load_config(REPO_CONFIG, {})
+    assert repository.gateway.max_sessions == 3
+    llm, asr = repository.providers.llm, repository.providers.asr
+    assert isinstance(llm, MlxLmChatConfig)
+    assert isinstance(asr, MlxAudioAsrConfig)
+    assert (llm.max_in_flight, asr.max_in_flight) == (4, 3)  # a response each, and a warm-up
+    assert (repository.aec.workers, repository.turn.smart_turn.workers) == (2, 2)
+    assert repository.aec.speex == speex
+    # Without the delay guard nothing aligns Speex: another ASR input is needed.
+    assert validate_config({"aec": {"delay_guard": False, "asr_input": "aec3"}}).aec.asr_input
+    assert (
+        validate_config({"aec": {"speex": {"prefilter_hz": None}}}).aec.speex.prefilter_hz is None
+    )
 
 
 def test_every_barge_in_rule_can_be_switched_off() -> None:
@@ -285,12 +336,8 @@ def test_the_llm_model_name_is_omitted_when_the_backend_serves_a_snapshot(tmp_pa
             "providers.tts.max_in_flight",
         ),
         (
-            {
-                "providers": {
-                    "tts": {"type": "mlx_audio_speech", "primary": {"model": "m", "family": "x"}}
-                }
-            },
-            "providers.tts.primary.family",
+            {"providers": {"tts": {"type": "mlx_audio_speech", "primary": {"model": ""}}}},
+            "providers.tts.primary.model",
         ),
         (
             {"providers": {"tts": {"type": "mlx_audio_speech", "warmup_texts": {"zh": "你好"}}}},
@@ -302,6 +349,23 @@ def test_the_llm_model_name_is_omitted_when_the_backend_serves_a_snapshot(tmp_pa
 def test_m3_settings_are_validated(raw: dict[str, object], path: str) -> None:
     with pytest.raises(ConfigError, match=path.replace(".", r"\.")):
         validate_config(raw)
+
+
+@pytest.mark.parametrize(
+    ("model", "key", "value"),
+    [
+        ("primary", "family", "qwen3_tts"),
+        ("fallback", "family", "kokoro"),
+        ("fallback", "voices_dir", "/models/kokoro/voices"),
+        ("fallback", "latin_segments", True),
+    ],
+)
+def test_the_kokoro_settings_are_gone(model: str, key: str, value: object) -> None:
+    """D13 final: both TTS models are Qwen3-TTS builds and the fallback speaks Latin letters,
+    so a configuration that still sets these keys stops startup, naming each one."""
+    tts = {"type": "mlx_audio_speech", model: {"model": "m", key: value}}
+    with pytest.raises(ConfigError, match=rf"providers\.tts\.{model}\.{key}: Extra inputs"):
+        validate_config({"providers": {"tts": tts}})
 
 
 def test_session_defaults_must_name_a_configured_voice() -> None:

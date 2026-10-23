@@ -4,6 +4,7 @@ import pytest
 
 from mlx_realtime.audio.formats import PCMU
 from mlx_realtime.audio.resample import Quality
+from mlx_realtime.config import AsrInput
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.input_buffer import InputBuffer
 from tests.support import g711_tone, tone
@@ -82,7 +83,7 @@ def test_size_cap_is_fatal() -> None:
 
 
 def test_the_echo_cancellers_track_replaces_the_input_where_it_has_run() -> None:
-    buffer = InputBuffer(max_ms=60_000, processed=True, asr_processed=True)
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_input="aec3")
     start, canonical = buffer.append(tone(1000))
     assert start == 0
     processed = bytes(len(canonical) // 2)  # the canceller's output for the first half
@@ -97,13 +98,60 @@ def test_the_echo_cancellers_track_replaces_the_input_where_it_has_run() -> None
 
 
 def test_asr_input_raw_commits_the_input_as_received() -> None:
-    buffer = InputBuffer(max_ms=60_000, processed=True, asr_processed=False)
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_input="raw")
     _, canonical = buffer.append(tone(500))
     buffer.apply_processed(0, bytes(len(canonical)))
     assert buffer.slice(0, 100) == bytes(100 * CANONICAL_BYTES_PER_MS)  # detectors: processed
     audio = buffer.commit()
     assert audio is not None
     assert audio.pcm.startswith(canonical)  # the ASR: raw (plus the resampler's tail)
+
+
+def test_asr_input_speex_commits_the_asr_paths_track() -> None:
+    """G7 dual path: Smart Turn reads AEC3's track, the ASR gets the Speex track; each is the
+    input as received where its canceller has not run."""
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_input="speex")
+    _, canonical = buffer.append(tone(600))
+    half = len(canonical) // 2
+    aec3, speex = b"\x01\x00" * (half // 2), b"\x02\x00" * (half // 2)
+    buffer.apply_processed(0, aec3)
+    buffer.apply_asr(0, speex)
+    assert buffer.slice(0, 100) == aec3[: 100 * CANONICAL_BYTES_PER_MS]  # the detectors
+    span = buffer.commit_span(0, 500)
+    assert span.pcm[:half] == speex  # the ASR: Speex's output ...
+    assert span.pcm[half:] == canonical[half : 500 * CANONICAL_BYTES_PER_MS]  # ... else the input
+
+
+def test_the_tracks_stay_aligned_through_trims_clears_and_commits() -> None:
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_input="speex")
+    buffer.append(tone(300))
+    buffer.trim_before(100)
+    start, canonical = buffer.append(tone(100))
+    buffer.apply_asr(start, bytes(len(canonical)))  # zeros where the new audio is
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.start_ms == 100
+    assert audio.pcm[(start - 1600) * 2 : (start - 1600) * 2 + len(canonical)] == bytes(
+        len(canonical)
+    )
+    buffer.append(tone(200))
+    buffer.clear()
+    start, canonical = buffer.append(tone(100))
+    buffer.apply_asr(start, b"\x05\x00" * (len(canonical) // 2))
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.pcm.startswith(b"\x05\x00" * (len(canonical) // 2))
+
+
+@pytest.mark.parametrize("asr_input", ["speex", "aec3", "raw"])
+def test_without_the_cancellers_every_asr_input_is_the_input(asr_input: AsrInput) -> None:
+    buffer = InputBuffer(max_ms=60_000, processed=False, asr_input=asr_input)
+    _, canonical = buffer.append(tone(200))
+    buffer.apply_processed(0, bytes(len(canonical)))
+    buffer.apply_asr(0, bytes(len(canonical)))
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.pcm.startswith(canonical)
 
 
 def test_without_the_canceller_there_is_one_track() -> None:

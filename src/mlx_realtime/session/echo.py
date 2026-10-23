@@ -13,16 +13,25 @@ Three parts handle it:
   and which assistant audio played around a user turn (echo-turn suppression). A barge-in or
   cancel flushes the frames the client never played; a client truncate drops the rest of that
   item and re-anchors the model's timing.
-- ``EchoStage`` runs the canceller on the VAD feeder's path: whole 10 ms frames, each fed in lock
-  step with the reference frame for the same input positions (zeros when nothing plays, so the
-  delay is carried in the content), on the canceller executor, in order. While a response may
-  still add audio, input is held back until its reference can no longer change.
+- ``EchoStage`` runs the cancellers on the VAD feeder's path: whole 10 ms frames, each fed in
+  lock step with the reference frame for the same input positions (zeros when nothing plays, so
+  the delay is carried in the content), on the canceller executor, in order. While a response
+  may still add audio, input is held back until its reference can no longer change.
+
+G7 dual path: WebRTC AEC3's output goes to speech and end-of-turn detection, and, with
+``aec.asr_input: speex``, a SpeexDSP linear canceller runs on the same frames for the ASR. AEC3
+absorbs the residual delay itself; the linear filter needs the echo inside its 64 ms, so the
+GCC-PHAT estimate that guards AEC3 also places Speex's reference, the echo ``target`` behind it,
+and moves it again only when a confirmed estimate leaves [0, ``keep``] (M0 S11). Until the first
+confirmed estimate the ASR path passes the input through as received: the first ~2.5 s of a
+call's first answer are not cancelled for the ASR.
 
 On a line without echo, AEC3's suppressor takes a caller who talks over our audio for echo and
 silences them (measured in M4: up to 45 dB, for seconds). So once the delay estimator has watched
 ``bypass_after`` of playing reference with no echo of it in the input, the canceller is fed a
 silent reference (it then passes the input through); the first echo the estimator finds turns
-it back on (AEC3 re-converges within about 0.5 s).
+it back on (AEC3 re-converges within about 0.5 s). The ASR path's linear canceller never takes
+the bypass: it has no suppressor to silence the caller.
 
 Times and positions are integer sample counts at 16 kHz: "loop samples" for the event loop's
 clock, input-timeline samples for the capture.
@@ -42,9 +51,17 @@ from dataclasses import dataclass, field
 import numpy as np
 import numpy.typing as npt
 
-from mlx_realtime.audio.aec import FRAME_SAMPLES, EchoEngine, EngineName, make_engine
+from mlx_realtime.audio.aec import (
+    FRAME_SAMPLES,
+    EchoEngine,
+    EngineName,
+    LowPass,
+    Pcm,
+    SpeexLinear,
+    make_engine,
+)
 from mlx_realtime.audio.codec import InputDecoder
-from mlx_realtime.audio.delay import HOP, DelayEstimate, DelayEstimator
+from mlx_realtime.audio.delay import HOP, WINDOW, DelayEstimate, DelayEstimator
 from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH
 from mlx_realtime.audio.playout import (
@@ -55,7 +72,7 @@ from mlx_realtime.audio.playout import (
     TickPhaseLearner,
 )
 from mlx_realtime.audio.resample import Quality
-from mlx_realtime.config import AecConfig, BargeInConfig
+from mlx_realtime.config import AecConfig, BargeInConfig, SpeexConfig
 from mlx_realtime.session.clock import Clock
 
 logger = logging.getLogger(__name__)
@@ -69,6 +86,7 @@ _RENDER_MARGIN = 2 * RATE  # played frames kept behind the reference already ren
 _ACTIVE_REFERENCE = 10 ** (-50 / 10) * 32768.0**2  # a reference frame above -50 dBFS
 _ERLE_WINDOW_FRAMES = 50  # 0.5 s of frames with an active reference
 HOP_SAMPLES = HOP * RATE // 8000  # the delay estimator's hop at 16 kHz
+WINDOW_SAMPLES = WINDOW * RATE // 8000  # and its window
 
 
 def samples(seconds: float) -> int:
@@ -90,6 +108,9 @@ class EchoParams:
     learn_tick_phase: bool
     delay_guard: bool
     bypass_after: int | None  # reference played without echo before the canceller is bypassed
+    speex: bool = False  # the ASR path's linear canceller is aligned (aec.asr_input: speex)
+    speex_target: int = 0  # where its reference puts the echo ...
+    speex_keep: int = 0  # ... and how far behind it may drift before it is moved again
 
     @classmethod
     def of(cls, aec: AecConfig, barge_in: BargeInConfig) -> EchoParams:
@@ -113,6 +134,9 @@ class EchoParams:
                 if aec.delay_guard and aec.bypass_without_echo_ms is not None
                 else None
             ),
+            speex=aec.enabled and aec.delay_guard and aec.asr_input == "speex",
+            speex_target=ms_samples(aec.speex.target_delay_ms),
+            speex_keep=ms_samples(aec.speex.max_delay_ms),
         )
 
 
@@ -225,6 +249,30 @@ class PlayedSpan:
 
 
 @dataclass(slots=True)
+class _Erle:
+    """ERLE over 0.5 s windows of frames with an active reference: the median, so windows
+    where the caller talked over us weigh little."""
+
+    _window: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])  # frames, in, out
+    _values: deque[float] = field(default_factory=lambda: deque[float](maxlen=1200))
+
+    def add(self, frames: int, capture_energy: float, output_energy: float) -> None:
+        window = self._window
+        window[0] += frames
+        window[1] += capture_energy
+        window[2] += output_energy
+        if window[0] >= _ERLE_WINDOW_FRAMES:
+            if window[1] > 0:
+                self._values.append(10 * float(np.log10(window[1] / max(window[2], 1.0))))
+            self._window = [0.0, 0.0, 0.0]
+
+    def median_db(self) -> float | None:
+        if not self._values:
+            return None
+        return round(float(np.median(np.asarray(self._values))), 1)
+
+
+@dataclass(slots=True)
 class EchoStats:
     """The canceller's work in one session. ERLE is the median over 0.5 s windows in which the
     reference was active, so windows where the caller talked over us weigh little."""
@@ -235,28 +283,31 @@ class EchoStats:
     estimates: int = 0
     anchors: int = 0
     bypasses: int = 0
-    _window: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])  # frames, in, out
-    _erle: deque[float] = field(default_factory=lambda: deque[float](maxlen=1200))
+    erle: _Erle = field(default_factory=lambda: _Erle())
+    # The ASR path's linear canceller (Speex): its CPU (with the pre-filter), the input sample
+    # where its reference was first aligned, its re-alignments, ERLE, and filter resets.
+    speex_ns: int = 0
+    speex_aligned_at: int | None = None
+    speex_realignments: int = 0
+    speex_erle: _Erle = field(default_factory=lambda: _Erle())
+    speex_resets: int = 0
 
     def add(self, frames: int, capture_energy: float, output_energy: float) -> None:
         """``frames`` processed with an active reference, and their energy in and out."""
-        window = self._window
-        window[0] += frames
-        window[1] += capture_energy
-        window[2] += output_energy
-        if window[0] >= _ERLE_WINDOW_FRAMES:
-            if window[1] > 0:
-                self._erle.append(10 * float(np.log10(window[1] / max(window[2], 1.0))))
-            self._window = [0.0, 0.0, 0.0]
+        self.erle.add(frames, capture_energy, output_energy)
 
     def erle_db(self) -> float | None:
-        if not self._erle:
-            return None
-        return round(float(np.median(np.asarray(self._erle))), 1)
+        return self.erle.median_db()
 
     def cpu_ms_per_audio_s(self) -> float | None:
+        return self._per_audio_s(self.engine_ns)
+
+    def speex_cpu_ms_per_audio_s(self) -> float | None:
+        return self._per_audio_s(self.speex_ns)
+
+    def _per_audio_s(self, ns: int) -> float | None:
         audio_s = self.frames * FRAME_SAMPLES / RATE
-        return None if audio_s == 0 else round(self.engine_ns / 1e6 / audio_s, 2)
+        return None if audio_s == 0 else round(ns / 1e6 / audio_s, 2)
 
 
 class EchoReference:
@@ -278,6 +329,8 @@ class EchoReference:
         self._runs: deque[_Run] = deque(maxlen=64)
         self._learner = TickPhaseLearner(params.playout.tick) if params.learn_tick_phase else None
         self._shift = 0  # the reference is delayed by this much (the guard's re-alignment)
+        self._speex_shift: int | None = None  # the ASR path's reference: None until aligned
+        self._speex_hold = 0  # input sample before which estimates may predate a re-anchoring
         self._anchor = 0  # added to send times (re-anchored by client truncates)
         self._pending: dict[int, int] = {}  # generation -> deltas queued, not sent or dropped
         self._ended: set[int] = set()  # generations whose response is over
@@ -347,7 +400,14 @@ class EchoReference:
             difference = heard - len(item.plays)
             if abs(difference) >= 2:  # beyond transit and rounding: the model is off
                 anchor = self._anchor - difference * self.params.playout.tick
-                self._anchor = max(-_MAX_ANCHOR, min(_MAX_ANCHOR, anchor))
+                anchor = max(-_MAX_ANCHOR, min(_MAX_ANCHOR, anchor))
+                if self._speex_shift is not None:
+                    # Speex's reference stands where GCC-PHAT measured the echo: the model's
+                    # own correction must not move it (it would leave its narrow keep range),
+                    # and estimates of audio placed before the correction no longer apply.
+                    self._speex_shift -= anchor - self._anchor
+                    self._speex_hold = self._now() - (self._capture.offset or 0) + WINDOW_SAMPLES
+                self._anchor = anchor
                 self.stats.anchors += 1
                 logger.info(
                     "echo reference re-anchored",
@@ -386,6 +446,7 @@ class EchoReference:
             self.echo_absent = False
             logger.info("echo on the line: the echo canceller is back on")
         self._learn(end, estimate)
+        self._align_speex(end, estimate)
         if params.keep_min <= estimate.lag <= params.keep_max:
             return False
         self._shift += estimate.lag - params.lead
@@ -415,6 +476,15 @@ class EchoReference:
         return self._shift * 1000 // RATE
 
     @property
+    def speex_aligned(self) -> bool:
+        """Whether the ASR path's linear canceller has a reference (an echo was confirmed)."""
+        return self._speex_shift is not None
+
+    @property
+    def speex_shift_ms(self) -> int | None:
+        return None if self._speex_shift is None else self._speex_shift * 1000 // RATE
+
+    @property
     def tick_phase_ms(self) -> float:
         return self._model.phase * 1000 / RATE
 
@@ -424,30 +494,39 @@ class EchoReference:
         return self._active or any(count > 0 for count in self._pending.values())
 
     def final_until(self) -> int | None:
-        """The input sample before which the reference can no longer change; None: anywhere."""
+        """The input sample before which the references can no longer change; None: anywhere."""
         offset = self._capture.offset
         if offset is None or not self.busy:
             return None
         now = self._now()
         self._advance(now)
         horizon = max(now, self._model.queue_end() or now)
-        return horizon - offset - self.params.lead + self._shift
+        return horizon - offset - self.params.lead + self._least_shift()
 
     def final_at(self, end_sample: int) -> float | None:
-        """The loop time (s) when the reference up to ``end_sample`` is final, if waiting
-        will do it (new audio may finalize it earlier)."""
+        """The loop time (s) when the references up to ``end_sample`` are final, if waiting
+        will do it (new audio may finalize them earlier)."""
         offset = self._capture.offset
         if offset is None:
             return None
-        return (end_sample + offset + self.params.lead - self._shift) / RATE
+        return (end_sample + offset + self.params.lead - self._least_shift()) / RATE
 
     def render(self, start: int, count: int) -> npt.NDArray[np.int16]:
-        """The reference for input samples [start, start + count)."""
+        """AEC3's reference for input samples [start, start + count)."""
+        return self._render(start, count, self._shift)
+
+    def render_speex(self, start: int, count: int) -> npt.NDArray[np.int16] | None:
+        """The ASR path's reference for the same samples; None until it is aligned."""
+        if self._speex_shift is None:
+            return None
+        return self._render(start, count, self._speex_shift)
+
+    def _render(self, start: int, count: int, shift: int) -> npt.NDArray[np.int16]:
         out = np.zeros(count, dtype=np.int16)
         offset = self._capture.offset
         if offset is None:
             return out
-        first = start + offset + self.params.lead - self._shift
+        first = start + offset + self.params.lead - shift
         last = first + count
         # Run the model up to the rendered stretch, but never past what is determined: ticks
         # beyond now only while queued frames cover them (later arrivals queue behind those).
@@ -456,7 +535,9 @@ class EchoReference:
         determined = max(now, self._model.queue_end() or now)
         self._advance(min(last, determined) - 1)
         tick = self.params.playout.tick
-        while self._played and self._played[0].start + tick <= first - _RENDER_MARGIN:
+        # Keep what the reference placed furthest back (the larger shift) may still read.
+        oldest = start + offset + self.params.lead - self._greatest_shift()
+        while self._played and self._played[0].start + tick <= oldest - _RENDER_MARGIN:
             self._played.popleft()
         for entry in self._played:
             if entry.start >= last:
@@ -509,6 +590,44 @@ class EchoReference:
 
     def _now(self) -> int:
         return samples(self._clock.now())
+
+    def _least_shift(self) -> int:
+        """The shift of the reference that reads the furthest ahead of the input."""
+        return self._shift if self._speex_shift is None else min(self._shift, self._speex_shift)
+
+    def _greatest_shift(self) -> int:
+        return self._shift if self._speex_shift is None else max(self._shift, self._speex_shift)
+
+    def _align_speex(self, end: int, estimate: DelayEstimate) -> None:
+        """Place the ASR path's reference from a confirmed estimate: the echo trails the
+        unshifted reference by ``_shift + lag``; it should trail Speex's by ``speex_target``,
+        and Speex's reference moves again only when the echo leaves [0, ``speex_keep``]."""
+        params = self.params
+        if not params.speex:
+            return
+        delay = self._shift + estimate.lag
+        current = self._speex_shift
+        if current is not None and (
+            end < self._speex_hold or 0 <= delay - current <= params.speex_keep
+        ):
+            return
+        self._speex_shift = delay - params.speex_target
+        stats = self.stats
+        if current is None:
+            stats.speex_aligned_at = end
+            logger.info(
+                "echo reference aligned for the asr path",
+                extra={"echo_delay_ms": delay * 1000 // RATE, "at_ms": end * 1000 // RATE},
+            )
+            return
+        stats.speex_realignments += 1
+        logger.info(
+            "echo reference re-aligned for the asr path",
+            extra={
+                "residual_ms": (delay - current) * 1000 // RATE,
+                "shift_ms": self._speex_shift * 1000 // RATE,
+            },
+        )
 
     def _changed(self) -> None:
         if self.on_change is not None:
@@ -606,21 +725,61 @@ class _Segment:
     capture: int  # the input sample it corresponds to
 
 
+@dataclass(frozen=True, slots=True)
+class Processed:
+    """A stretch of input after the cancellers: ``pcm`` is AEC3's output (speech and turn
+    detection; the input itself for a partial frame let through), ``asr`` the ASR path's for
+    the same samples (None: the ASR keeps the input there)."""
+
+    start: int  # input timeline sample
+    pcm: bytes
+    asr: bytes | None = None
+
+
+class AsrPath:
+    """The ASR path's linear canceller for one session (G7 dual path): the low-pass pre-filter
+    on its capture and reference (optional), then the engine. Runs on the canceller executor
+    with the stage's frames, in order."""
+
+    def __init__(self, engine: EchoEngine, prefilter_hz: int | None) -> None:
+        self.engine = engine
+        self._capture_filter = None if prefilter_hz is None else LowPass(prefilter_hz)
+        self._reference_filter = None if prefilter_hz is None else LowPass(prefilter_hz)
+
+    def capture(self, frame: Pcm) -> Pcm:
+        return frame if self._capture_filter is None else self._capture_filter(frame)
+
+    def reference(self, frame: Pcm) -> Pcm:
+        return frame if self._reference_filter is None else self._reference_filter(frame)
+
+
 @dataclass(slots=True)
 class _Batch:
     output: npt.NDArray[np.int16]
+    asr: npt.NDArray[np.int16] | None = None
     estimates: list[DelayEstimate] = field(default_factory=list[DelayEstimate])
     engine_ns: int = 0
+    asr_ns: int = 0
     active: int = 0  # frames with an active reference, and their energy in and out
     capture_energy: float = 0.0
     output_energy: float = 0.0
+    asr_active: int = 0  # the same for the ASR path (its pre-filtered capture)
+    asr_capture_energy: float = 0.0
+    asr_output_energy: float = 0.0
 
 
 class EchoStage:
-    """The canceller on one session's VAD feeder path (see the module notes)."""
+    """The cancellers on one session's VAD feeder path (see the module notes)."""
 
-    def __init__(self, engine: EchoEngine, reference: EchoReference, executor: Executor) -> None:
+    def __init__(
+        self,
+        engine: EchoEngine,
+        reference: EchoReference,
+        executor: Executor,
+        asr: AsrPath | None = None,
+    ) -> None:
         self._engine = engine
+        self._asr = asr
         self._reference = reference
         self._executor = executor
         self._estimator = DelayEstimator() if reference.params.delay_guard else None
@@ -634,9 +793,9 @@ class EchoStage:
     def pending_end(self) -> int:
         return self._pending_start + len(self._pending) // SAMPLE_WIDTH
 
-    async def feed(self, start: int, pcm: bytes) -> list[tuple[int, bytes]]:
-        """Input audio at ``start``; returns processed audio, each piece with its start."""
-        out: list[tuple[int, bytes]] = []
+    async def feed(self, start: int, pcm: bytes) -> list[Processed]:
+        """Input audio at ``start``; returns processed audio."""
+        out: list[Processed] = []
         if self._pending and start != self.pending_end:
             out += await self.release(force=True)  # a gap (a commit or clear ended the stream)
         if not self._pending:
@@ -645,10 +804,10 @@ class EchoStage:
         out += await self.release()
         return out
 
-    async def release(self, *, force: bool = False) -> list[tuple[int, bytes]]:
+    async def release(self, *, force: bool = False) -> list[Processed]:
         """Process the held frames whose reference is final (``force``: all of them, and let
         a partial frame through as it is)."""
-        out: list[tuple[int, bytes]] = []
+        out: list[Processed] = []
         whole = len(self._pending) // _FRAME_BYTES
         if not force:
             final = self._reference.final_until()
@@ -657,7 +816,7 @@ class EchoStage:
         if whole:
             out.append(await self._process(whole))
         if force and self._pending:
-            out.append((self._pending_start, bytes(self._pending)))
+            out.append(Processed(self._pending_start, bytes(self._pending)))
             self._pending_start = self.pending_end
             self._pending.clear()
         return out
@@ -669,19 +828,21 @@ class EchoStage:
             return None
         return self._reference.final_at(self._pending_start + FRAME_SAMPLES)
 
-    async def _process(self, whole: int) -> tuple[int, bytes]:
+    async def _process(self, whole: int) -> Processed:
         start = self._pending_start
         size = whole * _FRAME_BYTES
+        count = whole * FRAME_SAMPLES
         capture = np.frombuffer(bytes(self._pending[:size]), dtype="<i2").astype(np.int16)
-        reference = self._reference.render(start, whole * FRAME_SAMPLES)
+        reference = self._reference.render(start, count)
+        asr_reference = None if self._asr is None else self._reference.render_speex(start, count)
         del self._pending[:size]
-        self._pending_start += whole * FRAME_SAMPLES
+        self._pending_start += count
         if (
             not self._segments
             or self._segments[-1].stream + (start - self._segments[-1].capture) != self._stream
         ):
             self._segments.append(_Segment(self._stream, start))
-        self._stream += whole * FRAME_SAMPLES
+        self._stream += count
         restart, self._restart = self._restart, False
         bypass = self._reference.echo_absent
         batch = await asyncio.get_running_loop().run_in_executor(
@@ -689,29 +850,41 @@ class EchoStage:
             self._run,
             capture.reshape(whole, FRAME_SAMPLES),
             reference.reshape(whole, FRAME_SAMPLES),
+            None if asr_reference is None else asr_reference.reshape(whole, FRAME_SAMPLES),
             restart,
             bypass,
         )
         stats = self._reference.stats
         stats.frames += whole
         stats.engine_ns += batch.engine_ns
+        stats.speex_ns += batch.asr_ns
         if batch.active and not bypass:
             stats.add(batch.active, batch.capture_energy, batch.output_energy)
+        if batch.asr_active:
+            stats.speex_erle.add(
+                batch.asr_active, batch.asr_capture_energy, batch.asr_output_energy
+            )
+        if self._asr is not None and isinstance(self._asr.engine, SpeexLinear):
+            stats.speex_resets = self._asr.engine.resets
         for estimate in batch.estimates:
             end = self._capture_position(estimate.end)
             if end is not None and self._reference.delay_estimate(end, estimate):
                 self._restart = True
-        return start, batch.output.tobytes()
+                break  # later windows of this batch were measured against the old alignment
+        asr = None if batch.asr is None else batch.asr.tobytes()
+        return Processed(start, batch.output.tobytes(), asr)
 
     def _run(
         self,
         capture: npt.NDArray[np.int16],
         reference: npt.NDArray[np.int16],
+        asr_reference: npt.NDArray[np.int16] | None,
         restart: bool,
         bypass: bool,
     ) -> _Batch:
-        """On the canceller executor: the engine over each frame (with a silent reference when
-        bypassed), then the delay estimator (with the real one)."""
+        """On the canceller executor: AEC3 over each frame (with a silent reference when
+        bypassed), the ASR path's canceller (passing its pre-filtered input through until its
+        reference is aligned), then the delay estimator (with the real reference)."""
         output = np.empty_like(capture)
         silence = np.zeros(FRAME_SAMPLES, dtype=np.int16)
         began = time.thread_time_ns()
@@ -719,17 +892,47 @@ class EchoStage:
             fed = silence if bypass else reference[index]
             output[index] = self._engine.process(capture[index], fed)
         batch = _Batch(output.reshape(-1), engine_ns=time.thread_time_ns() - began)
-        power = np.mean(reference.astype(np.float64) ** 2, axis=1)
-        active = power > _ACTIVE_REFERENCE
+        active = _active(reference)
         if np.any(active):
             batch.active = int(np.count_nonzero(active))
-            batch.capture_energy = float(np.sum(capture[active].astype(np.float64) ** 2))
-            batch.output_energy = float(np.sum(output[active].astype(np.float64) ** 2))
+            batch.capture_energy = _energy(capture[active])
+            batch.output_energy = _energy(output[active])
+        if self._asr is not None:
+            self._run_asr(self._asr, batch, capture, asr_reference)
         if self._estimator is not None:
             if restart:
                 self._estimator.restart()
             batch.estimates = self._estimator.push(capture.reshape(-1), reference.reshape(-1))
         return batch
+
+    @staticmethod
+    def _run_asr(
+        path: AsrPath,
+        batch: _Batch,
+        capture: npt.NDArray[np.int16],
+        reference: npt.NDArray[np.int16] | None,
+    ) -> None:
+        """The ASR path never takes the bypass: a linear filter has no suppressor to silence a
+        caller on a line without echo (it just adapts to nothing), and the bypass can misfire
+        in long double talk, where GCC-PHAT finds no distinct peak."""
+        began = time.thread_time_ns()
+        # The pre-filter's history stays continuous; its output feeds the filter only once the
+        # reference is aligned. Until then the input passes through as received (a line without
+        # echo, or a wideband client, keeps its full band).
+        filtered = path.capture(capture.reshape(-1)).reshape(capture.shape)
+        output = capture.copy()
+        if reference is not None:
+            fed = path.reference(reference.reshape(-1)).reshape(reference.shape)
+            for index in range(len(capture)):
+                output[index] = path.engine.process(filtered[index], fed[index])
+        batch.asr_ns = time.thread_time_ns() - began
+        batch.asr = output.reshape(-1)
+        if reference is not None:
+            active = _active(reference)
+            if np.any(active):
+                batch.asr_active = int(np.count_nonzero(active))
+                batch.asr_capture_energy = _energy(filtered[active])
+                batch.asr_output_energy = _energy(output[active])
 
     def _capture_position(self, stream_position: int) -> int | None:
         for segment in reversed(self._segments):
@@ -738,23 +941,43 @@ class EchoStage:
         return None
 
 
-class EchoRuntime:
-    """Process-wide: the canceller executor and engine factory."""
+def _active(reference: npt.NDArray[np.int16]) -> npt.NDArray[np.bool_]:
+    """The frames whose reference is above -50 dBFS."""
+    return np.mean(reference.astype(np.float64) ** 2, axis=1) > _ACTIVE_REFERENCE
 
-    def __init__(self, engine: EngineName, workers: int) -> None:
-        self._engine: EngineName = engine
-        self.executor = ThreadPoolExecutor(workers, thread_name_prefix="aec")
+
+def _energy(frames: npt.NDArray[np.int16]) -> float:
+    return float(np.sum(frames.astype(np.float64) ** 2))
+
+
+class EchoRuntime:
+    """Process-wide: the canceller executor and the engine factories (one engine of each kind
+    per session)."""
+
+    def __init__(self, aec: AecConfig) -> None:
+        self._engine: EngineName = aec.engine
+        self._speex: SpeexConfig | None = aec.speex if aec.asr_input == "speex" else None
+        self.executor = ThreadPoolExecutor(aec.workers, thread_name_prefix="aec")
 
     def engine(self) -> EchoEngine:
         return make_engine(self._engine)
+
+    def asr_path(self) -> AsrPath | None:
+        """The ASR path's canceller for a new session (``aec.asr_input: speex``)."""
+        speex = self._speex
+        if speex is None:
+            return None
+        engine = SpeexLinear(speex.filter_ms, preprocess=speex.preprocess)
+        return AsrPath(engine, speex.prefilter_hz)
 
     async def aclose(self) -> None:
         self.executor.shutdown(wait=False, cancel_futures=True)
 
 
 def log_echo_stats(reference: EchoReference, counters: dict[str, int]) -> None:
-    """One line per session: the canceller's work and the echo the barge-in rules met."""
+    """One line per session: the cancellers' work and the echo the barge-in rules met."""
     stats = reference.stats
+    aligned = stats.speex_aligned_at
     logger.info(
         "echo summary",
         extra={
@@ -768,6 +991,12 @@ def log_echo_stats(reference: EchoReference, counters: dict[str, int]) -> None:
             "shift_ms": reference.shift_ms,
             "anchor_ms": reference.anchor_ms,
             "tick_phase_ms": round(reference.tick_phase_ms, 2),
+            "speex_cpu_ms_per_audio_s": stats.speex_cpu_ms_per_audio_s(),
+            "speex_erle_db": stats.speex_erle.median_db(),
+            "speex_aligned_at_ms": None if aligned is None else aligned * 1000 // RATE,
+            "speex_shift_ms": reference.speex_shift_ms,
+            "speex_realignments": stats.speex_realignments,
+            "speex_resets": stats.speex_resets,
             **counters,
         },
     )

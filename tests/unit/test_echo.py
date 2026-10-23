@@ -1,8 +1,9 @@
 """The session's echo reference and canceller stage (session/echo.py, D17) on a fake clock: the
 capture clock, the reference placed on the AICC playout model (lead, flush, truncate re-anchoring),
 the hold-back while a response may still add audio, the playback state the barge-in rules read,
-the GCC-PHAT guard's re-alignment and the bypass on a line without echo; and the overlap measure
-of echo-turn suppression."""
+the GCC-PHAT guard's re-alignment and the bypass on a line without echo; the G7 dual path (the ASR
+path's Speex reference aligned from the guard's estimates, kept within its keep range, passed
+through until aligned); and the overlap measure of echo-turn suppression."""
 
 from __future__ import annotations
 
@@ -18,11 +19,13 @@ from mlx_realtime.audio.delay import DelayEstimate
 from mlx_realtime.audio.resample import Resampler
 from mlx_realtime.config import AecConfig, BargeInConfig
 from mlx_realtime.session.echo import (
+    AsrPath,
     CaptureClock,
     EchoParams,
     EchoReference,
     EchoStage,
     PlayedSpan,
+    log_echo_stats,
 )
 from mlx_realtime.text.similarity import lcs_length, overlap, units
 
@@ -244,15 +247,16 @@ async def test_the_stage_feeds_frames_in_lock_step_with_their_reference(
     executor: ThreadPoolExecutor,
 ) -> None:
     clock = FakeClock()
-    echo = reference(clock, delay_guard=False)
+    echo = reference(clock, delay_guard=False, asr_input="aec3")
     stream(echo, clock, 1.0)
     engine = RecordingEngine()
     stage = EchoStage(engine, echo, executor)
     pcm = np.arange(960, dtype=np.int16)
     out = await stage.feed(16_000, pcm[:500].tobytes())  # three whole frames, 20 samples left
     out += await stage.feed(16_500, pcm[500:].tobytes())  # three more
-    assert [start for start, _ in out] == [16_000, 16_480]
-    processed = np.frombuffer(b"".join(chunk for _, chunk in out), dtype=np.int16)
+    assert [chunk.start for chunk in out] == [16_000, 16_480]
+    assert all(chunk.asr is None for chunk in out)  # no ASR path: the ASR keeps the input
+    processed = np.frombuffer(b"".join(chunk.pcm for chunk in out), dtype=np.int16)
     assert np.array_equal(processed, pcm // 2)
     assert len(engine.calls) == 6
     for index, (capture, ref) in enumerate(engine.calls):
@@ -265,7 +269,7 @@ async def test_the_stage_holds_frames_until_their_reference_is_final(
     executor: ThreadPoolExecutor,
 ) -> None:
     clock = FakeClock()
-    echo = reference(clock, delay_guard=False)
+    echo = reference(clock, delay_guard=False, asr_input="aec3")
     end = stream(echo, clock, 1.0)
     echo.response_started()  # audio may come any moment: the reference ahead is unknown
     stage = EchoStage(RecordingEngine(), echo, executor)
@@ -276,7 +280,7 @@ async def test_the_stage_holds_frames_until_their_reference_is_final(
     assert due == pytest.approx(clock.t + 0.07, abs=0.001)  # the lead and one frame
     clock.t += 0.08
     released = await stage.release()
-    assert sum(len(chunk) for _, chunk in released) == 640
+    assert sum(len(chunk.pcm) for chunk in released) == 640
     assert stage.wake_at() is None
 
 
@@ -284,13 +288,13 @@ async def test_a_gap_releases_what_is_held_and_passes_the_partial_frame(
     executor: ThreadPoolExecutor,
 ) -> None:
     clock = FakeClock()
-    echo = reference(clock, delay_guard=False)
+    echo = reference(clock, delay_guard=False, asr_input="aec3")
     stream(echo, clock, 1.0)
     engine = RecordingEngine()
     stage = EchoStage(engine, echo, executor)
     first = await stage.feed(0, bytes(400))  # one whole frame, 40 samples held
     out = await stage.feed(5_000, bytes(320))  # a commit or clear moved the timeline
-    assert [(start, len(chunk)) for start, chunk in first + out] == [
+    assert [(chunk.start, len(chunk.pcm)) for chunk in first + out] == [
         (0, 320),
         (160, 80),
         (5_000, 320),
@@ -300,7 +304,7 @@ async def test_a_gap_releases_what_is_held_and_passes_the_partial_frame(
 
 async def test_a_bypassed_canceller_gets_a_silent_reference(executor: ThreadPoolExecutor) -> None:
     clock = FakeClock()
-    echo = reference(clock, delay_guard=False)
+    echo = reference(clock, delay_guard=False, asr_input="aec3")
     stream(echo, clock, 1.0)
     echo.audio_queued(1)
     echo.audio_sent("item_1", 1, wire(2400 * 10))
@@ -311,6 +315,190 @@ async def test_a_bypassed_canceller_gets_a_silent_reference(executor: ThreadPool
     for start in range(0, 32_000, 3200):
         await stage.feed(16_000 + start, bytes(6400))
     assert all(not ref.any() for _, ref in engine.calls)
+
+
+def confirmed(lag_ms: float) -> DelayEstimate:
+    return DelayEstimate(0, valid=True, lag=round(lag_ms * 16), psr=20.0, confirmed=True)
+
+
+def test_the_asr_paths_reference_is_aligned_from_confirmed_estimates() -> None:
+    """Speex's reference is placed so the echo trails it by 20 ms, and moved again only when a
+    confirmed estimate leaves [0, 44] ms (M0 S11: re-shifting on every estimate kept the
+    filter from converging). AEC3's guard is independent: its keep range is [5, 450] ms."""
+    clock = FakeClock()
+    echo = reference(clock)
+    assert not echo.speex_aligned
+    assert echo.speex_shift_ms is None
+    echo.delay_estimate(0, DelayEstimate(0, valid=True, lag=183 * 16, psr=20.0))
+    assert not echo.speex_aligned  # one window can peak by chance
+    echo.delay_estimate(16_000, confirmed(183))
+    assert echo.speex_shift_ms == 163  # the echo now trails Speex's reference by 20 ms
+    assert echo.stats.speex_aligned_at == 16_000
+    assert echo.shift_ms == 0  # 183 ms is inside AEC3's own keep range
+    for drift in (203, 206, 163):  # within [0, 44] ms of Speex's reference: left alone
+        echo.delay_estimate(0, confirmed(drift))
+        assert echo.speex_shift_ms == 163
+    echo.delay_estimate(0, confirmed(160))  # the echo came ahead of the reference
+    assert echo.speex_shift_ms == 140
+    echo.delay_estimate(0, confirmed(185.5))  # 45.5 ms behind: out of the keep range
+    assert echo.speex_shift_ms == 165
+    assert echo.stats.speex_realignments == 2
+
+
+def test_the_asr_path_follows_the_guards_re_alignment_of_aec3() -> None:
+    """The estimate is measured against AEC3's (shifted) reference: Speex's shift adds it."""
+    clock = FakeClock()
+    echo = reference(clock)
+    assert echo.delay_estimate(0, confirmed(600))  # AEC3's guard moves its reference
+    assert (echo.shift_ms, echo.speex_shift_ms) == (540, 580)
+    echo.delay_estimate(0, confirmed(60))  # the same echo, against the moved reference
+    assert (echo.shift_ms, echo.speex_shift_ms) == (540, 580)
+
+
+@pytest.mark.parametrize("asr_input", ["aec3", "raw"])
+def test_without_the_speex_input_nothing_is_aligned_for_it(asr_input: str) -> None:
+    clock = FakeClock()
+    echo = reference(clock, asr_input=asr_input)
+    echo.delay_estimate(0, confirmed(183))
+    assert not echo.speex_aligned
+    assert echo.render_speex(0, 160) is None
+
+
+def test_the_asr_paths_reference_is_ours_placed_by_its_own_shift() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.response_started()
+    echo.audio_queued(1)
+    echo.audio_sent("item_1", 1, wire(2400 * 10))
+    echo.response_finished(1)
+    end = stream(echo, clock, 1.5, start=end)
+    assert echo.render_speex(end - 16_000, 16_000) is None  # not aligned yet
+    echo.delay_estimate(0, confirmed(183))
+    start = end - 20_000
+    speex = echo.render_speex(start, 8000)
+    assert speex is not None
+    shift = 163 * 16
+    assert np.array_equal(speex, echo.render(start - shift, 8000))  # AEC3's shift is 0
+    assert speex.any()
+
+
+def test_re_anchoring_the_model_keeps_the_asr_paths_alignment() -> None:
+    """A client truncate corrects the model's timing for later audio; Speex's reference stays
+    where GCC-PHAT last measured the echo (else it would leave its 0-44 ms keep range)."""
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.delay_estimate(0, confirmed(183))
+    echo.response_started()
+    echo.audio_queued(1)
+    echo.audio_sent("item_1", 1, wire(2400 * 20))
+    echo.response_finished(1)
+    stream(echo, clock, 0.5, start=end)
+    (span,) = echo.played_spans(0, 10**9, 0)
+    played = span.end_ms // 20
+    echo.truncated("item_1", (played + 3) * 20)  # the client played 3 frames more
+    assert echo.anchor_ms == -60  # later audio is placed 60 ms earlier ...
+    assert echo.speex_shift_ms == 163 + 60  # ... and read 60 ms earlier for Speex
+    assert echo.shift_ms == 0  # AEC3 follows the model (its own estimator absorbs the rest)
+    now = round(clock.t * RATE) - offset_of(clock, end + 8000)  # the input arriving now
+    echo.delay_estimate(now + 16_000, confirmed(183))  # a window still over the old placement
+    assert echo.speex_shift_ms == 223
+    # Audio placed after the correction: the same echo is 60 ms later against the model.
+    echo.delay_estimate(now + 2 * 16_000, confirmed(243))
+    assert echo.speex_shift_ms == 223
+    echo.delay_estimate(now + 2 * 16_000, confirmed(183))  # the echo really moved: re-aligned
+    assert echo.speex_shift_ms == 163
+
+
+def test_the_hold_back_waits_for_the_reference_that_reads_furthest_ahead() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.response_started()
+    before = echo.final_until()
+    assert before is not None
+    echo.delay_estimate(0, confirmed(600))  # AEC3 shifted 540 ms back, Speex 580 ms
+    assert echo.final_until() == before + 540 * 16  # the smaller shift binds
+    assert echo.final_at(end) == pytest.approx(
+        (end + offset_of(clock, end) + LEAD - 540 * 16) / RATE
+    )
+
+
+class TrackingEngine(RecordingEngine):
+    """Records like RecordingEngine; returns the capture minus a quarter (the ASR path)."""
+
+    def process(
+        self, capture: npt.NDArray[np.int16], reference: npt.NDArray[np.int16]
+    ) -> npt.NDArray[np.int16]:
+        super().process(capture, reference)
+        return (capture - capture // 4).astype(np.int16)
+
+
+async def test_the_stage_runs_the_asr_path_once_aligned(executor: ThreadPoolExecutor) -> None:
+    """G7 dual path: until Speex's reference is aligned the ASR keeps the (pre-filtered) input;
+    then its engine gets each frame with Speex's own reference, AEC3's bypass or not."""
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.audio_queued(1)
+    echo.audio_sent("item_1", 1, wire(2400 * 30))
+    echo.response_finished(1)
+    end = stream(echo, clock, 1.0, start=end)
+    aec3, speex = RecordingEngine(), TrackingEngine()
+    stage = EchoStage(aec3, echo, executor, AsrPath(speex, prefilter_hz=None))
+    pcm = (np.arange(1600) % 300 + 100).astype(np.int16)
+    (first,) = await stage.feed(end - 3200, pcm.tobytes())
+    assert first.asr == pcm.tobytes()  # not aligned: passed through as received
+    assert speex.calls == []
+    echo.delay_estimate(0, confirmed(183))
+    (second,) = await stage.feed(end - 1600, pcm.tobytes())
+    assert second.pcm == (pcm // 2).astype(np.int16).tobytes()  # AEC3's output, for detection
+    assert second.asr == (pcm - pcm // 4).astype(np.int16).tobytes()
+    assert len(speex.calls) == 10
+    for index, (_, ref) in enumerate(speex.calls):
+        frame_start = end - 1600 + index * FRAME_SAMPLES
+        rendered = echo.render_speex(frame_start, FRAME_SAMPLES)
+        assert rendered is not None
+        assert np.array_equal(ref, rendered)
+    echo.echo_absent = True  # AEC3's bypass: a linear filter needs none (it would only lose
+    await stage.feed(end, pcm.tobytes())  # the echo when the bypass misfires in double talk)
+    assert all(not ref.any() for _, ref in aec3.calls[20:])
+    assert any(ref.any() for _, ref in speex.calls[10:])
+    assert echo.stats.speex_ns > 0
+
+
+async def test_the_asr_paths_pre_filter_applies_once_it_cancels(
+    executor: ThreadPoolExecutor,
+) -> None:
+    """The 3.8 kHz pre-filter feeds Speex once its reference is aligned (AICC's upsampler
+    leaves images at 4-8 kHz that no linear filter can cancel); before that the input passes
+    through whole (a line without echo, or a wideband client, keeps its band)."""
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    speex = TrackingEngine()
+    stage = EchoStage(RecordingEngine(), echo, executor, AsrPath(speex, 3800))
+    times = np.arange(3200) / RATE
+    tone = (8000 * np.sin(2 * np.pi * 6000 * times)).astype(np.int16)  # an image's frequency
+    (before,) = await stage.feed(end - 6400, tone[:1600].tobytes())
+    assert before.asr == tone[:1600].tobytes()
+    echo.delay_estimate(0, confirmed(183))
+    await stage.feed(end - 4800, tone[1600:].tobytes())
+    fed = np.concatenate([capture for capture, _ in speex.calls]).astype(np.float64)[200:]
+    assert np.sqrt(np.mean(fed**2)) < 8000 / np.sqrt(2) / 100  # below -40 dB
+
+
+def test_the_summary_reports_both_paths(caplog: pytest.LogCaptureFixture) -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    echo.delay_estimate(32_000, confirmed(183))
+    with caplog.at_level("INFO", logger="mlx_realtime.session.echo"):
+        log_echo_stats(echo, {"barge_ins": 0})
+    (record,) = [r for r in caplog.records if r.getMessage() == "echo summary"]
+    fields = record.__dict__
+    assert (fields["speex_aligned_at_ms"], fields["speex_shift_ms"]) == (2000, 163)
+    assert (fields["speex_realignments"], fields["speex_resets"]) == (0, 0)
 
 
 def test_units_are_cjk_characters_and_latin_words() -> None:

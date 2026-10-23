@@ -13,7 +13,7 @@ import numpy.typing as npt
 import pytest
 
 from mlx_realtime.config import AecConfig, BargeInConfig
-from mlx_realtime.session.echo import EchoParams, EchoReference, EchoStage
+from mlx_realtime.session.echo import AsrPath, EchoParams, EchoReference, EchoStage
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.feeder import VadFeeder
 from mlx_realtime.session.signals import VadUpdate
@@ -156,7 +156,9 @@ async def test_with_the_canceller_its_output_reaches_the_detector_and_the_actor(
             return (capture // 2).astype(np.int16)
 
     clock = LoopClock()
-    reference = EchoReference(EchoParams.of(AecConfig(delay_guard=False), BargeInConfig()), clock)
+    reference = EchoReference(
+        EchoParams.of(AecConfig(delay_guard=False, asr_input="aec3"), BargeInConfig()), clock
+    )
     stage = EchoStage(Halving(), reference, ThreadPoolExecutor(1))
     detector = Recorder()
     updates: list[VadUpdate] = []
@@ -185,6 +187,47 @@ async def test_with_the_canceller_its_output_reaches_the_detector_and_the_actor(
                 await asyncio.sleep(0.01)
         assert updates[0].epoch == 0
         assert updates[0].processed_start == 16 * 510
+    finally:
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+
+async def test_the_asr_paths_output_rides_along_for_the_input_buffer() -> None:
+    """G7 dual path: each update carries the ASR path's output for the same samples (here the
+    input itself: Speex's reference is not aligned yet)."""
+
+    class Halving:
+        def process(
+            self, capture: npt.NDArray[np.int16], reference: npt.NDArray[np.int16]
+        ) -> npt.NDArray[np.int16]:
+            return (capture // 2).astype(np.int16)
+
+    clock = LoopClock()
+    reference = EchoReference(EchoParams.of(AecConfig(), BargeInConfig()), clock)
+    stage = EchoStage(Halving(), reference, ThreadPoolExecutor(1), AsrPath(Halving(), None))
+    updates: list[VadUpdate] = []
+    feeder = VadFeeder(
+        Recorder(),
+        updates.append,
+        max_queued_ms=10_000,
+        reference=reference,
+        echo=stage,
+        clock=clock,
+    )
+    feeder.configure(0, PARAMS)
+    task = asyncio.create_task(feeder.run())
+    try:
+        pcm = (np.arange(16 * 200) % 1000).astype("<i2").tobytes()  # 200 ms, idle: no hold-back
+        reference.capture_arrived(16 * 200)
+        feeder.push(0, pcm)
+        async with asyncio.timeout(2):
+            while sum(len(update.processed) for update in updates) < len(pcm):  # noqa: ASYNC110
+                await asyncio.sleep(0.01)
+        assert b"".join(update.processed_asr for update in updates) == pcm
+        assert b"".join(update.processed for update in updates) == (
+            (np.frombuffer(pcm, dtype="<i2") // 2).astype("<i2").tobytes()
+        )
     finally:
         task.cancel()
         with pytest.raises(asyncio.CancelledError):

@@ -7,20 +7,17 @@ from __future__ import annotations
 import asyncio
 import hmac
 import logging
-import os
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from pathlib import Path
 from typing import Protocol
 
 from mlx_realtime.config import (
-    BackendsConfig,
     Config,
     ConfigError,
     MlxAudioSpeechConfig,
     NormalizerConfig,
     TurnConfig,
 )
-from mlx_realtime.hub import hub_cache, snapshot_dir
 from mlx_realtime.protocol.fields import ProtocolError
 from mlx_realtime.protocol.ids import IdFactory
 from mlx_realtime.protocol.session import decode_session_defaults
@@ -96,7 +93,6 @@ class Gateway:
         *,
         speech_detector: Callable[[], SpeechDetector] | None = None,
         turn_end_detector: Callable[[], TurnEndDetector | None] | None = None,
-        environ: Mapping[str, str] = os.environ,
         clock: Clock | None = None,
     ) -> None:
         self.voices = VoiceBook(config.voices)
@@ -106,7 +102,6 @@ class Gateway:
             config.providers,
             warmup_instructions=self.defaults.instructions,
             voices=config.voices,
-            snapshots=pinned_snapshots(config.backends, hub_cache(environ)),
         )
         self.ids = IdFactory()
         self.admission = Admission(config.gateway.max_sessions)
@@ -126,7 +121,7 @@ class Gateway:
         self.readiness = ReadinessMonitor(backends)
         self.clock: Clock = clock or LoopClock()
         aec = config.aec
-        self.echo = EchoRuntime(aec.engine, aec.workers) if aec.enabled else None
+        self.echo = EchoRuntime(aec) if aec.enabled else None
         tts = self.providers.tts
         self.metrics = Metrics(
             config.observability,
@@ -198,16 +193,6 @@ def _session_defaults(config: Config, voices: VoiceBook) -> SessionSettings:
 def _first_segment_grace_s(config: Config) -> float:
     tts = config.providers.tts
     return tts.first_segment_grace_ms / 1000 if isinstance(tts, MlxAudioSpeechConfig) else 0.0
-
-
-def pinned_snapshots(backends: BackendsConfig, cache: Path) -> Callable[[str], Path | None]:
-    """A model repository's local snapshot at the revision ``backends`` pins (else ``main``)."""
-    pins = backends.pins()
-
-    def find(repo: str) -> Path | None:
-        return snapshot_dir(cache, repo, pins.get(repo, "main"))
-
-    return find
 
 
 def normalizer_options(config: NormalizerConfig) -> NormalizerOptions:

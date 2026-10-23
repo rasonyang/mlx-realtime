@@ -15,3 +15,8 @@ spikes/data/
 
 # ITU-T G.168 echo-path coefficients (© ITU, all rights reserved): never commit
 **/g168*.json
+
+# Build output of the vendored SpeexDSP extension (uv compiles vendor/speexdsp-aec on sync)
+vendor/*/build/
+vendor/**/*.so
+*.egg-info/

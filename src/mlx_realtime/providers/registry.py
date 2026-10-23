@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
 
 from mlx_realtime.config import (
     ASRConfig,
@@ -27,13 +25,6 @@ from mlx_realtime.providers.voices import VoiceBook
 
 __all__ = ["ASRBackend", "LLMBackend", "Providers", "TTSBackend", "build_providers"]
 
-type Snapshots = Callable[[str], Path | None]
-"""A model repository's local snapshot directory (the pinned revision), if downloaded."""
-
-
-def no_snapshots(repo: str) -> Path | None:
-    return None
-
 
 @dataclass(frozen=True, slots=True)
 class Providers:
@@ -50,14 +41,12 @@ def build_providers(
     *,
     warmup_instructions: str = "",
     voices: VoicesConfig | None = None,
-    snapshots: Snapshots = no_snapshots,
 ) -> Providers:
-    """``warmup_instructions`` are the session defaults' instructions (the LLM warmup prompt);
-    ``snapshots`` locates downloaded models (Kokoro's voice packs live in its snapshot)."""
+    """``warmup_instructions`` are the session defaults' instructions (the LLM warmup prompt)."""
     return Providers(
         llm=build_llm(config.llm, warmup_instructions=warmup_instructions),
         asr=build_asr(config.asr),
-        tts=build_tts(config.tts, VoiceBook(voices or VoicesConfig()), snapshots=snapshots),
+        tts=build_tts(config.tts, VoiceBook(voices or VoicesConfig())),
     )
 
 
@@ -77,11 +66,9 @@ def build_asr(config: ASRConfig) -> ASRBackend:
     return ScriptedASR(config.transcripts, delay_s=config.delay_ms / 1000)
 
 
-def build_tts(
-    config: TTSConfig, voices: VoiceBook, *, snapshots: Snapshots = no_snapshots
-) -> TTSBackend:
+def build_tts(config: TTSConfig, voices: VoiceBook) -> TTSBackend:
     if isinstance(config, MlxAudioSpeechConfig):
-        return build_speech(config, voices, snapshots=snapshots)
+        return build_speech(config, voices)
     return SineTTS(
         ms_per_char=config.ms_per_char,
         chunk_ms=config.chunk_ms,
@@ -91,21 +78,14 @@ def build_tts(
     )
 
 
-def build_speech(
-    config: MlxAudioSpeechConfig, voices: VoiceBook, *, snapshots: Snapshots = no_snapshots
-) -> TTSBackend:
+def build_speech(config: MlxAudioSpeechConfig, voices: VoiceBook) -> TTSBackend:
     """The primary model, wrapped in ``FallbackTTS`` when the fallback is enabled; both on one
     ``SpeechServer`` (the same backend process)."""
     server = SpeechServer(config)
 
     def model(model_config: TtsModelConfig, role: Role) -> MlxAudioTTS:
         return MlxAudioTTS(
-            server,
-            model_config,
-            voices,
-            role=role,
-            warmup_texts=config.warmup_texts,
-            voices_dir=_voices_dir(model_config, snapshots),
+            server, model_config, voices, role=role, warmup_texts=config.warmup_texts
         )
 
     primary = model(config.primary, "primary")
@@ -117,15 +97,4 @@ def build_speech(
         model(fallback, "fallback"),
         failures=fallback.breaker_failures,
         cooldown_s=fallback.cooldown_s,
-        latin_segments=fallback.latin_segments,
     )
-
-
-def _voices_dir(config: TtsModelConfig, snapshots: Snapshots) -> Path | None:
-    """Kokoro's voice packs: ``voices_dir`` if configured, else the pinned snapshot's."""
-    if config.family != "kokoro":
-        return None
-    if config.voices_dir:
-        return Path(config.voices_dir)
-    snapshot = snapshots(config.model)
-    return None if snapshot is None else snapshot / "voices"

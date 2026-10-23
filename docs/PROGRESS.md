@@ -1704,3 +1704,318 @@ New and changed tests:
   generates; one per prefix, one at a time, a sent one runs to its end); the retry's sampling;
   the cache checkpoints and refresh, opt-in flags on; `--prompt-cache-size 64` (+6 GB resident);
   AICC's transfer call is decode-bound (Remaining risks, 1): a request to AICC, not a gateway fix.
+
+## G7 dual path, D13, capacity (2026-10-23)
+
+**Goal.** The three owner decisions of 2026-10-23 (DECISIONS):
+
+- **G7 final, dual path.** AEC3 keeps cleaning what Silero and Smart Turn hear; a SpeexDSP linear
+  canceller, aligned by GCC-PHAT, feeds the input buffer and the ASR. SpeexDSP's BSD sources are
+  vendored and built through uv, with no Homebrew library.
+- **D13 final.** The TTS fallback is Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit @08c72cad, with the
+  primary's speakers and Latin segments allowed. Kokoro is dropped.
+- **Capacity.** At most 3 concurrent calls (`max_sessions: 3`), with the other defaults sized to
+  match.
+
+**Run on the GPU** (High Power on AC): the double-talk ΔCER with the real ASR
+(Qwen3-ASR-1.7B-8bit @a8379a2, `HF_HUB_OFFLINE=1`, 5120 requests, 0 errors), and the real TTS and
+ASR servers for D13. Every server was stopped afterwards.
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `vendor/speexdsp-aec` (new) | A uv project (`uv init --no-workspace --lib --build-backend setuptools`) holding a setuptools-built CPython extension. **Sources:** `speexdsp/` holds the 17 files of the SpeexDSP 1.2.1 release tarball that the echo canceller (`mdf.c`), the preprocessor (`preprocess.c`, `filterbank.c`) and the smallft FFT need, copied unchanged, with `COPYING`. **Provenance:** `speexdsp/SOURCE.json` records the version, the URL https://downloads.xiph.org/releases/speex/speexdsp-1.2.1.tar.gz, the tarball's sha256 `8c777343…aeb54d3d` (as Xiph's `SHA256SUMS.txt` publishes it) and every file's sha256. **Build:** `setup.py` defines what SpeexDSP's own `configure` defines on macOS (`FLOATING_POINT`, `USE_SMALLFT`, `VAR_ARRAYS`), adds `OS_SUPPORT_CUSTOM`, and builds with `-fvisibility=hidden`, so only `PyInit__speexdsp` is exported and only libSystem is linked. `include/os_support_custom.h` counts SpeexDSP's warnings per thread instead of printing them. **Binding:** `src/speexdsp_aec/_speexdsp.c` is `EchoCanceller(frame_size, filter_length, sample_rate, *, preprocess=False)`, plus `process`, `reset`, `close`, the `frames` and `warnings` counters, and a `.pyi`. |
+| `pyproject.toml`, `uv.lock` | `speexdsp-aec` is a path dependency (`uv add --no-workspace`). `build-constraint-dependencies = ["setuptools==84.0.0"]` is recorded in `uv.lock`'s manifest, and the package pins the same in its `build-system`. `cache-keys` make uv rebuild it when a C or header file changes, and only then. |
+| `audio/aec.py` | `SpeexLinear`, the MDF filter of `filter_ms` with an optional preprocessor. Frames are checked before the native call, as for AEC3. `LowPass` is the 63-tap, 3.8 kHz linear-phase FIR from M0 S11, streamed with its history. |
+| `session/echo.py` | **EchoReference.** It places Speex's reference from confirmed GCC-PHAT estimates (`_align_speex`), and `render_speex` reads the model at Speex's own shift. The hold-back waits for whichever reference reads furthest ahead. Re-anchoring leaves Speex's reference where the echo was measured, and ignores estimates of audio placed before the correction. **AsrPath** (the pre-filter, then the engine) runs in the same executor work as AEC3. **EchoStage** returns `Processed(start, pcm, asr)`, and its estimate loop stops at a re-alignment. **EchoRuntime** builds both engines from `AecConfig`. The `echo summary` log adds `speex_*` fields. |
+| `session/input_buffer.py`, `feeder.py`, `signals.py`, `actor.py` | The buffer has a third track, the ASR path's output. `asr_input` (`speex`, `aec3` or `raw`) picks which track a commit takes, and Smart Turn keeps reading AEC3's track. `VadUpdate.processed_asr` carries the ASR path's output. |
+| `config.py`, `config*.yaml` | `aec.asr_input` takes `speex`, `aec3` or `raw` (default `speex`; M4's `processed` is now `aec3`). `aec.speex` holds `filter_ms` 64, `target_delay_ms` 20, `max_delay_ms` 44, `prefilter_hz` 3800 and `preprocess` true, validated as target ≤ max < filter. `speex` needs `delay_guard`. Capacity is set in the "Capacity" section below. |
+| D13: `config.py`, `providers/{mlx_audio_tts,fallback,registry,voices}.py`, `server/gateway.py`, `bench/bench.py`, `config.yaml` | **Fallback model:** the 4-bit build, asked exactly like the primary (same speaker, `chinese`/`english`, 0.16 s chunks, the token cap) for any segment, Latin letters included. **Removed:** the Kokoro paths (`family`, `voices_dir`, `latin_segments`, the voice map's `fallback`, the voice-pack lookup through the HF cache, `BackendsConfig.pins()`, `Gateway(environ=…)`). **Warmup:** the primary speaks every voice; the fallback speaks only the default voice (1.4 s against 6.9 s). **Pins:** `backends.tts.fetch` pins 049ef77f (8-bit) and 08c72cad (4-bit). |
+| `backends/audio` | `uv remove` takes out what only Kokoro needed (misaki[zh], spacy with en_core_web_sm, num2words, phonemizer-fork, espeakng-loader); the lock goes from 113 to 55 packages. In mlx_audio, only kokoro, kitten_tts and chatterbox import them. |
+| `spikes/g7dual` (new uv project) | The measurement harness. `g7_chain.py` builds B4's calls; `g7_gateway.py` drives the gateway's own echo path on a manual clock; `g7_run.py` generates the calls, runs the variants, sends the clips to the ASR and measures CPU. |
+| `README.md`, `docs/PROTOCOL.md` | The dual path, the build prerequisite (a C compiler), capacity, and D13 (status line, admission, §11.12, §11.13). |
+
+### How the ASR path works
+
+The canceller executor runs both paths on every 10 ms frame.
+
+- **Detection path.** AEC3 runs on AEC3's reference (unchanged from M4), and Silero and Smart Turn
+  hear its output.
+- **ASR path.** The capture and Speex's reference go through the 3.8 kHz pre-filter, then Speex.
+  Its output is written over the buffer's ASR track.
+
+**Alignment.**
+
+- Speex's reference is the same playout model, read at Speex's own shift. A confirmed estimate puts
+  the echo 20 ms behind the reference; the shift moves again only when an estimate leaves
+  [0, 44] ms (M0 S11).
+- Until the first confirmed estimate, the ASR track is the input as received. In the runs below this
+  happened 2.5 s into the call (median; 5 s at most). A line without echo never aligns, so the ASR
+  keeps its raw input.
+
+**Re-anchoring.** M4's truncate re-anchoring moves the model by whole frames for the audio that
+follows it. Moving Speex's reference along with it pushed the echo out of the 44 ms keep range
+after almost every barge-in. So:
+
+- Speex's shift absorbs the move;
+- estimates of audio placed before the move are ignored for 2 s.
+
+Effect on Speex's re-alignments in 32 barge-in calls:
+
+| Handling | Re-alignments |
+|---|---|
+| No compensation | 47 |
+| Compensation, no hold | 85 |
+| Both (the build) | 7 |
+
+**No bypass.** AEC3's no-echo bypass (M4) does not apply to the ASR path. A linear filter cannot
+silence a caller, and the bypass misfires in long double talk: in 16 of the 32 continuous
+double-talk calls, GCC-PHAT found no distinct peak for 1.5 s.
+
+### Measurements
+
+**Setup.**
+
+- **Calls.** B4's double-talk grid, rebuilt with B4's own chain (`spikes/aec`), stops at AICC's
+  24 kHz uplink. Soxr of this uplink is bit-identical to B4's cached capture.
+- **Grid.** 40 zh and 40 en FLEURS utterances × ERL 6/15 dB × near end 0/−15 dB re the far end;
+  G.168 m1–m8; 32 calls per layout.
+- **Two layouts:**
+  - `dt`: B4's continuous double talk, with each utterance entirely under the far end;
+  - **barge-in realistic**: the far end stops 0.5 s after each onset. AICC flushes and truncates to
+    what it played, and the next answer starts 1 s after the utterance. Onsets land past the 2 s
+    echo guard.
+- **The gateway's path.** Each call goes through the gateway's own classes on a manual clock: the
+  InputBuffer's decoder, `EchoReference` (AICC playout model, learned tick phase, truncates),
+  `EchoStage` (AEC3, Speex, GCC-PHAT, hold-back) and the tracks the InputBuffer would commit.
+- **Scoring.** Each utterance ±300 ms is transcribed by the gateway's `MlxAudioASR` provider (with
+  the language), scored as B4 scored it (CER zh, WER en), and paired against the same chain without
+  echo. Each cell has 80 utterances, with a 95 % bootstrap CI.
+- Raw results: `spikes/results/g7dual_{cer,runs,cpu}.json`.
+
+**ΔCER, points over the clean chain** (C2 limits: ≤ 2 at 0 dB, ≤ 5 at −15 dB):
+
+| ASR input | zh 0 dB | zh −15 dB | en 0 dB | en −15 dB |
+|---|---|---|---|---|
+| *Continuous double talk* | | | | |
+| raw | +13.0 [8.3, 18.6] | +68.1 [56.4, 80.5] | +5.7 [2.8, 9.4] | +61.4 [50.6, 71.7] |
+| aec3 | +2.4 [1.3, 3.7] | +13.7 [10.4, 17.5] | +6.5 [3.7, 9.9] | +33.2 [27.2, 39.4] |
+| speex, linear | +0.6 [−0.1, 1.7] | +2.9 [1.1, 5.1] | +0.4 [−0.2, 1.0] | +3.6 [0.6, 7.4] |
+| **speex + preprocessor (default)** | **+0.5** [−0.3, 1.4] | **+1.8** [0.3, 3.5] | **+0.6** [−0.4, 1.9] | **+1.6** [−0.6, 4.4] |
+| speex, no pre-filter | +0.7 | +3.5 | +0.7 | +3.1 |
+| speex + preprocessor, no pre-filter | +0.1 | +2.0 | +0.8 | +2.3 |
+| speex, 128 ms filter (keep 0–108 ms) | +0.7 | +2.6 | +0.1 | +3.6 |
+| *Barge-in realistic* | | | | |
+| raw | +7.5 [5.3, 9.9] | +10.3 [8.0, 12.6] | −0.2 [−0.8, 0.5] | +2.1 [0.7, 3.8] |
+| aec3 | +1.1 [0.0, 2.4] | +0.2 [−0.2, 0.7] | +0.9 [0.2, 1.6] | +1.9 [0.4, 3.5] |
+| speex, linear | +1.9 [0.6, 3.4] | +2.5 [1.1, 4.0] | −0.5 [−1.1, 0.1] | −0.7 [−1.4, −0.1] |
+| **speex + preprocessor (default)** | **+0.8** [0.0, 1.9] | **+0.3** [−0.9, 1.4] | **+0.0** [−0.7, 0.6] | **−0.2** [−1.1, 0.6] |
+| speex, no pre-filter | +1.4 | +2.3 | +0.0 | −0.1 |
+| speex + preprocessor, no pre-filter | +0.6 | +1.5 | +0.0 | +0.1 |
+| speex, 128 ms filter | +1.8 | +1.6 | −0.4 | −0.7 |
+
+Clean error rates were zh 9.6–10.7 % and en 3.3–5.1 %. The raw rows of continuous double talk equal
+B4's no-canceller row exactly.
+
+**What the numbers say.**
+
+- **The default meets C2 in all eight cells.** The point estimates are within the limits with room
+  to spare; the largest upper CI bound is 4.4 against the limit of 5.
+- **AEC3 fails continuous double talk** (3 of 4 cells; +33 en at −15 dB) **but passes the barge-in
+  realistic case.** Our output stops 0.5 s after the onset, so its suppressor only eats the start.
+- **Raw fails both layouts in Chinese.** Even 0.5 s of echo over the onset costs 7–10 points.
+- **The preprocessor shows a gain.** Paired against linear Speex it is significantly better in 3 of
+  8 cells:
+  - continuous en −15: −2.0 [−3.9, −0.4];
+  - barge-in zh 0: −1.0 [−2.1, −0.1];
+  - barge-in zh −15: −2.2 [−3.9, −0.7].
+
+  It is worse only in barge-in en 0 (+0.5 [0.0, 1.0]), where linear Speex scored below the clean
+  chain. So it is on by default, as the brief's rule asks.
+- **The pre-filter shows no ASR gain, and is kept.**
+  - Without it, linear Speex is no different (all CIs include 0).
+  - With the preprocessor, dropping it costs barge-in zh −15: +1.2 [0.1, 2.5].
+  - B4 measured with it, and it raises Speex's ERLE: median 17.9 against 14.7 dB in the barge-in
+    calls.
+  - The input passes through unfiltered until Speex aligns, so a line without echo keeps its full
+    band.
+- **A 128 ms filter buys nothing:** no cell differs significantly.
+- **Versus B4's offline Speex** (+0.9/+0.6/+0.7/−0.8 linear; +0.1/+0.2/+0.6/−0.6 with the
+  preprocessor), the gateway path loses 1–4 points at −15 dB. That is the price of a learned rather
+  than known tick phase: Speex re-aligned 23 times in the 32 continuous calls.
+
+**The echo path's counters** (default configuration; 32 calls per layout):
+
+- Speex aligned at 2.5 s (median; 5.0 s at most).
+- Re-alignments: 23 (continuous) and 7 (barge-in).
+- 0 filter resets.
+- 43 re-anchorings in the 32 barge-in calls.
+- ERLE medians (all reference-active windows, double talk included):
+  - AEC3: 8.1 dB (continuous) and 29.9 dB (barge-in);
+  - Speex with its preprocessor: 5.4 dB (continuous) and 31.9 dB (barge-in).
+
+**CPU per session-second** (`spikes/results/g7dual_cpu.json`; thread time in the canceller
+executor; default configuration; mean of 8 calls, 4 per layout):
+
+| Part | ms of CPU per second of audio |
+|---|---|
+| AEC3 | 5.44 |
+| Speex path (pre-filter, MDF 64 ms, preprocessor) | 2.01 |
+| Whole executor work (both engines, GCC-PHAT, ERLE) | **9.25** |
+
+- Other Speex paths, from the run summaries:
+  - linear: 1.62 ms;
+  - without the pre-filter: 1.00 ms;
+  - 128 ms filter: 1.83 ms.
+- The engines alone, in the unit tests: AEC3 6.05 ms, Speex 0.94 ms.
+- On the gateway's executor (`aec.workers` 2), as fast as possible:
+  - 1 call runs at 87× real time;
+  - 3 calls at 131× aggregate (11.0 ms per session-second);
+  - 8 calls at 135×.
+
+  Three calls use about 3 % of one core.
+
+### D13: the 4-bit fallback on the real TTS server
+
+**Primary forced to fail** (`pytest -m backend -k "asr_transcribes or tts or fallback or 4bit"`
+against `mlx_audio.server` from `backends/audio`, TTS on :8103 and ASR on :8102):
+
+| How it failed | What spoke | First chunk after the request | RTF |
+|---|---|---|---|
+| A model the server cannot load (500) | the 4-bit model | 203 ms | 0.26 |
+| A 1 ms first-chunk deadline | the 4-bit model | 102 ms | 0.24 |
+
+**The 4-bit model speaking directly.**
+
+- zh, en and the mixed line 您好，请登录 App 查看您的订单。: first chunk 45–51 ms, RTF 0.22–0.23.
+- The ASR heard the mixed line right, "App" included.
+- The 8-bit primary, for comparison: first chunk 54 ms, RTF 0.25.
+
+**Runs.**
+
+- 9 passed, twice in a row: once warm, once on freshly started servers.
+- The run before them, the first after the backend environment changed, had 1 failure on a cold page
+  cache (34 s of model loading) that did not recur. Its test was not recorded.
+- An earlier copy of the same change passed the same tests three times.
+
+### Capacity
+
+| Setting | Value | Why |
+|---|---|---|
+| `gateway.max_sessions` | 8 → **3** | `config.py`, `config.yaml` and `config.mock.yaml` |
+| `providers.llm.max_in_flight` | 8 → **4** | one response per call, plus the prefix warm-up, which takes the same slots |
+| `providers.asr.max_in_flight` | 4 → **3** | one turn per call |
+| `providers.tts.max_in_flight` | 1 | the server is serialized; M6 measured about 3 speaking sessions at full speed |
+| `aec.workers` | 2 | 3 calls need about 3 % of a core (above) |
+| `turn.smart_turn.workers` | 2 | S7 sized K = 2 for up to 64 sessions |
+
+`--prompt-cache-size 64` stays (memory only).
+
+### How to run and verify
+
+```sh
+uv sync --locked                    # builds vendor/speexdsp-aec (needs a C compiler)
+uv run --locked pytest              # everything but the backend tests
+make lint typecheck
+cd spikes/g7dual                    # the measurements (calls cached in git-ignored spikes/data)
+uv run --locked python g7_run.py gen && uv run --locked python g7_run.py run
+uv run --locked python g7_run.py asr    # the real ASR on :8112 (GPU), stopped at the end
+uv run --locked python g7_run.py cpu && uv run --locked python g7_run.py runs
+```
+
+### Test results
+
+On 2026-10-23 `ruff check`, `ruff format --check` and `pyright` (strict on `src/` and `bench/`)
+report nothing. `uv run --locked pytest`: **1807 passed, 25 skipped** in about 260 s (before: 1761
+and 22). The skips are the backend tests (marked `backend`, 3 of them new) and the AICC runs that
+need `AICC_REPO`.
+No golden trace changed.
+
+**New and changed tests.**
+
+- `test_aec.py`:
+  - both engines refuse partial frames;
+  - Speex cancels an aligned line echo (> 20 dB) and keeps the caller at full level in double talk;
+  - Speex cannot cancel echo outside its filter;
+  - CPU;
+  - the C binding's own buffer checks (length, item type, contiguity) and size bounds;
+  - a busy or closed canceller refuses calls (a re-entrant `__buffer__`);
+  - Speex runs without the GIL;
+  - the pre-filter's band;
+  - the vendored files against `SOURCE.json`.
+- `test_echo.py`:
+  - Speex's alignment from confirmed estimates, its keep range, and AEC3's guard shift;
+  - nothing is aligned without the `speex` input;
+  - `render_speex`;
+  - the hold-back takes the smaller shift;
+  - re-anchoring compensation and the hold;
+  - the stage before and after alignment, with AEC3's bypass;
+  - the pre-filter only once Speex cancels;
+  - the summary fields.
+- `test_input_buffer.py`: the Speex track in commits, the tracks through trim, clear and commit, and
+  every input without cancellers.
+- `test_feeder.py`: `processed_asr` is carried.
+- `test_config.py`: the dual path, capacity and the validation errors.
+- `test_echo.py` (integration): Speex aligns within 5 s with no resets, on PCM and on G.711
+  passthrough.
+- D13: the fallback is asked like the primary; warmup and readiness; Latin segments fall back; a
+  mixed segment on the wire; the backend tests above.
+
+### Deviations from the brief, with reasons
+
+1. **The package is `speexdsp-aec` (`import speexdsp_aec`).** An `mlxrt_*` name trips the
+   import-graph rule that nothing in `src/` imports `mlx*`.
+2. **The preprocessor is vendored and on by default.** The data shows a gain (above). It is a config
+   switch (`aec.speex.preprocess`).
+3. **Re-anchoring leaves Speex's reference alone.** Speex's shift absorbs the move, and pre-move
+   estimates are held off for 2 s. Not in B4; the numbers are in "How the ASR path works".
+4. **The ASR path never takes AEC3's bypass.** It misfires in long double talk.
+5. **The ASR track passes the input through unfiltered until Speex aligns.** The pre-filter applies
+   only once Speex cancels.
+6. **Configuration changes.**
+   - `aec.asr_input: processed` is now `aec3`; an old config fails at startup, naming the key.
+   - `speex` without `delay_guard` is refused, because nothing would align it.
+7. **EchoStage's estimate loop stops after a re-alignment.** Later windows of the same batch were
+   measured against the old reference. This affects AEC3's guard too.
+8. **The ΔCER cuts utterances by ground truth (±300 ms), as B4 did.** It does not use the VAD's
+   turns. The tracks are exactly what the InputBuffer commits.
+
+### Remaining risks
+
+- **The echo is simulated.** No live echo has been measured: G.168 paths, AICC's model, no clock
+  drift.
+- **The start of a call.** For the first ~2.5 s of a call's first answer the ASR hears echo, and
+  Speex keeps converging for a few seconds after that.
+- **The preprocessor's denoiser is unmeasured on noisy lines.** The runs had −65 dBm0 of noise.
+- **M4's two-frame re-anchoring fires often** (43 in 32 barge-in calls), partly spuriously. Speex is
+  now immune, but AEC3's reference still moves.
+- **M4's bypass misfires in long double talk** (16 of 32 continuous calls). AEC3 then passes echo to
+  Silero until the next confirmed estimate.
+- **A wideband client with echo** gets a 3.8 kHz ASR input.
+- **The build.**
+  - It needs a C compiler.
+  - The build backend is pinned by version but not by hash: uv locks no build environment.
+  - SpeexDSP does not check its own allocations. Sizes are bounded, so only exhaustion of memory
+    could crash it.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- **ARCHITECTURE.**
+  - §3: `vendor/speexdsp-aec` (vendored BSD sources, a setuptools extension built by uv, setuptools
+    pinned in `uv.lock`'s build constraints).
+  - §4.3: the dual path in the diagram, and the InputBuffer's third track.
+  - §6.5: Speex's alignment (target 20 ms, keep [0, 44] ms, first estimate ≈ 2.5 s, pass-through
+    until then), re-anchoring compensation and its hold, no bypass for the ASR path, the
+    preprocessor and the pre-filter.
+  - §10: `aec.asr_input` (`speex | aec3 | raw`), `aec.speex.*`, `gateway.max_sessions` 3, and
+    LLM 4 / ASR 3 in flight.
+  - §2: 3 concurrent calls.
+  - §5.3 and §12 D13: the 4-bit Qwen3-TTS fallback.
+- **DECISIONS.**
+  - G7 dual path implemented, with the measured ΔCER and CPU.
+  - The preprocessor on (it shows a gain); the pre-filter kept.
+  - `processed` renamed to `aec3`.
+  - Capacity: max_sessions 3, LLM in flight 4, ASR in flight 3, executors unchanged.
+  - D13 implemented: Kokoro-only dependencies removed from backends/audio; the fallback warms up
+    with the default voice only.

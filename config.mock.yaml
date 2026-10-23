@@ -12,7 +12,7 @@
 gateway:
   host: 127.0.0.1
   port: 8000
-  max_sessions: 8
+  max_sessions: 3
   api_key: ""              # empty: no authentication
   max_session_s: 3600
 
@@ -60,7 +60,7 @@ turn:
 aec:                       # D17: as config.yaml, but off (see the top of this file)
   enabled: false
   engine: webrtc_aec3
-  asr_input: processed
+  asr_input: speex
   reference_lead_ms: 60
   learn_tick_phase: true
   min_residual_delay_ms: 5

@@ -11,7 +11,6 @@ import logging
 from collections.abc import AsyncIterator, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from pathlib import Path
 
 import pytest
 
@@ -36,7 +35,7 @@ from tests.speech import EN, SILERO, ZH, clip, needs_models, silence, to_wire
 from tests.support import Client, Event, build_gateway, running
 
 ZH_TEXT = "但鸟类还是有很多地方跟恐龙相似。"
-KOKORO = "mlx-community/Kokoro-82M-bf16"
+QWEN_4BIT = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"  # the fallback (D13)
 AICC_SESSION = {  # what AICC's gateway profile sends (spikes/aicc/traces)
     "audio": {
         "input": {
@@ -58,21 +57,8 @@ class Stack:
     tts: FakeMlxAudio
 
 
-@pytest.fixture
-def packs(tmp_path: Path) -> Path:
-    """A local Kokoro snapshot: the voice packs the built-in voices fall back to."""
-    voices = tmp_path / "voices"
-    voices.mkdir()
-    for name in ("zf_xiaobei", "zf_xiaoxiao", "zm_yunjian", "zm_yunxi", "zm_yunyang"):
-        (voices / f"{name}.safetensors").write_bytes(b"pack")
-    for name in ("af_heart", "af_bella", "am_adam", "am_michael", "am_puck"):
-        (voices / f"{name}.safetensors").write_bytes(b"pack")
-    return tmp_path
-
-
 @asynccontextmanager
 async def real_stack(
-    packs: Path,
     *,
     tts: Mapping[str, object] | None = None,
     turn_end: ScriptedTurnEnd | None = None,
@@ -85,11 +71,6 @@ async def real_stack(
     with llm.serving() as llm_url:
         async with serve_asgi(asr) as asr_url, serve_asgi(speech) as tts_url:
             tts_config: dict[str, object] = {"type": "mlx_audio_speech", "base_url": tts_url}
-            tts_config["fallback"] = {
-                "model": KOKORO,
-                "family": "kokoro",
-                "voices_dir": str(packs / "voices"),
-            }
             tts_config.update(tts or {})
             config = validate_config(
                 {
@@ -123,11 +104,9 @@ def audio_bytes(events: list[Event]) -> int:
 
 
 @needs_models
-async def test_a_spoken_chinese_turn_answered_with_speech(
-    packs: Path, caplog: pytest.LogCaptureFixture
-) -> None:
+async def test_a_spoken_chinese_turn_answered_with_speech(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level(logging.INFO, logger="mlx_realtime.session.timeline")
-    async with real_stack(packs) as stack, Client.connect(stack.address) as client:
+    async with real_stack() as stack, Client.connect(stack.address) as client:
         await client.start(AICC_SESSION)
         stack.asr.script(Transcribe(ZH_TEXT))
         stack.llm.script(*reply("是的，", "鸟类是恐龙的后代。", "还有什么想了解的吗？"))
@@ -168,12 +147,14 @@ async def test_a_spoken_chinese_turn_answered_with_speech(
 
 @needs_models
 async def test_the_fallback_speaks_a_segment_the_primary_failed(
-    packs: Path, caplog: pytest.LogCaptureFixture
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
+    """D13 final: the 4-bit build speaks the failed segment in the same voice, with the same
+    request, though the segment has Latin letters."""
     caplog.set_level(logging.INFO, logger="mlx_realtime.session.timeline")
-    async with real_stack(packs) as stack, Client.connect(stack.address) as client:
+    async with real_stack() as stack, Client.connect(stack.address) as client:
         await client.start({"audio": {"input": {"turn_detection": None}}})
-        stack.llm.script(*reply("您好，", "请问有什么可以帮您？"))
+        stack.llm.script(*reply("您好，", "请登录 App 查看您的订单。"))
         stack.tts.script_speech(Fail(500, "Failed to load model"))
         await client.say("你好")
         await client.send({"type": "response.create"})
@@ -181,21 +162,21 @@ async def test_the_fallback_speaks_a_segment_the_primary_failed(
     assert events[-1]["response"]["status"] == "completed"
     failed, fallback = stack.tts.speeches[-2:]
     assert failed.ended == "error"
-    assert fallback.body["model"] == KOKORO
-    assert fallback.body["voice"] == str(packs / "voices" / "zf_xiaobei.safetensors")
-    assert fallback.body["lang_code"] == "z"
+    assert fallback.body == {**failed.body, "model": QWEN_4BIT}
+    assert (fallback.body["voice"], fallback.body["lang_code"]) == ("vivian", "chinese")
+    assert fallback.body["input"] == "您好，请登录 App 查看您的订单。"
     assert audio_bytes(events) == fallback.audio_bytes
     (record,) = [r for r in caplog.records if r.getMessage() == "turn timeline"]
-    assert record.__dict__["tts_fallback"] is True
+    assert (record.__dict__["tts_fallback"], record.__dict__["tts_model"]) == (True, QWEN_4BIT)
     check_deadlines(client.timeline)
 
 
 @needs_models
 async def test_sessions_queue_for_the_tts_backend_and_the_wait_is_logged(
-    packs: Path, caplog: pytest.LogCaptureFixture
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level(logging.INFO, logger="mlx_realtime.session.timeline")
-    async with real_stack(packs) as stack:
+    async with real_stack() as stack:
         gate = Gate()
         stack.tts.script_speech(Chunks(1), Hold(gate), Rest())
         stack.llm.script(*reply("第一位来电者，您好。"))
@@ -286,12 +267,12 @@ TERMINAL = {
 
 
 @needs_models
-async def test_a_spoken_barge_in_runs_the_cancellation_handler_end_to_end(packs: Path) -> None:
+async def test_a_spoken_barge_in_runs_the_cancellation_handler_end_to_end() -> None:
     """ARCHITECTURE §6.5 steps 1-7 on the real TTS path, from real speech: a caller (AICC,
     simulated in real time, no echo) talks over a long answer that the LLM is still writing and
     the pacer is still holding back (1 s lead)."""
     async with (
-        real_stack(packs, output={"max_lead_ms": 1000}) as stack,
+        real_stack(output={"max_lead_ms": 1000}) as stack,
         Client.connect(stack.address) as client,
     ):
         await client.start(AICC_SESSION)

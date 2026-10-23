@@ -1,18 +1,32 @@
-"""The echo-canceller engine (audio/aec.py: WebRTC AEC3 through pywebrtc-audio, G7) and the
-GCC-PHAT delay estimator (audio/delay.py), on synthetic telephone echo: the fixture speech
-through a seeded, decaying random impulse response at 8 kHz after a bulk delay (no ITU G.168
-coefficients, which are © ITU). Also the canceller's CPU per second of audio (M0 B4: 7.8 ms)."""
+"""The echo-canceller engines (audio/aec.py: WebRTC AEC3 through pywebrtc-audio, and the
+vendored SpeexDSP linear canceller of the G7 dual path, with its pre-filter) and the GCC-PHAT
+delay estimator (audio/delay.py), on synthetic telephone echo: the fixture speech through a
+seeded, decaying random impulse response at 8 kHz after a bulk delay (no ITU G.168
+coefficients, which are © ITU). Also the cancellers' CPU per second of audio (M0 B4: 7.8 ms for
+AEC3), the SpeexDSP binding's own checks, and the vendored sources against their manifest."""
 
 from __future__ import annotations
 
+import hashlib
+import json
+import threading
 import time
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
 import pytest
+import speexdsp_aec
 
-from mlx_realtime.audio.aec import FRAME_SAMPLES, WebRtcAec3, check_frame, make_engine
+from mlx_realtime.audio.aec import (
+    FRAME_SAMPLES,
+    LowPass,
+    SpeexLinear,
+    WebRtcAec3,
+    check_frame,
+    make_engine,
+)
 from mlx_realtime.audio.delay import DelayEstimate, DelayEstimator
 from mlx_realtime.audio.resample import Resampler
 from tests.speech import EN, ZH, clip
@@ -58,9 +72,12 @@ def energy_db(signal: Floats) -> float:
         np.zeros((1, 160), dtype=np.int16),
     ],
 )
-def test_only_whole_int16_frames_reach_the_engine(frame: npt.NDArray[np.generic]) -> None:
-    """pywebrtc-audio zero-pads a partial frame silently, so the wrapper refuses one."""
-    engine = WebRtcAec3()
+@pytest.mark.parametrize("engine_type", [WebRtcAec3, SpeexLinear])
+def test_only_whole_int16_frames_reach_the_engine(
+    frame: npt.NDArray[np.generic], engine_type: type[WebRtcAec3 | SpeexLinear]
+) -> None:
+    """pywebrtc-audio zero-pads a partial frame silently, so the wrappers refuse one."""
+    engine = engine_type()
     whole = np.zeros(FRAME_SAMPLES, dtype=np.int16)
     with pytest.raises(ValueError, match=r"int16\[160\]"):
         engine.process(frame, whole)  # pyright: ignore[reportArgumentType]
@@ -164,3 +181,193 @@ def test_resampling_for_the_estimator_keeps_the_streams_aligned() -> None:
     a = b"".join(first.process(bytes(320)) for _ in range(50))
     b = b"".join(second.process(bytes(320)) for _ in range(50))
     assert len(a) == len(b)
+
+
+def band(signal: Floats) -> Floats:
+    """The 200-3600 Hz telephone band of ``signal``."""
+    spectrum = np.fft.rfft(signal)
+    hz = np.fft.rfftfreq(len(signal), 1 / RATE)
+    spectrum[(hz < 200) | (hz > 3600)] = 0
+    return np.fft.irfft(spectrum, len(signal))
+
+
+def cancel(
+    engine: WebRtcAec3 | SpeexLinear, capture: Floats, reference: Floats
+) -> npt.NDArray[np.float64]:
+    return np.concatenate(
+        [engine.process(c, r) for c, r in zip(frames(capture), frames(reference), strict=True)]
+    ).astype(np.float64)
+
+
+@pytest.mark.parametrize("preprocess", [False, True])
+def test_speex_removes_an_aligned_line_echo_and_leaves_the_caller_whole(preprocess: bool) -> None:
+    """The ASR path's canceller: with the echo 20 ms behind its reference (as GCC-PHAT keeps
+    it), a 64 ms linear filter cancels it, and in double talk the caller comes through at full
+    level: a linear filter has no suppressor to take them for echo (AEC3's does, M0 S11)."""
+    far = speech(ZH, 16.0) * 0.8
+    caller = speech(EN, 3.0) * 0.5
+    near = np.zeros_like(far)
+    near[12 * RATE : 15 * RATE] = caller
+    noise = np.random.default_rng(1).normal(0, 10, len(far))
+    echo = echo_of(far, delay_ms=20, erl_db=6.0)
+    engine = SpeexLinear(64, preprocess=preprocess)
+    output = cancel(engine, echo + near + noise, far)
+    converged = slice(6 * RATE, 12 * RATE)  # echo only, after a few seconds of adaptation
+    assert energy_db(echo[converged]) - energy_db(output[converged]) > 20
+    talk = slice(12 * RATE, 15 * RATE)
+    assert energy_db(output[talk]) > energy_db(caller) - 1.5  # the caller at full level
+    if not preprocess:  # the linear output is the caller plus a little residual echo
+        # The caller as the same canceller passes them with no echo on the line (its DC notch
+        # shifts the lowest frequencies, so the input itself is not the comparison).
+        alone = cancel(SpeexLinear(64), near + noise, far)
+        residual = band(output[talk] - alone[talk])
+        assert energy_db(residual) < energy_db(band(echo[talk])) - 6  # (20+ dB without talk)
+    assert engine.resets == 0
+
+
+def test_speex_cannot_cancel_echo_outside_its_filter() -> None:
+    """Why the session aligns Speex's reference: echo 300 ms behind it is left as it is."""
+    far = speech(ZH, 10.0) * 0.8
+    echo = echo_of(far, delay_ms=300, erl_db=6.0)
+    output = cancel(SpeexLinear(64), echo, far)
+    late = slice(5 * RATE, 10 * RATE)
+    assert energy_db(echo[late]) - energy_db(output[late]) < 3
+
+
+def test_speex_cpu_per_second_of_audio(record_property: Callable[[str, object], None]) -> None:
+    seconds = 20.0
+    far = speech(ZH, seconds)
+    pairs = list(zip(frames(echo_of(far, delay_ms=20)), frames(far), strict=True))
+    engine = SpeexLinear(64)
+    began = time.thread_time_ns()
+    for near, reference in pairs:
+        engine.process(near, reference)
+    cpu_ms = (time.thread_time_ns() - began) / 1e6 / seconds
+    record_property("speex_cpu_ms_per_audio_s", round(cpu_ms, 2))
+    print(f"Speex CPU: {cpu_ms:.2f} ms per second of audio")
+    assert cpu_ms < 50
+
+
+@pytest.mark.parametrize(
+    ("capture", "reference", "message"),
+    [
+        (bytes(318), bytes(320), "capture frame must be 320 bytes"),
+        (bytes(320), bytes(640), "reference frame must be 320 bytes"),
+        (np.zeros(80, dtype=np.float32), bytes(320), "int16 samples or bytes"),
+        (np.zeros(160, dtype=np.int32)[:80], bytes(320), "int16 samples or bytes"),
+        (bytes(320), np.zeros(320, dtype=np.uint8)[::2], "contiguous"),
+    ],
+)
+def test_the_speex_binding_checks_every_buffer_itself(
+    capture: object, reference: object, message: str
+) -> None:
+    """The second line of checks, in C, before the native call: length, item type and layout.
+    Whatever the caller hands over, SpeexDSP only ever reads the binding's own frame copy."""
+    canceller = speexdsp_aec.EchoCanceller(160, 1024, 16000)
+    with pytest.raises((ValueError, BufferError), match=message):
+        canceller.process(capture, reference)  # pyright: ignore[reportArgumentType]
+    whole = canceller.process(bytes(320), np.zeros(160, dtype="<i2"))
+    assert whole == bytes(320)
+    assert canceller.frames == 1
+
+
+@pytest.mark.parametrize(
+    ("arguments", "message"),
+    [
+        ((8, 1024, 16000), "frame_size must be"),
+        ((160, 100, 16000), "filter_length must be"),
+        ((160, 1 << 20, 16000), "filter_length must be"),
+        ((160, 1024, 4000), "sample_rate must be"),
+    ],
+)
+def test_the_speex_binding_bounds_its_sizes(arguments: tuple[int, int, int], message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        speexdsp_aec.EchoCanceller(*arguments)
+
+
+def test_a_closed_or_busy_speex_canceller_refuses_calls_instead_of_racing() -> None:
+    canceller = speexdsp_aec.EchoCanceller(160, 1024, 16000)
+    inner: list[BaseException] = []
+
+    class Reentrant:
+        """A buffer whose export runs Python code: the moment another thread could get in."""
+
+        def __buffer__(self, flags: int) -> memoryview:
+            try:
+                canceller.process(bytes(320), bytes(320))
+            except RuntimeError as error:
+                inner.append(error)
+            return memoryview(bytes(320))
+
+    assert canceller.process(Reentrant(), bytes(320)) == bytes(320)
+    assert len(inner) == 1
+    assert "processing a frame" in str(inner[0])
+    canceller.close()
+    assert canceller.closed
+    with pytest.raises(ValueError, match="closed"):
+        canceller.process(bytes(320), bytes(320))
+    with pytest.raises(ValueError, match="closed"):
+        canceller.reset()
+
+
+def test_speex_runs_without_the_gil() -> None:
+    """Sessions share the canceller executor: one session's frame must not block another's."""
+    cancellers = [speexdsp_aec.EchoCanceller(160, 1024, 16000) for _ in range(4)]
+    frame = np.random.default_rng(5).normal(0, 3000, 160).astype("<i2").tobytes()
+
+    def work(canceller: speexdsp_aec.EchoCanceller) -> None:
+        for _ in range(2000):
+            canceller.process(frame, frame)
+
+    threads = [threading.Thread(target=work, args=(c,)) for c in cancellers]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert all(c.frames == 2000 for c in cancellers)
+
+
+def test_the_pre_filter_passes_the_telephone_band_and_stops_the_images() -> None:
+    """3.8 kHz low-pass (M0 S11): AICC's linear upsampler leaves images at 4-8 kHz."""
+    times = np.arange(RATE) / RATE
+
+    def gain_db(hz: float) -> float:
+        tone = np.rint(8000 * np.sin(2 * np.pi * hz * times)).astype(np.int16)
+        low = LowPass(3800)
+        out = np.concatenate([low(f) for f in frames(tone.astype(np.float64))])
+        steady = slice(RATE // 10, None)
+        return energy_db(out[steady].astype(np.float64)) - energy_db(
+            tone[steady].astype(np.float64)
+        )
+
+    assert abs(gain_db(300)) < 0.5
+    assert abs(gain_db(3000)) < 1.0
+    assert gain_db(5000) < -40
+    assert gain_db(7000) < -40
+    signal = speech(ZH, 1.0)
+    low = LowPass(3800)
+    streamed = np.concatenate([low(f) for f in frames(signal)])
+    whole = np.convolve(signal, low._taps)[: len(signal)]  # pyright: ignore[reportPrivateUsage]
+    assert np.max(np.abs(streamed - np.clip(np.rint(whole), -32768, 32767))) <= 1
+    assert low.delay == 31
+
+
+VENDORED = Path(__file__).parents[2] / "vendor" / "speexdsp-aec" / "speexdsp"
+
+
+def test_the_vendored_speexdsp_sources_are_the_release_tarballs() -> None:
+    """Every vendored file is listed with the sha256 of its copy in speexdsp-1.2.1.tar.gz
+    (itself recorded with Xiph's published sha256), and none was changed."""
+    manifest = json.loads((VENDORED / "SOURCE.json").read_text(encoding="utf-8"))
+    assert (manifest["version"], speexdsp_aec.SPEEXDSP_VERSION) == ("1.2.1", "1.2.1")
+    assert manifest["url"] == "https://downloads.xiph.org/releases/speex/speexdsp-1.2.1.tar.gz"
+    assert len(manifest["sha256"]) == 64
+    present = {
+        path.relative_to(VENDORED).as_posix()
+        for path in VENDORED.rglob("*")
+        if path.is_file() and path.name != "SOURCE.json"
+    }
+    assert present == set(manifest["files"])
+    assert "COPYING" in present  # the BSD license notice travels with the sources
+    for name, digest in manifest["files"].items():
+        assert hashlib.sha256((VENDORED / name).read_bytes()).hexdigest() == digest, name

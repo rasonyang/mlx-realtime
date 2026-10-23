@@ -214,8 +214,9 @@ class SessionActor:
         self._emit = emit
         self._clock = deps.clock
         self._conversation = Conversation()
-        # D17: the client's modelled playout of our audio, for the canceller's reference and
-        # the barge-in rules; the canceller itself when enabled.
+        # D17: the client's modelled playout of our audio, for the cancellers' reference and
+        # the barge-in rules; the cancellers themselves when enabled (G7 dual path: AEC3 for
+        # detection, the ASR path's per aec.asr_input).
         self._echo: EchoReference | None = None
         stage: EchoStage | None = None
         if deps.echo is not None or deps.barge_in.active:
@@ -224,11 +225,13 @@ class SessionActor:
             )
             ledger.listener = self._echo
             if deps.echo is not None:
-                stage = EchoStage(deps.echo.engine(), self._echo, deps.echo.executor)
+                stage = EchoStage(
+                    deps.echo.engine(), self._echo, deps.echo.executor, deps.echo.asr_path()
+                )
         self._input = InputBuffer(
             deps.limits.input_audio_buffer_max_ms,
             processed=stage is not None,
-            asr_processed=deps.aec.asr_input == "processed",
+            asr_input=deps.aec.asr_input,
             input_format=settings.input_format,
             g711_quality=deps.g711.input_quality,
         )
@@ -349,6 +352,8 @@ class SessionActor:
     def _vad_update(self, update: VadUpdate) -> None:
         if update.processed:
             self._input.apply_processed(update.processed_start, update.processed)
+        if update.processed_asr:
+            self._input.apply_asr(update.processed_start, update.processed_asr)
         vad, turns = self._settings.turn_detection, self._turns
         if update.epoch != self._vad_epoch or vad is None or turns is None:
             return

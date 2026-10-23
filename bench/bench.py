@@ -396,7 +396,7 @@ async def serve(config_path: Path) -> AsyncGenerator[str]:
     """A gateway of its own from ``config_path``, on a free port with ``/debug/turns`` on; yields
     its ``/v1/realtime`` URL once every backend is warm."""
     environ = {**os.environ, "MLXRT__OBSERVABILITY__DEBUG_ENDPOINTS": "true"}
-    gateway = Gateway(load_config(config_path, environ), environ=environ)
+    gateway = Gateway(load_config(config_path, environ))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(("127.0.0.1", 0))

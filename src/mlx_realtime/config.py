@@ -40,7 +40,9 @@ class _Section(BaseModel):
 class GatewayConfig(_Section):
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=0, le=65535)
-    max_sessions: int = Field(default=8, ge=1)
+    # The Mac serves at most 3 concurrent calls (DECISIONS 2026-10-23: one TTS process, one
+    # LLM and one ASR process; real-time latency over throughput).
+    max_sessions: int = Field(default=3, ge=1)
     api_key: str = ""
     max_session_s: int = Field(default=3600, gt=0)
 
@@ -140,36 +142,30 @@ type SegmentLang = Literal["zh", "en"]
 
 
 class VoiceConfig(_Section):
-    """How the TTS models speak one session voice name (``audio.output.voice``, D19)."""
+    """How the TTS models speak one session voice name (``audio.output.voice``, D19). Both
+    models are builds of one Qwen3-TTS model (D13), so the fallback speaks with the same
+    speaker as the primary."""
 
-    speaker: str = Field(min_length=1)  # the primary model's speaker
-    # The primary model's speaker for segments of one language, instead of `speaker` (S3:
-    # vivian speaks zh and mixed segments, aiden en segments).
+    speaker: str = Field(min_length=1)
+    # The speaker for segments of one language, instead of `speaker`. Empty by default: one voice
+    # per session (DECISIONS 2026-10-23).
     speakers: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
-    # "segment": each segment's language tag through the primary model's lang_codes. Any
-    # other value is sent as the lang_code itself ("auto", "chinese", "english", ...).
+    # "segment": each segment's language tag through the models' lang_codes. Any other value
+    # is sent as the lang_code itself ("auto", "chinese", "english", ...).
     lang: str = Field(default="segment", min_length=1)
-    # The fallback model's voice for each segment language (Kokoro voices are per language).
-    fallback: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
 
 
 def _builtin_voices() -> dict[str, VoiceConfig]:
-    """Qwen3-TTS-12Hz-0.6B-CustomVoice's Mandarin and English speakers, each with Kokoro voices
-    of the same gender. ``dylan`` and ``eric`` are left out: with chinese or auto they turn
-    into Beijing and Sichuan dialect. ``ryan`` is left out: M0 S3 found the runaway defect
-    (mlx-audio#1002) follows it on every model. The default voice, vivian, hands English
-    segments to aiden (S3: vivian for zh and mixed, aiden for en)."""
-
-    def voice(
-        speaker: str, zh: str, en: str, speakers: dict[SegmentLang, str] | None = None
-    ) -> VoiceConfig:
-        return VoiceConfig(speaker=speaker, speakers=speakers or {}, fallback={"zh": zh, "en": en})
-
+    """Qwen3-TTS-12Hz-0.6B-CustomVoice's Mandarin and English speakers, which the primary and
+    the fallback both have (D13). ``dylan`` and ``eric`` are left out: with chinese or auto they
+    turn into Beijing and Sichuan dialect. ``ryan`` is left out: M0 S3 found the runaway defect
+    (mlx-audio#1002) follows it on every model. One voice per session: vivian, the default,
+    reads zh, en and mixed text herself (S3: 0% WER on en)."""
     return {
-        "vivian": voice("vivian", "zf_xiaobei", "af_heart", {"en": "aiden"}),
-        "serena": voice("serena", "zf_xiaoxiao", "af_bella"),
-        "uncle_fu": voice("uncle_fu", "zm_yunjian", "am_adam"),
-        "aiden": voice("aiden", "zm_yunyang", "am_puck"),
+        "vivian": VoiceConfig(speaker="vivian"),
+        "serena": VoiceConfig(speaker="serena"),
+        "uncle_fu": VoiceConfig(speaker="uncle_fu"),
+        "aiden": VoiceConfig(speaker="aiden"),
     }
 
 
@@ -216,23 +212,62 @@ class TurnConfig(_Section):
     smart_turn: SmartTurnConfig = SmartTurnConfig()
 
 
-class AecConfig(_Section):
-    """The per-session echo canceller (D17; engine and defaults from M0's G7).
+type AsrInput = Literal["speex", "aec3", "raw"]
+"""What the ASR transcribes (G7 dual path): the SpeexDSP linear canceller's output, AEC3's, or
+the input as received."""
 
-    Its reference is the session's own output audio, resampled to 16 kHz and placed on a model
-    of the client's playout. The defaults model AICC (voice/rtp.go): a 20 ms tick, playback
-    starting at ``client_prebuffer_ms`` of queued frames (3) or that long after the queue was
-    last empty, and a re-buffer after more than ``client_underrun_ticks`` empty ticks. The
-    reference leads the modelled playout by ``reference_lead_ms`` so it precedes its echo.
-    A GCC-PHAT delay estimator re-aligns the reference only when the residual delay leaves
-    [``min_residual_delay_ms``, ``max_residual_delay_ms``], and learns AICC's tick phase.
+
+class SpeexConfig(_Section):
+    """The ASR path's linear echo canceller (G7 dual path): SpeexDSP's MDF filter of
+    ``filter_ms`` (vendored SpeexDSP 1.2.1, ``speexdsp_aec``).
+
+    A linear filter cancels only echo that falls inside it, so its reference is kept aligned by
+    the GCC-PHAT estimator that guards AEC3: once an estimate is confirmed, the reference is
+    placed so the echo trails it by ``target_delay_ms``, and it is moved again only when a
+    confirmed estimate leaves [0, ``max_delay_ms``] (M0 S11: re-shifting on every estimate kept
+    the filter from converging). Until the first confirmed estimate (about 2.5 s into the
+    call's first answer) the ASR path is not cancelled. ``prefilter_hz`` low-passes the
+    capture and the reference before the filter (null: off): AICC's linear-interpolation
+    upsampler leaves images of the telephone band at 4-8 kHz, which no linear filter of our
+    reference can cancel. ``preprocess`` adds SpeexDSP's preprocessor after the filter (its
+    noise suppressor, and with it the residual-echo suppression). Both are on by default: the
+    combination M0's S11 ranked first, and the best in the G7 dual-path measurements."""
+
+    filter_ms: int = Field(default=64, gt=0, le=1000)
+    target_delay_ms: int = Field(default=20, ge=0)
+    max_delay_ms: int = Field(default=44, gt=0)
+    prefilter_hz: int | None = Field(default=3800, gt=0, lt=8000)
+    preprocess: bool = True
+
+    @model_validator(mode="after")
+    def _fits_the_filter(self) -> Self:
+        if not self.target_delay_ms <= self.max_delay_ms < self.filter_ms:
+            raise ValueError("needs target_delay_ms <= max_delay_ms < filter_ms")
+        return self
+
+
+class AecConfig(_Section):
+    """The per-session echo cancellation (D17; engines and defaults from M0's G7).
+
+    G7 dual path: WebRTC AEC3 cleans the audio that speech and end-of-turn detection hear
+    (Silero, Smart Turn), and ``asr_input`` names what the ASR transcribes: ``speex``, a
+    SpeexDSP linear canceller (``speex``); ``aec3``, AEC3's output, whose suppressor also
+    removes quiet caller speech in double talk; or ``raw``, the input as received.
+
+    Both cancellers' reference is the session's own output audio, resampled to 16 kHz and
+    placed on a model of the client's playout. The defaults model AICC (voice/rtp.go): a 20 ms
+    tick, playback starting at ``client_prebuffer_ms`` of queued frames (3) or that long after
+    the queue was last empty, and a re-buffer after more than ``client_underrun_ticks`` empty
+    ticks. The reference leads the modelled playout by ``reference_lead_ms`` so it precedes
+    its echo. A GCC-PHAT delay estimator re-aligns AEC3's reference only when the residual
+    delay leaves [``min_residual_delay_ms``, ``max_residual_delay_ms``], aligns Speex's, and
+    learns AICC's tick phase.
     """
 
     enabled: bool = True
     engine: Literal["webrtc_aec3"] = "webrtc_aec3"  # AEC3 via pywebrtc-audio 0.2.0
-    # What the ASR gets: the canceller's output, or the input as received. Speech and
-    # end-of-turn detection always run on the output. Pending M0's double-talk ΔCER.
-    asr_input: Literal["processed", "raw"] = "processed"
+    asr_input: AsrInput = "speex"
+    speex: SpeexConfig = SpeexConfig()
     workers: int = Field(default=2, ge=1)  # the canceller executor's threads
     client_tick_ms: int = Field(default=20, gt=0)
     client_prebuffer_ms: int = Field(default=60, ge=0)
@@ -254,6 +289,8 @@ class AecConfig(_Section):
             raise ValueError("min_residual_delay_ms must be below max_residual_delay_ms")
         if not self.min_residual_delay_ms <= self.reference_lead_ms <= self.max_residual_delay_ms:
             raise ValueError("reference_lead_ms must lie within the residual delay keep range")
+        if self.asr_input == "speex" and not self.delay_guard:
+            raise ValueError("asr_input speex needs delay_guard: GCC-PHAT aligns its reference")
         return self
 
 
@@ -391,7 +428,8 @@ class MlxLmChatConfig(_Section):
     tool_interlude: Literal["merge", "after_output"] = "merge"
     unanswered_calls: Literal["pending", "keep", "drop"] = "pending"
     pending_tool_output: str = Field(default=PENDING_TOOL_OUTPUT, min_length=1)
-    max_in_flight: int = Field(default=8, ge=1)
+    # Sized for 3 concurrent calls (gateway.max_sessions): one response each, plus a warm-up.
+    max_in_flight: int = Field(default=4, ge=1)
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts()
 
@@ -407,13 +445,10 @@ class MlxAudioAsrConfig(_Section):
     type: Literal["mlx_audio_transcription"]
     base_url: str = "http://127.0.0.1:8102"
     model: str = "mlx-community/Qwen3-ASR-1.7B-8bit"
-    max_in_flight: int = Field(default=4, ge=1)
+    max_in_flight: int = Field(default=3, ge=1)  # one turn per call, 3 calls at most
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts(first_item_ms=5000, idle_ms=2000, total_ms=10_000)
 
-
-type TtsFamily = Literal["qwen3_tts", "kokoro"]
-"""How a TTS model is asked: Qwen3-TTS takes a speaker name, Kokoro a voice-pack file."""
 
 _TTS_TIMEOUTS = HttpTimeouts(first_item_ms=1500, idle_ms=1000, total_ms=60_000, warmup_ms=300_000)
 
@@ -431,43 +466,40 @@ class TokenCapConfig(_Section):
 
 
 class TtsModelConfig(_Section):
-    """One model of the TTS backend, and the fields its requests carry (ARCHITECTURE §5.3).
+    """One Qwen3-TTS model of the TTS backend, and the fields its requests carry (ARCHITECTURE
+    §5.3).
 
-    ``streaming_interval``: seconds of audio per streamed chunk (Qwen3-TTS streams
-    ``max(1, int(interval × 12.5))`` codec frames of 80 ms; M0 S3 chose 0.16, whose first chunk
-    came about 76 ms after the request, uncapped). The sampling fields are sent only when set;
-    unset, the model's own generation_config.json applies. ``token_cap`` bounds ``max_tokens``
-    by the text (Qwen3-TTS only).
+    ``lang_codes`` overrides the lang_code a segment's language tag is sent as (``chinese``,
+    ``english``). ``streaming_interval``: seconds of audio per streamed chunk (Qwen3-TTS
+    streams ``max(1, int(interval × 12.5))`` codec frames of 80 ms; M0 S3 chose 0.16, whose
+    first chunk came about 76 ms after the request, uncapped). The sampling fields are sent
+    only when set; unset, the model's own generation_config.json applies. ``token_cap`` bounds
+    ``max_tokens`` by the text.
     """
 
     model: str = Field(min_length=1)  # the name sent in requests
-    family: TtsFamily = "qwen3_tts"
     lang_codes: dict[SegmentLang, str] = Field(default_factory=dict[SegmentLang, str])
     streaming_interval: float = Field(default=0.16, gt=0)  # S3: 2 codec frames per chunk
-    voices_dir: str | None = None  # Kokoro voice packs; None: voices/ of the pinned snapshot
     temperature: float | None = Field(default=None, ge=0)
     top_p: float | None = Field(default=None, gt=0, le=1)
     top_k: int | None = Field(default=None, ge=1)
     repetition_penalty: float | None = Field(default=None, gt=0)
     max_tokens: int | None = Field(default=None, ge=1)  # None: the server's 1200 codec frames
     # A max_tokens per request in proportion to its text (S3: a runaway otherwise runs to the
-    # 1200-frame limit, 96 s); None sends max_tokens alone. Qwen3-TTS only.
+    # 1200-frame limit, 96 s); None sends max_tokens alone.
     token_cap: TokenCapConfig | None = TokenCapConfig()
     timeouts: HttpTimeouts = _TTS_TIMEOUTS
 
 
 class TtsFallbackConfig(TtsModelConfig):
-    """The model a segment is retried on when the primary fails before its first chunk (D13).
-    After ``breaker_failures`` consecutive primary failures every segment goes straight to the
-    fallback for ``cooldown_s``."""
+    """The model a segment is retried on when the primary fails before its first chunk (D13: a
+    4-bit build of the primary's model, so it has the same speakers and is asked the same way,
+    whatever the segment's language). After ``breaker_failures`` consecutive primary failures
+    every segment goes straight to the fallback for ``cooldown_s``."""
 
     enabled: bool = True
     breaker_failures: int = Field(default=3, ge=1)
     cooldown_s: float = Field(default=30.0, gt=0)
-    # D13 (owner review pending): Kokoro garbles English inside Chinese (S3: 15.9% errors on
-    # mixed text), so by default it never speaks a segment with Latin letters: a primary
-    # failure on one fails that segment instead.
-    latin_segments: bool = False
 
 
 class MlxAudioSpeechConfig(_Section):
@@ -495,12 +527,10 @@ class MlxAudioSpeechConfig(_Section):
         }
     )
     primary: TtsModelConfig = TtsModelConfig(
-        model="mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit", family="qwen3_tts"
+        model="mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
     )
     fallback: TtsFallbackConfig = TtsFallbackConfig(
-        model="mlx-community/Kokoro-82M-bf16",
-        family="kokoro",
-        timeouts=HttpTimeouts(first_item_ms=2000, idle_ms=2000, total_ms=60_000, warmup_ms=300_000),
+        model="mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
     )
 
     @field_validator("warmup_texts")
@@ -573,15 +603,6 @@ class BackendsConfig(_Section):
         named = {"llm": self.llm, "asr": self.asr, "tts": self.tts}
         return {name: backend for name, backend in named.items() if backend is not None}
 
-    def pins(self) -> dict[str, str]:
-        """Every pinned model repository (served or fetched by name) and its revision."""
-        pinned: dict[str, str] = {}
-        for backend in self.processes().values():
-            served = [] if backend.model is None else [backend.model]
-            for pin in [*backend.fetch, *served]:
-                pinned[pin.repo] = pin.revision
-        return pinned
-
 
 class ObservabilityConfig(_Section):
     """Logs, ``/metrics`` (always served) and ``GET /debug/turns`` (ARCHITECTURE §9).
@@ -615,23 +636,6 @@ class Config(_Section):
     providers: ProvidersConfig = ProvidersConfig()
     backends: BackendsConfig = BackendsConfig()
     observability: ObservabilityConfig = ObservabilityConfig()
-
-    @model_validator(mode="after")
-    def _voices_have_fallback_voices(self) -> Self:
-        tts = self.providers.tts
-        if not isinstance(tts, MlxAudioSpeechConfig):
-            return self
-        fallback = tts.fallback
-        if not fallback.enabled or fallback.family != "kokoro":
-            return self
-        for name, voice in self.voices.map.items():
-            missing = sorted({"zh", "en"} - set(voice.fallback))
-            if missing:
-                raise ValueError(
-                    f"voices.map.{name}.fallback needs a Kokoro voice for {', '.join(missing)} "
-                    "while providers.tts.fallback is enabled"
-                )
-        return self
 
     @model_validator(mode="after")
     def _llm_model_is_exact_or_omitted(self) -> Self:

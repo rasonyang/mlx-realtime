@@ -1,6 +1,6 @@
 # mlx-realtime configuration (ARCHITECTURE §10). M5: Silero VAD and Smart Turn on CPU, the ASR, LLM
-# and TTS backends (Qwen3-TTS, with Kokoro as the fallback). config.mock.yaml runs every provider as
-# a mock.
+# and TTS backends (Qwen3-TTS 8-bit, with its 4-bit build as the fallback, D13). config.mock.yaml
+# runs every provider as a mock.
 # Any key can be overridden with MLXRT__<SECTION>__<KEY>=<YAML value>, for example
 # MLXRT__GATEWAY__PORT=9000 or MLXRT__PROVIDERS__LLM__TEMPERATURE=0.6.
 # An unknown key or a bad value stops startup and names the dotted path.
@@ -9,7 +9,7 @@
 gateway:
   host: 127.0.0.1
   port: 8000
-  max_sessions: 8
+  max_sessions: 3          # the Mac's capacity target (owner, 2026-10-23): at most 3 concurrent calls
   api_key: ""              # empty: no authentication
   max_session_s: 3600
 
@@ -48,18 +48,18 @@ lines:
 
 # D19: the session voice names (audio.output.voice). Any other name is accepted, spoken by
 # `default`, logged as a warning and echoed as the effective voice. speaker: the Qwen3-TTS
-# speaker; lang: "segment" (each segment's zh/en tag) or a fixed lang_code; fallback: the Kokoro
-# voice for zh and for en segments; speakers: a speaker per segment language instead of
-# `speaker`. S3: vivian reads zh, en and mixed (0% WER on en); aiden is the en-only default. Not offered: dylan and eric
-# (dialects with chinese/auto), ryan (the runaway defect, mlx-audio#1002).
+# speaker, on the primary and the fallback alike (D13: both are builds of one model); lang:
+# "segment" (each segment's zh/en tag) or a fixed lang_code; speakers: a speaker per segment
+# language instead of `speaker`. S3: vivian reads zh, en and mixed (0% WER on en); aiden is the
+# en-only default. Not offered: dylan and eric (dialects with chinese/auto), ryan (the runaway
+# defect, mlx-audio#1002).
 voices:
   default: vivian
   map:
-    vivian:   {speaker: vivian,   lang: segment,
-               fallback: {zh: zf_xiaobei,  en: af_heart}}
-    serena:   {speaker: serena,   lang: segment, fallback: {zh: zf_xiaoxiao, en: af_bella}}
-    uncle_fu: {speaker: uncle_fu, lang: segment, fallback: {zh: zm_yunjian,  en: am_adam}}
-    aiden:    {speaker: aiden,    lang: segment, fallback: {zh: zm_yunyang,  en: am_puck}}
+    vivian:   {speaker: vivian,   lang: segment}
+    serena:   {speaker: serena,   lang: segment}
+    uncle_fu: {speaker: uncle_fu, lang: segment}
+    aiden:    {speaker: aiden,    lang: segment}
 
 # GA-shaped; echoed in session.created and validated exactly like a session.update.
 session_defaults:
@@ -83,16 +83,25 @@ turn:
   smart_turn: {enabled: true, model: models/smart-turn-v3.2-gpu.onnx, threshold: 0.5,
                max_silence_ms: 3000, window_s: 8, workers: 2, intra_op_threads: 2}
 
-# D17 (G7): the per-session echo canceller, WebRTC AEC3 through pywebrtc-audio, on its own CPU
-# executor. Its reference is our output on a model of AICC's playout: a 20 ms tick, playback
-# from 3 queued frames (60 ms), a re-buffer after more than 2 empty ticks; the reference leads
-# by 60 ms. A GCC-PHAT guard re-aligns it only when the residual delay leaves
-# [min_residual_delay_ms, max_residual_delay_ms], and learns AICC's tick phase.
-# asr_input: what the ASR transcribes (pending M0's double-talk ΔCER): processed | raw.
+# D17 (G7 dual path): per session, WebRTC AEC3 through pywebrtc-audio cleans what Silero and Smart
+# Turn hear, and asr_input names what the ASR transcribes: speex (a SpeexDSP linear canceller,
+# vendored in vendor/speexdsp-aec), aec3 (its suppressor drops quiet caller speech in double
+# talk: M0 S11) or raw. Both run on the canceller executor (workers threads, shared by sessions).
+# Their reference is our output on a model of AICC's playout: a 20 ms tick, playback from 3
+# queued frames (60 ms), a re-buffer after more than 2 empty ticks; the reference leads by 60 ms.
+# A GCC-PHAT estimator re-aligns AEC3's reference only when the residual delay leaves
+# [min_residual_delay_ms, max_residual_delay_ms], learns AICC's tick phase, and places Speex's
+# reference target_delay_ms ahead of the echo, moving it only when the echo leaves
+# [0, max_delay_ms]. Until its first estimate (~2.5 s into the first answer) the ASR hears the
+# input uncancelled. prefilter_hz: a low-pass on Speex's inputs (AICC's upsampling images);
+# preprocess: SpeexDSP's preprocessor after the filter (denoise, residual-echo suppression).
+# Measured (spikes/g7dual): double-talk dCER within M0's C2 limits with both on.
 aec:
   enabled: true
   engine: webrtc_aec3
-  asr_input: processed
+  asr_input: speex
+  speex: {filter_ms: 64, target_delay_ms: 20, max_delay_ms: 44, prefilter_hz: 3800,
+          preprocess: true}
   workers: 2
   client_tick_ms: 20
   client_prebuffer_ms: 60
@@ -152,7 +161,7 @@ providers:
     tool_interlude: merge
     unanswered_calls: pending
     pending_tool_output: '{"status": "pending", "note": "The result has not arrived yet."}'
-    max_in_flight: 8
+    max_in_flight: 4             # 3 calls (gateway.max_sessions), one response each, plus a warm-up
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000,
                warmup_ms: 600000}
@@ -160,7 +169,7 @@ providers:
     type: mlx_audio_transcription
     base_url: http://127.0.0.1:8102
     model: mlx-community/Qwen3-ASR-1.7B-8bit
-    max_in_flight: 4
+    max_in_flight: 3             # one turn per call
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 2000, total_ms: 10000,
                warmup_ms: 300000}
@@ -177,7 +186,6 @@ providers:
     warmup_texts: {zh: "您好，请问有什么可以帮您？", en: "Hello, how can I help you?"}
     primary:
       model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit
-      family: qwen3_tts
       lang_codes: {zh: chinese, en: english}
       streaming_interval: 0.16   # S3: 2 codec frames per chunk, first chunk ~76 ms uncapped
       # S3: max_tokens in proportion to the text, so a runaway stops early (not at 1200 frames):
@@ -187,16 +195,18 @@ providers:
       # top_p 1.0, repetition_penalty 1.05). Pending B2 (S3 quality guardrail).
       timeouts: {connect_ms: 500, first_item_ms: 1500, idle_ms: 1000, total_ms: 60000,
                  warmup_ms: 300000}
-    fallback:                    # D13 (owner review pending): Kokoro, for segments without Latin letters
+    # D13 (owner): a segment the primary fails before its first chunk is spoken by the 4-bit build
+    # of the same model, in the same speaker, Latin letters included; it is asked just like the
+    # primary. Its warmup speaks the default voice only (the primary's tries every voice).
+    fallback:
       enabled: true
-      latin_segments: false      # S3: Kokoro garbles English inside Chinese; such a segment fails
-      model: mlx-community/Kokoro-82M-bf16
-      family: kokoro             # voice packs from the pinned snapshot's voices/ (offline-safe)
-      lang_codes: {zh: z, en: a}
-      streaming_interval: 0.32
+      model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit
+      lang_codes: {zh: chinese, en: english}
+      streaming_interval: 0.16
+      token_cap: {base: 25, per_cjk: 6, per_other: 2}
       breaker_failures: 3        # consecutive primary failures that send every segment here
       cooldown_s: 30
-      timeouts: {connect_ms: 500, first_item_ms: 2000, idle_ms: 2000, total_ms: 60000,
+      timeouts: {connect_ms: 500, first_item_ms: 1500, idle_ms: 1000, total_ms: 60000,
                  warmup_ms: 300000}
 
 # The model processes `make dev` starts: uv run --locked --project <project> <command>
@@ -228,7 +238,7 @@ backends:
     port: 8103
     fetch:
       - {repo: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit, revision: 049ef77fe8816b536193c0c25f9a214d17921282}
-      - {repo: mlx-community/Kokoro-82M-bf16, revision: a71e4d38b236d968966a2002c4c895dbd12b1c3c}
+      - {repo: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit, revision: 08c72cad5e2fd0f41730c8bd1f28149585e46361}
     args: [--log-dir, /tmp/mlxrt-tts]
 
 observability:

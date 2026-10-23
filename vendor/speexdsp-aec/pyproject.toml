@@ -1,0 +1,36 @@
+[project]
+name = "speexdsp-aec"
+version = "0.1.0"
+description = "SpeexDSP 1.2.1's echo canceller (vendored BSD-3-Clause C sources) as a CPython extension, for mlx-realtime's ASR input path"
+authors = [
+    { name = "rason yang", email = "rason.yang@gmail.com" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = []
+license-files = ["speexdsp/COPYING"]
+
+[build-system]
+# Pinned exactly: the build environment is resolved anew for each build, outside uv.lock.
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+speexdsp_aec = ["py.typed", "*.pyi"]
+
+[tool.setuptools.exclude-package-data]
+speexdsp_aec = ["*.c"]
+
+[tool.uv]
+required-version = ">=0.13.5"
+# uv rebuilds this path dependency when any of these change (by default it watches only the
+# project metadata files).
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "setup.py" },
+    { file = "src/speexdsp_aec/*" },
+    { file = "include/*" },
+    { file = "speexdsp/**/*" },
+]

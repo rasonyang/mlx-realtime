@@ -9,10 +9,8 @@ uvicorn as the real server runs.
   server's preflight load: 404 for an unknown model), then a 200 ``audio/pcm`` response streams
   the speech as chunked s16le at 24 kHz: ``ms_per_char`` of tone per non-space input character,
   in chunks of ``max(1, int(streaming_interval × 12.5))`` codec frames of 80 ms, as Qwen3-TTS
-  streams; a Kokoro model sends everything in one chunk (it streams per sentence). A voice the
-  model cannot use fails inside generation, which on the real server cuts the chunked body
-  after the 200 status (M0 A1): a Qwen3-TTS speaker outside its list, or a Kokoro voice that is
-  not a ``.safetensors`` path.
+  streams (both its 8-bit and 4-bit builds). A speaker outside Qwen3-TTS's list fails inside
+  generation, which on the real server cuts the chunked body after the 200 status.
 - ``GET /v1/models`` lists the loaded models, as ``ModelProvider.get_available_models`` does.
 - Errors are FastAPI's ``{"detail": ...}``: 404 for an unknown model, 500 for a failed load.
 
@@ -175,7 +173,7 @@ class FakeMlxAudio:
     models: set[str] = field(
         default_factory=lambda: {
             "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit",
-            "mlx-community/Kokoro-82M-bf16",
+            "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit",
             "mlx-community/Qwen3-ASR-1.7B-8bit",
         }
     )
@@ -387,8 +385,6 @@ def _speech_chunks(
     else:
         times = np.arange(samples, dtype=np.float64) / SPEECH_RATE
         tone = (6000 * np.sin(2 * math.pi * 220 * times)).astype("<i2").tobytes()
-    if "kokoro" in str(body.get("model", "")).lower():
-        return deque([tone] if tone else [])
     interval = float(body.get("streaming_interval", 2.0))
     frames = max(1, int(interval * 12.5))
     size = frames * FRAME_MS * SPEECH_RATE // 1000 * 2
@@ -396,10 +392,7 @@ def _speech_chunks(
 
 
 def _voice_ok(body: dict[str, Any]) -> bool:
-    voice = str(body.get("voice") or "")
-    if "kokoro" in str(body.get("model", "")).lower():
-        return voice.endswith(".safetensors")
-    return voice.lower() in QWEN3_SPEAKERS
+    return str(body.get("voice") or "").lower() in QWEN3_SPEAKERS
 
 
 async def _disconnect(receive: Receive) -> None:

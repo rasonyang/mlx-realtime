@@ -1,13 +1,13 @@
 """The VAD feeder: one task per session that runs speech detection (ARCHITECTURE §4.2, §6.2).
 
-The actor hands it canonical audio as the client appends it. With the echo canceller on
-(ARCHITECTURE §4.3, D17), the audio first goes through it (``EchoStage``: 10 ms frames in lock
-step with their reference, on the canceller executor), and everything after sees the
-canceller's output. The feeder then cuts 512-sample frames, asks the speech detector for each
+The actor hands it canonical audio as the client appends it. With echo cancellation on
+(ARCHITECTURE §4.3, D17), the audio first goes through the cancellers (``EchoStage``: 10 ms
+frames in lock step with their reference, on the canceller executor), and everything after sees
+AEC3's output. The feeder then cuts 512-sample frames, asks the speech detector for each
 frame's probability (Silero, on its executor), runs the speech gate (with the client's modelled
 playback state for each frame: the barge-in rules), and posts one ``VadUpdate`` per processed
-chunk, carrying the canceller's output for the input buffer. Frames go to each model one at a
-time, in order, so per-session model state needs no locking.
+chunk, carrying both cancellers' output for the input buffer (AEC3's, and the ASR path's, G7).
+Frames go to each model one at a time, in order, so per-session model state needs no locking.
 
 Audio and reconfiguration share one FIFO queue, so a reset is ordered with the audio around
 it. Every update carries the epoch its audio was queued under; the actor ignores updates from
@@ -24,7 +24,7 @@ from dataclasses import dataclass
 
 from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, ms_to_samples, samples_to_ms
 from mlx_realtime.session.clock import Clock
-from mlx_realtime.session.echo import EchoReference, EchoStage
+from mlx_realtime.session.echo import EchoReference, EchoStage, Processed
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.signals import VadUpdate
 from mlx_realtime.session.turn import Framer
@@ -98,7 +98,9 @@ class VadFeeder:
                     case _Audio() as audio:
                         self._queued -= len(audio.pcm) // SAMPLE_WIDTH
                         if self._echo is None:
-                            await self._detect([(audio.start_sample, audio.pcm)], processed=False)
+                            await self._detect(
+                                [Processed(audio.start_sample, audio.pcm)], processed=False
+                            )
                         else:
                             await self._detect(await self._echo.feed(audio.start_sample, audio.pcm))
             if self._echo is not None:
@@ -119,14 +121,15 @@ class VadFeeder:
         except TimeoutError:
             pass
 
-    async def _detect(self, chunks: list[tuple[int, bytes]], *, processed: bool = True) -> None:
-        for start, pcm in chunks:
-            await self._detect_chunk(start, pcm, processed=processed)
+    async def _detect(self, chunks: list[Processed], *, processed: bool = True) -> None:
+        for chunk in chunks:
+            await self._detect_chunk(chunk, processed=processed)
 
-    async def _detect_chunk(self, start: int, pcm: bytes, *, processed: bool) -> None:
+    async def _detect_chunk(self, chunk: Processed, *, processed: bool) -> None:
         gate = self._gate
         if gate is None:
             return
+        start, pcm = chunk.start, chunk.pcm
         frames = self._framer.push(start, pcm)
         if not frames and not processed:
             return
@@ -156,6 +159,7 @@ class VadFeeder:
                 gate.keep_from_ms(),
                 processed_start=start if processed else 0,
                 processed=pcm if processed else b"",
+                processed_asr=(chunk.asr or b"") if processed else b"",
             )
         )
 

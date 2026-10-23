@@ -3,7 +3,7 @@
 > **Status: M7 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
 > (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
-> the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
+> the audio real: Qwen3-TTS streamed per segment (with a 4-bit fallback), paced at most 10 s ahead
 > of real time (D6), with configured voices (D19) and verbatim lines (D16). M4 made barge-in,
 > cancellation and truncation complete (§11.2, §11.3, §11.13): the D5 truncation fallback, and
 > echo cancellation in the service (D17) with its second line of defence, which gates the speech
@@ -12,6 +12,8 @@
 > shaped for the Qwen template (§11.5, §11.14). M6 added `/metrics` and the opt-in `/debug/turns`
 > (§1), and the multi-session TTS mitigations, which change only when audio deltas are sent (§11.8).
 > M7 added G.711: `audio/pcmu` and `audio/pcma` at 8 kHz, in either direction or both (§3, §11.15).
+> After M7 (G7 dual path, D13, capacity): the ASR transcribes a linear echo canceller's output
+> (§11.13), the TTS fallback is Qwen3-TTS's 4-bit build, and at most 3 sessions run at once.
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -46,7 +48,7 @@ Contents: [1 Transport](#1-transport) · [2 Client events](#2-client-events) ·
 | Frames | One JSON object per text frame. A binary frame or invalid JSON draws an `error` (`invalid_event`); the session stays open. |
 | Frame size | At most `limits.client_max_message_bytes` (16 MiB; GA allows 15 MiB of base64 per append). A larger frame closes the connection with 1009. |
 | First events | `session.created`, then `conversation.created`, before any client event is processed. |
-| Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions`: `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
+| Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions` (3, the Mac's capacity target): `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
 | `/healthz` | 200 while the event loop answers. No backend calls. |
 | `/readyz` | 200 once every backend has been warmed and reports ready, else 503; per-backend detail in the body: `llm`, `asr`, `tts`, and `vad` (the CPU detectors) when Silero runs. |
 | `/metrics` | Prometheus text format (0.0.4), always served and unauthenticated (ARCHITECTURE §9). Backend readiness is probed at each scrape. No label carries an id. |
@@ -200,7 +202,7 @@ session).
 | `response.created` | `ResponseCreatedEvent` | **Supported** | at once on `response.create`, or at a VAD commit with `create_response` (D7) |
 | `response.output_item.added` / `.done` | `ResponseOutputItemAddedEvent` / `ResponseOutputItemDoneEvent` | **Supported** | per output item; the message item is created lazily, on the first text delta |
 | `response.content_part.added` / `.done` | `ResponseContentPartAddedEvent` / `ResponseContentPartDoneEvent` | **Supported** | `part: {type: "audio", transcript}` or `{type: "text", text}` |
-| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 of the response's output format (`audio/pcm` 24 kHz whole samples, or G.711 8 kHz: 800 bytes per 100 ms), at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (Kokoro when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
+| `response.output_audio.delta` / `.done` | `ResponseAudioDeltaEvent` / `ResponseAudioDoneEvent` | **Supported** | base64 of the response's output format (`audio/pcm` 24 kHz whole samples, or G.711 8 kHz: 800 bytes per 100 ms), at most `output.max_delta_ms` (100 ms) per delta: Qwen3-TTS speech (from its 4-bit build, in the same voice, when the fallback speaks a segment), sent as soon as synthesized but at most `output.max_lead_ms` (10 s) ahead of real time (D6, §11.8) |
 | `response.output_audio_transcript.delta` / `.done` | `ResponseAudioTranscriptDeltaEvent` / `ResponseAudioTranscriptDoneEvent` | **Supported** | one delta per synthesized segment, sent just before the segment's first audio; `.done` carries the text whose deltas reached the client |
 | `response.output_text.delta` / `.done` | `ResponseTextDeltaEvent` / `ResponseTextDoneEvent` | **Supported** | text modality (D12): one delta per LLM delta; TTS is never opened |
 | `response.function_call_arguments.delta` / `.done` | `ResponseFunctionCallArgumentsDeltaEvent` / `ResponseFunctionCallArgumentsDoneEvent` | **Supported** | complete calls only, the arguments in one delta (§11.5); several calls per response, each its own item |
@@ -486,12 +488,13 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
     the Qwen3-TTS speakers `vivian`, `serena`, `uncle_fu`, `aiden`; `vivian` is the default;
     `ryan` is not offered since M5, because of the runaway defect M0 found). Each name says which
     Qwen3-TTS speaker speaks it (optionally a different speaker per segment language: by default
-    `vivian`'s English segments are spoken by `aiden`, as M0 S3 chose), how its lang_code is chosen
-    (each segment's zh/en tag, or a fixed code), and which Kokoro voice speaks it per language when
-    the fallback takes a segment. Any other name is accepted, spoken by the default voice, logged as a
-    warning, and `session.updated` and the response echo the effective name, never the one asked
-    for. Once the session has produced audio its voice is locked (GA); clients that set the voice
-    in their first `session.update` only, as AICC does, never meet the lock.
+    `vivian`'s English segments are spoken by `aiden`, as M0 S3 chose) and how its lang_code is
+    chosen (each segment's zh/en tag, or a fixed code). The fallback model has the same speakers
+    (D13), so a segment it takes is spoken in the same voice. Any other name is accepted, spoken by
+    the default voice, logged as a warning, and `session.updated` and the response echo the
+    effective name, never the one asked for. Once the session has produced audio its voice is
+    locked (GA); clients that set the voice in their first `session.update` only, as AICC does,
+    never meet the lock.
 11. **Verbatim lines (D16), a server extension invisible on the wire.** A `response.create` whose
     own `instructions` start with a configured direction (`lines.verbatim_prefixes`; by default
     AICC's "Say exactly this, word for word, and add nothing else:\n" and
@@ -515,26 +518,33 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
     it streams (at most 60 ms before its first voiced frame and 100 ms after its last; inner
     pauses kept; `output.trim_silence`): the client receives only the trimmed audio, and every
     count (transcript timing, truncation, D5, the echo reference) is of that audio. A segment the
-    primary TTS fails before its first audio is spoken by the fallback (Kokoro) only when it has
-    no Latin letters (D13: Kokoro garbles English inside Chinese); otherwise, and for any failure
-    after audio started, the response fails (`provider_error` / `backend_*`), so the voice never
-    switches mid-sentence.
+    primary TTS (Qwen3-TTS 0.6B 8-bit) fails before its first audio is spoken by the fallback, the
+    4-bit build of the same model, in the same voice and whatever its language (D13); a failure
+    after audio started fails the response (`provider_error` / `backend_*`), so no segment is
+    spoken partly by each model.
 13. **Echo (D17), invisible on the wire.** Neither AICC nor FreeSWITCH cancels echo, so the caller's
     audio carries our own speech back. The gateway handles it, configured in `config.yaml`'s `aec`
     and `barge_in` sections (`config.mock.yaml` turns the canceller off: its sine-tone TTS is no
     speech for the canceller):
-    - **Echo canceller.** Each session runs WebRTC AEC3 (pywebrtc-audio) on the 16 kHz input before
-      speech detection, Smart Turn and the input buffer; the ASR transcribes its output
-      (`aec.asr_input: processed`, or `raw`). Its reference is our own audio as the writer sent it,
-      placed on a model of AICC's playout (20 ms ticks, a 60 ms prebuffer, a re-buffer after more
-      than 2 empty ticks) 60 ms ahead of where it plays, re-aligned by a GCC-PHAT delay estimator
-      when the residual delay leaves [5, 450] ms, with AICC's tick phase learned from it. A
-      barge-in or `response.cancel` ends the modelled playback of what the client had not played;
-      a client truncate ends it at the truncated position and corrects the model's timing. On a
-      line where the estimator finds no echo of our playing audio (1.5 s of it), the canceller is
-      bypassed until echo shows up, because AEC3 would otherwise take a caller talking over us for
-      echo and silence them. While a response may still add audio, input waits about 70 ms for
-      its reference, so speech events during a response come that much later.
+    - **Echo cancellers (G7 dual path).** Each session runs WebRTC AEC3 (pywebrtc-audio) on the
+      16 kHz input before speech detection and Smart Turn. What the ASR transcribes is
+      `aec.asr_input`: `speex` (the default), the output of a SpeexDSP linear canceller run on the
+      same frames and of SpeexDSP's preprocessor (noise and residual-echo suppression), which
+      removes the echo but keeps a caller who talks over us; `aec3`, AEC3's output, whose
+      suppressor also removes quiet caller speech in long double talk; or `raw`. Speex's output is
+      band-limited to 3.8 kHz, and until its reference is aligned (about 2.5 s into the call's
+      first answer) the ASR hears the caller's audio as received, uncancelled. Both references are
+      our own audio as the writer sent it, placed on a model of AICC's playout (20 ms ticks, a
+      60 ms prebuffer, a re-buffer after more than 2 empty ticks) 60 ms ahead of where it plays. A
+      GCC-PHAT delay estimator re-aligns AEC3's reference when the residual delay leaves
+      [5, 450] ms, places Speex's 20 ms ahead of the echo (again when it leaves [0, 44] ms), and
+      learns AICC's tick phase. A barge-in or `response.cancel` ends the modelled playback of what
+      the client had not played; a client truncate ends it at the truncated position and corrects
+      the model's timing (Speex's reference stays where the echo was measured). On a line where
+      the estimator finds no echo of our playing audio (1.5 s of it), AEC3 is bypassed until echo
+      shows up, because it would otherwise take a caller talking over us for echo and silence them
+      (Speex, a linear filter, needs no bypass). While a response may still add audio, input waits
+      about 70 ms for its reference, so speech events during a response come that much later.
     - **Speech events while the client is modelled as playing** (from the first frame of a
       response's audio to its last, or a flush, plus 450 ms of echo tail): speech must last
       `barge_in.min_speech_ms_while_playing` (400) before `speech_started`, and an onset in the

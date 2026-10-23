@@ -1,16 +1,14 @@
 """``FallbackTTS``: a primary TTS provider with a fallback, per segment (ARCHITECTURE §5.2, D13).
 
 - The primary fails before its first chunk of a segment: the segment is retried on the
-  fallback, which maps the session voice to its own voice for the segment's language.
-- The primary fails after its audio started: the segment fails. The voice never switches in
-  the middle of a sentence.
+  fallback, whatever its language. The fallback is a build of the primary's model (D13), so it
+  speaks the session voice with the same speaker.
+- The primary fails after its audio started: the segment fails. A segment is never spoken
+  partly by each model.
 - ``overloaded`` is raised as is: both models run on the same backend, whose queue is full.
 - After ``failures`` consecutive primary failures the circuit opens: for ``cooldown_s`` every
   segment goes straight to the fallback. The first segment after the cooldown tries the
   primary again; one more failure reopens the circuit.
-- Unless ``latin_segments`` is on, the fallback never speaks a segment with Latin letters (D13,
-  M0 S3: Kokoro garbles English inside Chinese). Such a segment always goes to the primary,
-  circuit open or not, and a primary failure fails it.
 
 Cancellation and ``aclose`` pass through to whichever stream is running.
 """
@@ -18,7 +16,6 @@ Cancellation and ``aclose`` pass through to whichever stream is running.
 from __future__ import annotations
 
 import logging
-import re
 import time
 from collections.abc import AsyncGenerator, Callable
 from contextlib import aclosing
@@ -34,14 +31,6 @@ from mlx_realtime.providers.base import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-_LATIN = re.compile(r"[A-Za-z\uff21-\uff3a\uff41-\uff5a]")
-
-
-def has_latin(text: str) -> bool:
-    """Whether ``text`` has a Latin letter (ASCII or full-width)."""
-    return _LATIN.search(text) is not None
 
 
 class CircuitBreaker:
@@ -82,13 +71,11 @@ class FallbackTTS:
         *,
         failures: int,
         cooldown_s: float,
-        latin_segments: bool = False,
         now: Callable[[], float] = time.monotonic,
     ) -> None:
         self.primary = primary
         self.fallback = fallback
         self.breaker = CircuitBreaker(failures, cooldown_s, now=now)
-        self.latin_segments = latin_segments
 
     async def stream(
         self,
@@ -100,8 +87,7 @@ class FallbackTTS:
         timing: SpeechTiming | None = None,
     ) -> AsyncGenerator[PCMChunk]:
         timing = timing or SpeechTiming()
-        fallback_may_speak = self.latin_segments or not has_latin(text)
-        if not self.breaker.open or not fallback_may_speak:
+        if not self.breaker.open:
             started = False
             try:
                 primary = self.primary.stream(text, voice, lang, speed=speed, timing=timing)
@@ -114,13 +100,6 @@ class FallbackTTS:
                     raise
                 self.breaker.failure()
                 if started:
-                    raise
-                if not fallback_may_speak:
-                    logger.warning(
-                        "primary tts failed on a segment with Latin letters; the fallback "
-                        "does not speak those (D13), so the segment fails",
-                        extra={"error": str(error), "kind": error.kind},
-                    )
                     raise
                 logger.warning(
                     "primary tts failed before its first chunk; the fallback speaks the segment",
@@ -141,6 +120,7 @@ class FallbackTTS:
         return max(queue_depth(self.primary), queue_depth(self.fallback))
 
     async def warmup(self) -> None:
+        """The primary, then the fallback: ``ready`` needs both models loaded."""
         await self.primary.warmup()
         await self.fallback.warmup()
 

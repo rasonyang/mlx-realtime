@@ -1,6 +1,7 @@
-"""``MlxAudioTTS`` against a fake mlx_audio.server: the request per model (Qwen3-TTS speakers,
-Kokoro voice packs, lang codes), the streamed PCM, deadlines, errors, cancellation at each await
-point, the in-flight limit and its queue wait, readiness and warmup."""
+"""``MlxAudioTTS`` against a fake mlx_audio.server: the request (the voice's speaker and the
+segment's lang code, the same on the primary and the fallback), the streamed PCM, deadlines,
+errors, cancellation at each await point, the in-flight limit and its queue wait, readiness and
+warmup."""
 
 from __future__ import annotations
 
@@ -9,15 +10,20 @@ import json
 import socket
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import aclosing
-from pathlib import Path
 
 import httpx2
 import pytest
 
 from mlx_realtime.config import MlxAudioSpeechConfig, TokenCapConfig, VoicesConfig
-from mlx_realtime.providers.base import PCMChunk, ProviderError, ProviderTimeout, SpeechTiming
+from mlx_realtime.providers.base import (
+    Lang,
+    PCMChunk,
+    ProviderError,
+    ProviderTimeout,
+    SpeechTiming,
+)
 from mlx_realtime.providers.fallback import FallbackTTS
-from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS, SpeechServer, token_cap
+from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS, Role, SpeechServer, token_cap
 from mlx_realtime.providers.registry import build_speech
 from mlx_realtime.providers.voices import VoiceBook
 from tests.fakes.mlx_audio import (
@@ -35,7 +41,7 @@ from tests.fakes.mlx_audio import (
 )
 
 QWEN = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
-KOKORO = "mlx-community/Kokoro-82M-bf16"
+QWEN_4BIT = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
 TEXT = "您好，欢迎致电客服中心，请问有什么可以帮您？"
 AUDIO = 22 * 2880  # 22 characters at the fake's 60 ms each, 24 kHz s16le
 CHUNK = 15360  # 0.32 s at 24 kHz: four 80 ms codec frames
@@ -49,22 +55,11 @@ async def fake() -> AsyncIterator[tuple[FakeMlxAudio, str]]:
         yield server, url
 
 
-@pytest.fixture
-def packs(tmp_path: Path) -> Path:
-    """A Kokoro snapshot with the voice packs of the built-in voice map."""
-    voices = tmp_path / "voices"
-    voices.mkdir()
-    for voice in VoicesConfig().map.values():
-        for name in voice.fallback.values():
-            (voices / f"{name}.safetensors").write_bytes(b"pack")
-    return tmp_path
-
-
 def speech_config(base_url: str, **overrides: object) -> MlxAudioSpeechConfig:
     raw: dict[str, object] = {"type": "mlx_audio_speech", "base_url": base_url}
     # 0.32 s chunks (the stream tests count CHUNK); the defaults are tested on their own
     raw["primary"] = {"model": QWEN, "timeouts": FAST, "streaming_interval": 0.32}
-    raw["fallback"] = {"model": KOKORO, "family": "kokoro", "timeouts": FAST}
+    raw["fallback"] = {"model": QWEN_4BIT, "timeouts": FAST}
     raw.update(overrides)
     return MlxAudioSpeechConfig.model_validate(raw)
 
@@ -74,28 +69,18 @@ def primary(
     *,
     voices: VoicesConfig | None = None,
     transport: httpx2.AsyncBaseTransport | None = None,
+    role: Role = "primary",
     **overrides: object,
 ) -> MlxAudioTTS:
+    """The primary model's provider (or, with ``role``, the fallback's)."""
     config = speech_config(base_url, **overrides)
     server = SpeechServer(config, transport=transport)
     return MlxAudioTTS(
         server,
-        config.primary,
+        config.primary if role == "primary" else config.fallback,
         VoiceBook(voices or VoicesConfig()),
-        role="primary",
+        role=role,
         warmup_texts=config.warmup_texts,
-    )
-
-
-def kokoro(base_url: str, packs: Path | None) -> MlxAudioTTS:
-    config = speech_config(base_url)
-    return MlxAudioTTS(
-        SpeechServer(config),
-        config.fallback,
-        VoiceBook(VoicesConfig()),
-        role="fallback",
-        warmup_texts=config.warmup_texts,
-        voices_dir=None if packs is None else packs / "voices",
     )
 
 
@@ -126,8 +111,8 @@ async def test_qwen3_requests_name_the_speaker_and_the_segment_language(
         "max_tokens": token_cap(TEXT, TokenCapConfig(), None),  # S3: in proportion to the text
     }  # no sampling fields: the model's generation_config.json decides
     assert (english["voice"], english["lang_code"]) == ("aiden", "english")
-    # the default voice, vivian, hands English segments to aiden (S3)
-    assert (unknown_en["voice"], unknown_en["lang_code"]) == ("aiden", "english")
+    # the default voice, vivian, reads English herself (one voice per session)
+    assert (unknown_en["voice"], unknown_en["lang_code"]) == ("vivian", "english")
     assert (unknown_zh["voice"], unknown_zh["lang_code"]) == ("vivian", "chinese")
 
 
@@ -167,36 +152,56 @@ async def test_sampling_fields_and_a_fixed_lang_code_when_configured(
     assert {key: body[key] for key in sampling} == sampling
 
 
-async def test_kokoro_requests_send_the_voice_pack_path_and_its_lang_code(
-    fake: tuple[FakeMlxAudio, str], packs: Path
+async def test_the_fallback_is_asked_exactly_like_the_primary(
+    fake: tuple[FakeMlxAudio, str],
 ) -> None:
+    """D13 final: the 4-bit fallback has the primary's speakers, so each segment, mixed zh/en
+    included, goes to it as it goes to the primary (speaker, lang_code, chunk size, token cap);
+    only the model differs."""
     server, url = fake
-    tts = kokoro(url, packs)
-    timing = SpeechTiming()
-    chunks = await collect(tts.stream(TEXT, "vivian", "zh", timing=timing))
-    await collect(tts.stream("Hello.", "aiden", "en"))
-    await tts.aclose()
-    chinese, english = (speech.body for speech in server.speeches)
-    assert chinese["voice"] == str(packs / "voices" / "zf_xiaobei.safetensors")
-    assert chinese["lang_code"] == "z"
-    assert "max_tokens" not in chinese  # the token cap is Qwen3-TTS's
-    assert english["voice"] == str(packs / "voices" / "am_puck.safetensors")
-    assert english["lang_code"] == "a"
-    assert sum(len(chunk.pcm) for chunk in chunks) == AUDIO  # Kokoro: one chunk
-    assert (timing.model, timing.fallback) == (KOKORO, True)
-
-
-async def test_a_missing_voice_pack_fails_before_any_request(
-    fake: tuple[FakeMlxAudio, str], packs: Path
-) -> None:
-    server, url = fake
-    (packs / "voices" / "zf_xiaobei.safetensors").unlink()
-    for tts in (kokoro(url, packs), kokoro(url, None)):
-        with pytest.raises(ProviderError) as failed:
-            await collect(tts.stream(TEXT, "vivian", "zh"))
-        assert failed.value.kind == "unavailable"
+    voices = VoicesConfig.model_validate(
+        {
+            "default": "vivian",
+            "map": {
+                "vivian": {"speaker": "vivian", "speakers": {"en": "aiden"}},
+                "fixed": {"speaker": "serena", "lang": "auto"},
+            },
+        }
+    )
+    segments: list[tuple[str, str, Lang]] = [
+        (TEXT, "vivian", "zh"),
+        ("Hello there.", "vivian", "en"),
+        ("请登录 App 查看订单。", "vivian", "zh"),
+        ("Hello there.", "fixed", "en"),
+        (TEXT, "flow-voice", "zh"),  # not configured: the default
+    ]
+    defaults = {"model": QWEN, "timeouts": FAST}  # 0.16 s chunks on both models
+    roles: tuple[Role, ...] = ("primary", "fallback")
+    timings: list[SpeechTiming] = []
+    for role in roles:
+        tts = primary(url, voices=voices, role=role, primary=defaults)
+        for text, voice, lang in segments:
+            timings.append(SpeechTiming())
+            chunks = await collect(tts.stream(text, voice, lang, timing=timings[-1]))
+            assert len(chunks) > 1  # streamed, both models alike
         await tts.aclose()
-    assert server.speeches == []
+    asked = [speech.body for speech in server.speeches]
+    first, second = asked[: len(segments)], asked[len(segments) :]
+    assert [body["model"] for body in first] == [QWEN] * len(segments)
+    assert [{**body, "model": QWEN} for body in second] == first
+    assert [(body["voice"], body["lang_code"]) for body in second] == [
+        ("vivian", "chinese"),
+        ("aiden", "english"),  # vivian's English is aiden's (S3), on the fallback too
+        ("vivian", "chinese"),
+        ("serena", "auto"),  # a fixed lang_code is the fallback's too
+        ("vivian", "chinese"),
+    ]
+    assert second[2]["input"] == "请登录 App 查看订单。"  # Latin letters are no reason to fail
+    assert second[2]["max_tokens"] == token_cap("请登录 App 查看订单。", TokenCapConfig(), None)
+    assert {body["streaming_interval"] for body in second} == {0.16}
+    assert [(timing.model, timing.fallback) for timing in timings] == [(QWEN, False)] * len(
+        segments
+    ) + [(QWEN_4BIT, True)] * len(segments)
 
 
 async def test_the_stream_is_the_servers_pcm_in_whole_samples(
@@ -450,30 +455,38 @@ async def test_cancellation_while_waiting_for_a_slot(fake: tuple[FakeMlxAudio, s
     await tts.aclose()
 
 
-async def test_warmup_speaks_every_voice_in_both_languages_on_every_model(
-    fake: tuple[FakeMlxAudio, str], packs: Path
+async def test_warmup_loads_both_models_and_tries_every_voice_on_the_primary(
+    fake: tuple[FakeMlxAudio, str],
 ) -> None:
+    """The primary speaks every configured voice in both languages, so a speaker it lacks fails
+    the warmup. The fallback has the same speakers (D13), so the default voice in both languages
+    is enough to load it. Readiness needs both models loaded."""
     server, url = fake
-    tts = build_speech(speech_config(url), VoiceBook(VoicesConfig()), snapshots=lambda repo: packs)
+    tts = build_speech(speech_config(url), VoiceBook(VoicesConfig()))
     assert isinstance(tts, FallbackTTS)
     assert not (await tts.ready()).ready  # nothing loaded yet
-    await tts.warmup()
+    await tts.primary.warmup()
+    state = await tts.ready()
+    assert not state.ready
+    assert state.detail == "primary: ok; fallback: fallback model not loaded"
+    await tts.fallback.warmup()
     requests = [
         (speech.body["model"], speech.body["voice"], speech.body["input"])
         for speech in server.speeches
     ]
-    qwen = {(voice, text) for model, voice, text in requests if model == QWEN}
     zh, en = "您好，请问有什么可以帮您？", "Hello, how can I help you?"
-    # vivian's English is aiden's (S3), so each speaker and language is warmed once
-    assert qwen == {
+    # each speaker and language is warmed once
+    assert {(voice, text) for model, voice, text in requests if model == QWEN} == {
+        (speaker, text)
+        for speaker in ("vivian", "serena", "uncle_fu", "aiden")
+        for text in (zh, en)
+    }
+    # the default voice, vivian, in both languages: 2 requests, not another 7
+    assert [(voice, text) for model, voice, text in requests if model == QWEN_4BIT] == [
         ("vivian", zh),
-        *((speaker, text) for speaker in ("serena", "uncle_fu", "aiden") for text in (zh, en)),
-    }
-    kokoro_voices = {Path(voice).stem for model, voice, _ in requests if model == KOKORO}
-    assert kokoro_voices == {
-        name for voice in VoicesConfig().map.values() for name in voice.fallback.values()
-    }
-    assert len(requests) == len(set(requests)) == 7 + 8
+        ("vivian", en),
+    ]
+    assert len(requests) == len(set(requests)) == 8 + 2
     state = await tts.ready()
     assert state.ready, state.detail
     await tts.aclose()
@@ -481,9 +494,7 @@ async def test_warmup_speaks_every_voice_in_both_languages_on_every_model(
 
 async def test_a_failed_warmup_request_fails_the_warmup(fake: tuple[FakeMlxAudio, str]) -> None:
     server, url = fake
-    voices = VoicesConfig.model_validate(
-        {"default": "bad", "map": {"bad": {"speaker": "nobody", "fallback": {}}}}
-    )
+    voices = VoicesConfig.model_validate({"default": "bad", "map": {"bad": {"speaker": "nobody"}}})
     tts = primary(url, voices=voices)
     with pytest.raises(ProviderError):
         await tts.warmup()
@@ -498,8 +509,8 @@ async def test_readiness_of_a_backend_that_is_down() -> None:
     await tts.aclose()
 
 
-def test_the_fallback_can_be_switched_off(packs: Path) -> None:
-    config = speech_config("http://tts.invalid", fallback={"model": KOKORO, "enabled": False})
+def test_the_fallback_can_be_switched_off() -> None:
+    config = speech_config("http://tts.invalid", fallback={"model": QWEN_4BIT, "enabled": False})
     tts = build_speech(config, VoiceBook(VoicesConfig()))
     assert isinstance(tts, MlxAudioTTS)
     assert tts.model == QWEN

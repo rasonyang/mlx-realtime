@@ -16,12 +16,11 @@ def test_the_builtin_voices_are_qwen3_speakers_without_the_dialect_ones() -> Non
     assert not {"dylan", "eric"} & set(book.names())  # dialects with chinese/auto
     assert "ryan" not in book  # S3: the runaway defect follows it
     vivian = book.voice("vivian")
-    assert (vivian.speaker_for("zh"), vivian.speaker_for("en")) == ("vivian", "aiden")  # S3
+    # one voice per session
+    assert (vivian.speaker_for("zh"), vivian.speaker_for("en")) == ("vivian", "vivian")
     for voice in book.voices():
         assert voice.speaker == voice.name
         assert voice.lang == SEGMENT_LANG
-        assert voice.fallback["zh"].startswith("z")  # a Mandarin Kokoro voice
-        assert voice.fallback["en"].startswith("a")  # an American English one
 
 
 def test_unknown_names_resolve_to_the_default() -> None:
@@ -48,8 +47,8 @@ def test_unknown_names_resolve_to_the_default() -> None:
         ({"voices": {"default": "x", "map": {}}}, "voices", "at least one voice"),
         ({"voices": {"map": {"vivian": {"speaker": ""}}}}, "voices.map.vivian.speaker", ""),
         (
-            {"voices": {"map": {"vivian": {"speaker": "v", "fallback": {"fr": "x"}}}}},
-            "fallback",
+            {"voices": {"map": {"vivian": {"speaker": "v", "speakers": {"fr": "x"}}}}},
+            "voices.map.vivian.speakers",
             "",
         ),
     ],
@@ -62,13 +61,12 @@ def test_invalid_voice_maps_name_the_problem(
     assert message in str(failed.value)
 
 
-def test_kokoro_fallback_voices_are_required_while_the_fallback_is_on() -> None:
-    voices = {"default": "a", "map": {"a": {"speaker": "vivian", "fallback": {"zh": "zf_xiaobei"}}}}
-    with pytest.raises(ConfigError, match=r"voices\.map\.a\.fallback needs a Kokoro voice for en"):
-        validate_config({"voices": voices, "providers": {"tts": {"type": "mlx_audio_speech"}}})
-    off = {
-        "type": "mlx_audio_speech",
-        "fallback": {"model": "k", "family": "kokoro", "enabled": False},
-    }
-    validate_config({"voices": voices, "providers": {"tts": off}})
-    validate_config({"voices": voices})  # the mock TTS needs none
+def test_a_voice_names_only_its_speaker_whichever_model_speaks() -> None:
+    """D13 final: the fallback has the primary's speakers, so a voice names no voice of its own
+    for it; a map that still gives one (Kokoro's, per language) is rejected at its path."""
+    speech = {"tts": {"type": "mlx_audio_speech"}}  # the fallback is on by default
+    voices = {"default": "a", "map": {"a": {"speaker": "serena"}}}
+    validate_config({"voices": voices, "providers": speech})
+    kokoro = {"speaker": "serena", "fallback": {"zh": "zf_xiaoxiao", "en": "af_bella"}}
+    with pytest.raises(ConfigError, match=r"voices\.map\.a\.fallback: Extra inputs"):
+        validate_config({"voices": {"default": "a", "map": {"a": kokoro}}, "providers": speech})

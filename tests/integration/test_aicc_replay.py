@@ -1,7 +1,7 @@
 """Replay of AICC's real client frames (spikes/aicc/traces, ARCHITECTURE §2, §11), on the real TTS
-path: the TTS provider (Qwen3-TTS primary, Kokoro fallback) against a fake mlx_audio.server that
-streams at the pace M0 measured (S3, streaming_interval 0.16 since M5: first chunk after about
-80 ms, a 160 ms chunk every 50 ms; M3 ran 0.32 s chunks every 90 ms).
+path: the TTS provider (Qwen3-TTS, with its 4-bit build as the fallback) against a fake
+mlx_audio.server that streams at the pace M0 measured (S3, streaming_interval 0.16 since M5:
+first chunk after about 80 ms, a 160 ms chunk every 50 ms; M3 ran 0.32 s chunks every 90 ms).
 
 Frames are sent exactly as captured, except that ids minted by AICC's fake server (``item-1``,
 ``call-7``, ``fc_1``, ``answer-item``, ...) are replaced by the ids this server minted for the
@@ -103,7 +103,6 @@ class Session:
 
 @asynccontextmanager
 async def aicc_session(
-    packs: Path,
     *,
     silero: bool = False,
     provider: LLMBackend | None = None,
@@ -121,7 +120,7 @@ async def aicc_session(
         providers = Providers(
             llm=provider or llm,
             asr=ScriptedASR(["喂？"]),
-            tts=build_speech(speech, VoiceBook(VoicesConfig()), snapshots=lambda repo: packs),
+            tts=build_speech(speech, VoiceBook(VoicesConfig())),
         )
         if silero:
             config = validate_config({"turn": {"vad": {"type": "silero", "model": str(SILERO)}}})
@@ -131,7 +130,8 @@ async def aicc_session(
                 validate_config({}), providers, speech_detector=lambda: ScriptedSpeech([])
             )
         async with running(gateway) as address:
-            # Warm (every voice, both models) at full speed; then the pace M0 measured.
+            # Warm (every voice on the primary, the default one on the fallback) at full
+            # speed; then the pace M0 measured.
             tts.first_chunk_s, tts.chunk_s = 0.08, 0.05
             async with Client.connect(address, model="gpt-realtime") as client:
                 await client.until("conversation.created")
@@ -167,17 +167,6 @@ def check_audio_format(events: list[Event], codec: Codec) -> None:
         updates = [event["session"] for event in events if event["type"] == "session.updated"]
         assert updates[0]["audio"]["input"]["format"] == expected
         assert updates[0]["audio"]["output"]["format"] == expected
-
-
-@pytest.fixture
-def packs(tmp_path: Path) -> Path:
-    """Kokoro's voice packs for the built-in voices (the fallback's warmup asks for each)."""
-    voices = tmp_path / "voices"
-    voices.mkdir()
-    for voice in VoicesConfig().map.values():
-        for name in voice.fallback.values():
-            (voices / f"{name}.safetensors").write_bytes(b"pack")
-    return tmp_path
 
 
 async def updated(client: Client, frame: Event) -> Event:
@@ -219,11 +208,11 @@ def line_of(frame: Event) -> str:
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_call_gateway(packs: Path, codec: Codec) -> None:
+async def test_call_gateway(codec: Codec) -> None:
     update, opening, audio, truncate, closing, keypress, create, tool_result, create_again, line = (
         frames("call_gateway", codec)
     )
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client, llm = session.client, session.llm
         updated_session = await updated(client, update)
         assert updated_session["audio"]["input"]["turn_detection"]["silence_duration_ms"] == 500
@@ -254,9 +243,9 @@ async def test_call_gateway(packs: Path, codec: Codec) -> None:
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_opening_with_a_flow_voice(packs: Path, codec: Codec) -> None:
+async def test_opening_with_a_flow_voice(codec: Codec) -> None:
     update, opening = frames("opening_gateway_with_voice", codec)
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client = session.client
         assert update["session"]["audio"]["output"]["voice"] == "flow-voice"
         accepted = await updated(client, update)  # never rejected (D19)...
@@ -266,15 +255,15 @@ async def test_opening_with_a_flow_voice(packs: Path, codec: Codec) -> None:
         assert spoken(response) == line_of(opening) == "Good morning, NovaNet support."
         assert session.llm.requests == []  # the opening line is spoken verbatim (D16)
         bodies = [speech.body for speech in session.tts.speeches if speech.body["input"] != ""]
-        assert bodies[-1]["voice"] == "aiden"  # vivian's speaker for English segments (S3)
+        assert bodies[-1]["voice"] == "vivian"  # one voice per session
         assert bodies[-1]["model"] == QWEN
         assert bodies[-1]["input"] == "Good morning, NovaNet support."
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_wait_line_during_a_tool_call(packs: Path, codec: Codec) -> None:
+async def test_wait_line_during_a_tool_call(codec: Codec) -> None:
     update, opening, line, tool_result, delete, owed = frames("waitline_gateway", codec)
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client, llm = session.client, session.llm
         await updated(client, update)
         llm.script(LOOKUP, LLMDone("tool_calls", None))
@@ -301,11 +290,11 @@ async def test_wait_line_during_a_tool_call(packs: Path, codec: Codec) -> None:
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_unheard_answer_then_keypress(packs: Path, codec: Codec) -> None:
+async def test_unheard_answer_then_keypress(codec: Codec) -> None:
     update, opening, tool_result, create, delete, note, cancel, truncate, keypress, owed = frames(
         "unheard_keypress_gateway", codec
     )
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client, llm = session.client, session.llm
         await updated(client, update)
         llm.script(LOOKUP, LLMDone("tool_calls", None))
@@ -340,7 +329,7 @@ def offered_tools(request: Event) -> list[str]:
     return [tool["function"]["name"] for tool in request.get("tools", [])]
 
 
-async def test_call_gateway_through_the_llm_provider(packs: Path) -> None:
+async def test_call_gateway_through_the_llm_provider() -> None:
     """M5: the call_gateway trace with the real LLM provider on a fake mlx_lm.server that streams
     the call the way the real one does (the newline before ``<tool_call>`` in the call's chunk,
     the server's own call id). The request offers the session's tools; the result, with AICC's
@@ -352,7 +341,7 @@ async def test_call_gateway_through_the_llm_provider(packs: Path) -> None:
     with fake.serving() as url:
         config = MlxLmChatConfig.model_validate({"type": "mlx_lm_chat", "base_url": url})
         provider = MlxLmChatLLM(config)
-        async with aicc_session(packs, provider=provider) as session:
+        async with aicc_session(provider=provider) as session:
             fake.requests.clear()  # the warmup's
             fake.script(*reply("Hello, NovaNet support."))
             fake.script(
@@ -407,7 +396,7 @@ async def test_call_gateway_through_the_llm_provider(packs: Path) -> None:
     render(messages, fake.requests[-1]["tools"])
 
 
-async def test_wait_line_through_the_llm_provider(packs: Path) -> None:
+async def test_wait_line_through_the_llm_provider() -> None:
     """M5: AICC's wait line spoken between the call and its output. The owed request replays
     the call with the line merged into its message, and the result right after it."""
     update, opening, line, tool_result, _delete, owed = frames("waitline_gateway")
@@ -415,7 +404,7 @@ async def test_wait_line_through_the_llm_provider(packs: Path) -> None:
     with fake.serving() as url:
         config = MlxLmChatConfig.model_validate({"type": "mlx_lm_chat", "base_url": url})
         provider = MlxLmChatLLM(config)
-        async with aicc_session(packs, provider=provider) as session:
+        async with aicc_session(provider=provider) as session:
             fake.requests.clear()  # the warmup's
             fake.script(
                 Calls([tool_call("lookup_balance", {"accountId": "42"}, "7a2d-uuid")]),
@@ -450,9 +439,9 @@ async def test_wait_line_through_the_llm_provider(packs: Path) -> None:
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_dropped_line_retry(packs: Path, codec: Codec) -> None:
+async def test_dropped_line_retry(codec: Codec) -> None:
     update, opening, line, direction, retry = frames("dropped_line_retry_gateway", codec)
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client = session.client
         await updated(client, update)
         await respond(client, opening)
@@ -463,12 +452,10 @@ async def test_dropped_line_retry(packs: Path, codec: Codec) -> None:
         assert len(session.llm.requests) == 1  # only the opening asked the LLM
 
 
-async def test_a_reply_text_streamed_over_several_segments_meets_the_deadlines(
-    packs: Path,
-) -> None:
+async def test_a_reply_text_streamed_over_several_segments_meets_the_deadlines() -> None:
     """A long LLM answer: one TTS request per segment, back to back; no gap reaches 2 s."""
     update, *_ = frames("call_gateway")
-    async with aicc_session(packs) as session:
+    async with aicc_session() as session:
         client, llm = session.client, session.llm
         await updated(client, update)
         sentences = [
@@ -503,12 +490,12 @@ TERMINAL = {
 
 @needs_models
 @pytest.mark.parametrize("codec", CODECS)
-async def test_barge_in_over_a_long_line(packs: Path, codec: Codec) -> None:
+async def test_barge_in_over_a_long_line(codec: Codec) -> None:
     """The caller talks over a long line: ``speech_started``, then ``response.done{cancelled}``
     in the same step; AICC's truncate (its played frames) is accepted; the caller's turn is
     answered after ``speech_stopped``."""
     update, *_ = frames("call_gateway", codec)
-    async with aicc_session(packs, silero=True, codec=codec) as session:
+    async with aicc_session(silero=True, codec=codec) as session:
         client = session.client
         await updated(client, update)
         session.tts.voice = to_wire(clip(EN))  # the line is speech (a tone fools the canceller)
@@ -544,13 +531,13 @@ async def test_barge_in_over_a_long_line(packs: Path, codec: Codec) -> None:
 
 @needs_models
 @pytest.mark.parametrize("codec", CODECS)
-async def test_speech_over_the_tail_of_a_finished_line(packs: Path, codec: Codec) -> None:
+async def test_speech_over_the_tail_of_a_finished_line(codec: Codec) -> None:
     """AICC's most common barge-in: the line was all sent (its response done), AICC is still
     playing it, and the caller talks. There is no response to cancel: ``speech_started``, AICC
     flushes and truncates (accepted, and the client model stops playing it), and the caller's
     turn is answered."""
     update, *_ = frames("call_gateway", codec)
-    async with aicc_session(packs, silero=True, codec=codec) as session:
+    async with aicc_session(silero=True, codec=codec) as session:
         client = session.client
         await updated(client, update)
         session.tts.voice = to_wire(clip(EN))
@@ -582,14 +569,12 @@ async def test_speech_over_the_tail_of_a_finished_line(packs: Path, codec: Codec
 
 
 @pytest.mark.parametrize("codec", CODECS)
-async def test_keypress_cancels_an_unheard_answer_truncates_and_deletes_it(
-    packs: Path, codec: Codec
-) -> None:
+async def test_keypress_cancels_an_unheard_answer_truncates_and_deletes_it(codec: Codec) -> None:
     """AICC's keypress over an answer nobody heard yet: ``response.cancel``, a truncate to 0,
     the delete of the unheard item once its response is done, the keypress note and the owed
     reply. No ``error`` at any step."""
     update, *_, keypress, owed = frames("unheard_keypress_gateway", codec)
-    async with aicc_session(packs, codec=codec) as session:
+    async with aicc_session(codec=codec) as session:
         client = session.client
         await updated(client, update)
         gate = Gate()

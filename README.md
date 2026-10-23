@@ -6,15 +6,17 @@ WebSocket at `/v1/realtime`. Inside, it is a cascade: VAD → turn detection →
 Chinese, English and code-switched speech. The official `openai` Python SDK connects by changing only
 `base_url`.
 
-**Status: milestone M6.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
-transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by Qwen3-TTS, streamed per
-sentence with Kokoro as the fallback (`mlx_audio.server`). Audio goes out paced, at most 10 s ahead
-of real time. The caller can interrupt (barge-in, cancellation and truncation are deterministic),
-and the service cancels the echo of its own speech on telephone calls (WebRTC AEC3, referenced to
-a model of the client's playout). The LLM calls tools (M5). Every stage of a turn is measured
-(`/metrics`), the benchmark in `bench/` reports per-stage latency and ASR accuracy
-([`docs/LATENCY.md`](docs/LATENCY.md)), and concurrent sessions share the TTS fairly (M6). See
-[`docs/PROGRESS.md`](docs/PROGRESS.md).
+**Status: milestone M7 and the G7 dual path.** A full spoken turn: speech is detected with Silero
+VAD and Smart Turn, transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by
+Qwen3-TTS, streamed per sentence, with a 4-bit build of the same model and voices as the fallback
+(`mlx_audio.server`). Audio goes out paced, at most 10 s ahead of real time. The caller can
+interrupt (barge-in, cancellation and truncation are deterministic), and the service cancels the
+echo of its own speech on telephone calls, referenced to a model of the client's playout: WebRTC
+AEC3 for speech detection, and a linear SpeexDSP canceller (vendored, built by uv) for the ASR,
+which keeps a caller who talks over the bot intelligible. The LLM calls tools (M5). Every stage of a
+turn is measured (`/metrics`), the benchmark in `bench/` reports per-stage latency and ASR accuracy
+([`docs/LATENCY.md`](docs/LATENCY.md)), concurrent sessions share the TTS fairly (M6), and G.711
+telephony works end to end (M7). See [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 | Document | What it holds |
 |---|---|
@@ -30,6 +32,12 @@ a model of the client's playout). The LLM calls tools (M5). Every stage of a tur
   (`make dev-mock`) runs anywhere Python 3.12 does.
 - [uv](https://docs.astral.sh/uv/) 0.13.5 or later. uv installs Python 3.12 and every dependency from
   the `uv.lock` files; nothing is installed with pip.
+- A C compiler (Apple's Command Line Tools: `xcode-select --install`). `uv sync` compiles the
+  vendored SpeexDSP echo canceller in `vendor/speexdsp-aec` (BSD sources from the release tarball,
+  checked against their sha256) into a Python extension; at run time it needs nothing outside the
+  lockfile.
+- The service is sized for development and testing: at most 3 concurrent calls
+  (`gateway.max_sessions`).
 
 ## Run
 
@@ -136,15 +144,17 @@ src/mlx_realtime/
                metrics and the /debug/turns records
   protocol/    GA wire layer: client events → commands, facts → server events, ids, errors
   session/     the session actor: conversation, input buffer, turn manager, responses, pipeline,
-               the echo reference and canceller stage
+               the echo reference and the cancellers' stage (AEC3 for detection, Speex for the ASR)
   providers/   ASR, LLM and TTS interfaces, registry, the mlx_lm and mlx_audio HTTP providers,
                the TTS fallback, the voice map, mocks
-  audio/       resampling, wire formats, the echo canceller, the client playout model, GCC-PHAT
+  audio/       resampling, wire formats, the echo cancellers, the client playout model, GCC-PHAT
   text/        segmenter, normalizer, language tag, the overlap of echo turns
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project; backends/llm runs
                                    mlx_lm.server through mlxrt_llm (a lenient tool-call parser)
+vendor/speexdsp-aec                SpeexDSP 1.2.1's echo canceller (BSD C sources, unchanged, with
+                                   their sha256 in speexdsp/SOURCE.json) and its CPython binding
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256
 bench/                             the benchmark: input, replay over /v1/realtime, scoring, report
 tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes · tests/aicc

@@ -117,7 +117,7 @@ async def test_a_primary_failure_before_audio_moves_the_segment_to_the_fallback(
     primary, fallback = ScriptedTTS("p", deque([Plan(chunks=0, error=error)])), ScriptedTTS("f")
     timing = SpeechTiming()
     assert await speak(fallback_tts(primary, fallback), timing) == [b"f\x00", b"f\x01"]
-    assert fallback.calls == [("你好。", "vivian", "zh")]  # the same voice name: mapped inside
+    assert fallback.calls == [("你好。", "vivian", "zh")]  # the same voice, so the same speaker
     assert timing.model == "f"
     assert timing.queued_s == pytest.approx(0.02)  # both waits count
     assert primary.closed == 1
@@ -220,30 +220,22 @@ async def collect_text(tts: FallbackTTS, text: str, lang: Lang = "zh") -> list[b
 
 
 @pytest.mark.parametrize("text", ["请登录 App 查看。", "Hello.", "订单 A B 1 2。", "ＯＫ。"])
-async def test_the_fallback_never_speaks_a_segment_with_latin_letters(text: str) -> None:
-    """D13 (M0 S3): Kokoro garbles English inside Chinese, so a primary failure on a segment
-    with Latin letters fails that segment instead of moving it."""
+async def test_a_segment_with_latin_letters_falls_back_like_any_other(text: str) -> None:
+    """D13 final: the fallback is a Qwen3-TTS build too, which reads English inside Chinese
+    (Kokoro did not, M0 S3), so Latin letters change nothing."""
     primary, fallback = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)])), ScriptedTTS("f")
     tts = fallback_tts(primary, fallback)
-    with pytest.raises(ProviderError) as failed:
-        await collect_text(tts, text)
-    assert failed.value is FAIL
-    assert fallback.calls == []
+    assert await collect_text(tts, text) == [b"f\x00", b"f\x01"]
+    assert fallback.calls == [(text, "vivian", "zh")]
 
 
-async def test_a_latin_segment_goes_to_the_primary_while_the_circuit_is_open() -> None:
+async def test_every_segment_goes_to_the_fallback_while_the_circuit_is_open() -> None:
     primary = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)] * 3))
     fallback = ScriptedTTS("f")
     tts = fallback_tts(primary, fallback)
     for _ in range(3):
         await collect_text(tts, "你好。")
     assert tts.breaker.open
-    assert await collect_text(tts, "你好。") == [b"f\x00", b"f\x01"]  # no Latin: the fallback
-    assert await collect_text(tts, "Hello.", "en") == [b"p\x00", b"p\x01"]  # Latin: the primary
-    assert not tts.breaker.open  # and the primary worked
-
-
-async def test_latin_segments_can_be_allowed() -> None:
-    primary, fallback = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)])), ScriptedTTS("f")
-    tts = FallbackTTS(primary, fallback, failures=3, cooldown_s=30.0, latin_segments=True)
-    assert await collect_text(tts, "Hello.", "en") == [b"f\x00", b"f\x01"]
+    assert await collect_text(tts, "你好。") == [b"f\x00", b"f\x01"]
+    assert await collect_text(tts, "Hello.", "en") == [b"f\x00", b"f\x01"]  # Latin letters too
+    assert len(primary.calls) == 3

@@ -2,6 +2,9 @@ version = 1
 revision = 5
 requires-python = "==3.12.*"
 
+[manifest]
+build-constraints = [{ name = "setuptools", specifier = "==84.0.0" }]
+
 [[package]]
 name = "annotated-doc"
 version = "0.0.5"
@@ -274,6 +277,7 @@ dependencies = [
     { name = "pywebrtc-audio" },
     { name = "pyyaml" },
     { name = "soxr" },
+    { name = "speexdsp-aec" },
     { name = "starlette" },
     { name = "uvicorn" },
     { name = "websockets" },
@@ -300,6 +304,7 @@ requires-dist = [
     { name = "pywebrtc-audio", specifier = "==0.2.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "soxr", specifier = ">=1.1.0" },
+    { name = "speexdsp-aec", directory = "vendor/speexdsp-aec" },
     { name = "starlette", specifier = ">=1.9.0" },
     { name = "uvicorn", specifier = ">=0.54.0" },
     { name = "websockets", specifier = ">=15.0.1,<16" },
@@ -677,6 +682,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/f1/0e55195893228609c9a08c3b13b7a83a46c3a992cd00d3304f0f320cfb07/soxr-1.1.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3b033078e86f3c4a658e5697fac8995764fad9e799563616b630136b613167f1", size = 240413, upload-time = "2026-05-03T00:14:59.363Z" },
     { url = "https://files.pythonhosted.org/packages/b0/4d/621e4150e4815246ad552d215a8a294a90143fedd19ee442cf82d3b3abc8/soxr-1.1.0-cp312-abi3-win_amd64.whl", hash = "sha256:6ae2a174bffea94e8ead857dad85999d3f49f091774dbad5b046c0417d7092f4", size = 174357, upload-time = "2026-05-03T00:15:00.724Z" },
 ]
+
+[[package]]
+name = "speexdsp-aec"
+version = "0.1.0"
+source = { directory = "vendor/speexdsp-aec" }
 
 [[package]]
 name = "starlette"

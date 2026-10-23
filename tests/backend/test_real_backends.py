@@ -39,10 +39,8 @@ from mlx_realtime.config import (
     MlxAudioAsrConfig,
     MlxAudioSpeechConfig,
     MlxLmChatConfig,
-    VoicesConfig,
     load_config,
 )
-from mlx_realtime.hub import hub_cache
 from mlx_realtime.providers.base import (
     Delta,
     LLMDone,
@@ -59,7 +57,6 @@ from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS
 from mlx_realtime.providers.mlx_lm_chat import MlxLmChatLLM
 from mlx_realtime.providers.registry import build_speech
 from mlx_realtime.providers.voices import VoiceBook
-from mlx_realtime.server.gateway import pinned_snapshots
 from mlx_realtime.text.similarity import overlap
 from tests.speech import EN, ZH, clip, silence, to_wire
 
@@ -330,11 +327,13 @@ async def test_sdk_server_vad_turn_with_the_real_stack(config: Config) -> None:
     assert text.strip()
 
 
-def speech(config: Config, voices: VoicesConfig | None = None) -> FallbackTTS:
+def speech(config: Config, **primary: object) -> FallbackTTS:
+    """The configured TTS provider; ``primary`` replaces fields of the primary model's config."""
     tts = config.providers.tts
     assert isinstance(tts, MlxAudioSpeechConfig), "config.yaml must use mlx_audio_speech"
-    snapshots = pinned_snapshots(config.backends, hub_cache(os.environ))
-    built = build_speech(tts, VoiceBook(voices or config.voices), snapshots=snapshots)
+    if primary:
+        tts = tts.model_copy(update={"primary": tts.primary.model_copy(update=primary)})
+    built = build_speech(tts, VoiceBook(config.voices))
     assert isinstance(built, FallbackTTS)
     return built
 
@@ -358,6 +357,18 @@ async def timed(
             audio += chunk.pcm
     assert first is not None
     return first, time.monotonic() - started, audio
+
+
+async def test_tts_warmup_loads_both_models(config: Config) -> None:
+    """The gateway's TTS warmup (every voice on the primary, the default voice on the 4-bit
+    fallback, D13) leaves both models loaded, as readiness requires."""
+    tts = speech(config)
+    started = time.monotonic()
+    await tts.warmup()
+    print(f"tts warmup {time.monotonic() - started:.1f} s")
+    state = await tts.ready()
+    await tts.aclose()
+    assert state.ready, state.detail
 
 
 async def test_tts_streams_with_a_fast_first_chunk_and_faster_than_real_time(
@@ -441,38 +452,86 @@ async def test_tts_output_is_heard_right_by_the_asr(config: Config, asr: MlxAudi
     assert "客服" in heard.text
 
 
-async def test_the_fallback_speaks_when_the_primary_fails(config: Config) -> None:
-    """A speaker Qwen3-TTS does not have fails inside generation (the stream is cut); the
-    segment is spoken by Kokoro instead."""
-    voices = VoicesConfig.model_validate(
-        {
-            "default": "broken",
-            "map": {
-                "broken": {"speaker": "nobody", "fallback": {"zh": "zf_xiaobei", "en": "af_heart"}}
-            },
-        }
-    )
-    tts = speech(config, voices)
+MIXED = "您好，请登录 App 查看您的订单。"  # English inside Chinese: Kokoro garbled it (M0 S3)
+
+
+@pytest.mark.parametrize("failure", ["unknown-model", "no-first-chunk"])
+async def test_the_fallback_speaks_when_the_primary_fails(config: Config, failure: str) -> None:
+    """D13: a segment the primary fails before its first chunk is spoken by the 4-bit fallback,
+    in the same speaker, Latin letters and all. The primary fails as a model the server cannot
+    load does (an error status before any audio), or as a stalled one does (no first chunk
+    within its deadline, here 1 ms: the request is abandoned, and the server cancels it)."""
+    tts = config.providers.tts
+    assert isinstance(tts, MlxAudioSpeechConfig)
+    if failure == "unknown-model":
+        broken = speech(config, model="mlxrt-test/no-such-tts-model")
+    else:
+        stalled = tts.primary.timeouts.model_copy(update={"first_item_ms": 1})
+        broken = speech(config, timeouts=stalled)
+    await broken.fallback.warmup()  # loaded, as the gateway's warmup leaves it
     timing = SpeechTiming()
-    _, _, audio = await timed(tts, "您好，请问有什么可以帮您？", "broken", "zh", timing)
-    await tts.aclose()
+    first, total, audio = await timed(broken, MIXED, "vivian", "zh", timing)
+    await broken.aclose()
+    seconds = len(audio) / 2 / WIRE_RATE
+    print(
+        f"{failure}: primary failed ({timing.primary_error}), {timing.model} spoke; first chunk "
+        f"{first * 1000:.0f} ms after the request, RTF {total / seconds:.2f}, {seconds:.2f} s"
+    )
     assert timing.fallback
-    assert len(audio) / 2 / WIRE_RATE > 1.0
+    assert timing.model == tts.fallback.model
+    expected = {"internal", "bad_response"} if failure == "unknown-model" else {"timeout"}
+    assert timing.primary_error in expected
+    assert seconds > 1.0
 
 
-async def test_kokoro_speaks_chinese_and_english_from_voice_pack_paths(config: Config) -> None:
+async def test_the_4bit_fallback_speaks_chinese_english_and_mixed_text(config: Config) -> None:
+    """D13 final: Qwen3-TTS 0.6B 4-bit, asked exactly like the primary (the voice's speaker,
+    chinese/english, 0.16 s chunks, the token cap), streams zh, en and mixed zh/en segments
+    with a fast first chunk, faster than real time."""
+    tts = speech(config)
+    primary, fallback = tts.primary, tts.fallback
+    assert isinstance(primary, MlxAudioTTS)
+    assert isinstance(fallback, MlxAudioTTS)
+    assert fallback.model == "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
+    await fallback.warmup()
+    for text, lang in (
+        ("您好，欢迎致电客服中心，请问有什么可以帮您？", "zh"),
+        ("Hello, thank you for calling. How can I help you today?", "en"),
+        (MIXED, "zh"),
+    ):
+        tag = "zh" if lang == "zh" else "en"
+        asked = primary.request_body(text, "vivian", tag)
+        assert fallback.request_body(text, "vivian", tag) == {**asked, "model": fallback.model}
+        timing = SpeechTiming()
+        first, total, audio = await timed(fallback, text, "vivian", lang, timing)
+        seconds = len(audio) / 2 / WIRE_RATE
+        print(
+            f"4-bit {lang} {text[:16]!r}: first chunk {first * 1000:.0f} ms, "
+            f"RTF {total / seconds:.2f}, {seconds:.2f} s"
+        )
+        assert (timing.model, timing.fallback) == (fallback.model, True)
+        assert first < 0.5
+        assert total / seconds < 1.0
+        assert 1.0 < seconds < 15.0
+    await tts.aclose()
+
+
+async def test_the_fallback_reads_english_inside_chinese(config: Config, asr: MlxAudioASR) -> None:
+    """Why D13 dropped Kokoro (M0 S3: 15.9% errors on mixed text, English words garbled): the
+    4-bit fallback's mixed zh/en segment is heard right by the ASR, its English word too."""
     tts = speech(config)
     fallback = tts.fallback
     assert isinstance(fallback, MlxAudioTTS)
-    body = fallback.request_body("你好", "vivian", "zh")
-    assert str(body["voice"]).endswith("voices/zf_xiaobei.safetensors")
-    assert body["lang_code"] == "z"
-    for text, lang in (("您好，欢迎致电客服中心。", "zh"), ("Hello, how can I help you?", "en")):
-        first, total, audio = await timed(fallback, text, "vivian", lang, SpeechTiming())
-        seconds = len(audio) / 2 / WIRE_RATE
-        print(f"kokoro {lang}: first chunk {first * 1000:.0f} ms, total {total * 1000:.0f} ms")
-        assert seconds > 0.8
+    await fallback.warmup()
+    await asr.warmup()
+    _, _, audio = await timed(fallback, MIXED, "vivian", "zh", SpeechTiming())
+    resampler = Resampler(WIRE_RATE, CANONICAL_RATE)
+    heard = await asr.transcribe(resampler.process(audio) + resampler.flush(), language="zh")
     await tts.aclose()
+    await asr.aclose()
+    print(f"spoken {MIXED!r}, heard {heard.text!r}")
+    assert "app" in heard.text.lower()
+    assert "订单" in heard.text
 
 
 async def test_sdk_full_chinese_spoken_turn_with_audio(config: Config) -> None:
