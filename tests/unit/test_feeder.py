@@ -1,14 +1,19 @@
 """The VAD feeder: framing across chunk boundaries, one detector call at a time with the gate's
-state, epochs, reconfiguration and the backlog bound."""
+state, epochs, reconfiguration, the backlog bound, and the echo canceller in front (M4)."""
 
 from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 
+import numpy as np
+import numpy.typing as npt
 import pytest
 
+from mlx_realtime.config import AecConfig, BargeInConfig
+from mlx_realtime.session.echo import EchoParams, EchoReference, EchoStage
 from mlx_realtime.session.errors import SessionFatal
 from mlx_realtime.session.feeder import VadFeeder
 from mlx_realtime.session.signals import VadUpdate
@@ -127,3 +132,60 @@ async def test_a_backlog_beyond_the_bound_is_fatal() -> None:
         with pytest.raises(SessionFatal) as raised:
             feeder.push(960, audio(60))
     assert raised.value.code == "input_queue_overflow"
+
+
+class LoopClock:
+    """The real loop's time (the feeder's timeouts run on the loop)."""
+
+    def now(self) -> float:
+        return asyncio.get_running_loop().time()
+
+    async def sleep(self, seconds: float) -> None:
+        await asyncio.sleep(seconds)
+
+
+async def test_with_the_canceller_its_output_reaches_the_detector_and_the_actor() -> None:
+    """The canceller runs first (on its executor): the detector sees its output, and each update
+    carries it for the input buffer. Audio held back for its reference is released by time, and
+    a reconfiguration processes it under the old epoch first."""
+
+    class Halving:
+        def process(
+            self, capture: npt.NDArray[np.int16], reference: npt.NDArray[np.int16]
+        ) -> npt.NDArray[np.int16]:
+            return (capture // 2).astype(np.int16)
+
+    clock = LoopClock()
+    reference = EchoReference(EchoParams.of(AecConfig(delay_guard=False), BargeInConfig()), clock)
+    stage = EchoStage(Halving(), reference, ThreadPoolExecutor(1))
+    detector = Recorder()
+    updates: list[VadUpdate] = []
+    feeder = VadFeeder(
+        detector, updates.append, max_queued_ms=10_000, reference=reference, echo=stage, clock=clock
+    )
+    feeder.configure(0, PARAMS)
+    task = asyncio.create_task(feeder.run())
+    try:
+        pcm = (np.arange(16 * 510) % 1000).astype("<i2").tobytes()  # 510 ms: 51 frames of 10 ms
+        reference.capture_arrived(16 * 510)
+        reference.response_started()  # audio may come: the reference ahead is not final yet
+        feeder.push(0, pcm)
+        async with asyncio.timeout(2):
+            while sum(len(update.processed) for update in updates) < len(pcm):  # noqa: ASYNC110
+                await asyncio.sleep(0.01)  # released once its reference time has passed
+        processed = b"".join(update.processed for update in updates)
+        assert processed == (np.frombuffer(pcm, dtype="<i2") // 2).astype("<i2").tobytes()
+        assert len(updates) > 1  # most at once, the last 60 ms of reference ahead only later
+        assert len(detector.calls) == 15  # the output's whole 32 ms frames
+        updates.clear()
+        feeder.push(16 * 510, pcm[: 32 * 100])  # 100 ms, held (its reference is ahead)...
+        feeder.configure(1, PARAMS)  # ...then a commit: it goes out under epoch 0
+        async with asyncio.timeout(2):
+            while not updates:  # noqa: ASYNC110
+                await asyncio.sleep(0.01)
+        assert updates[0].epoch == 0
+        assert updates[0].processed_start == 16 * 510
+    finally:
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task

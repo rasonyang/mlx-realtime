@@ -22,6 +22,9 @@ class VadUpdate:
     epoch: int
     events: tuple[GateEvent, ...]
     keep_from_ms: int  # earliest input position a turn not yet ended can start at
+    # The echo canceller's output for this stretch of the input timeline (D17), if it ran.
+    processed_start: int = 0  # input timeline sample
+    processed: bytes = b""
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +72,7 @@ class SegmentStarted:
     index: int
     text: str
     spoken: str
+    source: tuple[int, ...] | None = None  # spoken character -> text index (normalize_with_map)
 
 
 @dataclass(frozen=True, slots=True)

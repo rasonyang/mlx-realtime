@@ -166,6 +166,79 @@ class TurnConfig(_Section):
     smart_turn: SmartTurnConfig = SmartTurnConfig()
 
 
+class AecConfig(_Section):
+    """The per-session echo canceller (D17; engine and defaults from M0's G7).
+
+    Its reference is the session's own output audio, resampled to 16 kHz and placed on a model
+    of the client's playout. The defaults model AICC (voice/rtp.go): a 20 ms tick, playback
+    starting at ``client_prebuffer_ms`` of queued frames (3) or that long after the queue was
+    last empty, and a re-buffer after more than ``client_underrun_ticks`` empty ticks. The
+    reference leads the modelled playout by ``reference_lead_ms`` so it precedes its echo.
+    A GCC-PHAT delay estimator re-aligns the reference only when the residual delay leaves
+    [``min_residual_delay_ms``, ``max_residual_delay_ms``], and learns AICC's tick phase.
+    """
+
+    enabled: bool = True
+    engine: Literal["webrtc_aec3"] = "webrtc_aec3"  # AEC3 via pywebrtc-audio 0.2.0
+    # What the ASR gets: the canceller's output, or the input as received. Speech and
+    # end-of-turn detection always run on the output. Pending M0's double-talk ΔCER.
+    asr_input: Literal["processed", "raw"] = "processed"
+    workers: int = Field(default=2, ge=1)  # the canceller executor's threads
+    client_tick_ms: int = Field(default=20, gt=0)
+    client_prebuffer_ms: int = Field(default=60, ge=0)
+    client_underrun_ticks: int = Field(default=2, ge=0)
+    reference_lead_ms: int = Field(default=60, ge=0)
+    learn_tick_phase: bool = True
+    delay_guard: bool = True  # the GCC-PHAT guard (the tick phase is learned from it)
+    min_residual_delay_ms: int = Field(default=5, ge=0)
+    max_residual_delay_ms: int = Field(default=450, gt=0)
+    # With no echo on the line, AEC3's suppressor takes a caller talking over our audio for
+    # echo and silences them (M4). Once the delay estimator has seen this much playing
+    # reference without any echo of it, the canceller gets a silent reference until echo shows
+    # up again (null: never bypass).
+    bypass_without_echo_ms: int | None = Field(default=1500, gt=0)
+
+    @model_validator(mode="after")
+    def _keep_range(self) -> Self:
+        if self.min_residual_delay_ms >= self.max_residual_delay_ms:
+            raise ValueError("min_residual_delay_ms must be below max_residual_delay_ms")
+        if not self.min_residual_delay_ms <= self.reference_lead_ms <= self.max_residual_delay_ms:
+            raise ValueError("reference_lead_ms must lie within the residual delay keep range")
+        return self
+
+
+class BargeInConfig(_Section):
+    """The second line of defence against echo, while the client is modelled as playing (D17).
+
+    - ``echo_guard_ms``: in the first part of a response's playback, a speech onset never
+      interrupts; speech that began there counts only once the guard is over (0: off).
+    - ``min_speech_ms_while_playing``: during playback, speech must last this long before
+      ``speech_started`` (null: ``turn.vad.min_speech_ms`` applies throughout).
+    - ``echo_turn_suppression``: a committed turn whose transcript closely matches assistant
+      text played around it (normalized overlap of at least ``echo_match_threshold``, counted in
+      CJK characters and Latin words; transcripts of at least ``echo_match_min_units`` of them) is
+      treated like noise (D7): its response completes with no output and no LLM call, and the
+      LLM never sees the turn.
+    """
+
+    echo_guard_ms: int = Field(default=2000, ge=0)
+    min_speech_ms_while_playing: int | None = Field(default=400, ge=0)
+    echo_turn_suppression: bool = True
+    echo_match_threshold: float = Field(default=0.7, gt=0.0, le=1.0)
+    echo_match_min_units: int = Field(default=4, ge=1)
+    # Assistant audio modelled as playing up to this long before the turn's audio still counts.
+    echo_match_window_ms: int = Field(default=3000, ge=0)
+
+    @property
+    def active(self) -> bool:
+        """Whether any rule needs the playout model."""
+        return (
+            self.echo_guard_ms > 0
+            or self.min_speech_ms_while_playing is not None
+            or self.echo_turn_suppression
+        )
+
+
 class SegmenterConfig(_Section):
     first_min_chars: int = Field(default=4, ge=1)
     first_max_wait_ms: int = Field(default=400, ge=0)
@@ -411,6 +484,8 @@ class Config(_Section):
     voices: VoicesConfig = VoicesConfig()
     session_defaults: dict[str, object] = Field(default_factory=dict[str, object])
     turn: TurnConfig = TurnConfig()
+    aec: AecConfig = AecConfig()
+    barge_in: BargeInConfig = BargeInConfig()
     text: TextConfig = TextConfig()
     providers: ProvidersConfig = ProvidersConfig()
     backends: BackendsConfig = BackendsConfig()

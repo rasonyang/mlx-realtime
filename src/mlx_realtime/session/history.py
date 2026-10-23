@@ -25,7 +25,9 @@ def build_messages(conversation: Conversation, instructions: str) -> list[Messag
         match item:
             case TextMessage(role=role):
                 messages.append(Message(role, item.text))
-            case AudioMessage(transcript=transcript) if transcript and transcript.strip():
+            case AudioMessage(transcript=transcript, echo=False) if (
+                transcript and transcript.strip()
+            ):
                 messages.append(Message("user", transcript))
             case AssistantMessage() if item.history_text:
                 messages.append(Message("assistant", item.history_text))
@@ -38,5 +40,5 @@ def build_messages(conversation: Conversation, instructions: str) -> list[Messag
                 provider_id = call.provider_call_id if call is not None else call_id
                 messages.append(Message("tool", output, tool_call_id=provider_id))
             case _:
-                pass  # audio without speech, or an assistant message with nothing heard
+                pass  # audio without speech or our own echo (D17), or nothing heard
     return messages

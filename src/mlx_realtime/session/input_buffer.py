@@ -3,6 +3,11 @@
 The timeline counts canonical (16 kHz) samples since the session's first append, so a
 millisecond position is ``sample // 16``. GA reports ``audio_start_ms`` and ``audio_end_ms`` on
 this timeline: milliseconds since the start of all audio written to the buffer.
+
+With the echo canceller on (D17) the buffer keeps a second track: the canceller's output,
+written over the same positions as it arrives (it lags the input). Smart Turn reads that track;
+commits give the ASR the track ``asr_input`` names. Where the canceller has not run yet the
+processed track holds the input as received.
 """
 
 from __future__ import annotations
@@ -26,10 +31,13 @@ class CommittedAudio:
 
 
 class InputBuffer:
-    def __init__(self, max_ms: int) -> None:
+    def __init__(self, max_ms: int, *, processed: bool = False, asr_processed: bool = True) -> None:
+        """``processed``: keep the echo canceller's track; ``asr_processed``: commits take it."""
         self._decoder = InputDecoder()
         self._max_samples = ms_to_samples(max_ms, CANONICAL_RATE)
         self._pcm = bytearray()
+        self._clean: bytearray | None = bytearray() if processed else None
+        self._asr_processed = processed and asr_processed
         self._start = 0  # timeline sample of the first buffered sample
 
     @property
@@ -49,6 +57,8 @@ class InputBuffer:
         start = self._end
         canonical = self._decoder.decode(pcm)
         self._pcm += canonical
+        if self._clean is not None:
+            self._clean += canonical
         if len(self._pcm) // SAMPLE_WIDTH > self._max_samples:
             raise SessionFatal(
                 "input_audio_buffer_overflow", "The input audio buffer exceeded its maximum length."
@@ -57,19 +67,38 @@ class InputBuffer:
 
     def commit(self) -> CommittedAudio | None:
         """Commit everything buffered, the resampler's tail included; ``None`` if empty."""
-        self._pcm += self._decoder.flush()
+        tail = self._decoder.flush()
+        self._pcm += tail
+        if self._clean is not None:
+            self._clean += tail
         if not self._pcm:
             return None
-        audio = CommittedAudio(bytes(self._pcm), self.start_ms, self.end_ms)
+        track = self._clean if self._asr_processed and self._clean is not None else self._pcm
+        audio = CommittedAudio(bytes(track), self.start_ms, self.end_ms)
         self._drop_before(self._end)
         return audio
+
+    def apply_processed(self, start_sample: int, pcm: bytes) -> None:
+        """The echo canceller's output for ``[start_sample, ...)``: written over the processed
+        track where those positions are still buffered."""
+        clean = self._clean
+        if clean is None:
+            return
+        first = max(start_sample, self._start)
+        last = min(start_sample + len(pcm) // SAMPLE_WIDTH, self._end)
+        if last <= first:
+            return
+        offset = (first - start_sample) * SAMPLE_WIDTH
+        clean[(first - self._start) * SAMPLE_WIDTH : (last - self._start) * SAMPLE_WIDTH] = pcm[
+            offset : offset + (last - first) * SAMPLE_WIDTH
+        ]
 
     def commit_span(self, start_ms: int, end_ms: int) -> CommittedAudio:
         """Commit ``[start_ms, end_ms)``; earlier audio is dropped, later audio stays buffered."""
         first = max(ms_to_samples(start_ms, CANONICAL_RATE), self._start)
         last = max(min(ms_to_samples(end_ms, CANONICAL_RATE), self._end), first)
         audio = CommittedAudio(
-            self._slice(first, last),
+            self._slice(first, last, processed=self._asr_processed),
             samples_to_ms(first, CANONICAL_RATE),
             samples_to_ms(last, CANONICAL_RATE),
         )
@@ -81,25 +110,33 @@ class InputBuffer:
         tail = self._decoder.flush()
         self._start = self._end + len(tail) // SAMPLE_WIDTH
         self._pcm.clear()
+        if self._clean is not None:
+            self._clean.clear()
 
     def trim_before(self, ms: int) -> None:
         """Drop audio before ``ms`` (idle trimming in VAD modes)."""
         self._drop_before(min(ms_to_samples(ms, CANONICAL_RATE), self._end))
 
     def slice(self, start_ms: int, end_ms: int) -> bytes:
+        """Audio for the detectors (Smart Turn): the processed track when there is one."""
         return self._slice(
-            ms_to_samples(start_ms, CANONICAL_RATE), ms_to_samples(end_ms, CANONICAL_RATE)
+            ms_to_samples(start_ms, CANONICAL_RATE),
+            ms_to_samples(end_ms, CANONICAL_RATE),
+            processed=True,
         )
 
-    def _slice(self, first: int, last: int) -> bytes:
+    def _slice(self, first: int, last: int, *, processed: bool = False) -> bytes:
+        track = self._clean if processed and self._clean is not None else self._pcm
         first = min(max(first, self._start), self._end)
         last = min(max(last, first), self._end)
         return bytes(
-            self._pcm[(first - self._start) * SAMPLE_WIDTH : (last - self._start) * SAMPLE_WIDTH]
+            track[(first - self._start) * SAMPLE_WIDTH : (last - self._start) * SAMPLE_WIDTH]
         )
 
     def _drop_before(self, sample: int) -> None:
         if sample <= self._start:
             return
         del self._pcm[: (sample - self._start) * SAMPLE_WIDTH]
+        if self._clean is not None:
+            del self._clean[: (sample - self._start) * SAMPLE_WIDTH]
         self._start = sample

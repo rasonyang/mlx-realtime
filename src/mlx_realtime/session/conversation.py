@@ -42,6 +42,9 @@ class AudioMessage:
     show_transcript: bool  # transcription was enabled when the audio was committed
     transcript: str | None = None  # set once the ASR result arrives
     status: ItemStatus = "in_progress"
+    start_ms: int = 0  # where the committed audio lies on the input timeline
+    end_ms: int = 0
+    echo: bool = False  # the transcript was our own speech coming back (D17): not a turn
 
     @property
     def transcript_pending(self) -> bool:
@@ -56,6 +59,9 @@ class SpokenSegment:
     spoken: str  # normalized text sent to the TTS
     start_ms: int  # on the item's output-audio timeline
     audio_bytes: int = 0  # wire audio synthesized so far
+    # For each character of ``spoken``, its index in ``text`` (and len(text) at the end);
+    # None when ``spoken`` is ``text``.
+    source: tuple[int, ...] | None = None
 
     @property
     def audio_ms(self) -> int:
@@ -71,6 +77,7 @@ class AssistantMessage:
     text: str = ""
     segments: list[SpokenSegment] = field(default_factory=list[SpokenSegment])
     truncated_text: str | None = None  # what the client heard, after conversation.item.truncate
+    fallback_text: str | None = None  # D5: what it can have heard, when cut without a truncate
     status: ItemStatus = "in_progress"
 
     @property
@@ -79,8 +86,10 @@ class AssistantMessage:
 
     @property
     def history_text(self) -> str:
-        """The text later LLM requests see."""
-        return self.text if self.truncated_text is None else self.truncated_text
+        """The text later LLM requests see: a client truncate wins over the D5 fallback cut."""
+        if self.truncated_text is not None:
+            return self.truncated_text
+        return self.text if self.fallback_text is None else self.fallback_text
 
 
 @dataclass(slots=True)

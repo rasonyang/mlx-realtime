@@ -181,6 +181,9 @@ class FakeMlxAudio:
     ms_per_char: int = 60
     first_chunk_s: float = 0.0
     chunk_s: float = 0.0
+    # Speak this 24 kHz PCM (looped to each request's length) instead of a tone: the echo
+    # canceller needs speech for a reference (a tone is pathological for WebRTC AEC3).
+    voice: bytes | None = None
     speeches: list[Speech] = field(default_factory=list[Speech])
     _scripts: deque[list[Step]] = field(default_factory=deque[list[Step]])
     _speech_scripts: deque[list[SpeechStep]] = field(default_factory=deque[list[SpeechStep]])
@@ -246,7 +249,7 @@ class FakeMlxAudio:
             detail = f"Model not found: {model!r} is not a known HuggingFace repo or local path"
             await _json(send, 404, {"detail": detail})
             return
-        chunks = _speech_chunks(body, self.ms_per_char)
+        chunks = _speech_chunks(body, self.ms_per_char, self.voice)
         started = False
 
         async def start() -> None:
@@ -371,14 +374,22 @@ class FakeMlxAudio:
         await _json(send, 200, payload)
 
 
-def _speech_chunks(body: dict[str, Any], ms_per_char: int) -> deque[bytes]:
-    """The request's speech: a tone as long as its text, in the model's chunks."""
+def _speech_chunks(
+    body: dict[str, Any], ms_per_char: int, voice: bytes | None = None
+) -> deque[bytes]:
+    """The request's speech: a tone (or ``voice``, looped) as long as its text, in the model's
+    chunks."""
     text = str(body.get("input", ""))
     samples = sum(1 for char in text if not char.isspace()) * ms_per_char * SPEECH_RATE // 1000
-    tone = b"".join(
-        int(6000 * math.sin(2 * math.pi * 220 * n / SPEECH_RATE)).to_bytes(2, "little", signed=True)
-        for n in range(samples)
-    )
+    if voice:
+        tone = (voice * (2 * samples // len(voice) + 1))[: 2 * samples]
+    else:
+        tone = b"".join(
+            int(6000 * math.sin(2 * math.pi * 220 * n / SPEECH_RATE)).to_bytes(
+                2, "little", signed=True
+            )
+            for n in range(samples)
+        )
     if "kokoro" in str(body.get("model", "")).lower():
         return deque([tone] if tone else [])
     interval = float(body.get("streaming_interval", 2.0))

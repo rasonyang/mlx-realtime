@@ -70,16 +70,74 @@ def test_repository_config_points_at_the_real_backends() -> None:
     assert config.output.max_lead_ms == 10_000  # D6
     assert tuple(config.lines.verbatim_prefixes) == DEFAULT_VERBATIM_PREFIXES  # D16
     assert (config.text.normalizer.phones, config.text.normalizer.numbers) == (True, False)
+    # M4: D17 as G7 decided it.
+    aec = config.aec
+    assert (aec.enabled, aec.engine, aec.asr_input) == (True, "webrtc_aec3", "processed")
+    assert (aec.client_tick_ms, aec.client_prebuffer_ms, aec.client_underrun_ticks) == (20, 60, 2)
+    assert (aec.reference_lead_ms, aec.learn_tick_phase) == (60, True)
+    assert (aec.min_residual_delay_ms, aec.max_residual_delay_ms) == (5, 450)
+    assert gateway.echo is not None
+    barge_in = config.barge_in
+    assert (barge_in.echo_guard_ms, barge_in.min_speech_ms_while_playing) == (2000, 400)
+    assert barge_in.echo_turn_suppression
 
 
-def test_mock_config_is_the_m1_setup() -> None:
+@needs_models
+def test_mock_config_has_mock_providers_and_the_real_vad() -> None:
     config = load_config(MOCK_CONFIG, {})
     gateway = Gateway(config)
     assert isinstance(gateway.providers.llm, EchoLLM)
     assert isinstance(gateway.providers.tts, SineTTS)
     assert config.backends.processes() == {}
-    assert config.turn.vad.type == "mock"
+    # M4: AICC's barge-in scenarios need a VAD that hears the caller, and the barge-in rules;
+    # the canceller is off (AEC3 silences a caller talking over the mock's sine tone).
+    assert (config.turn.vad.type, config.turn.smart_turn.enabled) == ("silero", False)
+    assert not config.aec.enabled
+    assert gateway.echo is None
+    assert config.barge_in.active
     assert gateway.defaults.voice == "vivian"
+
+
+def test_echo_defaults_are_g7s() -> None:
+    config = validate_config({})
+    assert config.aec.enabled
+    assert (config.aec.reference_lead_ms, config.aec.max_residual_delay_ms) == (60, 450)
+    assert (config.barge_in.echo_guard_ms, config.barge_in.min_speech_ms_while_playing) == (
+        2000,
+        400,
+    )
+
+
+@pytest.mark.parametrize(
+    ("section", "message"),
+    [
+        (
+            {"aec": {"min_residual_delay_ms": 500, "max_residual_delay_ms": 450}},
+            "min_residual_delay_ms must be below max_residual_delay_ms",
+        ),
+        ({"aec": {"reference_lead_ms": 500}}, "reference_lead_ms must lie within"),
+        ({"aec": {"engine": "speex"}}, "aec.engine"),
+        ({"aec": {"asr_input": "both"}}, "aec.asr_input"),
+        ({"barge_in": {"echo_match_threshold": 0}}, "barge_in.echo_match_threshold"),
+        ({"barge_in": {"echo_guard_ms": -1}}, "barge_in.echo_guard_ms"),
+    ],
+)
+def test_echo_settings_are_validated(section: dict[str, object], message: str) -> None:
+    with pytest.raises(ConfigError, match=message):
+        validate_config(section)
+
+
+def test_every_barge_in_rule_can_be_switched_off() -> None:
+    config = validate_config(
+        {
+            "barge_in": {
+                "echo_guard_ms": 0,
+                "min_speech_ms_while_playing": None,
+                "echo_turn_suppression": False,
+            }
+        }
+    )
+    assert not config.barge_in.active
 
 
 def test_empty_file_takes_every_default(tmp_path: Path) -> None:

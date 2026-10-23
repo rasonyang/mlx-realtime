@@ -23,6 +23,7 @@ from mlx_realtime.session.settings import (
 )
 from mlx_realtime.session.signals import SpeechFinished
 from mlx_realtime.session.truncation import clamp_audio_end, heard_text
+from mlx_realtime.text.normalize import normalize_with_map
 
 
 def segments(*parts: tuple[str, int]) -> list[SpokenSegment]:
@@ -63,6 +64,29 @@ def test_segments_without_audio_count_only_before_the_cut() -> None:
     parts = segments(("好。", 500), ("\n", 0), ("再见。", 500))
     assert heard_text(parts, 500) == "好。"
     assert heard_text(parts, 501) == "好。\n"
+
+
+def normalized_segment(text: str, audio_ms: int) -> SpokenSegment:
+    spoken, source = normalize_with_map(text)
+    return SpokenSegment(text, spoken, 0, audio_ms * 48, source)
+
+
+def test_the_cut_is_measured_in_what_was_spoken_and_mapped_back() -> None:
+    """The audio speaks the normalized text: "138 0013 8000" read digit by digit takes most of
+    the segment. 80 % into the audio the reader is inside the last group, so that group is not
+    heard; measured on the written text, the cut would claim the whole number and more."""
+    segment = normalized_segment("Call 138 0013 8000 now, please.", 3000)
+    assert segment.spoken.startswith("Call one three eight, zero zero one three, eight zero")
+    assert heard_text([segment], 2400) == "Call 138 0013 "
+    assert heard_text([segment], 1200) == "Call 138 "
+    assert heard_text([segment], 3000) == segment.text
+    written = SpokenSegment(segment.text, segment.text, 0, 3000 * 48)  # no map: as before
+    assert heard_text([written], 2400) == "Call 138 0013 8000 now, "
+
+
+def test_without_normalization_the_map_changes_nothing() -> None:
+    parts = [normalized_segment(text, ms) for text, ms in (("你好。", 600),)]
+    assert heard_text(parts, 300) == "你"
 
 
 def test_truncate_overshoot_is_clamped_to_the_audio_sent() -> None:

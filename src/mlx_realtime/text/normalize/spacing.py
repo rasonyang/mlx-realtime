@@ -16,7 +16,14 @@ from mlx_realtime.text.lang import is_cjk
 
 def space(text: str) -> str:
     """Apply the spacing rules to ``text``."""
+    return space_with_map(text)[0]
+
+
+def space_with_map(text: str) -> tuple[str, list[int]]:
+    """``space(text)``, and for each output character the index of the input character it
+    comes from (an inserted space: the character after it)."""
     out: list[str] = []
+    source: list[int] = []
     index = 0
     while index < len(text):
         char = text[index]
@@ -27,13 +34,16 @@ def space(text: str) -> str:
             between_cjk = bool(out) and end < len(text) and is_cjk(out[-1]) and is_cjk(text[end])
             if not between_cjk:
                 out.append(" ")
+                source.append(index)
             index = end
             continue
         if out and _needs_space(out[-1], char):
             out.append(" ")
+            source.append(index)
         out.append(char)
+        source.append(index)
         index += 1
-    return "".join(out)
+    return "".join(out), source
 
 
 def _needs_space(before: str, after: str) -> bool:

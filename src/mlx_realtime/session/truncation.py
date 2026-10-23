@@ -1,8 +1,11 @@
 """Truncation arithmetic: which text the client heard (ARCHITECTURE §6.6).
 
 Positions are on the item's output-audio timeline. Segments that end at or before the cut are
-heard whole; the segment playing at the cut contributes a prefix proportional to how much of
-its audio played, measured in characters and snapped back to a word boundary in Latin text.
+heard whole. The segment playing at the cut contributes a prefix proportional to how much of
+its audio played: the audio speaks the segment's normalized text, so the share is taken in
+spoken characters and mapped back through the normalizer's character map to the original text
+(a phone number read digit by digit is heard as far as its digits were read), then snapped back
+to a word boundary in Latin text.
 """
 
 from __future__ import annotations
@@ -26,13 +29,25 @@ def heard_text(segments: Sequence[SpokenSegment], audio_end_ms: int) -> str:
             parts.append(segment.text)
             continue
         played = (audio_end_ms - segment.start_ms) / segment.audio_ms
-        parts.append(_prefix(segment.text, played))
+        parts.append(_prefix(segment, played))
         break
     return "".join(parts)
 
 
-def _prefix(text: str, fraction: float) -> str:
-    cut = int(len(text) * fraction)
+def heard_position(segment: SpokenSegment, fraction: float) -> int:
+    """How far into ``segment.text`` the client heard after ``fraction`` of its audio."""
+    if segment.source is None:
+        return int(len(segment.text) * fraction)
+    spoken = segment.spoken
+    said = spoken.strip()  # what the TTS was asked to say
+    lead = len(spoken) - len(spoken.lstrip())
+    index = min(lead + int(len(said) * fraction), len(spoken))
+    return segment.source[index]
+
+
+def _prefix(segment: SpokenSegment, fraction: float) -> str:
+    text = segment.text
+    cut = heard_position(segment, fraction)
     if 0 < cut < len(text) and _latin(text[cut - 1]) and _latin(text[cut]):
         while cut > 0 and _latin(text[cut - 1]):
             cut -= 1

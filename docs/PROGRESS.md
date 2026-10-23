@@ -579,3 +579,272 @@ All green on 2026-10-23: **1162 passed, 11 skipped** (the `backend` tests and th
   next segment, a second TTS process, or prioritizing a segment whose session is about to run dry.
 - DECISIONS: record that verbatim lines answer no turn, and the voice lock's extension to
   per-response voices.
+
+## M4 — Barge-in, cancellation and truncate (2026-10-23)
+
+**Goal.** Barge-in, cancellation and truncation, deterministic and covered by tests on every
+cancellation path. Landed with it: D5 (the truncation fallback), D17 (echo cancellation in the
+service, with the engine G7 chose in M0, the reference on a model of AICC's playout, and the
+second line of defence), and AICC acceptance part 2 (barge-in: interruption, the truncate and
+delete flows, behaviour under simulated echo).
+
+**Not yet run on the real backends.** M0's spikes held the GPU throughout M4. The echo canceller
+runs on the CPU and was exercised for real; everything model-backed ran against mocks and the fake
+servers, and the real-backend tests (marker `backend`) are written but not run (see "Pending").
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `audio/aec.py` | the engine interface (`EchoEngine`: one 10 ms frame of capture and of reference in, the capture with the echo removed out) and `WebRtcAec3`: `pywebrtc-audio==0.2.0`'s `EchoCanceller(sample_rate=16000, num_channels=1, stream_delay_ms=0)`, AEC only. Every frame is checked to be `int16[160]` before the native call (pywebrtc zero-pads a partial frame silently). livekit can be added behind the interface |
+| `audio/playout.py` | the model of AICC's playout (voice/rtp.go `Run`): 20 ms ticks, start at 3 queued frames or 60 ms after the queue was last empty, a re-buffer after more than 2 empty ticks, all in integer 16 kHz samples; and `TickPhaseLearner` |
+| `audio/delay.py` | the GCC-PHAT residual-delay estimator: 8 kHz copies, 2 s windows every 0.5 s, lags −300…+1000 ms, PHAT over 200–3600 Hz, only while the reference is active, PSR ≥ 8, two windows within 2 ms to confirm |
+| `session/echo.py` | `CaptureClock` (input timeline ↔ loop time), `EchoReference` (the client's modelled playout of our output and everything read from it), `EchoStage` (the canceller on the VAD feeder's path), `EchoRuntime` (the canceller executor), the per-session summary log |
+| `session/feeder.py`, `vad/gate.py` | the canceller before Silero; the gate's playback-aware rules; the canceller's output posted to the actor with each `VadUpdate` |
+| `session/input_buffer.py` | a second track: the canceller's output over the same positions (Smart Turn reads it; commits give the ASR the track `aec.asr_input` names) |
+| `session/actor.py` | the echo reference's lifecycle (response start and end, audio queued, flush on a cancel, truncate), D5, echo-turn suppression, barge-in accounting |
+| `session/output.py`, `server/connection.py` | the ledger records when an item's first audio was sent (D5) and tells its listener (the echo reference) of every audio delta sent or discarded; `Delivery` carries the PCM |
+| `session/truncation.py`, `text/normalize/` | `normalize_with_map`: for each spoken character its index in the original; the truncation cut is taken in spoken characters and mapped back |
+| `text/similarity.py` | the overlap of a transcript with played text, in CJK characters and Latin words (bit-parallel LCS) |
+| `config.py`, `config*.yaml` | the `aec` and `barge_in` sections; `config.mock.yaml` now runs the real Silero VAD and the barge-in rules, the canceller off (below) |
+| `providers/mock.py` | `SineTTS.queue`: an await point while a segment waits for the TTS backend's slot |
+| `tests/phone.py` | a simulated AICC call in real time: AICC's downsampler, framer, playout and barge-in; G.711 μ-law; a synthetic echo path (a seeded, decaying random impulse response of 96 taps at 8 kHz, an echo return loss, a bulk delay; no ITU G.168 coefficients); AICC's per-frame linear upsampler; 20 ms appends |
+| `tests/aicc/` | `TestMLXBargeIn` and `TestMLXKeypressCancel` in the overlay; `probe.py` hands them the caller's speech |
+
+**Barge-in and cancellation (§6.5).** A speech start that interrupts runs the cancellation handler
+in one synchronous step: `speech_started` (with the item the commit will create), the response
+scope cancelled, the generation bumped, queued deltas discarded and audio still held by the
+pacer never sent, the terminal events in the GA order, `response.done{cancelled, turn_detected}`,
+and the item cut for the next request (D5). The same handler serves `response.cancel`, provider
+failures and timeouts; a disconnect cancels the session scope. Speech over the tail of an answer
+whose response is done (AICC still playing it) emits `speech_started` alone; AICC's truncate then
+stops the modelled playback.
+
+**Truncate (§6.6, D18).** The cut is measured on the audio, which speaks the normalized text: the
+segment's share of spoken characters is mapped back through the normalizer's character map, then
+snapped to a Latin word start (a phone number read digit by digit counts only as far as its digits
+were read). `audio_end_ms` beyond the audio sent is clamped with a warning, never an error.
+Completed items truncate in place; a truncate to 0 then a delete removes an unheard answer.
+
+**D5.** When a cancelled audio answer (barge-in or `response.cancel`) gets no client truncate, the
+next LLM request sees it cut at `min(audio sent, time since its first audio delta was sent)`,
+measured at the cancel on the session clock; a later truncate overrides it. Transcript events keep
+reporting the text sent (M1).
+
+**The echo canceller (D17, G7).** One per session, on the canonical 16 kHz input before Silero,
+Smart Turn and the input buffer, on its own executor (`aec.workers`, 2), per-session frame order
+kept (pywebrtc releases the GIL).
+
+- **Reference.** Every audio delta as the writer hands it to the socket, resampled 24 → 16 kHz per
+  item (the project's soxr stream), framed in 20 ms as AICC frames it (the last frame of an item
+  padded), and played on the AICC model with the arrival at the send time. The reference for input
+  position *n* is the modelled playout at *n* + offset + `reference_lead_ms` (60) − the guard's
+  shift: our audio precedes its echo. The offset (`CaptureClock`) is the smallest
+  arrival − position over the last 10 s of input: the least delayed arrivals, tracking clock drift.
+- **Lock-step feeding.** Exactly one 160-sample reference frame per capture frame, zeros when
+  nothing plays, so the delay is carried in the content.
+- **Hold-back.** While a response may still add audio and the client model's queue does not cover
+  the reference ahead, an input frame waits until its reference can no longer change (now ≥ its
+  reference time): about 70 ms. Idle, or while the queue covers it (most of a response, with the
+  10 s lead), input goes through at once. A reconfiguration (commit, clear, turn-detection change)
+  first releases what is held, under the old epoch.
+- **Tick phase.** `TickPhaseLearner` fits AICC's 20 ms grid from the first confirmed GCC-PHAT
+  estimate inside each unbroken, prebuffer-started playout run (`learn_tick_phase: true`); the
+  model takes a new phase only between runs. In the unit test, 24 runs located to within 1 ms
+  put ≥ 90 % of starts on the true tick.
+- **GCC-PHAT guard.** On the raw input against the reference fed; a confirmed residual outside
+  [`min_residual_delay_ms` 5, `max_residual_delay_ms` 450] moves the reference so the residual
+  becomes the lead (the estimator restarts after a move).
+- **Re-anchoring.** A barge-in or cancel drops the frames of that response the client has not
+  played. A client truncate drops the rest of the item, and when the client's played frames differ
+  from the model's by 2 or more, shifts the model's arrivals by the difference (at most ±500 ms).
+- **Bypass without echo** (not in G7; deviation 1). With no echo on the line, AEC3's suppressor
+  takes a caller talking over our audio for echo and silences them (measured below). Once the
+  estimator has evaluated 1.5 s of playing reference without any echo of it
+  (`bypass_without_echo_ms`), the canceller gets a silent reference (it then passes the input
+  through); the first confirmed echo turns it back on (AEC3 re-converged within 0.5 s offline).
+- **ASR input.** `aec.asr_input: processed` (default) or `raw`; speech and end-of-turn detection
+  always use the canceller's output. M0's double-talk ΔCER, still pending, sets the default.
+- **Observability.** One `echo summary` log line per session: frames, canceller CPU per audio
+  second, ERLE (median over 0.5 s windows with an active reference), re-alignments, re-anchorings,
+  bypasses, the shift, the anchor, the learned phase, barge-ins, barge-ins whose turn turned out
+  empty or echo, and echo turns.
+
+**The second line of defence** (`barge_in.*`, each rule switchable). "Playing" runs from the first
+modelled frame of a response's audio to its last (or a flush), plus `max_residual_delay_ms` of echo
+tail, on the input timeline.
+
+- An onset in the first `echo_guard_ms` (2000) of a response's playback never interrupts; that
+  speech counts only from the guard's end, and a stretch that ends before then is discarded.
+- While playing and past the guard, `speech_started` needs `min_speech_ms_while_playing` (400);
+  otherwise `turn.vad.min_speech_ms` (150), from the speech's own onset (which the event reports).
+- Echo-turn suppression: a VAD-detected turn whose transcript matches the assistant audio played
+  around it (from `echo_match_window_ms`, 3 s, before the turn, plus the echo tail; at least
+  `echo_match_threshold` 0.7 of its CJK characters and Latin words in order; turns of at least
+  `echo_match_min_units` 4) is noise under D7: its response completes with no output and no LLM
+  call, and later requests leave it out.
+
+**AICC acceptance, part 2.**
+
+- Replay (`tests/integration/test_aicc_replay.py`, AICC simulated in real time with
+  `tests/phone.py`, the real Silero VAD and the canceller as configured by default): the caller
+  over a long line (`speech_started` → `response.done{cancelled}` in one step → AICC's truncate
+  of its played frames accepted → a reply after `speech_stopped`); the caller over the tail of a
+  finished line; the keypress flow (`response.cancel`, a truncate to 0, the delete after
+  `response.done`, the keypress note and the owed reply), with no `error`.
+- AICC's own client (`tests/aicc/zz_mlx_live_test.go`, against `config.mock.yaml`):
+  `TestMLXBargeIn` (the caller's clip 2.5 s into a long line; AICC's played-ms truncate;
+  `conversation.item.truncated` seen; a reply after `speech_stopped`; no error, no client warning)
+  and `TestMLXKeypressCancel` (a key on the line's first audio: `Interrupt(DTMF, 0)`, the item
+  deleted, a spoken reply; a key before any audio: the cut turn's item deleted by AICC).
+- Simulated echo end to end (`tests/integration/test_echo.py`): the gateway's own speech loops
+  back through AICC's downlink, G.711, a synthetic echo path (ERL 10 dB, 100 ms bulk delay) and
+  AICC's uplink. Six seconds of our own echo never interrupt; a caller talking over it later
+  does (`speech_started` within 1.5 s of their onset, then `response.done{cancelled}`); the
+  session's median ERLE is ≥ 10 dB (about 30–40 dB per 0.5 s window when dumped). With the
+  canceller and the rules off, the same echo interrupts the answer.
+
+### How to run and verify
+
+```sh
+uv run --locked pytest                     # everything but the backend tests
+make lint typecheck
+make aicc-probe-mock AICC_REPO=<an AICC checkout>   # AICC's client, barge-in included
+uv run --locked pytest -rP tests/unit/test_aec.py   # prints the canceller's CPU per audio second
+# The real stack (pending the GPU):
+make dev
+uv run --locked pytest -m backend          # in another terminal; AICC_REPO=… adds AICC's harness
+```
+
+**Mock run, 2026-10-23** (`probe.py --serve config.mock.yaml`, AICC commit 8fabadc): all five
+`TestMLX*` pass. `TestMLXBargeIn`: the caller's audio from 2.50 s into the line, `speech_started`
+3.15 s into its playback, AICC reported 3140 ms played, the line cancelled in the same step, the
+truncate acknowledged; `speech_stopped` 3.8 s later and the reply's audio 0.43 s after it.
+`TestMLXKeypressCancel`: the line cancelled 1–18 ms after the key, the reply's audio 250–330 ms
+after it. Twelve repeated runs of the two, and a final run of all five: all passed.
+
+### Test results
+
+All green on 2026-10-23: **1283 passed, 12 skipped** (the `backend` tests and the AICC run that
+needs `AICC_REPO`) in about 125 s (`uv run --locked pytest`). The real-time tests (echo, barge-in,
+AICC replays) and the cancellation matrix also passed three runs in a row under a load average of
+about 18 (M0's spikes were running). `ruff check`, `ruff format --check`
+and `pyright` (strict on `src/`) report nothing. With `AICC_REPO` set, the AICC e2e test passes too.
+
+| Suite | Tests | New in M4 |
+|---|---|---|
+| unit | 1147 | the playout model and the phase learner (14); the engine and the estimator on synthetic line echo (13: frame checks, ERLE > 20 dB with the caller kept in double talk, the CPU, residual delays of 20, 160 and 600 ms, a negative lag, no windows without a reference and none confirmed without echo, the restart); the echo reference and stage on a fake clock (19: the capture clock, sample-exact placement with the lead, the hold-back, the flush, truncate re-anchoring, playback and its guard, the guard's keep range, the bypass, lock-step feeding, a gap, the overlap measure); the barge-in rules in the gate (7); the input buffer's second track (3); the feeder with the canceller in front (1); the normalizer's character map (12); truncation over normalized text (2); the echo settings (9); the import graph (the new modules) |
+| integration | 114 | the cancellation matrix, now 10 phases × 5 triggers (50, below); truncation on the wire (7); the barge-in rules and echo turns on a virtual clock (3); simulated echo (2); the real-VAD barge-in on the TTS path (1); AICC barge-in replays (3) |
+| e2e (`-m e2e`) | 4 | the `mlxrt dev` test needs the ONNX models (config.mock.yaml runs Silero) |
+| tests/aicc | 19 | the caller clip it hands the Go tests (1); the AICC run now requires all five tests to pass |
+| backend (`-m backend`) | 11 | one new, not run: see below |
+
+**The cancellation matrix** (`tests/integration/test_cancellation.py`). Phases: awaiting the
+transcript, before the first token, mid-text, mid-tool-call, waiting for the TTS backend's slot,
+before the first TTS chunk, mid-audio, audio held back by pacing, draining after the LLM is done,
+and a verbatim line. Triggers: barge-in, `response.cancel`, disconnect, backend error, backend
+timeout. Each case checks: no delta after a terminal event, every stream closed once, in order
+(the causal invariants); the provider streams closed within 1 s without their gates released;
+every stream a mock opened closed exactly once; the pacer's held audio never sent; for a barge-in,
+`speech_started` before `response.done{cancelled}` with nothing but terminal events between; and
+the next request's history (D5: all that was sent once the session clock ran on, nothing when it
+did not).
+
+**The real-VAD barge-in on the TTS path** (`tests/integration/test_tts_turns.py`): real Silero, the
+TTS provider on the fake server speaking the English clip, the LLM still writing, a 1 s lead. It
+checks §6.5 step by step: `speech_started` names the item the commit creates; the LLM request is
+closed; only terminal events lie between `speech_started` and `response.done`; less audio was sent
+than synthesized and none after; AICC's truncate is honoured at its played time; the next request
+sees the answer cut there. The caller's speech is confirmed about 0.6 s after its onset (the
+400 ms rule, the hold-back, framing).
+
+**Measured.** The canceller's CPU: **8.6–9.4 ms per second of audio** (thread time, 20 s of
+synthetic line echo, one session, `tests/unit/test_aec.py`; up to 17 ms with a load average of 18
+while M0's spikes ran; M0 B4 measured 7.8 ms). AEC3 near-end suppression with no echo on the line
+(offline, the fixtures, 0.5 s windows from the caller's onset): a speech reference 0–2 dB or, for
+another clip pairing, up to 44 dB for 2 s; a sine reference 45–51 dB throughout; a silent reference
+under 0.3 dB. In the gateway, before the bypass, a caller over our speech with no echo was confirmed
+2.5–3.4 s late or not at all; with the bypass, about 0.6 s after the onset.
+
+### Pending the GPU runs
+
+- `uv run --locked pytest -m backend` with `make dev`, M4's:
+  - `test_sdk_barge_in_with_the_real_stack`: the official SDK streams room tone, asks for a long
+    Chinese line, and streams the English fixture over it 2.6 s in: `speech_started`, then
+    `response.done{cancelled, turn_detected}` with only terminal events between, the caller
+    confirmed within 2 s of the onset, a truncate accepted, the caller's turn transcribed and
+    answered, no error;
+  - `test_aicc_harness_against_the_real_stack` (needs `AICC_REPO`): now also `TestMLXBargeIn` and
+    `TestMLXKeypressCancel` on the real VAD, canceller and TTS.
+- M2's and M3's backend tests (unchanged).
+- M0's double-talk ΔCER (C2): whether the ASR keeps the canceller's output (`aec.asr_input`).
+- Live echo on a real AICC call (deferred by D17): the echo path, ERL and bulk delay, AEC3's
+  convergence and the bypass on real lines.
+
+### Known gaps, by milestone
+
+| Milestone | What M4 leaves for it |
+|---|---|
+| M6 | the echo summary's numbers as metrics (ERLE, bypasses, barge-ins that were echo) |
+| M7 | the canceller on G.711 input (8 kHz upsampled; the reference model is rate-independent) |
+| open | clock drift between AICC's ticker and its uplink was not simulated (the capture clock tracks drift over 10 s, the learner keeps refining); a segment cut while still being synthesized is measured over the audio made so far, which overstates what was heard of it |
+
+### Deviations from ARCHITECTURE, with reasons
+
+1. **The canceller is bypassed on a line without echo** (`aec.bypass_without_echo_ms`, 1500; null
+   turns it off). AEC3's suppressor silences a caller talking over our audio when no echo of it is
+   on the line (measurements above): on such calls barge-in came seconds late or never. The bypass
+   only follows the estimator's evidence (1.5 s of playing reference without echo); a single
+   chance peak never re-engages it, a confirmed estimate does.
+2. **The guard's keep range is [5, 450] ms**: `max_residual_delay_ms` is its upper bound, as B4
+   recommended over the tested 400 (AEC3 handled 415 ms and failed at 565). The brief quoted
+   both [5, 400] and 450; both bounds are configurable.
+3. **Echo-turn overlap counts CJK characters and Latin words**, not characters: letter by letter,
+   two unrelated English sentences overlap 0.45–0.7, which would drop real English turns as echo.
+   `echo_match_min_chars` became `echo_match_min_units`.
+4. **The hold-back** (about 70 ms while a response may add audio) makes the reference final before
+   it is fed; the alternative, feeding at once, loses the first 40–60 ms of reference at each
+   response's start. Idle input is never held.
+5. **The reference comes from the writer**: the ledger tells the echo reference of each audio
+   delta handed to the socket (and each one discarded), with its PCM in `Delivery`.
+6. **"Playing" includes `max_residual_delay_ms` of echo tail** after the modelled end, and the guard
+   is per response (from its first modelled frame). The rule for a speech stretch follows its
+   onset: one that began before playback needs 400 ms once playback starts; once playback has
+   ended, the normal rule applies from its onset.
+7. **config.mock.yaml runs the real Silero VAD** (`make dev-mock` and `make aicc-probe-mock` now
+   fetch the ONNX models) and the barge-in rules, **with the canceller off**: the mock TTS speaks a
+   sine, the pathological reference for AEC3 (deviation 1's measurement), which no bypass can tell
+   apart from echo (a periodic reference correlates with anything periodic).
+8. **D5 applies to cancelled responses** (barge-in, `response.cancel`), not failed ones; it is
+   computed at the cancel; the transcript events still report the text sent.
+9. **Echo-turn suppression applies to VAD-detected turns only**, not to manual commits.
+10. **A manual commit in VAD mode** takes the canceller's output where it has run; the last
+    10–70 ms may still be raw.
+11. **AEC3's fixed 8 ms capture delay is not compensated**: the processed track and the VAD's
+    positions are consistent with each other, 8 ms behind the raw input.
+12. **Test tooling.** `build_gateway` turns the canceller and the barge-in rules off unless a test
+    turns them on (scripted detectors and audio sent faster than real time leave no playout to
+    model); `ManualClock` gives tests a virtual session clock; `assert_causal(ended=False)` for a
+    disconnect; the fake speech server can speak a PCM clip.
+13. **M3 tests changed on purpose**: the cancellation matrix was rewritten for the new phases and
+    the D5 history rule; the AICC replay counts only client requests in its deadline check (VAD
+    turns add responses); the mock-config test checks the new setup. Golden traces: only
+    `barge_in.jsonl` changed, in one field: the reply's `usage.input_tokens` went from 28 to 16,
+    because the interrupted answer, which had no time to play (the test's frozen clock), is cut
+    from the next request (D5). The test now runs on `ManualClock`, so the value is deterministic.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §4.3 and §6.5 (Echo): the hold-back; the reference from the writer; the capture clock; the echo
+  tail and per-response guard; re-anchoring (±2 frames, ±500 ms); tick-phase learning from confirmed
+  estimates inside unbroken runs; the bypass without echo (deviation 1), for the owner's review.
+- §6.5 test coverage: the matrix's phases now include the TTS queue wait, audio held by pacing and
+  a verbatim line, and the checks include held audio never sent and AICC's ordering rule.
+- §6.6: the cut in spoken characters through the normalizer's map; D5 for cancelled responses,
+  computed at the cancel; a segment still being synthesized.
+- §10: the `aec` and `barge_in` sections as built (`bypass_without_echo_ms`,
+  `min_residual_delay_ms`, `echo_match_*`).
+- §12 / DECISIONS: D17's bypass; the keep range [5, 450]; echo-turn overlap in characters and
+  words; `config.mock.yaml` with the canceller off.
+- SPIKE.md S11: AEC3's near-end suppression without echo (not simulated in M0, where echo was
+  always present) and this milestone's CPU measurement.

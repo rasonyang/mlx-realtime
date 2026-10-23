@@ -17,6 +17,7 @@ from openai import AsyncOpenAI
 from openai.resources.realtime.realtime import AsyncRealtimeConnection
 from openai.types.realtime import RealtimeServerEvent, RealtimeSessionCreateRequest
 
+from tests.speech import needs_models
 from tests.support import Mocks, build_gateway, http_get, running
 
 pytestmark = pytest.mark.e2e
@@ -132,9 +133,11 @@ async def test_cancel_mid_audio() -> None:
     assert not [e for e in events if e.type == "response.output_audio.delta"]
 
 
+@needs_models
 async def test_dev_entry_point_with_the_mock_config() -> None:
     """``mlxrt dev`` as ``make dev`` runs it, with config.mock.yaml (no model backends: config.yaml
-    would start the real ones), on a free port."""
+    would start the real ones), on a free port. Since M4 the mock config runs the real Silero
+    VAD, so the ONNX model must be there."""
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]

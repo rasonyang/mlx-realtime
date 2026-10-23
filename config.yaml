@@ -69,6 +69,39 @@ turn:
   smart_turn: {enabled: true, model: models/smart-turn-v3.2-gpu.onnx, threshold: 0.5,
                max_silence_ms: 3000, window_s: 8, workers: 2, intra_op_threads: 2}
 
+# D17 (G7): the per-session echo canceller, WebRTC AEC3 through pywebrtc-audio, on its own CPU
+# executor. Its reference is our output on a model of AICC's playout: a 20 ms tick, playback
+# from 3 queued frames (60 ms), a re-buffer after more than 2 empty ticks; the reference leads
+# by 60 ms. A GCC-PHAT guard re-aligns it only when the residual delay leaves
+# [min_residual_delay_ms, max_residual_delay_ms], and learns AICC's tick phase.
+# asr_input: what the ASR transcribes (pending M0's double-talk ΔCER): processed | raw.
+aec:
+  enabled: true
+  engine: webrtc_aec3
+  asr_input: processed
+  workers: 2
+  client_tick_ms: 20
+  client_prebuffer_ms: 60
+  client_underrun_ticks: 2
+  reference_lead_ms: 60
+  learn_tick_phase: true
+  delay_guard: true
+  min_residual_delay_ms: 5
+  max_residual_delay_ms: 450
+
+# D17's second line of defence while the client is modelled as playing our audio:
+# no barge-in from an onset in the first echo_guard_ms of a response's playback, speech must
+# last min_speech_ms_while_playing (null: turn.vad.min_speech_ms) during playback, and a turn
+# whose transcript matches what we were playing is treated as noise (D7). Each rule can be
+# switched off (0, null, false).
+barge_in:
+  echo_guard_ms: 2000
+  min_speech_ms_while_playing: 400
+  echo_turn_suppression: true
+  echo_match_threshold: 0.7
+  echo_match_min_units: 4
+  echo_match_window_ms: 3000
+
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
   # TTS input only; transcripts keep the original text. Pending S9 (G5): which categories the TTS

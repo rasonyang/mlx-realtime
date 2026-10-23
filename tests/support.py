@@ -23,6 +23,7 @@ from mlx_realtime.providers.mock import EchoLLM, ScriptedASR, SineTTS
 from mlx_realtime.providers.registry import Providers
 from mlx_realtime.server.app import GatewayServer
 from mlx_realtime.server.gateway import Gateway
+from mlx_realtime.session.clock import Clock
 from mlx_realtime.vad.base import TurnEndDetector
 from mlx_realtime.vad.scripted import ScriptedSpeech
 
@@ -68,6 +69,63 @@ class Mocks:
     tts: SineTTS
 
 
+class ManualClock:
+    """The session clock in virtual time: it moves only when a test advances it, and a sleep
+    on it ends once it has been advanced far enough. Turn timelines, pacing (D6) and the D5
+    fallback read it; asyncio timeouts still run on the loop."""
+
+    def __init__(self, start: float = 1000.0) -> None:
+        self.t = start
+        self._sleepers: list[tuple[float, asyncio.Future[None]]] = []
+
+    @property
+    def sleeping(self) -> int:
+        """How many tasks are waiting for virtual time to pass (the pacer at its cap)."""
+        return sum(1 for _, future in self._sleepers if not future.done())
+
+    def now(self) -> float:
+        return self.t
+
+    def advance(self, seconds: float) -> None:
+        self.t += seconds
+        for target, future in self._sleepers:
+            if target <= self.t and not future.done():
+                future.set_result(None)
+        self._sleepers = [
+            (target, future) for target, future in self._sleepers if not future.done()
+        ]
+
+    async def sleep(self, seconds: float) -> None:
+        if seconds <= 0:
+            await asyncio.sleep(0)
+            return
+        future = asyncio.get_running_loop().create_future()
+        self._sleepers.append((self.t + seconds, future))
+        await future
+
+
+ECHO_OFF: dict[str, dict[str, object]] = {
+    "aec": {"enabled": False},
+    "barge_in": {
+        "echo_guard_ms": 0,
+        "min_speech_ms_while_playing": None,
+        "echo_turn_suppression": False,
+    },
+}
+"""The echo canceller and the barge-in rules off: scripted detectors and audio sent faster
+than real time leave no client playout to model (the M4 echo tests turn them on)."""
+
+
+def with_echo_off(config: Mapping[str, object] | None) -> dict[str, object]:
+    """``config`` over ``ECHO_OFF``, section by section."""
+    merged: dict[str, object] = dict(config or {})
+    for section, defaults in ECHO_OFF.items():
+        given = merged.get(section)
+        overrides = dict(given) if isinstance(given, Mapping) else {}  # pyright: ignore[reportUnknownArgumentType]
+        merged[section] = {**defaults, **overrides}
+    return merged
+
+
 def build_gateway(
     config: Mapping[str, object] | None = None,
     *,
@@ -76,18 +134,21 @@ def build_gateway(
     turn_end: TurnEndDetector | None = None,
     ms_per_char: int = 20,
     chunk_ms: int = 40,
+    clock: Clock | None = None,
 ) -> tuple[Gateway, Mocks]:
-    """A gateway over zero-delay mocks; ``speech`` scripts the speech detector of every session."""
+    """A gateway over zero-delay mocks; ``speech`` scripts the speech detector of every session.
+    The echo canceller and barge-in rules are off unless ``config`` turns them on."""
     mocks = Mocks(
         llm=EchoLLM(),
         asr=ScriptedASR(transcripts),
         tts=SineTTS(ms_per_char=ms_per_char, chunk_ms=chunk_ms),
     )
     gateway = Gateway(
-        validate_config(dict(config or {})),
+        validate_config(with_echo_off(config)),
         Providers(llm=mocks.llm, asr=mocks.asr, tts=mocks.tts),
         speech_detector=lambda: ScriptedSpeech(speech),
         turn_end_detector=lambda: turn_end,
+        clock=clock,
     )
     return gateway, mocks
 

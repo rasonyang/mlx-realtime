@@ -60,7 +60,8 @@ class Connection:
             max_audio_ms=config.limits.inbox_max_ms, max_commands=config.limits.inbox_max_commands
         )
         self._outbox = Outbox(config.limits.outbound_queue_events)
-        self._ledger = OutputLedger()
+        deps = gateway.session_deps()
+        self._ledger = OutputLedger(deps.clock)
         self._encoder = EventEncoder()
         self._stopping = asyncio.Event()
         self._stop = _Stop(1001, "server shutting down")
@@ -70,7 +71,7 @@ class Connection:
             conversation_id=gateway.ids.conversation(),
             settings=settings,
             defaults=gateway.defaults,
-            deps=gateway.session_deps(),
+            deps=deps,
             inbox=self._inbox,
             ledger=self._ledger,
             emit=self._emit,
@@ -142,6 +143,7 @@ class Connection:
         delivery = entry.delivery
         if delivery is not None:
             if self._ledger.is_stale(delivery):
+                self._ledger.dropped(delivery)
                 return  # audio of a cancelled response: flushed, never sent (§6.5 step 4)
             self._ledger.record(delivery)
         try:

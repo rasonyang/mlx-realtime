@@ -1,4 +1,9 @@
-# mlx-realtime with every provider a mock (the M1 setup): no model backends, no model files.
+# mlx-realtime with every provider a mock (the M1 setup): no model backends. Speech detection is
+# the real Silero VAD on CPU (`make models` fetches it), with the barge-in rules of config.yaml,
+# so AICC's barge-in scenarios run against it (M4). The echo canceller is off here: the mock TTS
+# speaks a sine tone, and with no echo on the line WebRTC AEC3 takes a caller talking over a
+# sine for echo and silences them (it does not with speech; tests/integration/test_echo.py runs
+# the canceller on speech).
 # Used by the tests and the e2e suite: `uv run --locked mlxrt --config config.mock.yaml dev`.
 # Any key can be overridden with MLXRT__<SECTION>__<KEY>=<YAML value>, for example
 # MLXRT__GATEWAY__PORT=9000 or MLXRT__PROVIDERS__LLM__TOKEN_DELAY_MS=5.
@@ -49,8 +54,22 @@ session_defaults:
       speed: 1.0
 
 turn:
-  vad: {type: mock, min_speech_ms: 150}   # a scripted detector that never hears speech
-  smart_turn: {enabled: false, threshold: 0.5, max_silence_ms: 3000, window_s: 8}
+  vad: {type: silero, model: models/silero_vad.onnx, min_speech_ms: 150, model_reset_interval_s: null}
+  smart_turn: {enabled: false, threshold: 0.5, max_silence_ms: 3000, window_s: 8}   # silence ends a turn
+
+aec:                       # D17: as config.yaml, but off (see the top of this file)
+  enabled: false
+  engine: webrtc_aec3
+  asr_input: processed
+  reference_lead_ms: 60
+  learn_tick_phase: true
+  min_residual_delay_ms: 5
+  max_residual_delay_ms: 450
+
+barge_in:                  # D17's second line of defence: as config.yaml
+  echo_guard_ms: 2000
+  min_speech_ms_while_playing: 400
+  echo_turn_suppression: true
 
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}

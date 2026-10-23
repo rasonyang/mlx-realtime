@@ -4,7 +4,7 @@ from typing import Literal
 
 import pytest
 
-from mlx_realtime.text.normalize import NormalizerOptions, normalize
+from mlx_realtime.text.normalize import NormalizerOptions, normalize, normalize_with_map
 
 DEFAULT = NormalizerOptions()
 NOTHING = NormalizerOptions(phones=False, ids=False)
@@ -689,3 +689,41 @@ def test_language_is_decided_by_the_nearest_letters(
 )
 def test_urls_and_emails_are_untouched(text: str) -> None:
     assert normalize(text, EVERYTHING) == text
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "请讲一个很长很长的故事。",
+        "请拨打13800138000，谢谢。",
+        "订单号ABC123456已发货",
+        "call me at 138 0013 8000 ok",
+        "我用iPhone手机，价格¥12.5，5km",
+    ],
+)
+@pytest.mark.parametrize("spacing", [False, True])
+def test_the_character_map_points_each_spoken_character_at_its_source(
+    text: str, spacing: bool
+) -> None:
+    options = NormalizerOptions(numbers=True, money=True, units=True, spacing=spacing)
+    spoken, source = normalize_with_map(text, options)
+    assert spoken == normalize(text, options)
+    assert len(source) == len(spoken) + 1
+    assert source[-1] == len(text)
+    assert list(source) == sorted(source)  # in order: a prefix maps to a prefix
+
+
+def test_unchanged_text_maps_one_to_one() -> None:
+    spoken, source = normalize_with_map("你好，世界。")
+    assert spoken == "你好，世界。"
+    assert source == (0, 1, 2, 3, 4, 5, 6)
+
+
+def test_a_reading_spreads_over_the_span_it_replaces() -> None:
+    text = "拨打13800138000"
+    spoken, source = normalize_with_map(text)
+    assert spoken.startswith("拨打幺三八")
+    digits = [source[index] for index in range(2, len(spoken))]
+    assert digits[0] == 2
+    assert digits[-1] <= len(text) - 1
+    assert len(set(digits)) > 5  # spread over the number, not piled on its first digit

@@ -1,10 +1,13 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M3 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> **Status: M4 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
 > (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
 > the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
-> of real time (D6), with configured voices (D19) and verbatim lines (D16).
+> of real time (D6), with configured voices (D19) and verbatim lines (D16). M4 made barge-in,
+> cancellation and truncation complete (§11.2, §11.3, §11.13): the D5 truncation fallback, and
+> echo cancellation in the service (D17) with its second line of defence, which gates the speech
+> events while the client is modelled as playing our audio.
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -66,7 +69,7 @@ causes echoes it in `error.event_id`.
 | `input_audio_buffer.commit` | `InputAudioBufferCommitEvent` | **Supported** | Commits the whole buffer, the resampler's tail included → `input_audio_buffer.committed`, `conversation.item.added`. Creates no response. Allowed in `server_vad` mode too (a speech turn in progress ends without `speech_stopped`). An empty buffer: `invalid_event`. |
 | `input_audio_buffer.clear` | `InputAudioBufferClearEvent` | **Supported** | → `input_audio_buffer.cleared`; a speech turn in progress is dropped. |
 | `conversation.item.create` | `ConversationItemCreateEvent` | **Partial** | Messages and `function_call_output` (§5); `previous_item_id` absent (append), `"root"` (first) or an existing id. → `conversation.item.added`, `conversation.item.done`. Client-created `function_call` items: Unsupported. |
-| `conversation.item.truncate` | `ConversationItemTruncateEvent` | **Supported** | Assistant messages with audio, `content_index: 0`. An `audio_end_ms` beyond the audio sent is clamped to it (D18). → `conversation.item.truncated` (§11.3). |
+| `conversation.item.truncate` | `ConversationItemTruncateEvent` | **Supported** | Assistant messages with audio, `content_index: 0`, in progress or completed (AICC truncates after `response.done`). An `audio_end_ms` beyond the audio sent is clamped to it with a warning in the log, never an error (D18). → `conversation.item.truncated` (§11.3). |
 | `conversation.item.delete` | `ConversationItemDeleteEvent` | **Supported** | Any item, including one a response is still producing (§11.4). → `conversation.item.deleted`. Unknown id: `item_not_found`, `param: "item_id"` (D18). |
 | `conversation.item.retrieve` | `ConversationItemRetrieveEvent` | **Unsupported** | `invalid_event`, `param: "type"`: user audio is not retained in the wire format, and an item without its audio would silently diverge from GA. |
 | `response.create` | `ResponseCreateEvent` | **Partial** | §4. While a response is active: `conversation_already_has_active_response` (not queued). `response.created` is immediate (D7). |
@@ -95,7 +98,7 @@ the configured session defaults, so its absent fields take their configured valu
 | `audio.input.format` (`RealtimeAudioFormats`) | **Partial** | `{type: "audio/pcm", rate: 24000}`; both keys optional. `audio/pcmu`, `audio/pcma`: **Unsupported (M7)** | `{type: "audio/pcm", rate: 24000}` | `session.audio.input.format.type` / `.rate` |
 | `audio.input.transcription` (`AudioTranscription`) | **Partial** | object or `null`; `model` (echoed only: the ASR is Qwen3-ASR, `providers.asr.model`), `language` (an ISO 639 code such as `zh` or `en`, passed to the ASR as its language name; absent: the ASR detects it), `prompt` (echoed only). `delay`, `keywords`, `languages`: Unsupported | effective object (unset keys omitted), or `null`. On by default (D15) | `session.audio.input.transcription.<key>` |
 | `audio.input.turn_detection` (`RealtimeAudioInputTurnDetection`) | **Supported** | `null` (manual turns), or `ServerVad`: Silero VAD v6.2.3 plus Smart Turn v3.2 (D4, §11.9). `threshold` [0, 1] (speech enters at it, leaves below it − 0.15), `prefix_padding_ms` ≥ 0, `silence_duration_ms` ≥ 0 (the silence before an end-of-turn evaluation; session default 200), `create_response`, `interrupt_response`; `idle_timeout_ms` only `null`. `SemanticVad`: **Unsupported** | every field filled, `idle_timeout_ms: null`; or `null` | `…turn_detection.type` (`semantic_vad`), `….idle_timeout_ms` (non-null), `….<field>` |
-| `audio.input.noise_reduction` (`NoiseReduction`) | **Unsupported** | `null` only (echo cancellation is internal, M4) | `null` | `session.audio.input.noise_reduction` |
+| `audio.input.noise_reduction` (`NoiseReduction`) | **Unsupported** | `null` only (echo cancellation is internal and always configured server-side: §11.13) | `null` | `session.audio.input.noise_reduction` |
 | `audio.output.format` | **Supported** | `audio/pcm` at 24000 only | as input | `session.audio.output.format.type` / `.rate` |
 | `audio.output.voice` (`Voice`) | **Partial** | any string, never rejected (D19): a name in `voices.map` is that voice, any other name is spoken by `voices.default` and logged as a warning (§11.10). Locked once the session has produced audio, as in GA: a different voice then gets `cannot_update_voice`; the same voice, or no voice field, passes. `VoiceID` objects: Unsupported | the effective voice (default `vivian`) | `session.audio.output.voice` (object; or `cannot_update_voice`) |
 | `audio.output.speed` | **Partial** | `1.0` only (D14: the TTS has no speed control) | `1.0` | `session.audio.output.speed` |
@@ -176,7 +179,7 @@ session).
 | `error` | `RealtimeErrorEvent` | **Supported** | §9 |
 | `input_audio_buffer.committed` | `InputAudioBufferCommittedEvent` | **Supported** | client commit, or the end of a detected speech turn |
 | `input_audio_buffer.cleared` | `InputAudioBufferClearedEvent` | **Supported** | after `input_audio_buffer.clear` |
-| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Supported** | `server_vad` only, once speech has lasted `turn.vad.min_speech_ms` (150); `audio_start_ms` includes `prefix_padding_ms`; `item_id` of the item the commit will create. One per turn: speech that resumes while the turn is held continues it (§11.9) |
+| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Supported** | `server_vad` only, once speech has lasted `turn.vad.min_speech_ms` (150), or `barge_in.min_speech_ms_while_playing` (400) while the client is modelled as playing our audio, and never for an onset in the first `barge_in.echo_guard_ms` (2000) of a response's playback (§11.13); `audio_start_ms` includes `prefix_padding_ms`; `item_id` of the item the commit will create. One per turn: speech that resumes while the turn is held continues it (§11.9) |
 | `input_audio_buffer.speech_stopped` | `InputAudioBufferSpeechStoppedEvent` | **Supported** | `server_vad` only, when the turn ends (§11.9), immediately before `input_audio_buffer.committed`; `audio_end_ms` is the acoustic end of speech (§11.6) |
 | `conversation.item.added` | `ConversationItemAdded` | **Supported** | client items, committed audio, response output items |
 | `conversation.item.done` | `ConversationItemDone` | **Supported** | client items (at once), user audio (when the transcript is final), response items (when they close) |
@@ -286,8 +289,12 @@ input_audio_buffer.speech_started
 → response.output_audio.done → response.output_audio_transcript.done → response.content_part.done
 → response.output_item.done{incomplete} → conversation.item.done → response.done{cancelled, turn_detected}
 ```
-While the response still awaits its transcript (no output item yet):
-`speech_started → response.done{cancelled}`.
+These events come out of one synchronous step: nothing else lies between `speech_started` and
+`response.done` (ARCHITECTURE §6.5 steps 1–7). While the response still awaits its transcript (no
+output item yet): `speech_started → response.done{cancelled}`. Speech over the tail of an answer
+whose response is already done (its audio all sent, the client still playing it) emits
+`speech_started` alone: there is nothing to cancel, and the client's truncate stops our model of
+its playback. In every case the reply follows `speech_stopped`.
 
 **`response.cancel`** (`response_cancel.jsonl`): as barge-in without `speech_started`, with
 `reason: "client_cancelled"`. A second cancel: `error` `response_cancel_not_active`.
@@ -370,12 +377,22 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
    no LLM call.
 2. **What a cancelled response leaves.** The transcript of a cancelled audio message is the text whose
    transcript deltas reached the client. Audio and transcript deltas still queued at the cancel are
-   discarded unsent (§6.5 step 4); the writer counts what it handed to the socket.
-3. **Truncation (§6.6).** `audio_end_ms` is clamped to the audio sent for the item. The item's text for
-   later LLM requests becomes every segment that ended by then plus a proportional prefix of the one
-   playing (characters, snapped back to a word start in Latin text). The item is truncated in place,
-   even after `response.done`. Without a client truncate, the item keeps the text sent (the D5
-   fallback arrives in M4).
+   discarded unsent (§6.5 step 4), and so is audio the pacer was holding back; the writer counts
+   what it handed to the socket. For later LLM requests a cancelled audio message (barge-in or
+   `response.cancel`) is cut to what the client can have heard when it sends no truncate (D5):
+   `min(audio sent, time since its first audio delta was sent)` at the cancel, by the rule of §11.3.
+   A failed response keeps the text sent.
+3. **Truncation (§6.6).** `audio_end_ms` is clamped to the audio sent for the item (with a warning in
+   the log, never an `error`: D18). The item's text for later LLM requests becomes every segment that
+   ended by then plus a proportional prefix of the one playing: the audio speaks the segment's
+   normalized text, so the share is taken in spoken characters and mapped back through the
+   normalizer's character map (a phone number read digit by digit counts as heard only as far as
+   its digits were read), then snapped back to a word start in Latin text. A segment still being
+   synthesized at the cut counts over the audio made so far. The item is truncated in place, also
+   after `response.done`; a truncate overrides the D5 cut of §11.2, and a later truncate overrides an
+   earlier one. A truncate to 0 followed by `conversation.item.delete` (AICC's flow for an answer
+   nobody heard) leaves no trace of the item in later requests. The truncate also tells the gateway
+   the client stopped playing the item there (§11.13).
 4. **Deleting an item a response is producing** is accepted: the item leaves the conversation, the
    response's own events continue, and its closing `conversation.item.done` is skipped.
 5. **Function calls (§6.7).** A call is delivered when complete: arguments in one delta, then `.done`.
@@ -438,6 +455,35 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
     mixed text included) or en, which picks each model's lang_code. A segment the primary TTS fails
     before its first audio is spoken by the fallback (Kokoro); a failure after audio started fails
     the response (`provider_error` / `backend_*`), so the voice never switches mid-sentence.
+13. **Echo (D17), invisible on the wire.** Neither AICC nor FreeSWITCH cancels echo, so the caller's
+    audio carries our own speech back. The gateway handles it, configured in `config.yaml`'s `aec`
+    and `barge_in` sections (`config.mock.yaml` turns the canceller off: its sine-tone TTS is no
+    speech for the canceller):
+    - **Echo canceller.** Each session runs WebRTC AEC3 (pywebrtc-audio) on the 16 kHz input before
+      speech detection, Smart Turn and the input buffer; the ASR transcribes its output
+      (`aec.asr_input: processed`, or `raw`). Its reference is our own audio as the writer sent it,
+      placed on a model of AICC's playout (20 ms ticks, a 60 ms prebuffer, a re-buffer after more
+      than 2 empty ticks) 60 ms ahead of where it plays, re-aligned by a GCC-PHAT delay estimator
+      when the residual delay leaves [5, 450] ms, with AICC's tick phase learned from it. A
+      barge-in or `response.cancel` ends the modelled playback of what the client had not played;
+      a client truncate ends it at the truncated position and corrects the model's timing. On a
+      line where the estimator finds no echo of our playing audio (1.5 s of it), the canceller is
+      bypassed until echo shows up, because AEC3 would otherwise take a caller talking over us for
+      echo and silence them. While a response may still add audio, input waits about 70 ms for
+      its reference, so speech events during a response come that much later.
+    - **Speech events while the client is modelled as playing** (from the first frame of a
+      response's audio to its last, or a flush, plus 450 ms of echo tail): speech must last
+      `barge_in.min_speech_ms_while_playing` (400) before `speech_started`, and an onset in the
+      first `barge_in.echo_guard_ms` (2000) of a response's playback counts only from the guard's
+      end: a stretch that ends before then is discarded, never a turn. Speech that began before
+      the playback, or continues after it, follows the usual rules.
+    - **Echo turns.** A detected turn whose transcript matches the assistant audio the client was
+      playing around it (at least 70 % of its CJK characters and Latin words, in order; turns of at
+      least 4 of them) is treated like noise (D7): its response completes at once with no output
+      and no LLM call, and later LLM requests leave the turn out. One reply per speech turn still
+      holds.
+    - Each rule can be switched off (`echo_guard_ms: 0`, `min_speech_ms_while_playing: null`,
+      `echo_turn_suppression: false`, `aec.enabled: false`).
 
 ## 12. AICC compatibility
 
@@ -446,18 +492,19 @@ client traces in `spikes/aicc/traces/` are replayed in `tests/integration/test_a
 real TTS path (the TTS provider and its fallback against a fake `mlx_audio.server` paced as M0
 measured): every frame is sent as captured, AICC's fake-server ids are swapped for this server's ids,
 no frame draws an `error`, and every response meets AICC's deadlines. AICC's own client harness
-(`probe`, `measureResponseCreated`, and a lines check) runs against the gateway with
-`tests/aicc/probe.py` (`make aicc-probe`). AICC's requirements (ARCHITECTURE §2) at M3:
+(`probe`, `measureResponseCreated`, a lines check, and since M4 the barge-in and keypress
+scenarios) runs against the gateway with `tests/aicc/probe.py` (`make aicc-probe`). AICC's
+requirements (ARCHITECTURE §2) at M4:
 
-| Area | M3 |
+| Area | M4 |
 |---|---|
 | Handshake | `session.updated` answers the first `session.update` at once; every AICC `session.update` (tools, `server_vad` with only `silence_duration_ms: 500`, flow voice) is accepted. |
 | Session shape | GA, `audio/pcm` 24 kHz both ways; flat function tools; a flow-chosen voice is accepted, spoken by the default voice when not configured, and the effective voice echoed (D19); instructions-only updates merge and never meet the voice lock. |
 | Turn-taking | `server_vad` is Silero VAD + Smart Turn (§11.9): AICC's `silence_duration_ms: 500` is the silence before Smart Turn decides. One response per commit, at the commit (D7); an empty transcript completes it empty. |
 | Deadlines | `response.created` is immediate. First audio: ASR + LLM first token + first segment + TTS first chunk (~110 ms warm in M0); checked on every replayed response and by AICC's own watchdog in its harness. Gaps between deltas: one TTS request per segment, back to back, and paced deltas at the playback rate (D6). The real budget on the real backends is pending (G4). |
 | One response at a time | `conversation_already_has_active_response`, not queued. |
-| Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`; the reply follows `speech_stopped`; audio held back by pacing is discarded. Echo cancellation (D17) is M4. |
-| Client edits | `response.cancel` without an id, truncate with played milliseconds (clamped, D18), delete of unheard answers and of calls, user `input_text` notes, `function_call_output` with a `hint`: all replayed. |
+| Barge-in | the server cancels: `speech_started`, then the terminal events and `response.done{cancelled, turn_detected}`, in one step; the reply follows `speech_stopped`; audio held back by pacing is discarded. Speech over the tail of a finished answer gets `speech_started`, AICC's flush and truncate, and a reply. The echo of our own speech is cancelled in the service, and gated while AICC is modelled as playing (D17, §11.13); AICC's own 800 ms guard stays as it is. |
+| Client edits | `response.cancel` without an id, truncate with played milliseconds (clamped, D18; also after `response.done`), a truncate to 0 then the delete of an unheard answer, delete of calls, user `input_text` notes, `function_call_output` with a `hint`: all replayed. |
 | Lines | "Say exactly this…" lines are spoken verbatim, without the LLM (D16): on an empty conversation, mid-call, and as the wait line while a call is unanswered; their latency is the TTS's first chunk. |
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
 | Errors | only the codes of §9, and only where required (D18); AICC never meets `cannot_update_voice`. |
@@ -472,3 +519,5 @@ Trace by trace (what each replay checks beyond "no error"):
 | `waitline_gateway` | the wait line, asked for while the first call is unanswered, spoken verbatim: its turn makes no second call, so the trace's delete of one is not sent (AICC deletes only calls a line's turn made); the first call answered; the owed `response.create` completes and sees the line in its history |
 | `unheard_keypress_gateway` | an unheard answer deleted; a system note; the keypress `response.cancel` of a reply in progress (started by the test: the trace's reply came from caller speech); the truncate clamped to the audio sent; the keypress note and the owed response |
 | `dropped_line_retry_gateway` | the line, the direction re-sent as a user item, and the retry all complete; both lines spoken verbatim |
+| barge-in (M4, from `call_gateway`'s session) | AICC simulated in real time (20 ms appends, its playout and barge-in) with the real Silero VAD and canceller: the caller talks over a long line → `speech_started` → `response.done{cancelled}` in one step → AICC's truncate (its played frames) accepted → a reply after `speech_stopped`; and over the tail of a finished line → `speech_started`, truncate, reply |
+| keypress (M4, from `unheard_keypress_gateway`) | `response.cancel` of an answer nobody heard, a truncate to 0, its delete after `response.done`, the keypress note and the owed reply, with no `error`; the next request has no trace of the answer |

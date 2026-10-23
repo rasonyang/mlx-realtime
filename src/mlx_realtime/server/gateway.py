@@ -22,7 +22,8 @@ from mlx_realtime.providers.registry import Providers, build_providers
 from mlx_realtime.providers.voices import VoiceBook
 from mlx_realtime.server.readiness import ReadinessMonitor
 from mlx_realtime.session.actor import SessionDeps
-from mlx_realtime.session.clock import LoopClock
+from mlx_realtime.session.clock import Clock, LoopClock
+from mlx_realtime.session.echo import EchoRuntime
 from mlx_realtime.session.settings import SessionSettings
 from mlx_realtime.text.normalize import NormalizerOptions
 from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
@@ -88,6 +89,7 @@ class Gateway:
         speech_detector: Callable[[], SpeechDetector] | None = None,
         turn_end_detector: Callable[[], TurnEndDetector | None] | None = None,
         environ: Mapping[str, str] = os.environ,
+        clock: Clock | None = None,
     ) -> None:
         self.voices = VoiceBook(config.voices)
         self.defaults: SessionSettings = _session_defaults(config, self.voices)
@@ -114,6 +116,9 @@ class Gateway:
         self._turn_end_detector = turn_end_detector
         self._backends = backends
         self.readiness = ReadinessMonitor(backends)
+        self.clock: Clock = clock or LoopClock()
+        aec = config.aec
+        self.echo = EchoRuntime(aec.engine, aec.workers) if aec.enabled else None
 
     def authorized(self, authorization: str | None) -> bool:
         """Bearer auth with ``gateway.api_key``; an empty key disables it."""
@@ -140,12 +145,17 @@ class Gateway:
             max_lead_ms=config.output.max_lead_ms,
             voices=self.voices,
             verbatim_prefixes=tuple(config.lines.verbatim_prefixes),
-            clock=LoopClock(),
+            clock=self.clock,
+            aec=config.aec,
+            barge_in=config.barge_in,
+            echo=self.echo,
         )
 
     async def aclose(self) -> None:
         for backend in self._backends.values():
             await backend.aclose()
+        if self.echo is not None:
+            await self.echo.aclose()
 
 
 def _session_defaults(config: Config, voices: VoiceBook) -> SessionSettings:

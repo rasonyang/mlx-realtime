@@ -21,7 +21,7 @@ _CLOSING_ORDER = [
 ]
 
 
-def assert_causal(events: Sequence[Event]) -> None:
+def assert_causal(events: Sequence[Event], *, ended: bool = True) -> None:
     """Check ordering and completeness of every response, item and stream in ``events``.
 
     - ``response.created`` precedes everything that names the response; nothing names it after
@@ -30,6 +30,8 @@ def assert_causal(events: Sequence[Event]) -> None:
       stream is closed exactly once, and its deltas add up to the final text.
     - An item's closing events come in the GA order, before ``response.done``.
     - Items are added before they are done; audio is whole 16-bit samples.
+
+    ``ended=False``: the session was cut off (a disconnect), so responses may stay open.
     """
     created: set[str | None] = set()
     finished: set[str | None] = set()
@@ -87,6 +89,8 @@ def assert_causal(events: Sequence[Event]) -> None:
                     assert (output["id"], "response.output_item.done") in closed, (
                         f"{where}: output item {output['id']} never closed"
                     )
+    if not ended:
+        return
     assert created == finished, f"responses never finished: {created - finished}"
     for (item_id, kind), text in deltas.items():
         closing = _DELTAS[kind]

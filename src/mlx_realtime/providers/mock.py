@@ -235,6 +235,7 @@ class SineTTS(_MockBackend):
         sample_rate: int = 24_000,
     ) -> None:
         super().__init__()
+        self.queue = AwaitPoint()  # waiting for the backend's one stream slot (M3: TTS queue)
         self.first_chunk = AwaitPoint(first_chunk_delay_s)
         self.next_chunk = AwaitPoint(chunk_delay_s)
         self.streams = StreamLog()
@@ -261,6 +262,7 @@ class SineTTS(_MockBackend):
         if timing is not None:
             timing.model = "sine"
         total = self.samples_for(text)
+        await self.queue()  # no backend request is open while queued
         self.streams.open()
         try:
             produced = 0

@@ -9,7 +9,7 @@ from __future__ import annotations
 import base64
 
 from tests.conftest import GoldenCheck
-from tests.support import Client, build_gateway, running, tone
+from tests.support import Client, ManualClock, build_gateway, running, tone
 
 MANUAL = {"audio": {"input": {"turn_detection": None}}}
 TEXT = {"output_modalities": ["text"], **MANUAL}
@@ -106,8 +106,12 @@ async def test_response_cancel_mid_audio(golden: GoldenCheck) -> None:
 
 
 async def test_barge_in(golden: GoldenCheck) -> None:
-    # The scripted detector hears speech from 1000 ms to 1800 ms of input audio.
-    gateway, mocks = build_gateway(speech=[(1000, 1800)], transcripts=["等一下。"])
+    # The scripted detector hears speech from 1000 ms to 1800 ms of input audio. The session
+    # clock stands still: the interrupted answer had no time to play, so the next LLM request
+    # leaves it out (D5), which its usage shows.
+    gateway, mocks = build_gateway(
+        speech=[(1000, 1800)], transcripts=["等一下。"], clock=ManualClock()
+    )
     async with running(gateway) as address, Client.connect(address) as client:
         await client.start()
         await client.say("请讲一个很长很长的故事。")

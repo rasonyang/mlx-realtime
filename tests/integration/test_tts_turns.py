@@ -28,10 +28,11 @@ from tests.fakes.mlx_audio import (
     Transcribe,
     serve_asgi,
 )
-from tests.fakes.mlx_lm import FakeMlxLm, reply
+from tests.fakes.mlx_lm import Done, FakeMlxLm, Finish, Sleep, Text, Usage, reply
 from tests.integration.deadlines import check_deadlines
 from tests.integration.invariants import assert_causal
-from tests.speech import SILERO, ZH, clip, needs_models, silence, to_wire
+from tests.phone import SimulatedCall
+from tests.speech import EN, SILERO, ZH, clip, needs_models, silence, to_wire
 from tests.support import Client, Event, build_gateway, running
 
 ZH_TEXT = "但鸟类还是有很多地方跟恐龙相似。"
@@ -71,10 +72,15 @@ def packs(tmp_path: Path) -> Path:
 
 @asynccontextmanager
 async def real_stack(
-    packs: Path, *, tts: Mapping[str, object] | None = None, turn_end: ScriptedTurnEnd | None = None
+    packs: Path,
+    *,
+    tts: Mapping[str, object] | None = None,
+    turn_end: ScriptedTurnEnd | None = None,
+    output: Mapping[str, object] | None = None,
 ) -> AsyncIterator[Stack]:
     """The gateway as config.yaml builds it, its backends faked; the VAD is real Silero, the end
-    of turn scripted (complete) unless given."""
+    of turn scripted (complete) unless given. The echo canceller and the barge-in rules are on,
+    as configured by default (M4)."""
     llm, asr, speech = FakeMlxLm(), FakeMlxAudio(), FakeMlxAudio()
     with llm.serving() as llm_url:
         async with serve_asgi(asr) as asr_url, serve_asgi(speech) as tts_url:
@@ -94,6 +100,7 @@ async def real_stack(
                         "tts": tts_config,
                     },
                     "turn": {"vad": {"type": "silero", "model": str(SILERO)}},
+                    "output": dict(output or {}),
                 }
             )
             verdicts = turn_end or ScriptedTurnEnd(default=0.9)
@@ -262,3 +269,101 @@ async def test_a_barge_in_flushes_the_audio_held_back_by_pacing() -> None:
     assert heard < synthesized - 1000  # the paced remainder was never sent
     assert mocks.tts.streams.active == 0
     assert_causal(client.events)
+
+
+ANSWER = [  # three long segments at once, then more, slowly
+    "您好，我来为您详细介绍一下我们公司目前正在推出的几种宽带套餐和它们各自的特点。",
+    "第一种是家庭基础套餐，每个月一百兆的带宽，适合日常上网和看视频的家庭用户使用。",
+    "第二种是家庭高速套餐，每个月五百兆的带宽，还送一张副卡，适合人多的家庭一起使用。",
+]
+TERMINAL = {
+    "response.output_audio.done",
+    "response.output_audio_transcript.done",
+    "response.content_part.done",
+    "response.output_item.done",
+    "conversation.item.done",
+}
+
+
+@needs_models
+async def test_a_spoken_barge_in_runs_the_cancellation_handler_end_to_end(packs: Path) -> None:
+    """ARCHITECTURE §6.5 steps 1-7 on the real TTS path, from real speech: a caller (AICC,
+    simulated in real time, no echo) talks over a long answer that the LLM is still writing and
+    the pacer is still holding back (1 s lead)."""
+    async with (
+        real_stack(packs, output={"max_lead_ms": 1000}) as stack,
+        Client.connect(stack.address) as client,
+    ):
+        await client.start(AICC_SESSION)
+        stack.tts.voice = to_wire(clip(EN))  # the TTS speaks (the canceller needs speech)
+        stack.llm.script(  # the LLM is still writing (in 2 s steps, inside its idle deadline)
+            *(Text(text) for text in ANSWER),
+            *(step for _ in range(4) for step in (Sleep(2.0), Text("还有，"))),
+            Finish("stop"),
+            Usage(),
+            Done(),
+        )
+        stack.asr.script(Transcribe("等一下，我想问问价格。"))
+        stack.llm.script(*reply("好的，", "价格是每月九十九元。"))
+        async with SimulatedCall(client, echo_db=None) as call:
+            await asyncio.sleep(0.3)
+            item = {
+                "type": "message",
+                "role": "user",
+                "content": [{"type": "input_text", "text": "介绍一下套餐。"}],
+            }
+            await client.send({"type": "conversation.item.create", "item": item})
+            await client.send({"type": "response.create"})
+            first_audio = await call.until("response.output_audio.delta")
+            answer = call.events[first_audio][1]["item_id"]
+            await asyncio.sleep(2.6)  # past the 2 s echo guard of the answer's playback
+            said_at = asyncio.get_running_loop().time()
+            call.say(clip(ZH))  # speech from 0.32 s
+            started = await call.until("input_audio_buffer.speech_started", after=first_audio)
+            # 400 ms while playing, the canceller's hold-back, framing: well under 2 s.
+            assert call.events[started][0] - said_at < 2.0
+            done = await call.until("response.done", after=started)
+            committed = await call.until("input_audio_buffer.committed", after=done)
+            reply_done = await call.until("response.done", after=committed, timeout_s=15)
+        events = [event for _, event in call.events]
+        await stack.llm.disconnected()  # step 2: the LLM request was closed mid-answer
+    # Step 1: speech_started first, naming the item the commit then created.
+    speech = events[started]
+    assert speech["audio_start_ms"] >= 0
+    assert events[committed]["item_id"] == speech["item_id"]
+    # Steps 2-6 ran in one handler: only the answer's terminal events lie in between.
+    between = [event["type"] for event in events[started + 1 : done]]
+    assert set(between) <= TERMINAL, between
+    assert "conversation.item.done" in between
+    response = events[done]["response"]
+    assert response["status_details"] == {"type": "cancelled", "reason": "turn_detected"}
+    (message,) = response["output"]
+    assert message["status"] == "incomplete"
+    # Step 4: audio the pacer still held was never sent; nothing of the answer came after.
+    sent = sum(
+        len(base64.b64decode(event["delta"]))
+        for event in events
+        if event["type"] == "response.output_audio.delta" and event["item_id"] == answer
+    )
+    synthesized = sum(speech.audio_bytes for speech in stack.tts.speeches[-4:-1])
+    assert 0 < sent < synthesized
+    assert all(
+        event.get("item_id") != answer
+        or event["type"] in TERMINAL | {"conversation.item.truncated"}
+        for event in events[done:]
+    )
+    # Steps 5 and 7: AICC truncated the answer to what it played; the next request saw that.
+    (truncated,) = [event for event in events if event["type"] == "conversation.item.truncated"]
+    assert truncated["item_id"] == answer
+    played = call.log.truncates[0][1]
+    assert truncated["audio_end_ms"] == min(played, sent // 48)
+    history = [
+        m.get("content") for m in stack.llm.requests[-1]["messages"] if m["role"] == "assistant"
+    ]
+    transcript = message["content"][0]["transcript"]
+    assert len(history) == 1
+    assert transcript.startswith(history[0])
+    assert history[0] != transcript  # cut to what was played
+    assert events[reply_done]["response"]["status"] == "completed"
+    assert "error" not in [event["type"] for event in events]
+    assert_causal(events)

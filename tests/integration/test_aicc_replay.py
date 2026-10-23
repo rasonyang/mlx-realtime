@@ -11,10 +11,18 @@ no 2 s gap between audio deltas.
 
 Since M3 the "Say exactly this" lines are spoken verbatim without the LLM (D16), and a flow voice
 that is not configured is spoken by the default voice and echoed as such (D19).
+
+M4 (AICC acceptance, part 2) adds barge-in, with AICC simulated in real time
+(``tests/phone.py``: 20 ms appends, its playout model and its barge-in: on ``speech_started``
+after its 800 ms guard, or on a cancelled ``response.done``, it flushes and truncates to the
+frames it played): the caller talks over a long line through the real Silero VAD, the echo
+canceller and the barge-in rules (all as configured by default), and the keypress flow cancels
+an answer nobody heard, truncates it to 0 and deletes it.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -32,6 +40,8 @@ from mlx_realtime.server.gateway import Gateway
 from mlx_realtime.vad.scripted import ScriptedSpeech
 from tests.fakes.mlx_audio import Chunks, FakeMlxAudio, Gate, Hold, Rest, serve_asgi
 from tests.integration.deadlines import check_deadlines
+from tests.phone import SimulatedCall
+from tests.speech import EN, SILERO, ZH, clip, needs_models, to_wire
 from tests.support import Client, Event, running
 
 TRACES = Path(__file__).parents[2] / "spikes" / "aicc" / "traces"
@@ -52,7 +62,8 @@ class Session:
 
 
 @asynccontextmanager
-async def aicc_session(packs: Path) -> AsyncIterator[Session]:
+async def aicc_session(packs: Path, *, silero: bool = False) -> AsyncIterator[Session]:
+    """``silero``: the real Silero VAD hears the caller (else a detector that never does)."""
     llm, tts = EchoLLM(), FakeMlxAudio()
     async with serve_asgi(tts) as tts_url:
         speech = MlxAudioSpeechConfig.model_validate(
@@ -63,9 +74,13 @@ async def aicc_session(packs: Path) -> AsyncIterator[Session]:
             asr=ScriptedASR(["喂？"]),
             tts=build_speech(speech, VoiceBook(VoicesConfig()), snapshots=lambda repo: packs),
         )
-        gateway = Gateway(
-            validate_config({}), providers, speech_detector=lambda: ScriptedSpeech([])
-        )
+        if silero:
+            config = validate_config({"turn": {"vad": {"type": "silero", "model": str(SILERO)}}})
+            gateway = Gateway(config, providers)
+        else:
+            gateway = Gateway(
+                validate_config({}), providers, speech_detector=lambda: ScriptedSpeech([])
+            )
         async with running(gateway) as address:
             # Warm (every voice, both models) at full speed; then the pace M0 measured.
             tts.first_chunk_s, tts.chunk_s = 0.11, 0.09
@@ -74,7 +89,9 @@ async def aicc_session(packs: Path) -> AsyncIterator[Session]:
                 yield Session(client, llm, tts)
     assert [event for event in client.events if event["type"] == "error"] == []
     report = check_deadlines(client.timeline)
-    assert report.responses == len(report.created_s) > 0
+    asked = [event for _, way, event in client.timeline if way == "client"]
+    requests = sum(1 for event in asked if event.get("type") == "response.create")
+    assert len(report.created_s) == requests > 0  # every request answered (VAD turns add more)
 
 
 @pytest.fixture
@@ -275,3 +292,134 @@ async def test_a_reply_text_streamed_over_several_segments_meets_the_deadlines(
     report = check_deadlines(client.timeline)
     assert report.audio_responses == 1
     assert report.max_gap_s < 1.0
+
+
+SAY = "Say exactly this, word for word, and add nothing else:\n"
+LONG_LINE = (
+    "Thank you for calling NovaNet. Before we begin, please listen carefully, because our "
+    "menu options have changed. For billing questions, stay on the line."
+)  # the fake TTS speaks 150 ms per character: about 19 s, longer than the 10 s lead
+TERMINAL = {
+    "response.output_audio.done",
+    "response.output_audio_transcript.done",
+    "response.content_part.done",
+    "response.output_item.done",
+    "conversation.item.done",
+}
+
+
+@needs_models
+async def test_barge_in_over_a_long_line(packs: Path) -> None:
+    """The caller talks over a long line: ``speech_started``, then ``response.done{cancelled}``
+    in the same step; AICC's truncate (its played frames) is accepted; the caller's turn is
+    answered after ``speech_stopped``."""
+    update, *_ = frames("call_gateway")
+    async with aicc_session(packs, silero=True) as session:
+        client = session.client
+        await updated(client, update)
+        session.tts.voice = to_wire(clip(EN))  # the line is speech (a tone fools the canceller)
+        session.tts.ms_per_char = 150
+        async with SimulatedCall(client, echo_db=None) as call:
+            await asyncio.sleep(0.3)  # AICC streams from the start of the call
+            await client.send(
+                {"type": "response.create", "response": {"instructions": SAY + LONG_LINE}}
+            )
+            first = await call.until("response.output_audio.delta")
+            line = call.events[first][1]["item_id"]
+            await asyncio.sleep(2.5)  # past the line's 2 s echo guard
+            call.say(clip(ZH))
+            started = await call.until("input_audio_buffer.speech_started", after=first)
+            done = await call.until("response.done", after=started)
+            truncated = await call.until("conversation.item.truncated", after=done)
+            stopped = await call.until("input_audio_buffer.speech_stopped", after=started)
+            reply = await call.until("response.done", after=stopped, timeout_s=15)
+    events = [event for _, event in call.events]
+    between = {event["type"] for event in events[started + 1 : done]}
+    assert between <= TERMINAL  # one step: speech_started, the terminal events, response.done
+    assert events[done]["response"]["status_details"] == {
+        "type": "cancelled",
+        "reason": "turn_detected",
+    }
+    (item, played_ms) = call.log.truncates[0]
+    assert item == line
+    assert events[truncated]["audio_end_ms"] == played_ms  # within the audio sent: as asked
+    assert events[reply]["response"]["status"] == "completed"
+    assert any(event["type"] == "response.output_audio.delta" for event in events[stopped:reply])
+    assert session.llm.requests[-1].messages[-1].content == "喂？"  # the caller's turn
+
+
+@needs_models
+async def test_speech_over_the_tail_of_a_finished_line(packs: Path) -> None:
+    """AICC's most common barge-in: the line was all sent (its response done), AICC is still
+    playing it, and the caller talks. There is no response to cancel: ``speech_started``, AICC
+    flushes and truncates (accepted, and the client model stops playing it), and the caller's
+    turn is answered."""
+    update, *_ = frames("call_gateway")
+    async with aicc_session(packs, silero=True) as session:
+        client = session.client
+        await updated(client, update)
+        session.tts.voice = to_wire(clip(EN))
+        session.tts.ms_per_char = 80  # about 7 s: all of it sent at once (10 s lead)
+        async with SimulatedCall(client, echo_db=None) as call:
+            await asyncio.sleep(0.3)
+            line = {"type": "response.create", "response": {"instructions": SAY + LONG_LINE[:90]}}
+            await client.send(line)
+            first = await call.until("response.output_audio.delta")
+            done = await call.until("response.done", after=first)
+            assert call.events[done][1]["response"]["status"] == "completed"
+            await asyncio.sleep(2.5)  # AICC is still playing the line
+            call.say(clip(ZH))
+            started = await call.until("input_audio_buffer.speech_started", after=done)
+            truncated = await call.until("conversation.item.truncated", after=started)
+            stopped = await call.until("input_audio_buffer.speech_stopped", after=started)
+            reply = await call.until("response.done", after=stopped, timeout_s=15)
+    events = [event for _, event in call.events]
+    played_ms = call.log.truncates[0][1]
+    assert 2500 <= played_ms < 7000
+    assert events[truncated]["audio_end_ms"] == played_ms
+    assert events[reply]["response"]["status"] == "completed"
+    assert [
+        event["response"]["status"] for event in events if event["type"] == "response.done"
+    ] == [
+        "completed",
+        "completed",
+    ]  # nothing was cancelled: the line was over on the server's side
+
+
+async def test_keypress_cancels_an_unheard_answer_truncates_and_deletes_it(packs: Path) -> None:
+    """AICC's keypress over an answer nobody heard yet: ``response.cancel``, a truncate to 0,
+    the delete of the unheard item once its response is done, the keypress note and the owed
+    reply. No ``error`` at any step."""
+    update, *_, keypress, owed = frames("unheard_keypress_gateway")
+    async with aicc_session(packs) as session:
+        client = session.client
+        await updated(client, update)
+        gate = Gate()
+        session.tts.script_speech(Hold(gate), Rest())  # the answer waits for the TTS
+        await client.send({"type": "response.create"})
+        answer = (await client.until("response.output_item.added"))[-1]["item"]["id"]
+        await gate.reached()
+        await client.send({"type": "response.cancel"})
+        await client.send(
+            {
+                "type": "conversation.item.truncate",
+                "item_id": answer,
+                "content_index": 0,
+                "audio_end_ms": 0,
+            }
+        )
+        cancelled = (await client.until("response.done"))[-1]["response"]
+        assert cancelled["status_details"] == {"type": "cancelled", "reason": "client_cancelled"}
+        assert (await client.until("conversation.item.truncated"))[-1]["audio_end_ms"] == 0
+        gate.release()
+        await answered(
+            client,
+            {"type": "conversation.item.delete", "item_id": answer},
+            "conversation.item.deleted",
+        )
+        await answered(client, keypress, "conversation.item.done")
+        reply = await respond(client, owed)
+        assert spoken(reply)
+        history = session.llm.requests[-1].messages
+        assert all(message.role != "assistant" for message in history)  # the unheard answer: gone
+        assert history[-1].content == "(The caller pressed 0 on their keypad.)"

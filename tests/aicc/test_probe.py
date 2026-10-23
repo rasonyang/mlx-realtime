@@ -1,6 +1,7 @@
 """The AICC harness runner (tests/aicc/probe.py): how it reads AICC's output and judges the
-deadlines, and a run of AICC's own client against a gateway with mock providers (marker e2e;
-needs ``AICC_REPO`` pointing at an AICC checkout, and Go)."""
+deadlines, the caller's speech it hands the barge-in tests, and a run of AICC's own client against
+a gateway with mock providers (marker e2e; needs ``AICC_REPO`` pointing at an AICC checkout, and
+Go)."""
 
 from __future__ import annotations
 
@@ -12,11 +13,20 @@ from pathlib import Path
 
 import pytest
 
-from tests.aicc.probe import Report, go_duration
+from tests.aicc.probe import Report, go_duration, write_caller_clip
+from tests.speech import EN, clip, to_wire
 
 REPO = Path(__file__).parents[2]
 PROBE = Path(__file__).parent / "probe.py"
 AICC_REPO = os.environ.get("AICC_REPO", "")
+# Every test in tests/aicc/zz_mlx_live_test.go: the M3 connectivity checks, then barge-in (M4).
+TESTS = (
+    "TestMLXGreeting",
+    "TestMLXResponseCreatedLatency",
+    "TestMLXLines",
+    "TestMLXBargeIn",
+    "TestMLXKeypressCancel",
+)
 
 
 @pytest.mark.parametrize(
@@ -96,13 +106,22 @@ def test_a_run_where_everything_was_skipped_fails() -> None:
     assert "no test ran" in read(skipped).failures(0)
 
 
+def test_the_caller_clip_is_the_english_fixture_as_wire_audio(tmp_path: Path) -> None:
+    """MLX_REALTIME_CALLER_CLIP: raw 24 kHz mono s16le, the fixture through the gateway's own
+    resampler, as AICC sends a caller on the gateway profile."""
+    written = write_caller_clip(tmp_path / "caller.pcm").read_bytes()
+    assert written == to_wire(clip(EN))
+    assert len(written) == len(clip(EN)) * 3 // 2  # 16 → 24 kHz, 4.228 s
+
+
 @pytest.mark.e2e
 @pytest.mark.skipif(
     not AICC_REPO or shutil.which("go") is None,
     reason="set AICC_REPO to an AICC checkout (and install Go) to run AICC's own client",
 )
 def test_aiccs_client_against_the_mock_gateway() -> None:
-    """``make aicc-probe-mock``: AICC's client, unchanged, against the gateway with mocks."""
+    """``make aicc-probe-mock``: AICC's client, unchanged, against the gateway with mocks,
+    including the barge-in scenarios."""
     finished = subprocess.run(
         [sys.executable, str(PROBE), "--aicc-repo", AICC_REPO, "--serve", "config.mock.yaml"],
         cwd=REPO,
@@ -112,4 +131,5 @@ def test_aiccs_client_against_the_mock_gateway() -> None:
         check=False,
     )
     assert finished.returncode == 0, finished.stdout[-4000:] + finished.stderr[-2000:]
-    assert "TestMLXLines" in finished.stdout
+    for name in TESTS:
+        assert f"--- PASS: {name} " in finished.stdout, name

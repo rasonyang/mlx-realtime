@@ -58,7 +58,7 @@ from mlx_realtime.session.signals import (
     SpeechFinished,
 )
 from mlx_realtime.text.lang import detect_lang
-from mlx_realtime.text.normalize import NormalizerOptions, normalize
+from mlx_realtime.text.normalize import NormalizerOptions, normalize_with_map
 from mlx_realtime.text.segmenter import Segmenter
 
 logger = logging.getLogger(__name__)
@@ -255,8 +255,8 @@ async def _synthesize(
     index = 0
     while (text := await segments.get()) is not None:
         lang = detect_lang(text)  # mixed text is zh
-        spoken = normalize(text, context.normalizer, lang=lang)
-        segment = SegmentStarted(request.generation, index, text, spoken)
+        spoken, source = normalize_with_map(text, context.normalizer, lang=lang)
+        segment = SegmentStarted(request.generation, index, text, spoken, source)
         index += 1
         if _speakable(spoken):
             timing = SpeechTiming()

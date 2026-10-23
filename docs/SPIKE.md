@@ -548,3 +548,143 @@ it passes 10 of 12, for 1.4 ms CPU per audio second.
 - **Pending:** ΔCER decides whether ASR should get the AEC output (the default) or a less-processed
   signal.
 - **Not simulated:** clock drift between AICC's ticker and the uplink clock.
+
+### S0 / S8.1 — Environments, models, smoke checks, SDK probe (A1, 2026-10-23)
+
+**Environments.** uv 0.13.5, CPython 3.12.12, `spikes/{llm,audio,sdk}`, each with its own uv.lock.
+Versions: mlx 0.32.4, mlx-lm 0.32.2, mlx-audio 0.6.1, transformers 5.20.2, openai 3.36.1.
+
+**Models.** All 8 are downloaded and sha256-verified against the Hub (51.5 GB). Revisions are in
+`spikes/results/models.json`:
+
+- Qwen3.6-35B-A3B-4bit `38740b84`
+- Qwen3.5-35B-A3B-4bit `1e20fd8d`
+- Qwen3-ASR-1.7B-8bit `a8379a2e`
+- Qwen3-ASR-0.6B-8bit `89e96d92`
+- Qwen3-TTS-0.6B-CustomVoice-8bit `049ef77f`
+- Qwen3-TTS-0.6B-CustomVoice-4bit `08c72cad`
+- Qwen3-TTS-1.7B-CustomVoice-8bit `41d3337e`
+- Kokoro-82M-bf16 `a71e4d38`
+
+**Download notes.**
+
+- HF Xet downloads through the local proxy failed repeatedly, and huggingface_hub 2.2.0 restarts a
+  failed Xet file from zero.
+- Plain HTTP (`HF_HUB_DISABLE_XET=1`, same Hub and CDN) resumes with Range requests and ran at
+  4–6 MB/s.
+
+**Findings that matter for implementation.**
+
+- `mlx_lm.server`:
+  - `/health` answers 200 before the model is loaded, so readiness needs a warmup request;
+  - its defaults are temp 0.0, top_p 1.0 and max_tokens 512;
+  - `presence_penalty` is accepted;
+  - per-request `chat_template_kwargs` override `--chat-template-args`.
+- `mlx_audio.server`:
+  - no preload flag; the first request loads the model, about 16–20 s from a cold page cache;
+  - set `streaming_interval` explicitly: the default 2.0 gives a 2.4 s first chunk, 0.32 gives
+    108–118 ms;
+  - transcriptions default to ndjson;
+  - the ASR `language` must be a model language name (`Chinese`, `English`); ISO codes end up in
+    the prompt.
+- Kokoro: voice names are resolved in a hardcoded repo (`prince-canuma/Kokoro-82M`). Offline that
+  gives HTTP 200 with a truncated body, so pass the absolute path of the voice `.safetensors` inside
+  our snapshot.
+- Audio smoke: the Qwen3-TTS → Qwen3-ASR round trip was exact; Kokoro zh and en were transcribed
+  exactly. All three audio models together use 5.6 GB.
+- SDK probe: the official SDK (3.36.1) connects to `ws://…/v1/realtime?model=…` and sends no
+  OpenAI-Beta header and nothing unprompted. All 15 scripted GA events parse into the expected
+  classes. An unknown event type silently becomes `ConversationCreatedEvent`, so the gateway's tests
+  validate every emitted event against the SDK models (done since M1).
+
+### S3 / S4 / S9 — TTS, ASR, normalization (B2, 2026-10-23)
+
+Report: `spikes/results/s3s4s9_report.md`. About 3000 TTS and 2700 ASR requests on stock
+`mlx_audio.server` 0.6.1, with 0 HTTP errors.
+
+**Measurement condition.** The machine is in Low Power Mode on AC power (`pmset` powermode 1). Under
+sustained load the GPU steps down to ≈ 0.6× after 20–40 s; at 0.32 s chunks, TTFC goes 118 → 189 ms and
+RTF 0.30 → 0.50. Each result records whether it ran capped. The owner was asked to switch Energy Mode
+to High Power.
+
+**TTS (Qwen3-TTS 0.6B 8-bit; warm, capped; TTFC p50 short / medium / long, RTF):**
+
+| streaming_interval | TTFC | RTF |
+|---|---|---|
+| 0.16 s | 117 / 119 / 131 ms | 0.57 |
+| 0.32 s | 186 / 187 / 200 ms | 0.51 |
+| 0.8 s | 394 / 395 / 408 ms | 0.47 |
+
+- **HTTP overhead** over in-process: +2.0 ms median.
+- **Cancel:** the server sees the disconnect within 0.3 ms; generation stops 41 / 75 / 241 ms after
+  the close at 0.16 / 0.32 / 0.8 s chunks; nothing is sent after the close.
+- **Concurrency:** streams are served strictly one at a time. With two concurrent requests the second
+  has a TTFC of 2.9 s; with four, the last waits 8.4 s.
+- **Warmup:** the model loads at warmup and stays resident (2.77 GB) across idle gaps of up to 120 s.
+- **Silence:** every output has ≈ 0.45 s of leading and ≈ 0.5 s of trailing silence.
+- **Voice defect:** the slow-speech / runaway defect (mlx-audio#1002) follows the voice `ryan` on
+  every model: 5.6% of outputs are longer than 1.5×, up to 20×. vivian 1/590, aiden 2/66, serena
+  0/66.
+- **Comparison models at 0.32 s:** 0.6B 4-bit 178 ms / RTF 0.48; 1.7B 8-bit 250 ms / 0.65.
+
+**Kokoro vs Qwen3-TTS** (20 sentences per set, back-transcribed):
+
+| Set | Kokoro error | Qwen3-TTS error |
+|---|---|---|
+| zh | 0% | 0% |
+| en | 0% | 0% |
+| mixed zh/en | 15.9% (18/20 sentences wrong; English words garbled) | 2.2% |
+
+**ASR (Qwen3-ASR 1.7B 8-bit).**
+
+- Latency p50 with language auto / given: 2 s clips 184–221 / 158–189 ms; 5 s clips 311–350 /
+  275–304 ms; 10 s clips 446–521 / 403–499 ms. The 0.6B is about 2× faster.
+- Error rate on rows without numbers: zh CER 5.9%, en WER 2.4%, mixed MER 10.3% (0.6B: 6.2 / 2.8 /
+  12.7). Telephone copies cost at most 1.4 points.
+- Pitfalls:
+  - when the model omits its language tag, auto language falls back to "English" (7/42 zh clips,
+    text still correct);
+  - a wrong language hint can make the model translate;
+  - any language string is echoed back.
+
+**Normalization probe (S9; correct readings out of runs, raw text into Qwen3-TTS).**
+
+| Category | Correct | Note |
+|---|---|---|
+| numbers | 15/18 | "15600" is always read as 1560 |
+| money | 18/18 | |
+| dates and times | 17/18 | |
+| phone numbers | 8/21 | |
+| IDs | 12/18 | |
+| units | 17/18 | |
+| mixed zh/en | 15/18 | the "@" in e-mail addresses is never read |
+
+English segments fail on IDs, numeric dates and amounts of 1000 or more.
+
+**Decisions (2026-10-23, orchestrator under the M0–M7 goal).**
+
+- **G1: keep `mlx_audio.server` for ASR and TTS.**
+  - It passes the criteria: 2 ms overhead, reliable warmup and residency, cancellation within one
+    chunk, no errors. S6 still checks stability.
+  - Serialized TTS streams are a capacity limit for concurrent sessions, scheduled for M6: multiple
+    TTS processes, or a batched worker on mlx-audio's streaming `batch_generate`, plus the
+    reserve/EDF mitigations.
+- **G5: normalize only:**
+  - phone numbers in every form (digit by digit, 1 as 幺, including 4-digit 尾号 and extensions);
+  - alphanumeric and dashed IDs;
+  - e-mail addresses;
+  - cardinals of 5 or more digits;
+  - in English segments: IDs, numeric dates, and amounts of 1000 or more.
+
+  Money, decimals, percentages, ordinals, dates and times, units, URLs and brand names stay raw.
+- **TTS defaults:**
+  - `streaming_interval` 0.16 (TTFC ≈ 119 ms capped, ≈ 76 ms uncapped). Fall back to 0.32 if S5 shows
+    RTF near 1 under LLM contention.
+  - Speakers: vivian for zh and mixed, aiden for en. Never ryan.
+  - Cap `max_tokens` in proportion to the text, against runaways.
+  - Trim each segment's leading and trailing silence. The 0.45 s lead otherwise adds directly to first
+    audio, and edges add ≈ 1 s between sentences.
+- **D13 (flagged for owner review): keep Kokoro**, as the brief names it, but only for segments without
+  Latin letters. A segment with Latin letters fails rather than being garbled. Config can switch the
+  fallback to Qwen3-TTS 0.6B 4-bit (`family: qwen3_tts`, supported since M3) if the owner approves
+  the substitution.

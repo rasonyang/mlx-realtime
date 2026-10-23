@@ -10,7 +10,12 @@ gateway, and checks AICC's deadlines on the result:
 - ``response.created`` within 3 s of each ``response.create`` (every sample measured);
 - the first audio within 3 s of ``response.created``, and no 2 s gap between audio deltas: AICC's
   watchdog abandons such a turn and logs ``response abandoned``, which fails the run;
-- the opening and a mid-call line spoken word for word, with a flow voice (D16, D19).
+- the opening and a mid-call line spoken word for word, with a flow voice (D16, D19);
+- barge-in (M4): the caller talks over a long line, which ends cancelled right behind
+  ``speech_started``, AICC's truncate is accepted and the caller gets a reply after
+  ``speech_stopped``; keypresses over a line cancel it, its unheard item is deleted, and the
+  keypress gets a spoken reply. The caller's speech is ``tests/fixtures/speech/en_dinosaurs.wav``
+  at 24 kHz, handed to the Go tests as ``MLX_REALTIME_CALLER_CLIP``.
 
 Usage (the gateway must be running, or let the script start one with ``--serve``)::
 
@@ -37,15 +42,21 @@ import sys
 import tempfile
 import time
 import urllib.request
+import wave
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, WIRE_RATE
+from mlx_realtime.audio.resample import Resampler
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 WRAPPER = HERE / "zz_mlx_live_test.go"
 PACKAGE = Path("internal") / "provider"
 DEADLINE_S = 3.0
+# The caller who talks over the bot in the barge-in tests (speech 0.24-3.92 s).
+CALLER = REPO / "tests" / "fixtures" / "speech" / "en_dinosaurs.wav"
 
 _DURATION = r"((?:\d+(?:\.\d+)?(?:h|ms|us|µs|ns|m|s))+)"
 _SAMPLE = re.compile(rf"request -> response\.created {_DURATION}")
@@ -153,6 +164,8 @@ def run_harness(go: str, aicc: Path, url: str, args: argparse.Namespace) -> tupl
         environ["MLX_REALTIME_MODEL"] = args.model
     report = Report()
     with tempfile.TemporaryDirectory(prefix="mlxrt-aicc-") as scratch:
+        clip = write_caller_clip(Path(scratch) / "caller.pcm")
+        environ["MLX_REALTIME_CALLER_CLIP"] = str(clip)
         overlay = Path(scratch) / "overlay.json"
         target = str(aicc / PACKAGE / WRAPPER.name)
         overlay.write_text(json.dumps({"Replace": {target: str(WRAPPER)}}), encoding="utf-8")
@@ -171,6 +184,19 @@ def run_harness(go: str, aicc: Path, url: str, args: argparse.Namespace) -> tupl
             print(line, end="", flush=True)
             report.read(line)
         return process.wait(), report
+
+
+def write_caller_clip(path: Path, source: Path = CALLER) -> Path:
+    """The caller's speech as AICC sends it on the gateway profile: raw 24 kHz mono s16le,
+    resampled from the 16 kHz fixture with the gateway's own resampler."""
+    with wave.open(str(source)) as file:
+        shape = (file.getframerate(), file.getnchannels(), file.getsampwidth())
+        if shape != (CANONICAL_RATE, 1, SAMPLE_WIDTH):
+            raise SystemExit(f"{source} is not {CANONICAL_RATE} Hz mono PCM16: {shape}")
+        pcm = file.readframes(file.getnframes())
+    resampler = Resampler(CANONICAL_RATE, WIRE_RATE)
+    path.write_bytes(resampler.process(pcm) + resampler.flush())
+    return path
 
 
 def serve(config: Path) -> tuple[subprocess.Popen[bytes], str]:

@@ -6,10 +6,12 @@ WebSocket at `/v1/realtime`. Inside, it is a cascade: VAD → turn detection →
 Chinese, English and code-switched speech. The official `openai` Python SDK connects by changing only
 `base_url`.
 
-**Status: milestone M3.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
+**Status: milestone M4.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
 transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by Qwen3-TTS, streamed per
 sentence with Kokoro as the fallback (`mlx_audio.server`). Audio goes out paced, at most 10 s ahead
-of real time. See [`docs/PROGRESS.md`](docs/PROGRESS.md).
+of real time. The caller can interrupt (barge-in, cancellation and truncation are deterministic),
+and the service cancels the echo of its own speech on telephone calls (WebRTC AEC3, referenced to
+a model of the client's playout). See [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 | Document | What it holds |
 |---|---|
@@ -33,7 +35,7 @@ the gateway talks to them over HTTP on 127.0.0.1 (ports 8101–8103, `config.yam
 ```sh
 make models-mlx     # once: the MLX models pinned in config.yaml (~25 GB), through each backend's hf
 make dev            # the ONNX models (mlxrt models), then the backends and the gateway (mlxrt dev)
-make dev-mock       # or: the gateway alone with mock providers (config.mock.yaml)
+make dev-mock       # or: the gateway alone with mock providers and the CPU VAD (config.mock.yaml)
 ```
 
 `mlxrt dev` prefixes every line with the process name, stops everything on Ctrl-C, and stops
@@ -124,10 +126,12 @@ protocol change, regenerate them with `uv run --locked pytest tests/integration/
 src/mlx_realtime/
   server/      Starlette app, WebSocket transport (reader, single writer), admission, readiness
   protocol/    GA wire layer: client events → commands, facts → server events, ids, errors
-  session/     the session actor: conversation, input buffer, turn manager, responses, pipeline
+  session/     the session actor: conversation, input buffer, turn manager, responses, pipeline,
+               the echo reference and canceller stage
   providers/   ASR, LLM and TTS interfaces, registry, the mlx_lm and mlx_audio HTTP providers,
                the TTS fallback, the voice map, mocks
-  audio/       resampling and wire formats      text/  segmenter, normalizer, language tag
+  audio/       resampling, wire formats, the echo canceller, the client playout model, GCC-PHAT
+  text/        segmenter, normalizer, language tag, the overlap of echo turns
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project

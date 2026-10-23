@@ -77,3 +77,35 @@ def test_size_cap_is_fatal() -> None:
     with pytest.raises(SessionFatal) as raised:
         buffer.append(tone(200))
     assert raised.value.code == "input_audio_buffer_overflow"
+
+
+def test_the_echo_cancellers_track_replaces_the_input_where_it_has_run() -> None:
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_processed=True)
+    start, canonical = buffer.append(tone(1000))
+    assert start == 0
+    processed = bytes(len(canonical) // 2)  # the canceller's output for the first half
+    buffer.apply_processed(0, processed)
+    halfway = len(processed) // 2  # samples
+    assert buffer.slice(0, halfway // 16) == processed[: halfway // 16 * 32]  # Smart Turn's view
+    assert buffer.slice(0, 1000)[len(processed) :] == canonical[len(processed) :]
+    span = buffer.commit_span(0, 400)
+    assert span.pcm == processed[: 400 * CANONICAL_BYTES_PER_MS]  # the ASR gets the output
+    buffer.apply_processed(0, b"\x01\x00" * 6400)  # positions already committed: ignored
+    assert buffer.slice(400, 401) == processed[400 * 32 : 401 * 32]
+
+
+def test_asr_input_raw_commits_the_input_as_received() -> None:
+    buffer = InputBuffer(max_ms=60_000, processed=True, asr_processed=False)
+    _, canonical = buffer.append(tone(500))
+    buffer.apply_processed(0, bytes(len(canonical)))
+    assert buffer.slice(0, 100) == bytes(100 * CANONICAL_BYTES_PER_MS)  # detectors: processed
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.pcm.startswith(canonical)  # the ASR: raw (plus the resampler's tail)
+
+
+def test_without_the_canceller_there_is_one_track() -> None:
+    buffer = InputBuffer(max_ms=60_000)
+    _, canonical = buffer.append(tone(200))
+    buffer.apply_processed(0, bytes(len(canonical)))  # no processed track: nothing changes
+    assert buffer.slice(0, 100) == canonical[: 100 * CANONICAL_BYTES_PER_MS]

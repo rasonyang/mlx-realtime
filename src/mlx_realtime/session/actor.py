@@ -16,7 +16,14 @@ from dataclasses import dataclass, replace
 from typing import Protocol
 
 from mlx_realtime import logs
-from mlx_realtime.config import LimitsConfig, SegmenterConfig, TurnConfig
+from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, ms_to_samples
+from mlx_realtime.config import (
+    AecConfig,
+    BargeInConfig,
+    LimitsConfig,
+    SegmenterConfig,
+    TurnConfig,
+)
 from mlx_realtime.providers.base import (
     ASRProvider,
     LLMProvider,
@@ -51,6 +58,13 @@ from mlx_realtime.session.conversation import (
     FunctionCallOutput,
     SpokenSegment,
     TextMessage,
+)
+from mlx_realtime.session.echo import (
+    EchoParams,
+    EchoReference,
+    EchoRuntime,
+    EchoStage,
+    log_echo_stats,
 )
 from mlx_realtime.session.errors import ErrorInfo
 from mlx_realtime.session.facts import (
@@ -112,6 +126,7 @@ from mlx_realtime.session.turn import (
     TurnState,
 )
 from mlx_realtime.text.normalize import NormalizerOptions
+from mlx_realtime.text.similarity import overlap, units
 from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
@@ -156,6 +171,9 @@ class SessionDeps:
     voices: VoiceBook  # D19: unknown names resolve to the default voice
     verbatim_prefixes: Sequence[str]  # D16
     clock: Clock
+    aec: AecConfig
+    barge_in: BargeInConfig
+    echo: EchoRuntime | None  # the canceller's executor and engine (D17), when enabled
 
 
 class SessionActor:
@@ -183,12 +201,34 @@ class SessionActor:
         self._emit = emit
         self._clock = deps.clock
         self._conversation = Conversation()
-        self._input = InputBuffer(deps.limits.input_audio_buffer_max_ms)
+        # D17: the client's modelled playout of our audio, for the canceller's reference and
+        # the barge-in rules; the canceller itself when enabled.
+        self._echo: EchoReference | None = None
+        stage: EchoStage | None = None
+        if deps.echo is not None or deps.barge_in.active:
+            self._echo = EchoReference(EchoParams.of(deps.aec, deps.barge_in), deps.clock)
+            ledger.listener = self._echo
+            if deps.echo is not None:
+                stage = EchoStage(deps.echo.engine(), self._echo, deps.echo.executor)
+        self._input = InputBuffer(
+            deps.limits.input_audio_buffer_max_ms,
+            processed=stage is not None,
+            asr_processed=deps.aec.asr_input == "processed",
+        )
         # Audio the detector has not seen is never trimmed from the input buffer, so the
         # buffer's bound is the backlog's too: a client may send faster than real time.
         self._feeder = VadFeeder(
-            deps.speech, inbox.put_signal, max_queued_ms=deps.limits.input_audio_buffer_max_ms
+            deps.speech,
+            inbox.put_signal,
+            max_queued_ms=deps.limits.input_audio_buffer_max_ms,
+            reference=self._echo,
+            echo=stage,
+            clock=deps.clock,
         )
+        self._barge_ins: set[str] = set()  # turns that interrupted a response
+        self._detected: set[str] = set()  # turns the VAD found, until their transcript
+        self._spoken: dict[str, AssistantMessage] = {}  # recent audio answers, for echo turns
+        self._echo_counts = {"barge_ins": 0, "barge_ins_empty_or_echo": 0, "echo_turns": 0}
         self._vad_epoch = 0  # bumped by every commit, clear or turn-detection change
         self._turns = self._new_turn_manager()
         self._feeder.configure(self._vad_epoch, self._gate_params())
@@ -215,12 +255,16 @@ class SessionActor:
         )
 
     async def run(self) -> None:
-        async with asyncio.TaskGroup() as tasks:
-            self._tasks = tasks
-            tasks.create_task(self._feeder.run())
-            self._emit(SessionStarted(self._session_id, self._conversation_id, self._settings))
-            while True:
-                self._handle(await self._inbox.get())
+        try:
+            async with asyncio.TaskGroup() as tasks:
+                self._tasks = tasks
+                tasks.create_task(self._feeder.run())
+                self._emit(SessionStarted(self._session_id, self._conversation_id, self._settings))
+                while True:
+                    self._handle(await self._inbox.get())
+        finally:
+            if self._echo is not None:
+                log_echo_stats(self._echo, self._echo_counts)
 
     def _handle(self, message: Command | Signal) -> None:
         match message:
@@ -262,10 +306,14 @@ class SessionActor:
     def _append(self, pcm: bytes) -> None:
         start, canonical = self._input.append(pcm)
         self._arrivals.record(self._input.end_ms, self._now())
+        if self._echo is not None:
+            self._echo.capture_arrived(start + len(canonical) // SAMPLE_WIDTH)
         if self._turns is not None and canonical:
             self._feeder.push(start, canonical)
 
     def _vad_update(self, update: VadUpdate) -> None:
+        if update.processed:
+            self._input.apply_processed(update.processed_start, update.processed)
         vad, turns = self._settings.turn_detection, self._turns
         if update.epoch != self._vad_epoch or vad is None or turns is None:
             return
@@ -299,6 +347,8 @@ class SessionActor:
                 self._turn_start_ms = max(self._input.start_ms, onset_ms - vad.prefix_padding_ms)
                 self._emit(SpeechStarted(self._turn_item_id, self._turn_start_ms))
                 if self._response is not None and vad.interrupt_response:
+                    self._barge_ins.add(self._turn_item_id)
+                    self._echo_counts["barge_ins"] += 1
                     self._stop_response(self._response, StatusDetails("cancelled", "turn_detected"))
             case EvaluateTurn(evaluation=evaluation, start_ms=start_ms, end_ms=end_ms):
                 audio = self._input.slice(start_ms, end_ms)
@@ -310,7 +360,11 @@ class SessionActor:
                 if (speech_end := self._arrivals.time_of(audio_end_ms)) is not None:
                     marks["speech_end"] = speech_end
                 self._commit(
-                    self._turn_item_id, audio, create_response=vad.create_response, marks=marks
+                    self._turn_item_id,
+                    audio,
+                    create_response=vad.create_response,
+                    marks=marks,
+                    detected=True,
                 )
 
     async def _evaluate_turn(self, epoch: int, evaluation: int, pcm: bytes) -> None:
@@ -344,9 +398,19 @@ class SessionActor:
         *,
         create_response: bool,
         marks: dict[str, float],
+        detected: bool = False,
     ) -> None:
+        """``detected``: a speech turn the VAD found (only those can be echo turns)."""
         transcription = self._settings.transcription
-        item = AudioMessage(item_id, audio.audio_ms, show_transcript=transcription is not None)
+        item = AudioMessage(
+            item_id,
+            audio.audio_ms,
+            show_transcript=transcription is not None,
+            start_ms=audio.start_ms,
+            end_ms=audio.end_ms,
+        )
+        if detected:
+            self._detected.add(item_id)
         previous = self._last_item_id()
         self._conversation.append(item)
         self._emit(AudioCommitted(item, previous))
@@ -387,19 +451,62 @@ class SessionActor:
 
     def _transcript_ready(self, signal: TranscriptReady) -> None:
         self._mark(signal.item_id, "asr_done")
+        detected = signal.item_id in self._detected
+        self._detected.discard(signal.item_id)
         item = self._conversation.get(signal.item_id)
         if not isinstance(item, AudioMessage):
             self._timelines.pop(signal.item_id, None)
+            self._barge_ins.discard(signal.item_id)
             return  # deleted while it was being transcribed
         item.transcript = signal.transcript.text
         item.status = "completed"
         logger.debug("transcript", extra={"item": item.id, "transcript": item.transcript})
+        if detected and self._is_echo(item):
+            item.echo = True
+            self._echo_counts["echo_turns"] += 1
+            logger.info("a turn matched our own speech: treated as noise", extra={"item": item.id})
+        if item.id in self._barge_ins:
+            self._barge_ins.discard(item.id)
+            if item.echo or not item.transcript.strip():
+                self._echo_counts["barge_ins_empty_or_echo"] += 1
+                logger.info("a barge-in turned out empty or echo", extra={"item": item.id})
         self._emit(TranscriptCompleted(item, self._conversation.previous_id(item.id)))
         self._log_timeline_unless_answered(item.id)
         if self._response is not None and self._response.awaiting_transcript:
             self._advance(self._response)
 
+    def _is_echo(self, item: AudioMessage) -> bool:
+        """Echo-turn suppression (D17): the transcript closely matches assistant speech the
+        client was playing around the turn."""
+        echo, config = self._echo, self._deps.barge_in
+        transcript = item.transcript or ""
+        if (
+            echo is None
+            or not config.echo_turn_suppression
+            or len(units(transcript)) < config.echo_match_min_units
+        ):
+            return False
+        spans = echo.played_spans(
+            ms_to_samples(item.start_ms, CANONICAL_RATE),
+            ms_to_samples(item.end_ms, CANONICAL_RATE),
+            ms_to_samples(config.echo_match_window_ms, CANONICAL_RATE),
+        )
+        played = ""
+        for span in spans:
+            message = self._spoken.get(span.item_id)
+            if message is None:
+                continue
+            played += "".join(
+                segment.text
+                for segment in message.segments
+                if segment.start_ms < span.end_ms
+                and segment.start_ms + segment.audio_ms > span.start_ms
+            )
+        return bool(played) and overlap(transcript, played) >= config.echo_match_threshold
+
     def _transcript_failed(self, signal: TranscriptFailed) -> None:
+        self._detected.discard(signal.item_id)
+        self._barge_ins.discard(signal.item_id)
         item = self._conversation.get(signal.item_id)
         if not isinstance(item, AudioMessage):
             self._timelines.pop(signal.item_id, None)
@@ -441,6 +548,7 @@ class SessionActor:
             min_speech_ms=config.vad.min_speech_ms,
             silence_duration_ms=vad.silence_duration_ms,
             max_silence_ms=config.smart_turn.max_silence_ms if smart_turn else None,
+            min_speech_ms_while_playing=self._deps.barge_in.min_speech_ms_while_playing,
         )
 
     # Turn timeline
@@ -530,6 +638,8 @@ class SessionActor:
                 extra={"item": item.id, "audio_end_ms": command.audio_end_ms, "sent_ms": sent_ms},
             )
         item.truncated_text = heard_text(item.segments, audio_end_ms)
+        if self._echo is not None:
+            self._echo.truncated(item.id, audio_end_ms)  # the client stopped playing it there
         self._emit(ItemTruncated(item.id, audio_end_ms))
 
     def _delete(self, command: DeleteItem) -> None:
@@ -608,6 +718,8 @@ class SessionActor:
             tts_done=modality == "text",
         )
         self._response = response
+        if self._echo is not None:
+            self._echo.response_started()
         self._emit(ResponseStarted(response))
         self._advance(response)
 
@@ -635,8 +747,9 @@ class SessionActor:
                 if response.turn_item_id is None
                 else self._conversation.get(response.turn_item_id)
             )
-            if isinstance(turn, AudioMessage) and not (turn.transcript or "").strip():
-                self._close_response(response, "completed", None)
+            noise = isinstance(turn, AudioMessage) and not (turn.transcript or "").strip()
+            if noise or (isinstance(turn, AudioMessage) and turn.echo):
+                self._close_response(response, "completed", None)  # noise or echo (D7, D17)
                 return
         messages = (
             []
@@ -693,6 +806,10 @@ class SessionActor:
         message = AssistantMessage(self._ids.item(), response.modality)
         previous = self._last_item_id()
         self._conversation.append(message)
+        if message.modality == "audio" and self._echo is not None:
+            self._spoken[message.id] = message  # kept after a delete: its echo may still come
+            while len(self._spoken) > 16:
+                del self._spoken[next(iter(self._spoken))]
         response.output.append(message)
         response.message = message
         self._emit(MessageOpened(response, message, previous))
@@ -709,7 +826,9 @@ class SessionActor:
 
     def _segment_started(self, response: Response, signal: SegmentStarted) -> None:
         message = response.message or self._open_message(response)
-        segment = SpokenSegment(signal.text, signal.spoken, start_ms=message.audio_ms)
+        segment = SpokenSegment(
+            signal.text, signal.spoken, start_ms=message.audio_ms, source=signal.source
+        )
         message.segments.append(segment)
         message.text += signal.text
         delivery = Delivery(response.generation, message.id, signal.index, "transcript")
@@ -720,8 +839,12 @@ class SessionActor:
         if message is None:
             return
         message.segments[signal.index].audio_bytes += len(signal.pcm)
-        delivery = Delivery(response.generation, message.id, signal.index, "audio", len(signal.pcm))
+        delivery = Delivery(
+            response.generation, message.id, signal.index, "audio", len(signal.pcm), signal.pcm
+        )
         self._emit(OutputAudioDelta(response, message, signal.pcm, delivery))
+        if self._echo is not None:
+            self._echo.audio_queued(response.generation)
         if not response.audio_started:
             response.audio_started = True
             self._voice_locked = True
@@ -764,7 +887,19 @@ class SessionActor:
                 for index, segment in enumerate(message.segments)
                 if self._ledger.transcript_sent(message.id, index)
             )
+            if details.type == "cancelled":
+                message.fallback_text = heard_text(message.segments, self._fallback_cut(message))
+        if details.type == "cancelled" and self._echo is not None:
+            self._echo.flush(response.generation)  # the client drops what it has not played
         self._close_response(response, details.type, details)
+
+    def _fallback_cut(self, message: AssistantMessage) -> int:
+        """D5: without a client truncate, the client can have heard at most the audio sent,
+        and at most as much as has played since the first audio delta was sent."""
+        sent_ms = self._ledger.sent_ms(message.id)
+        first = self._ledger.first_audio_at(message.id)
+        elapsed_ms = 0 if first is None else max(round((self._now() - first) * 1000), 0)
+        return min(sent_ms, elapsed_ms)
 
     def _close_response(
         self, response: Response, status: ResponseStatus, details: StatusDetails | None
@@ -778,6 +913,8 @@ class SessionActor:
         response.status = status
         response.status_details = details
         self._response = None
+        if self._echo is not None:
+            self._echo.response_finished(response.generation)
         self._emit(ResponseFinished(response))
         if response.turn_item_id is not None:
             self._timelines.pop(response.turn_item_id, None)

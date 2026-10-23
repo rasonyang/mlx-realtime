@@ -25,9 +25,9 @@ from mlx_realtime.text.lang import detect_lang
 from mlx_realtime.text.normalize import dates, ids, money, numbers, phones, protected, units
 from mlx_realtime.text.normalize.common import Lang, Match, mask
 from mlx_realtime.text.normalize.context import Context
-from mlx_realtime.text.normalize.spacing import space
+from mlx_realtime.text.normalize.spacing import space_with_map
 
-__all__ = ["NormalizerOptions", "normalize"]
+__all__ = ["NormalizerOptions", "normalize", "normalize_with_map"]
 
 _Finder = Callable[[str], Iterable[Match]]
 
@@ -55,8 +55,21 @@ def normalize(
 ) -> str:
     """The text to synthesize for ``text``. ``lang`` is the segment's tag (``detect_lang`` when
     ``None``), used only where a span's neighbourhood holds no letter."""
+    return normalize_with_map(text, options, lang=lang)[0]
+
+
+def normalize_with_map(
+    text: str, options: NormalizerOptions = _DEFAULTS, *, lang: Lang | None = None
+) -> tuple[str, tuple[int, ...]]:
+    """``normalize(text)``, and where each spoken character comes from in ``text``: entry ``i``
+    is the index in ``text`` of spoken character ``i``, and the last entry is ``len(text)``.
+
+    Unchanged text maps one to one; the reading of a recognized span spreads evenly over the
+    span it replaces (truncation measures what was heard in spoken characters, ARCHITECTURE
+    §6.6). A space the spacing rules insert maps to the character after it.
+    """
     if not options.enabled:
-        return text
+        return text, tuple(range(len(text) + 1))
     context = Context.of(text, lang or detect_lang(text))
     masked = mask(text, protected.find(text))
     readings: list[tuple[int, int, str]] = []
@@ -65,8 +78,11 @@ def normalize(
         if enabled:
             readings += [(match.start, match.end, _read(match, context)) for match in matches]
         masked = mask(masked, ((match.start, match.end) for match in matches))
-    spoken = _splice(text, readings)
-    return space(spoken) if options.spacing else spoken
+    spoken, source = _splice(text, readings)
+    if options.spacing:
+        spoken, spaced = space_with_map(spoken)
+        source = [source[index] for index in spaced]
+    return spoken, (*source, len(text))
 
 
 def _read(match: Match, context: Context) -> str:
@@ -85,12 +101,17 @@ def _categories(options: NormalizerOptions) -> list[tuple[bool, _Finder]]:
     ]
 
 
-def _splice(text: str, readings: list[tuple[int, int, str]]) -> str:
-    """``text`` with each ``(start, end)`` span replaced by its reading."""
+def _splice(text: str, readings: list[tuple[int, int, str]]) -> tuple[str, list[int]]:
+    """``text`` with each ``(start, end)`` span replaced by its reading, and for each output
+    character the index in ``text`` it comes from."""
     pieces: list[str] = []
+    source: list[int] = []
     position = 0
     for start, end, reading in sorted(readings):
         pieces += [text[position:start], reading]
+        source += range(position, start)
+        source += (start + offset * (end - start) // len(reading) for offset in range(len(reading)))
         position = end
     pieces.append(text[position:])
-    return "".join(pieces)
+    source += range(position, len(text))
+    return "".join(pieces), source

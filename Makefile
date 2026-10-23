@@ -42,13 +42,13 @@ models-mlx:
 dev: models
 	uv run --locked mlxrt dev
 
-# The gateway alone, with mock providers (the M1 setup).
-dev-mock:
-	uv sync --locked
+# The gateway alone, with mock providers (the M1 setup) and the real CPU VAD (models/).
+dev-mock: models
 	uv run --locked mlxrt --config config.mock.yaml dev
 
-# AICC's own Realtime client harness (probe, measureResponseCreated, and the lines check in
-# tests/aicc/zz_mlx_live_test.go, added with go test -overlay) against a running gateway:
+# AICC's own Realtime client harness (probe, measureResponseCreated, the lines check, and the M4
+# barge-in and keypress scenarios in tests/aicc/zz_mlx_live_test.go, added with go test -overlay)
+# against a running gateway:
 #   make aicc-probe AICC_REPO=~/src/ai-native-callcenter [AICC_URL=ws://127.0.0.1:8000/v1/realtime]
 AICC_URL ?= ws://127.0.0.1:8000/v1/realtime
 aicc-probe:
@@ -56,6 +56,5 @@ aicc-probe:
 	uv run --locked python tests/aicc/probe.py --aicc-repo "$(AICC_REPO)" --url "$(AICC_URL)"
 
 # The same against a gateway of its own with mock providers (config.mock.yaml, no backends).
-aicc-probe-mock:
-	uv sync --locked
+aicc-probe-mock: models
 	uv run --locked python tests/aicc/probe.py --aicc-repo "$(AICC_REPO)" --serve config.mock.yaml
