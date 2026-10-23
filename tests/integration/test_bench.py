@@ -73,6 +73,14 @@ async def test_the_bench_measures_the_mock_stack(
     latency = report["latency"]
     assert isinstance(latency, dict)
     assert latency["e2e_server"]["n"] == 2
+    windows = report["windows"]
+    assert isinstance(windows, dict)
+    assert (windows["responses"], windows["statuses"]) == (2, {"completed": 2})
+    assert (windows["first_audio"]["n"], windows["first_audio"]["over"]) == (2, 0)
+    assert windows["delta_gap"]["over"] == windows["tail"]["over"] == 0
+    meta = report["meta"]
+    assert isinstance(meta, dict)
+    assert meta["overlap"] is False
     asr = report["asr"]
     assert isinstance(asr, dict)
     assert asr["zh"]["all"]["rate"] > 0.5  # the mock ASR says something else entirely

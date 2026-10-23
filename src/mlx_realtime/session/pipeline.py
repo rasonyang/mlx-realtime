@@ -44,6 +44,7 @@ from contextlib import aclosing
 from dataclasses import dataclass
 from typing import Literal
 
+from mlx_realtime.audio import g711
 from mlx_realtime.audio.codec import OutputEncoder
 from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.audio.resample import Quality
@@ -152,7 +153,7 @@ async def run_pipeline(request: PipelineRequest, context: PipelineContext) -> No
                 scope.create_task(_segment(request.generation, texts, segments, context))
                 synthesize = _synthesize(request, segments, audio, context, context.clock.now())
                 scope.create_task(_stage("tts", synthesize))
-                scope.create_task(_send(request.generation, audio, context))
+                scope.create_task(_send(request.generation, audio, context, request.output_format))
     except* _StageFailed as group:
         failure = first_leaf(group)
         context.post(PipelineFailed(request.generation, failure.stage, failure.error))
@@ -417,11 +418,16 @@ def _first_chunk_mark(
     return PipelineMark(generation, "tts_first_chunk", context.clock.now(), values)
 
 
-async def _send(generation: int, audio: asyncio.Queue[_Audio], context: PipelineContext) -> None:
+async def _send(
+    generation: int,
+    audio: asyncio.Queue[_Audio],
+    context: PipelineContext,
+    output_format: AudioFormat = PCM,
+) -> None:
     """Post the synthesized audio, paced (D6); each segment's transcript just before its audio."""
     reserve = context.reserve
     if reserve is not None and reserve.enabled and reserve.hold_ms > 0:
-        await _ReserveSender(generation, audio, context, reserve).run()
+        await _ReserveSender(generation, audio, context, reserve, output_format).run()
         return
     pacer = Pacer(context.max_lead_ms, context.clock)
     announced: set[int] = set()
@@ -440,11 +446,32 @@ async def _send(generation: int, audio: asyncio.Queue[_Audio], context: Pipeline
     context.post(SpeechFinished(generation))
 
 
+KEEPALIVE_SILENCE_MS = 20  # one AICC tick
+
+
+def silence(audio_format: AudioFormat, ms: int) -> bytes:
+    """``ms`` of digital silence in ``audio_format``."""
+    samples = audio_format.rate * ms // 1000
+    if audio_format.law is None:
+        return bytes(samples * audio_format.sample_width)
+    return bytes([g711.SILENCE[audio_format.law]]) * samples
+
+
 class _ReserveSender:
     """The sender with the audio reserve (M6): while more audio is to come, the last
     ``hold_ms`` of what is synthesized stays here and goes out one delta at a time, when the
     wire has been quiet for ``keepalive_ms`` or the client's modelled buffer (the pacer's lead)
-    drops below ``min_lead_ms``. Everything else goes out as the plain sender sends it."""
+    drops below ``min_lead_ms``. Everything else goes out as the plain sender sends it.
+
+    The reserve spends itself keeping the client's buffer from running dry, so its last delta
+    goes out shortly before the audio sent so far finishes playing. When the next segment is
+    still waiting for the TTS after that (behind another session's long segment: 2.3 s with
+    two sessions on the real stack), the wire would go quiet past AICC's 2 s watchdog, which
+    then abandons the turn. So once nothing is held and more audio is to come, a
+    ``KEEPALIVE_SILENCE_MS`` silence delta goes out every ``keepalive_ms``, never before the
+    response's first audio (that deadline is the client's to judge). The caller hears the same
+    pause; the silence belongs to the segment before it. The TTS queue's timeout still bounds
+    the wait."""
 
     def __init__(
         self,
@@ -452,6 +479,7 @@ class _ReserveSender:
         audio: asyncio.Queue[_Audio],
         context: PipelineContext,
         reserve: AudioReserveConfig,
+        output_format: AudioFormat = PCM,
     ) -> None:
         self._generation = generation
         self._audio = audio
@@ -466,6 +494,10 @@ class _ReserveSender:
         self._finished = False
         self._announced: set[int] = set()
         self._last_sent: float | None = None
+        self._last_segment: SegmentStarted | None = None
+        self._silence = silence(output_format, KEEPALIVE_SILENCE_MS)
+        self._keepalive_silence = reserve.keepalive_silence
+        self._keepalives = 0
         self._getter: asyncio.Task[_Audio] | None = None
 
     async def run(self) -> None:
@@ -485,11 +517,19 @@ class _ReserveSender:
                 elif self._finished:
                     break
                 else:
-                    wait_s = None
+                    wait_s = self._keepalive_due_s()
+                    if wait_s is not None and wait_s <= 0:
+                        await self._send_silence()
+                        continue
                 await self._wait(wait_s)
         finally:
             if self._getter is not None:
                 self._getter.cancel()
+            if self._keepalives:
+                logger.info(
+                    "silence kept the client's watchdog fed while the next segment waited",
+                    extra={"deltas": self._keepalives},
+                )
         self._context.post(SpeechFinished(self._generation))
 
     def _take_available(self) -> None:
@@ -515,6 +555,13 @@ class _ReserveSender:
         lead_s = (self._pacer.lead_ms() - self._min_lead_ms) / 1000
         return min(keepalive_s, lead_s)
 
+    def _keepalive_due_s(self) -> float | None:
+        """Nothing held and more to come: how long until a silence delta is due (None: never
+        before the first audio)."""
+        if not self._keepalive_silence or self._last_sent is None or self._last_segment is None:
+            return None
+        return self._last_sent + self._keepalive_s - self._clock.now()
+
     async def _send(self, item: _Delta) -> None:
         self._pending.popleft()
         self._pending_ms -= item.ms
@@ -523,6 +570,16 @@ class _ReserveSender:
         self._announce(item.segment)
         self._context.post(SegmentAudio(self._generation, item.segment.index, item.pcm))
         self._last_sent = self._clock.now()
+        self._last_segment = item.segment
+
+    async def _send_silence(self) -> None:
+        assert self._last_segment is not None
+        await self._pacer.admit(KEEPALIVE_SILENCE_MS)
+        await self._context.wait_for_room()
+        segment = self._last_segment.index
+        self._context.post(SegmentAudio(self._generation, segment, self._silence, silence=True))
+        self._last_sent = self._clock.now()
+        self._keepalives += 1
 
     def _announce(self, segment: SegmentStarted) -> None:
         if segment.index not in self._announced:

@@ -65,15 +65,35 @@ def backend_specs(backends: BackendsConfig, *, uv: str, cache: Path) -> list[Pro
 
 def busy_ports(endpoints: Iterable[tuple[str, str, int]]) -> list[str]:
     """The ``(name, host, port)`` endpoints something already listens on. Checked before any
-    process starts, so a port in use never leaves half a stack running."""
+    process starts, so a port in use never leaves half a stack running.
+
+    A port is busy when something accepts connections on it (a server bound to every interface
+    included), or when a server could not bind it the way ours do, with ``SO_REUSEADDR``
+    (uvicorn and ``http.server`` set it). Connections a stack that just stopped left in
+    TIME_WAIT do not count: a plain bind fails on them for about 30 s, and ``make dev`` refused
+    to start again although its servers would have."""
     busy: list[str] = []
     for name, host, port in endpoints:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
-            try:
-                probe.bind((host, port))
-            except OSError:
-                busy.append(f"{name}: {host}:{port} is already in use")
+        if _accepting(host, port) or not _bindable(host, port):
+            busy.append(f"{name}: {host}:{port} is already in use")
     return busy
+
+
+def _accepting(host: str, port: int) -> bool:
+    target = "127.0.0.1" if host in ("", "0.0.0.0") else host
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.settimeout(0.5)
+        return probe.connect_ex((target, port)) == 0
+
+
+def _bindable(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            probe.bind((host, port))
+        except OSError:
+            return False
+        return True
 
 
 def gateway_spec(config_path: Path, *, python: str) -> ProcessSpec:

@@ -2,16 +2,23 @@
 
 It talks to ``/v1/realtime`` as a telephone client does: ``server_vad``, each utterance replayed at
 real-time speed in 20 ms ``input_audio_buffer.append`` frames, then silence, streamed until the
-turn is answered (the line never goes quiet). Per utterance it records:
+turn is answered (the line never goes quiet). The next utterance starts once the answer would have
+finished playing, as a caller who listens to it: the gateway models the client playing every delta
+in real time (its echo reference and barge-in rules, D17), so an utterance sent while the answer
+still plays is double talk to it (``--overlap`` sends it as soon as the turn is done instead).
+Per utterance it records:
 
 - the client's end to end: from sending the end of the speech (trailing silence excluded) to the
   first ``response.output_audio.delta`` of the response that answered it;
 - the server's stage durations, from ``GET /debug/turns?session_id=…`` (the gateway must run with
   ``observability.debug_endpoints: true``; ``--serve`` turns it on);
-- the transcript, from ``conversation.item.input_audio_transcription.completed``.
+- the transcript, from ``conversation.item.input_audio_transcription.completed``;
+- for every response, AICC's windows: ``response.created`` to the first audio delta, the longest
+  gap between deltas, the last delta to ``response.done``, and ``response.created`` to
+  ``response.done`` for a response without audio.
 
-The report (``bench/report.py``) has per-stage and end-to-end P50/P95 and ASR CER/WER/MER, as JSON
-and as markdown tables.
+The report (``bench/report.py``) has per-stage and end-to-end P50/P95, AICC's windows and ASR
+CER/WER/MER, as JSON and as markdown tables.
 
     uv run --locked python -m bench.bench --url ws://127.0.0.1:8000/v1/realtime \\
         --input spikes/data/manifest.jsonl --variant tel8k --concurrency 1 --out bench/results/run
@@ -51,7 +58,7 @@ from bench.dataset import (
     g711_encode,
     load,
 )
-from bench.report import TurnResult, markdown, summarize
+from bench.report import ResponseTiming, TurnResult, markdown, summarize
 from mlx_realtime.audio.resample import Resampler
 from mlx_realtime.config import load_config
 from mlx_realtime.server.app import GatewayServer
@@ -61,6 +68,7 @@ type Codec = Literal["pcm", "pcmu", "pcma"]
 type Event = dict[str, object]
 
 DEFAULT_INPUT = Path("spikes/data/manifest.jsonl")
+BYTES_PER_S: dict[Codec, int] = {"pcm": WIRE_RATE * 2, "pcmu": 8000, "pcma": 8000}
 DEFAULT_URL = "ws://127.0.0.1:8000/v1/realtime"
 _SETTLE_S = 0.3  # quiet time after a turn is complete, before the next utterance
 
@@ -75,6 +83,7 @@ class Options:
     no_turn_after_s: float = 6.0  # silence after which an undetected utterance is given up
     turn_timeout_s: float = 60.0
     codec: Codec = "pcm"
+    overlap: bool = False  # the next utterance as soon as the turn is done, not after its playback
     language: str | None = None
     instructions: str | None = "你是电话客服。请用一句话简短回答。"
     api_key: str | None = None
@@ -84,8 +93,43 @@ class Options:
 @dataclass
 class _Response:
     id: str
+    created_at: float
     first_audio_at: float | None = None
+    last_audio_at: float | None = None
+    max_gap_s: float | None = None  # the longest wait between two audio deltas
+    done_at: float | None = None
     status: str | None = None
+    audio_bytes: int = 0
+
+    def audio(self, now: float, size: int) -> None:
+        if self.first_audio_at is None:
+            self.first_audio_at = now
+        elif self.last_audio_at is not None:
+            gap = now - self.last_audio_at
+            self.max_gap_s = gap if self.max_gap_s is None else max(self.max_gap_s, gap)
+        self.last_audio_at = now
+        self.audio_bytes += size
+
+    def played_at(self, bytes_per_s: int) -> float | None:
+        """When a client playing the audio in real time from its first delta would finish it."""
+        if self.first_audio_at is None:
+            return None
+        return self.first_audio_at + self.audio_bytes / bytes_per_s
+
+    def timing(self) -> ResponseTiming:
+        """AICC's windows (bench/report.py), in ms."""
+
+        def ms(start: float | None, end: float | None) -> float | None:
+            return None if start is None or end is None else round((end - start) * 1000, 1)
+
+        return ResponseTiming(
+            response_id=self.id,
+            status=self.status,
+            first_audio_ms=ms(self.created_at, self.first_audio_at),
+            max_gap_ms=None if self.max_gap_s is None else round(self.max_gap_s * 1000, 1),
+            tail_ms=ms(self.last_audio_at, self.done_at),
+            done_ms=ms(self.created_at, self.done_at),
+        )
 
 
 @dataclass
@@ -106,6 +150,11 @@ class _Utterance:
             and not self.speaking
             and all(response.status is not None for response in self.responses)
         )
+
+    def played_at(self, bytes_per_s: int) -> float:
+        """When the audio of every response would have finished playing (0 without audio)."""
+        ends = [response.played_at(bytes_per_s) for response in self.responses]
+        return max((end for end in ends if end is not None), default=0.0)
 
 
 class _Session:
@@ -146,17 +195,18 @@ class _Session:
                 found = _field(event, "response", "audio", "output", "format", "type")
                 if found != f"audio/{self.options.codec}":
                     self.failure = f"a response in {found}, not audio/{self.options.codec}"
-                response = _Response(str(_field(event, "response", "id")))
+                response = _Response(str(_field(event, "response", "id")), created_at=now)
                 self._responses[response.id] = response
                 current.responses.append(response)
             case "response.output_audio.delta":
                 response = self._responses.get(str(event["response_id"]))
-                if response is not None and response.first_audio_at is None:
-                    response.first_audio_at = now
+                if response is not None:
+                    response.audio(now, len(base64.b64decode(str(event["delta"]))))
             case "response.done":
                 response = self._responses.get(str(_field(event, "response", "id")))
                 if response is not None:
                     response.status = str(_field(event, "response", "status"))
+                    response.done_at = now
             case "error":
                 code = _field(event, "error", "code")
                 if code in ("invalid_value", "unknown_parameter", "unsupported_value"):
@@ -282,6 +332,7 @@ async def _play(session: _Session, utterance: Utterance) -> TurnResult:
     outcome: Literal["answered", "no_audio", "no_turn", "timeout"] = "timeout"
     index = frames
     settled_at: float | None = None
+    bytes_per_s = BYTES_PER_S[options.codec]
     while True:
         now = await _sleep_until(start + index * FRAME_MS / 1000)
         index += 1
@@ -289,7 +340,8 @@ async def _play(session: _Session, utterance: Utterance) -> TurnResult:
         silent_s = now - audio_end
         if silent_s * 1000 < options.min_silence_ms:
             continue
-        if collected.complete:
+        played = options.overlap or now >= collected.played_at(bytes_per_s)
+        if collected.complete and played:
             settled_at = settled_at or now
             if now - settled_at >= _SETTLE_S:
                 outcome = "answered"
@@ -311,6 +363,7 @@ async def _play(session: _Session, utterance: Utterance) -> TurnResult:
         items=list(collected.items),
         transcript="".join(collected.transcripts.get(item, "") for item in collected.items),
         duration_ms=utterance.duration_ms,
+        responses=[response.timing() for response in collected.responses],
     )
     final = collected.responses[-1] if collected.responses else None
     if final is not None:
@@ -431,6 +484,7 @@ async def benchmark(
         "concurrency": options.concurrency,
         "codec": options.codec,
         "silence_duration_ms": options.silence_duration_ms,
+        "overlap": options.overlap,
     }
     return summarize(turns, meta=meta)
 
@@ -464,6 +518,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--min-silence-ms", type=int, default=1000)
     parser.add_argument("--turn-timeout-s", type=float, default=60.0)
     parser.add_argument("--codec", choices=("pcm", "pcmu", "pcma"), default="pcm")
+    parser.add_argument(
+        "--overlap",
+        action="store_true",
+        help="send the next utterance once the turn is done, while its answer would still play",
+    )
     parser.add_argument("--language", help="transcription language (default: detected)")
     parser.add_argument("--instructions", default=Options.instructions)
     parser.add_argument("--api-key", default=os.environ.get("MLXRT_API_KEY"))
@@ -492,6 +551,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         min_silence_ms=arguments.min_silence_ms,
         turn_timeout_s=arguments.turn_timeout_s,
         codec=arguments.codec,
+        overlap=arguments.overlap,
         language=arguments.language,
         instructions=arguments.instructions or None,
         api_key=arguments.api_key,

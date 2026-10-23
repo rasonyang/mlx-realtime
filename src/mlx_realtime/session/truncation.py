@@ -1,8 +1,10 @@
 """Truncation arithmetic: which text the client heard (ARCHITECTURE §6.6).
 
 Positions are on the item's output-audio timeline. Segments that end at or before the cut are
-heard whole. The segment playing at the cut contributes a prefix proportional to how much of
-its audio played: the audio speaks the segment's normalized text, so the share is taken in
+heard whole; a segment's speech ends before the keepalive silence the audio reserve may have
+sent after it while the next segment waited (a cut in that silence heard the segment whole).
+The segment playing at the cut contributes a prefix proportional to how much of its speech
+played: the audio speaks the segment's normalized text, so the share is taken in
 spoken characters and mapped back through the normalizer's character map to the original text
 (a phone number read digit by digit is heard as far as its digits were read), then snapped back
 to a word boundary in Latin text.
@@ -25,10 +27,10 @@ def heard_text(segments: Sequence[SpokenSegment], audio_end_ms: int) -> str:
     for segment in segments:
         if segment.start_ms >= audio_end_ms:
             break
-        if segment.start_ms + segment.audio_ms <= audio_end_ms:
+        if segment.start_ms + segment.speech_ms <= audio_end_ms:
             parts.append(segment.text)
             continue
-        played = (audio_end_ms - segment.start_ms) / segment.audio_ms
+        played = (audio_end_ms - segment.start_ms) / segment.speech_ms
         parts.append(_prefix(segment, played))
         break
     return "".join(parts)

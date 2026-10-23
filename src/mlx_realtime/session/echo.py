@@ -30,8 +30,14 @@ On a line without echo, AEC3's suppressor takes a caller who talks over our audi
 silences them (measured in M4: up to 45 dB, for seconds). So once the delay estimator has watched
 ``bypass_after`` of playing reference with no echo of it in the input, the canceller is fed a
 silent reference (it then passes the input through); the first echo the estimator finds turns
-it back on (AEC3 re-converges within about 0.5 s). The ASR path's linear canceller never takes
-the bypass: it has no suppressor to silence the caller.
+it back on (AEC3 re-converges within about 0.5 s). Leaving the bypass takes more than the
+estimator's own confirmation (two valid windows agreeing): its windows overlap by 1.5 s, so a
+chance peak between our speech and a caller talking over it confirms itself about every 10 s of
+such double talk, turning the canceller back on mid barge-in. Echo must show in
+``_RESUME_WINDOWS`` consecutive valid windows that agree, each with a PSR of at least
+``_RESUME_PSR``: a real echo resumes one window (0.5 s) later, and false resumes fell from 29 to
+2 in 4.5 minutes of FLEURS double talk (spikes/realstack/echo_bypass.py, 2026-10-23). The ASR
+path's linear canceller never takes the bypass: it has no suppressor to silence the caller.
 
 Times and positions are integer sample counts at 16 kHz: "loop samples" for the event loop's
 clock, input-timeline samples for the capture.
@@ -87,6 +93,9 @@ _ACTIVE_REFERENCE = 10 ** (-50 / 10) * 32768.0**2  # a reference frame above -50
 _ERLE_WINDOW_FRAMES = 50  # 0.5 s of frames with an active reference
 HOP_SAMPLES = HOP * RATE // 8000  # the delay estimator's hop at 16 kHz
 WINDOW_SAMPLES = WINDOW * RATE // 8000  # and its window
+_RESUME_WINDOWS = 3  # consecutive agreeing valid windows that end the bypass ...
+_RESUME_PSR = 10.0  # ... each with at least this peak-to-sidelobe ratio
+_RESUME_AGREE = 2 * RATE // 1000  # 2 ms, the estimator's own agreement
 
 
 def samples(seconds: float) -> int:
@@ -337,6 +346,7 @@ class EchoReference:
         self._active = False  # a response is in progress
         self._no_echo = 0  # reference played with no echo found since the last echo
         self.echo_absent = False  # the canceller is bypassed (see the module notes)
+        self._resume: list[int] = []  # while bypassed: the lags of the agreeing run of windows
         self.stats = EchoStats()
         self.on_change: Callable[[], None] | None = None  # the feeder's wakeup
 
@@ -428,6 +438,7 @@ class EchoReference:
         over)."""
         params = self.params
         if not estimate.valid:
+            self._resume.clear()
             self._no_echo += HOP_SAMPLES
             if (
                 params.bypass_after is not None
@@ -439,11 +450,14 @@ class EchoReference:
                 logger.info("no echo on the line: the echo canceller is bypassed")
             return False
         self.stats.estimates += 1
+        if self.echo_absent and not self._resumes(estimate):
+            return False  # a chance peak persists across overlapping windows: wait for more
         if not estimate.confirmed:
             return False  # one window can peak by chance (a caller talking over us): wait
         self._no_echo = 0
         if self.echo_absent:
             self.echo_absent = False
+            self._resume.clear()
             logger.info("echo on the line: the echo canceller is back on")
         self._learn(end, estimate)
         self._align_speex(end, estimate)
@@ -459,6 +473,17 @@ class EchoReference:
             },
         )
         return True
+
+    def _resumes(self, estimate: DelayEstimate) -> bool:
+        """While bypassed: whether ``estimate`` completes a run of ``_RESUME_WINDOWS`` valid
+        windows in a row that agree, each with a PSR of at least ``_RESUME_PSR``."""
+        if estimate.psr < _RESUME_PSR:
+            self._resume.clear()
+            return False
+        if self._resume and abs(estimate.lag - self._resume[-1]) > _RESUME_AGREE:
+            self._resume.clear()
+        self._resume.append(estimate.lag)
+        return len(self._resume) >= _RESUME_WINDOWS
 
     # Outputs
 

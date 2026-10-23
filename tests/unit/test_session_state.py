@@ -61,6 +61,18 @@ def test_heard_text_is_whole_segments_plus_a_proportional_prefix(
     assert heard_text(SPOKEN, audio_end_ms) == heard
 
 
+def test_keepalive_silence_after_a_segment_is_not_its_speech() -> None:
+    """The audio reserve's keepalive silence follows a segment's speech while the next one waits
+    in the TTS queue: a cut in it heard the segment whole, and a cut in the speech is measured
+    on the speech alone."""
+    first = SpokenSegment("你好。", "你好。", 0, 1000 * 48, silence_bytes=400 * 48)
+    second = SpokenSegment("再见。", "再见。", 1000, 600 * 48)
+    assert (first.audio_ms, first.speech_ms) == (1000, 600)
+    assert heard_text([first, second], 300) == "你"  # half of the speech, not 30 % of the audio
+    assert heard_text([first, second], 700) == "你好。"  # in the silence
+    assert heard_text([first, second], 1300) == "你好。再"
+
+
 def test_segments_without_audio_count_only_before_the_cut() -> None:
     parts = segments(("好。", 500), ("\n", 0), ("再见。", 500))
     assert heard_text(parts, 500) == "好。"

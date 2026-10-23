@@ -63,10 +63,16 @@ class SpokenSegment:
     # None when ``spoken`` is ``text``.
     source: tuple[int, ...] | None = None
     audio_format: AudioFormat = PCM  # the wire format ``audio_bytes`` counts
+    silence_bytes: int = 0  # of ``audio_bytes``, keepalive silence sent after its speech
 
     @property
     def audio_ms(self) -> int:
         return self.audio_format.bytes_to_ms(self.audio_bytes)
+
+    @property
+    def speech_ms(self) -> int:
+        """Its audio without the keepalive silence that followed it: what speaks its text."""
+        return self.audio_format.bytes_to_ms(self.audio_bytes - self.silence_bytes)
 
 
 @dataclass(slots=True)

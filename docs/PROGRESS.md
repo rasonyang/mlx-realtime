@@ -2019,3 +2019,363 @@ No golden trace changed.
   - Capacity: max_sessions 3, LLM in flight 4, ASR in flight 3, executors unchanged.
   - D13 implemented: Kokoro-only dependencies removed from backends/audio; the fallback warms up
     with the default voice only.
+
+## Real-stack validation (2026-10-23/24)
+
+**Goal.** Run the whole service on the real backends for the first time: every milestone's
+pending backend tests, AICC's own harness in both profiles, the benchmark (the first real
+latency report, `docs/LATENCY.md`), M0's S5, S6 and S10 through the real gateway (contention, a
+30-minute soak, the budget), backend recovery, the G.711 input-quality default, and gates G4 and
+G6. Fix what breaks; report the rest.
+
+**Conditions.**
+
+- Apple M3 Max (16 cores), 128 GB, macOS 26.6.2 (25G83), AC power, `pmset` AC `powermode 2`
+  (High Power; battery 80 %, not charging). A `caffeinate` assertion kept the machine awake;
+  nothing else used the GPU. `iogpu.wired_limit_mb` 0 (the default); `mx.device_info()`:
+  `applegpu_g15s`, `max_recommended_working_set_size` 115.4 GB.
+- Python 3.12.12, uv 0.13.5, Go 1.27.3. Gateway: onnxruntime 1.31.0, openai 3.36.1, soxr 1.1.0,
+  numpy 2.5.4. `backends/llm`: mlx 0.32.4, mlx-lm 0.32.2. `backends/audio`: mlx 0.32.4,
+  mlx-audio 0.6.1, transformers 5.20.2.
+- Models from the HF cache (`HF_HUB_OFFLINE=1`): Qwen3.6-35B-A3B-4bit @38740b84,
+  Qwen3-ASR-1.7B-8bit @a8379a2e, Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit @049ef77f and its 4-bit
+  build @08c72cad.
+- mlx-realtime bb75826 plus this working tree; AICC 8ea1f95 (read only).
+- Every server was stopped at the end.
+
+### Startup
+
+`MLXRT__OBSERVABILITY__DEBUG_ENDPOINTS=true make dev` started the four processes; the gateway was
+ready 13.3 s after it started (a warm page cache): the ASR warm after 4.0 s, the LLM after 7.7 s,
+the TTS after 13.3 s (8 requests on the 8-bit primary, every voice, and 2 on the 4-bit fallback).
+Footprints after warmup: LLM 22.9 GB, TTS 3.8 GB, ASR 2.5 GB, gateway 0.25 GB. Each backend prints
+uv's `VIRTUAL_ENV=.venv does not match the project environment` warning once (the variable is
+inherited through `uv run`); harmless.
+
+### Backend tests (`uv run --locked pytest -m backend`, `AICC_REPO` set)
+
+The 23 tests M2–M7 left pending. First run, before any fix: **22 passed, 1 failed**
+(`test_aicc_harness_against_the_real_stack`, below), and pytest exited 1 even when every test
+passed (bug 8). Final run, on the final tree: **23 passed**, exit 0. Measured on the way: TTS first
+chunk 50–56 ms at RTF 0.25 (8-bit, zh and en); the 4-bit fallback 56–74 ms at RTF 0.26–0.39, and
+48–125 ms after a forced primary failure; warmup 7.1–7.2 s; the SDK's Chinese turn first audio
+676–705 ms after `response.created` (PCM) and 702–748 ms (G.711, the answer heard back right by
+the ASR); the SDK's barge-in confirmed 1503 ms after the onset in the first run (the echo
+canceller wrongly back on, bug 4) and 539 ms in the final one.
+
+### AICC's own harness (`tests/aicc/probe.py`)
+
+Every `TestMLX*` test in the `gateway` profile (24 kHz PCM) and with `--g711` (`AcceptsG711`,
+μ-law passed through), directly and inside the backend tests:
+
+| Run | Greeting (first audio) | `response.created` | Lines | Barge-in | Keypresses |
+|---|---|---|---|---|---|
+| PCM, first backend run | pass (902 ms) | **fail**: "response 6 never finished" | pass | pass | pass |
+| G.711, first backend run | pass (562 ms) | pass (8/8, worst 3 ms) | pass | pass | pass |
+| PCM, direct | pass (579 ms) | pass (8/8, worst 3 ms) | pass | pass | pass |
+| G.711, direct | pass (370 ms) | pass (8/8, worst 13 ms) | pass | pass | pass |
+| PCM, final backend run | pass (530 ms) | pass (8/8, worst 2 ms) | pass | pass | pass |
+| G.711, final backend run | pass (526 ms) | pass (8/8, worst 2 ms) | pass | pass | pass |
+
+**The failure is the model, not the gateway.** `measureResponseCreated` sends eight bare
+`response.create` in a row after the greeting, with no caller turn between them, and waits 30 s
+for each to finish. The sixth answer was a monologue (13 TTS segments in 28 s, still speaking at
+30 s); `response.created` came within 1–2 ms every time. Fourteen more runs of the test through a
+logging proxy passed: 112 such answers, the greeting repeated, plus three odd ones ("I'm sorry, but
+I am an AI assistant and cannot answer the phone.", "Sure! Here's a short response for when the
+call connects: …", a bare quote). AICC asks for a turn after a tool result or a note, never after
+the model's own words alone, so this is the test's conversation at temperature 0.7 (1 run in 16).
+`max_completion_tokens` 512 still allows ~2 minutes of speech in one answer.
+
+**Barge-in**, `TestMLXBargeIn` 20 more times per profile (`spikes/realstack/bargein.sh`; the caller
+starts 2.74 s into a long line): `speech_started` 0.40–0.59 s after the onset in 35 of 40 runs and
+0.86–1.52 s in 5, which then lost the first word or two ("People don't think…"). In those 5 the
+echo canceller's no-echo bypass engaged 5.4–5.9 s into the call, 0.2–0.9 s after the caller had
+started; in the fast runs it was on before the onset or within 0.2 s of it. Until it engages,
+AEC3 treats a caller talking over our audio as echo (M4: up to 44 dB). It engages late because of
+the wrapper's listening "room tone", a pure 182 Hz sine at −61 dBFS copied from AICC's
+`feedRoomTone`: GCC-PHAT finds chance peaks on it in 60 % of its windows (PSR median 10.3), and
+only windows without a peak count toward the bypass; on line noise it finds one peak in 418
+windows. Counting weak unconfirmed peaks (PSR < 12) as well engaged the bypass 1.5 s sooner on the
+room tone offline, but raised its misfires on G7's real-echo calls (continuous double talk:
+16 → 23), so it was not adopted (Remaining risks). Keypresses: the line cancelled 1–2 ms after
+the key and the reply's audio 340–520 ms after it, every run.
+
+### Benchmark (`bench/`; the tables are in `docs/LATENCY.md`)
+
+126 utterances per run: `wide`, `tel8k` PCM and `tel8k` μ-law, each with 1, 2 and 3 sessions (the
+three-session runs are the soak's three passes). Server end to end, speech end → first audio
+(P50 / P95): 1.38–1.40 / 3.78–3.87 s at one session, 1.43–1.44 / 3.81–3.87 s at two, 1.48–1.52 /
+3.88–3.98 s at three. The P95 is Smart Turn holding 11–17 turns per run as incomplete until
+`max_silence_ms` (mostly ASCEND excerpts that really stop mid-sentence); turns that ended on a
+complete verdict: 1.37–1.39 / 1.52–1.54 s at one session, 1.42–1.47 / 1.86–2.78 s at two and
+three. The tails at two and three sessions are the serialized TTS: a first segment waited up to
+1.9 s for another session's segment. AICC's windows: no miss at one session; at two, one delta
+gap of 2.09 s (bug 5); at three (bug 5 fixed by then), one first audio of 3.39 s. Eight responses
+failed with `backend_busy` (one at two sessions, seven at three), 2.4–3.2 s after
+`response.created`. ASR on the rows without numbers: zh CER 5.9–6.0 %, en WER 2.4–3.6 %, mix MER
+8.6–13.2 %, all MER 5.1–6.8 % (M0 S4: 5.9 / 2.4 / 10.3 %).
+
+The fixes went in while the runs went on: the one-session runs had bugs 1–3 fixed; the
+two-session runs and the HQ comparison also 4 and 6; the soak (the three-session runs) also 5; the
+final backend tests everything. The benchmark never talks over an answer, so bug 4 does not
+touch its numbers.
+
+**AICC's call flow, with tools** (`spikes/realstack/aiccflow.sh`, LATENCY.md §3.5): ten calls of
+AICC's `line_session_zh.json` with spoken caller turns, alone and beside two bench sessions. Alone,
+the `transfer_to_agent` tool-only response was done 1.56 / 1.72 s (P50 / P95) after
+`response.created`, `repair_status` 0.83 / 0.91 s, the spoken replies' first audio ≤ 0.73 s.
+Beside two sessions: transfer 1.93 / 2.78 s, a question's first audio 0.83 / 2.72 s. Every
+window was met, with 0.2–0.3 s to spare at worst.
+
+### G.711 input quality (task 5)
+
+`tel8k` μ-law at two sessions through the gateway: all MER on the rows without numbers 5.9 % with
+`MLXRT__G711__INPUT_QUALITY=LQ` (the default), 6.6 % with `HQ` (a second gateway on the same
+backends). Paired on the ASR alone (`spikes/realstack/g711_quality.py`: the same 126 streams,
+upsampled both ways by the gateway's own decoder, language detected): HQ − LQ = +0.12 points
+(95 % CI −0.42 to +0.60), zh +0.09, en 0.00, mix +0.30; 19 of 126 transcripts differ. HQ is no
+better; **LQ stays the default** (DECISIONS below).
+
+### GPU contention (S5)
+
+On the backends directly (`spikes/realstack/contention.py`, LATENCY.md §3.7): while the LLM decodes
+one or three streams, the TTS's first chunk goes from 56 to 71–81 ms (P50) and its RTF from 0.25
+to 0.33–0.38; the ASR from 172 to 194–215 ms; while the TTS streams, the LLM decodes 12 % slower
+(77 → 68 tok/s) with an unchanged TTFT. While the LLM prefills ~16k tokens (22.8 s), the TTS runs
+at **RTF 2.1** (first chunk 203 / 375 ms): a long prefill starves every speaking session. AICC's
+prompts are ~1.6k tokens (≈ 1.5 s cold). Through the gateway, the same effects show in the
+two- and three-session runs (ASR P95 +0.1–0.2 s, LLM first token P95 +0.05–0.15 s).
+
+### Stability: the 30-minute soak (S6)
+
+`zsh spikes/realstack/soak.sh 1800`: three sessions back to back through `make dev`, 30 min 9 s,
+three bench passes (`wide` PCM, `tel8k` PCM, `tel8k` μ-law), 45 sessions, 378 utterances; 425
+LLM, 391 ASR and 625 TTS requests (fewer TTS calls than S6's 1000: the answers are one sentence).
+
+- **Hangs: none.** Every utterance was answered or failed: no bench timeout, no response left
+  open, no delta gap over 1.0 s.
+- **Errors:** 7 responses failed with `backend_busy` (TTS queue timeout, above); no backend
+  returned an error status. The LLM log has 7 `BrokenPipeError` tracebacks: mlx_lm.server writing
+  to a response the gateway had cancelled (a barge-in), harmless.
+- **Crashes: none.** The four processes kept their PIDs throughout.
+- **GPU kernel messages** (`log show --last 40m --predicate 'process == "kernel"'`): no IOGPU or
+  GPU error, fault or hang; the only GPU line is a CoreAnalytics rate-policy counter
+  (`com.apple.agx.ctxswitchlatency count 3`).
+- **Memory** (`footprint`, GB, every 5 min; `spikes/results/realstack_soak_memory.jsonl`): flat
+  after the LLM's prompt cache filled in the first 5 minutes. No swap at any time.
+
+| time | LLM (peak) | TTS (peak) | ASR (peak) | gateway (peak) |
+|---|---|---|---|---|
+| start | 18.73 (19.05) | 3.78 (4.44) | 2.46 (3.49) | 0.20 (0.20) |
+| +5 min | 22.88 (23.51) | 4.24 (4.58) | 2.48 (3.85) | 0.26 (0.26) |
+| +10 min | 22.90 (23.51) | 3.78 (4.59) | 2.49 (3.85) | 0.26 (0.27) |
+| +15 min | 22.85 (23.51) | 3.78 (4.59) | 2.49 (3.85) | 0.26 (0.28) |
+| +20 min | 22.98 (23.51) | 3.78 (4.90) | 2.50 (3.85) | 0.26 (0.28) |
+| +25 min | 22.83 (23.62) | 4.26 (4.90) | 2.50 (3.85) | 0.25 (0.28) |
+| +30 min | 22.81 (23.62) | 3.81 (4.90) | 2.49 (4.03) | 0.26 (0.28) |
+
+### Recovery (task 7)
+
+Each backend killed with `kill -9` while the stack ran process by process
+(`zsh spikes/realstack/recovery.sh`; `mlxrt dev` stops everything when a child exits), a spoken
+turn sent while it was down, the backend started again with `mlxrt dev`'s command, and a turn sent
+after it:
+
+| Backend | While it is down | After the restart, before the fix | After the restart, with the fix |
+|---|---|---|---|
+| ASR | `/readyz` 503 at once; the turn: `transcription.failed`, `error` `backend_unavailable`, `response.done{failed}`, all 1 ms after the commit | `/readyz` 503 ("model not loaded") for 30 s and more, until a caller's turn loaded the model in its own request (transcript 964 ms instead of ~160) | 200 again 1.7 s after the restart; the next turn's first audio 0.55 s after `response.created` |
+| TTS | `error` `backend_unavailable` and `response.done{failed}` at the first segment, 0.44 s after `response.created` | the next response loaded the primary in its first segment (first audio 1.86 s); the fallback was never loaded, so `/readyz` stayed 503 for good | 200 again after 10.4 s (both models, every voice); next turn 0.61 s |
+| LLM | `error` `backend_unavailable` and `response.done{failed}` at the LLM request, 0.16 s after `response.created` | `/health` back 1 s after the start; the next turn normal (0.62 s) | 200 again after 3.0 s (`/readyz` waits for the warmup too); next turn 0.60 s |
+
+Nothing hung and every session stayed open. The fix is bug 1; its last column is the final tree
+(`recovery.sh kill asr tts llm`, 01:58); an earlier run of the fix, before `/readyz` required
+warm, gave 3.7 s, 10.3 s and 0.9 s.
+
+### Bugs found and fixed
+
+1. **A restarted backend was never warmed again** (`server/readiness.py`, `server/app.py`,
+   `server/metrics.py`). See Recovery. The monitor now keeps the backends warm: after the startup
+   warmup it probes each warm backend every 5 s (`WATCH_S`); one that answers "not ready"
+   (unreachable, or its model no longer loaded) is warmed again with the startup retries until it
+   is ready. A probe that times out (a busy backend) changes nothing; one that raises is logged
+   and skipped. `/readyz` and `mlxrt_backend_ready` also require the backend to be warm (the LLM
+   answers `/health` before the gateway's warmup has run). Tests: `tests/unit/test_readiness.py`
+   (6), `test_metrics.py` (+1 case).
+2. **The benchmark's replay was double talk** (`bench/bench.py`). It sent the next utterance 300 ms
+   after `response.done`, but the answer goes out up to 10 s ahead of real time and the gateway
+   models the client playing it (D17's reference, the barge-in rules): every turn after the first
+   started while the gateway believed our answer was still playing. In the first run, five
+   sessions had 8 spurious "echo on the line" events (there is no echo in the bench), AEC3 was put
+   back on over the caller (27 dB of "ERLE" on a caller's speech), and Speex aligned to an echo
+   that was not there; that run was discarded. The replay now waits until the answer would have
+   played out, as a caller who listens; `--overlap` keeps the old timing. Tests:
+   `tests/unit/test_bench.py` (+1).
+3. **The benchmark did not check AICC's windows** (`bench/bench.py`, `bench/report.py`). Every
+   response now records `response.created` → first audio, its longest delta gap, last delta →
+   `response.done`, and `response.created` → `response.done` without audio; the report counts
+   those at or over AICC's limits. Tests: `test_bench.py` (+2), `tests/integration/test_bench.py`.
+4. **The echo canceller's bypass was left on chance peaks** (`session/echo.py`). On a line without
+   echo, a caller talking over our audio turned the canceller back on whenever two consecutive
+   GCC-PHAT windows peaked at the same lag; the windows overlap by 1.5 s, so a chance peak confirms
+   itself. Offline (`spikes/realstack/echo_bypass.py`, FLEURS speech over FLEURS speech): 29
+   resumes in 4.5 min of double talk, 0 on line noise; with real echo (ERL 6/15 dB, the caller at
+   0/−15 dB) at most 1 of ~410 confirmations at a wrong lag. On the real stack it slowed the SDK's
+   barge-in to 1.5 s (a "residual" of 891 ms confirmed during the caller's speech). Leaving the
+   bypass now takes three consecutive valid windows that agree within 2 ms, each with a PSR ≥ 10:
+   false resumes 29 → 2 (24 → 1 with a quieter caller), a real echo resumes one window (0.5 s)
+   later. Alignment while the canceller is on is unchanged. On G7's cached G.168 calls
+   (`spikes/realstack/g7_counters.py`): bypasses 16 → 14 and AEC3/Speex re-alignments 8 → 6 /
+   23 → 21 in continuous double talk, the barge-in layout identical, Speex aligned at 2.5 s
+   (median) either way; the ASR ΔCER was not measured again. No "echo on the line" in the 20
+   harness barge-ins after the change (3 before). Tests: `tests/unit/test_echo.py` (+1, 1
+   changed).
+5. **A 2 s delta gap, so AICC would abandon the turn** (`session/pipeline.py`, `session/signals.py`,
+   `session/conversation.py`, `session/truncation.py`, `session/actor.py`, `config.py`,
+   `config.yaml`). With two sessions, one answer's second segment waited 2.3 s in the TTS queue
+   behind the other session's long segment. M6's audio reserve keeps the wire busy only until
+   shortly before the audio sent so far has played out, so the wire went quiet for 2092 ms and
+   AICC's 2 s watchdog would have ended the turn. Now, once the reserve has nothing left and more
+   audio is to come, a 20 ms silence delta goes out every `keepalive_ms` (1 s), never before the
+   response's first audio: the caller hears the same pause, and the TTS queue's own timeout still
+   bounds the wait (`output.reserve.keepalive_silence`, on by default). The silence belongs to the
+   segment before it but is not its speech: truncation and D5 measure a segment's text over its
+   speech only (`SpokenSegment.speech_ms`), so a cut in the silence heard the segment whole
+   (without that, the cancellation matrix's barge-in cases heard "你好" of "你好。"). In the
+   three-session soak 23 responses were bridged this way and no gap exceeded 1.0 s. Tests:
+   `tests/unit/test_reserve.py` (+3, 1 changed), `test_session_state.py` (+1).
+6. **`make dev` refused to start again right after a stop** (`supervisor.py`): "127.0.0.1:8101 is
+   already in use" for ~30 s, because the free-port check's plain `bind` fails on connections the
+   stopped servers left in TIME_WAIT. The check now binds with `SO_REUSEADDR`, as uvicorn and
+   `http.server` do, and also counts a port busy when it accepts connections (a server on every
+   interface). Tests: `tests/unit/test_supervisor.py` (+2).
+7. **Failed responses were not logged** (`session/actor.py`). The eight `backend_busy` failures
+   reached the client and `/metrics`, but the log said nothing. A response that fails on a provider
+   and a transcription that fails now log a warning with the stage, the kind and the message.
+   Tests: `tests/integration/test_observability.py` (+1).
+8. **The backend tests left an ASR connection open** (`tests/backend/test_real_backends.py`), and
+   with warnings as errors pytest exited 1 after 23 passes. The `llm` and `asr` fixtures now close
+   their providers.
+
+### Gates
+
+- **G4, the latency budget and targets** (proposed for approval; LATENCY.md §4). Budget per stage
+  (P95, from speech end, AICC's 500 ms silence): VAD 550 ms, Smart Turn 100 ms (up to
+  `max_silence_ms` when it holds a turn), ASR 400 ms, LLM first token 500 ms warm, first sentence
+  250 ms, TTS first chunk 150 ms alone, first audio sent 200 ms. Targets, speech end → first audio
+  on turns that end on a complete verdict: one call P50 ≤ 1.5 s / P95 ≤ 1.8 s (measured 1.37–1.39 /
+  1.52–1.54); up to three calls P50 ≤ 1.6 s / P95 ≤ 2.5 s (measured 1.42–1.47 / 1.86–2.78). AICC's
+  hard floor: one call holds it with margin, including a full re-prefill after an instructions
+  change (~2.4 s worst case from `response.created`). **Three calls do not hold it reliably**: the
+  one TTS stream queues first segments for up to 1.9 s (one first audio at 3.39 s, eight
+  `backend_busy` failures, 1.8 % of the three-session responses), and a tool-only transfer
+  reaches 2.78 s beside two talking sessions. Reaching the three-call target needs more TTS
+  capacity (a second TTS process, or batched generation) or shorter segments; the owner decides.
+- **G6, 3 model processes or merged: keep 3.** The soak showed no instability: no hang, crash,
+  backend error or GPU kernel message, flat memory; recovery works per process (bug 1). There is
+  nothing a merge would fix; the capacity limit is the TTS stream itself, which a merge would not
+  widen. (D13's fallback half of G6 was settled by the owner: the 4-bit Qwen3-TTS.)
+- **G.711 input quality: LQ stays the default** (`g711.input_quality`): HQ is no more accurate
+  (+0.12 points MER, CI −0.42 to +0.60) and LQ reports the caller's speech ~30 ms sooner.
+
+### Remaining risks
+
+1. **TTS capacity at two and three calls** (the main one). See G4. Options, all needing the owner:
+   a second TTS server (the provider takes one `base_url` today, so a pool is a code change);
+   mlx-audio's batched generation; capping continuation segments (`text.segmenter.max_chars`)
+   so no segment holds the TTS for more than ~1 s; letting continuation segments wait longer
+   (`providers.tts.queue_timeout_ms`, now that the keepalive silence keeps AICC's watchdog fed).
+   AICC's `AICC_BOT_MAX_CALLS` should match whatever is decided.
+2. **Tool-only transfers are decode-bound:** 2.78 s (of 3 s) beside two talking sessions. The
+   request to AICC to keep `transfer_to_agent`'s arguments short stands.
+3. **A long prefill starves the TTS** (RTF 2.1 during a 16k-token prefill). Not seen with AICC's
+   prompt sizes; `--prefill-step-size` is untried.
+4. **Long answers:** `max_completion_tokens` 512 allows ~2 minutes of speech; seen once, in AICC's
+   harness, on a conversation AICC does not produce.
+5. **The bypass engages late on a tonal background** (the harness's room tone: barge-in 0.9–1.5 s
+   in 5 of 40 runs, the first word lost). Real lines carry broadband noise. Counting weak
+   unconfirmed peaks fixes it but raised misfires on G7's real-echo calls; a test-side fix would
+   be broadband room tone in `tests/aicc/zz_mlx_live_test.go`'s listener (left as it is).
+6. **Smart Turn holds incomplete turns** for up to `max_silence_ms` (3 s): 10–13 % of this
+   dataset, mostly ASCEND excerpts cut mid-sentence; this is the P95 of the end to end.
+7. **The readiness probes log** a request line every 5 s per backend in the backends' own logs
+   (and the gateway's httpx line), ~0.8 lines a second in `make dev`'s output.
+8. Live echo on a real AICC call is still unmeasured (D17, deferred).
+
+### How to run and verify
+
+```sh
+MLXRT__OBSERVABILITY__DEBUG_ENDPOINTS=true make dev                  # terminal 1
+AICC_REPO=<checkout> uv run --locked pytest -m backend                # everything M2–M7 left
+uv run --locked python tests/aicc/probe.py --aicc-repo <checkout> \
+    --url ws://127.0.0.1:8000/v1/realtime [--g711]                     # AICC's own harness
+uv run --locked python -m bench.bench --url ws://127.0.0.1:8000/v1/realtime \
+    --input spikes/data/manifest.jsonl --variant tel8k --codec pcmu --concurrency 1 \
+    --out bench/results/real-tel8k-pcmu-c1                             # LATENCY.md's runs
+python3 -I spikes/realstack/bench_tables.py bench/results/real-*      # LATENCY.md's tables
+zsh spikes/realstack/soak.sh 1800                                     # S6, then:
+log show --last 40m --predicate 'process == "kernel"' | grep -iE 'iogpu|gpu'
+AICC_REPO=<checkout> zsh spikes/realstack/aiccflow.sh 10              # AICC's flow with tools
+AICC_REPO=<checkout> zsh spikes/realstack/bargein.sh 10               # 2 × 10 harness barge-ins
+uv run --locked --project spikes/realstack python spikes/realstack/contention.py out.json  # S5
+uv run --locked --project spikes/realstack python spikes/realstack/g711_quality.py out.json
+uv run --locked --project spikes/realstack python spikes/realstack/echo_bypass.py out.json
+(cd spikes/g7dual && uv run --locked python ../realstack/g7_counters.py out.json)
+# Recovery: stop make dev first; the stack runs process by process.
+zsh spikes/realstack/recovery.sh start && zsh spikes/realstack/recovery.sh kill asr tts llm \
+    && zsh spikes/realstack/recovery.sh stop
+```
+
+`spikes/realstack` is a uv project (`uv init --no-workspace`, its own `uv.lock`, the gateway as an
+editable path dependency, like `spikes/g7dual`). Raw results: `spikes/results/realstack_*`, the
+benchmark's reports in `spikes/results/realstack_bench/`.
+
+### Test results
+
+On 2026-10-24, the final tree: `uv run --locked pytest` **1825 passed, 25 skipped** (before:
+1807 and 25; the skips are the backend tests and the AICC runs that need `AICC_REPO`), about 265 s;
+`uv run --locked pytest -m backend` with `AICC_REPO` against `make dev`: **23 passed**. `ruff
+check`, `ruff format --check` and `pyright` report nothing; `uv lock --check` passes for the root
+and `spikes/realstack`. No golden trace changed.
+
+New and changed tests: `tests/unit/test_readiness.py` (6, new); `test_bench.py` (+3);
+`test_echo.py` (+1, the bypass test changed to the new rule); `test_reserve.py` (+3, the first
+test now also checks the keepalive); `test_session_state.py` (+1); `test_supervisor.py` (+2);
+`test_metrics.py` (one more case); `tests/integration/test_bench.py` (the windows);
+`test_observability.py` (+1); `tests/backend/test_real_backends.py` (fixtures close).
+
+### Deviations from the brief, with reasons
+
+1. **The three-session benchmark runs are the soak's passes**, not separate runs: the same command
+   (`bench.bench --concurrency 3`) on each variant, back to back, which is what the soak needed.
+2. **Two behaviour changes beyond plain bug fixes**, both flagged for the owner: the keepalive
+   silence (bug 5) and the stricter bypass resume (bug 4). Each is a config switch or a constant,
+   and each was measured before and after.
+3. **The c1 and c2 runs predate bug 5's fix**, and the c3 runs follow it; the first c1 run, with the
+   old replay timing (bug 2), was discarded.
+4. **S6's 1000 TTS calls**: the soak made 625 in 30 minutes (one-sentence answers).
+5. **New measurement code lives in `spikes/realstack`**, as the earlier spikes do; nothing in it is
+   imported by the service.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- **ARCHITECTURE.**
+  - §2: the figure and process table still show Kokoro (D13 replaced it with the 4-bit
+    Qwen3-TTS) and `mlx_lm.server` (now `python -m mlxrt_llm.serve`); add the 3-call capacity and
+    that it is TTS-bound.
+  - §2 (Startup, warmup, readiness) and §8 (Backend health): the readiness monitor probes every
+    5 s and warms a backend again when it comes back; `/readyz` requires warm.
+  - §6.5 (D17): leaving the no-echo bypass needs three agreeing windows with PSR ≥ 10.
+  - §6.6: truncation and D5 measure a segment's text over its speech, not its keepalive silence.
+  - §7 Pacing / §4.4: the reserve's keepalive silence.
+  - §10: `output.reserve.keepalive_silence`.
+  - §11 Benchmark: the replay waits for each answer's playback; AICC's windows; `spikes/realstack`.
+- **DECISIONS** (dated entries to add).
+  - G4: the budget and targets above, for the owner's approval; three calls miss AICC's floor on
+    TTS capacity.
+  - G6: keep three model processes (soak clean).
+  - G.711 input stays LQ (CER no better with HQ).
+  - The reserve's keepalive silence, on by default (flagged for owner review).
+  - The bypass resume rule (flagged for owner review).
+  - TTS capacity for three calls: a second TTS process, batched TTS or shorter segments (owner
+    decision); size `AICC_BOT_MAX_CALLS` to it.

@@ -85,6 +85,29 @@ async def test_provider_errors_and_refusals_are_counted() -> None:
     assert found[("mlxrt_responses_total", (("status", "failed"),))] == 1
 
 
+async def test_failed_responses_and_transcripts_are_logged(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A provider failure ends a response (or a transcript) with an error for the client and a
+    count on /metrics; the log says so too, with the stage and the kind."""
+    gateway, mocks = build_gateway(speech=[(200, 1200), (2200, 3200)])
+    mocks.tts.queue.fail(ProviderError("overloaded", "too many requests in flight"))
+    with caplog.at_level("WARNING", logger="mlx_realtime.session.actor"):
+        async with running(gateway) as address, Client.connect(address) as client:
+            await client.start()
+            await client.append(tone(1800))
+            await client.until("response.done")
+            mocks.asr.result.fail(ProviderError("timeout", "asr deadline"))
+            await client.append(tone(1800))
+            await client.until("conversation.item.input_audio_transcription.failed")
+    failed = {
+        (record.getMessage(), getattr(record, "kind", None), getattr(record, "stage", None))
+        for record in caplog.records
+    }
+    assert ("response failed", "overloaded", "tts") in failed
+    assert ("transcription failed", "timeout", None) in failed
+
+
 async def test_debug_turns_lists_each_turn_of_a_session() -> None:
     gateway, _ = build_gateway({"observability": {"debug_endpoints": True}}, speech=[(200, 1200)])
     async with running(gateway) as address:

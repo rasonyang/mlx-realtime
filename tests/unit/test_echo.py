@@ -218,12 +218,46 @@ def test_no_echo_bypasses_the_canceller_until_echo_is_confirmed() -> None:
     assert echo.echo_absent
     echo.delay_estimate(0, DelayEstimate(0, valid=True, lag=3200, psr=12.0))  # a chance peak
     assert echo.echo_absent
+    # The estimator's own confirmation (the next, overlapping window agrees) is not enough
+    # while bypassed: a caller talking over us makes such pairs about every 10 s.
     echo.delay_estimate(0, DelayEstimate(0, valid=True, lag=3200, psr=12.0, confirmed=True))
-    assert not echo.echo_absent
+    assert echo.echo_absent
+    assert echo.stats.realignments == 0  # nor does the chance pair move the reference
+    echo.delay_estimate(0, DelayEstimate(0, valid=True, lag=3205, psr=12.0, confirmed=True))
+    assert not echo.echo_absent  # a third agreeing window: echo
     never = reference(clock, bypass_without_echo_ms=None)
     for _ in range(10):
         never.delay_estimate(0, silent)
     assert not never.echo_absent
+
+
+def test_leaving_the_bypass_needs_three_agreeing_windows_of_a_clear_peak() -> None:
+    clock = FakeClock()
+    echo = reference(clock, bypass_without_echo_ms=1500)
+    silent = DelayEstimate(0, valid=False, psr=4.0)
+    for _ in range(3):
+        echo.delay_estimate(0, silent)
+    assert echo.echo_absent
+
+    def window(lag_ms: float, psr: float = 12.0) -> DelayEstimate:
+        return DelayEstimate(0, valid=True, lag=round(lag_ms * 16), psr=psr, confirmed=True)
+
+    for run in (
+        [window(200), window(200)],  # the estimator's own confirmation: two windows
+        [window(200), window(200), window(260)],  # a third that disagrees starts a new run
+        [window(200, psr=9.0), window(200), window(200)],  # too weak a peak
+    ):
+        echo.delay_estimate(0, silent)  # a window without a peak ends any run
+        for estimate in run:
+            echo.delay_estimate(0, estimate)
+        assert echo.echo_absent, run
+    echo.delay_estimate(0, silent)
+    for lag_ms in (260, 260, 260.5):
+        echo.delay_estimate(0, window(lag_ms))
+    assert not echo.echo_absent
+    assert echo.stats.bypasses == 1
+    echo.delay_estimate(0, window(260))  # back on: the estimator's own confirmation applies
+    assert not echo.echo_absent
 
 
 class RecordingEngine:

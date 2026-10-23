@@ -79,7 +79,7 @@ def create_app(gateway: Gateway) -> Starlette:
 
     @contextlib.asynccontextmanager
     async def lifespan(_: Starlette) -> AsyncGenerator[None]:
-        warming = asyncio.create_task(gateway.readiness.warm_up())
+        warming = asyncio.create_task(gateway.readiness.run())
         try:
             yield
         finally:

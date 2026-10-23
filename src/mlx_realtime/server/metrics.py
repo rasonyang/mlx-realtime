@@ -191,7 +191,7 @@ class Metrics:
         )
         self._ready = Gauge(
             "mlxrt_backend_ready",
-            "Whether each backend reported ready at the last scrape (1) or not (0).",
+            "Whether each backend was ready and warm at the last scrape (1) or not (0).",
             ["backend"],
             registry=registry,
         )
@@ -242,7 +242,8 @@ class Metrics:
 
     def set_readiness(self, backends: Mapping[str, Mapping[str, object]]) -> None:
         for name, detail in backends.items():
-            self._ready.labels(name).set(1.0 if detail.get("ready") else 0.0)
+            ready = bool(detail.get("ready")) and detail.get("warm", True) is not False
+            self._ready.labels(name).set(1.0 if ready else 0.0)
 
     def exposition(self) -> bytes:
         return generate_latest(self.registry)

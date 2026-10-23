@@ -76,15 +76,19 @@ def config() -> Config:
 
 
 @pytest.fixture
-def llm(config: Config) -> MlxLmChatLLM:
+async def llm(config: Config) -> AsyncGenerator[MlxLmChatLLM]:
     assert isinstance(config.providers.llm, MlxLmChatConfig), "config.yaml must use mlx_lm_chat"
-    return MlxLmChatLLM(config.providers.llm)
+    provider = MlxLmChatLLM(config.providers.llm)
+    yield provider
+    await provider.aclose()  # also when a test failed before closing it
 
 
 @pytest.fixture
-def asr(config: Config) -> MlxAudioASR:
+async def asr(config: Config) -> AsyncGenerator[MlxAudioASR]:
     assert isinstance(config.providers.asr, MlxAudioAsrConfig)
-    return MlxAudioASR(config.providers.asr)
+    provider = MlxAudioASR(config.providers.asr)
+    yield provider
+    await provider.aclose()  # an open connection left to the GC fails the run (ResourceWarning)
 
 
 async def collect(stream: AsyncGenerator[Delta]) -> list[Delta]:

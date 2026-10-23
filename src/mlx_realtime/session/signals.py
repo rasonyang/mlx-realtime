@@ -83,6 +83,7 @@ class SegmentAudio:
     generation: int
     index: int
     pcm: bytes  # in the response's output format, at most max_delta_ms
+    silence: bool = False  # the reserve's keepalive while the next segment waits, not speech
 
 
 @dataclass(frozen=True, slots=True)

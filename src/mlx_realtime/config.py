@@ -76,12 +76,15 @@ class AudioReserveConfig(_Section):
     keep flowing while the next segment waits in the shared TTS queue. A held delta goes out
     when the wire has been quiet for ``keepalive_ms`` (under AICC's 2 s gap watchdog), or when
     the client's modelled buffer drops below ``min_lead_ms`` (so playback never starves for
-    it). Once the last segment is synthesized, everything left goes out paced as usual."""
+    it). Once the last segment is synthesized, everything left goes out paced as usual. With
+    ``keepalive_silence``, once nothing is held and the next segment still waits, a 20 ms
+    silence delta goes out every ``keepalive_ms`` (never before a response's first audio)."""
 
     enabled: bool = True
     hold_ms: int = Field(default=1500, ge=0)
     keepalive_ms: int = Field(default=1000, gt=0, le=1900)
     min_lead_ms: int = Field(default=400, ge=0)
+    keepalive_silence: bool = True
 
 
 class OutputConfig(_Section):

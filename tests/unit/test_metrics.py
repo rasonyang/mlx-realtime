@@ -100,7 +100,9 @@ def test_counters_and_gauges_carry_bounded_labels() -> None:
     metrics.echo_turn()
     metrics.provider_error("tts", "timeout")
     metrics.tts_fallback()
-    metrics.set_readiness({"llm": {"ready": True}, "tts": {"ready": False}})
+    metrics.set_readiness(
+        {"llm": {"ready": True}, "tts": {"ready": False}, "asr": {"ready": True, "warm": False}}
+    )
     found = samples(metrics)
     assert found[("mlxrt_sessions_total", ())] == 1
     assert found[("mlxrt_sessions_refused_total", (("reason", "session_limit_reached"),))] == 1
@@ -113,6 +115,7 @@ def test_counters_and_gauges_carry_bounded_labels() -> None:
     assert found[("mlxrt_tts_fallback_total", ())] == 1
     assert found[("mlxrt_backend_ready", (("backend", "llm"),))] == 1
     assert found[("mlxrt_backend_ready", (("backend", "tts"),))] == 0
+    assert found[("mlxrt_backend_ready", (("backend", "asr"),))] == 0  # being warmed again
     assert found[("mlxrt_active_sessions", ())] == 2
     assert found[("mlxrt_tts_queue_depth", ())] == 3
     depth[0] = 0

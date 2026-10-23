@@ -12,6 +12,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from bench.bench import (  # pyright: ignore[reportPrivateUsage]
+    BYTES_PER_S,
+    _Response,
+    _Utterance,
+)
 from bench.dataset import (
     Law,
     g711_decode,
@@ -20,7 +25,7 @@ from bench.dataset import (
     load,
     speech_end_ms,
 )
-from bench.report import TurnResult, markdown, stat, summarize
+from bench.report import ResponseTiming, TurnResult, markdown, stat, summarize
 from bench.scoring import align, error, norm_text, pooled, tokens
 
 with warnings.catch_warnings():
@@ -195,6 +200,69 @@ def test_the_report_aggregates_latency_and_scores_by_set_and_numbers() -> None:
     assert "| asr_done | turn_confirmed / committed | 2 | 150 | 195 |" in text
     assert "| zh | CER | 16.67% (1/6, n=3) | – | 16.67% (1/6, n=3) |" in text
     assert "- target: mock" in text
+
+
+def test_the_report_checks_aiccs_windows_on_every_response() -> None:
+    spoken = ResponseTiming(
+        "r1", "completed", first_audio_ms=900.0, max_gap_ms=300.0, tail_ms=40.0, done_ms=4000.0
+    )
+    late = ResponseTiming(
+        "r2", "completed", first_audio_ms=3000.0, max_gap_ms=2100.0, tail_ms=2500.0, done_ms=9000.0
+    )
+    single = ResponseTiming("r3", "cancelled", first_audio_ms=1200.0, tail_ms=10.0, done_ms=1300.0)
+    tool_only = ResponseTiming("r4", "completed", done_ms=2400.0)
+    slow_tool = ResponseTiming("r5", "completed", done_ms=3100.0)
+    hung = ResponseTiming("r6", None)
+    turns = [
+        turn("1", responses=[spoken, late]),
+        turn("2", responses=[single, tool_only]),
+        turn("3", outcome="timeout", responses=[slow_tool, hung]),
+    ]  # fmt: skip
+    found = summarize(turns)["windows"]
+    assert isinstance(found, dict)
+    assert found["responses"] == 6
+    assert found["statuses"] == {"cancelled": 1, "completed": 4, "unfinished": 1}
+    assert found["first_audio"] == {
+        "limit_ms": 3000.0, "n": 3, "p50_ms": 1200.0, "p95_ms": 2820.0, "max_ms": 3000.0, "over": 1
+    }  # fmt: skip
+    assert (found["delta_gap"]["n"], found["delta_gap"]["over"]) == (2, 1)  # r3 had one delta
+    assert (found["tail"]["n"], found["tail"]["max_ms"], found["tail"]["over"]) == (3, 2500.0, 1)
+    assert found["no_audio_done"] == {
+        "limit_ms": 3000.0, "n": 2, "p50_ms": 2750.0, "p95_ms": 3065.0, "max_ms": 3100.0, "over": 1
+    }  # fmt: skip
+    text = markdown(summarize(turns))
+    assert "- responses: 6 (cancelled 1, completed 4, unfinished 1)" in text
+    assert "| response.created → first audio delta | 3000 | 3 | 1200 | 2820 | 3000 | 1 |" in text
+    assert "| response.created → response.done, no audio | 3000 | 2 | 2750 | 3065 | 3100 | 1 |" in (
+        text
+    )
+
+
+def test_a_response_records_aiccs_windows_from_arrival_times() -> None:
+    response = _Response("r", created_at=10.0)
+    for at in (10.8, 11.0, 12.5, 12.6):
+        response.audio(at, 4800)
+    response.status, response.done_at = "completed", 13.0
+    assert response.timing() == ResponseTiming(
+        "r", "completed", first_audio_ms=800.0, max_gap_ms=1500.0, tail_ms=400.0, done_ms=3000.0
+    )
+    silent = _Response("s", created_at=1.0)
+    assert silent.timing() == ResponseTiming("s")
+
+
+def test_the_next_utterance_waits_for_the_answer_to_play() -> None:
+    """A listening caller speaks again once the answer would have played in real time."""
+    first, second = _Response("a", created_at=1.0), _Response("b", created_at=5.0)
+    first.audio(1.5, 48_000)  # 1 s of 24 kHz PCM16 from its first delta
+    first.audio(1.6, 96_000)  # 2 s more, faster than real time
+    second.audio(6.0, 8000)  # 1 s of G.711 at 8 kHz
+    assert first.played_at(48_000) == 4.5
+    assert second.played_at(8000) == 7.0
+    collected = _Utterance(responses=[first])
+    assert collected.played_at(48_000) == 4.5
+    assert _Utterance().played_at(48_000) == 0.0
+    assert _Utterance(responses=[_Response("c", created_at=2.0)]).played_at(8000) == 0.0
+    assert BYTES_PER_S == {"pcm": 48_000, "pcmu": 8000, "pcma": 8000}
 
 
 def test_stat_of_nothing() -> None:

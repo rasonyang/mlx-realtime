@@ -556,6 +556,10 @@ class SessionActor:
             return
         item.status = "completed"
         self._deps.observer.provider_error("asr", signal.error.kind)
+        logger.warning(
+            "transcription failed",
+            extra={"item": item.id, "kind": signal.error.kind, "error": str(signal.error)},
+        )
         error = _backend_error("asr", signal.error)
         self._emit(TranscriptionFailed(item, self._conversation.previous_id(item.id), error))
         self._log_timeline_unless_answered(item.id)
@@ -878,6 +882,10 @@ class SessionActor:
                 self._finish_if_done(response)
             case PipelineFailed(stage=stage, error=error):
                 self._deps.observer.provider_error(stage, error.kind)
+                logger.warning(
+                    "response failed",
+                    extra={"stage": stage, "kind": error.kind, "error": str(error)},
+                )
                 info = _backend_error(stage, error)
                 self._stop_response(response, StatusDetails("failed", error=info), info)
             case PipelineMark(name=name, at_s=at_s, values=values):
@@ -928,7 +936,10 @@ class SessionActor:
         message = response.message
         if message is None:
             return
-        message.segments[signal.index].audio_bytes += len(signal.pcm)
+        segment = message.segments[signal.index]
+        segment.audio_bytes += len(signal.pcm)
+        if signal.silence:
+            segment.silence_bytes += len(signal.pcm)
         delivery = Delivery(
             response.generation,
             message.id,

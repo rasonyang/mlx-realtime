@@ -105,6 +105,33 @@ def test_ports_in_use_are_reported() -> None:
         ]
 
 
+def test_a_server_on_every_interface_is_in_use() -> None:
+    with socket.socket() as listener:
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listener.bind(("0.0.0.0", 0))
+        listener.listen()
+        taken = listener.getsockname()[1]
+        assert busy_ports([("gateway", "127.0.0.1", taken)]) == [
+            f"gateway: 127.0.0.1:{taken} is already in use"
+        ]
+
+
+def test_connections_left_in_time_wait_do_not_make_a_port_busy() -> None:
+    """A stack that just stopped leaves its servers' closed connections in TIME_WAIT; the next
+    servers bind with SO_REUSEADDR, so ``make dev`` must not refuse to start."""
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        client = socket.create_connection(("127.0.0.1", port))
+        served, _ = listener.accept()
+        served.close()  # the server closes first: its side stays in TIME_WAIT
+        client.close()
+    with socket.socket() as plain, pytest.raises(OSError, match="in use"):
+        plain.bind(("127.0.0.1", port))  # what the check used to do
+    assert busy_ports([("llm", "127.0.0.1", port)]) == []
+
+
 def child(name: str, code: str) -> ProcessSpec:
     return ProcessSpec(name, (sys.executable, "-c", code), {"CHILD": name})
 

@@ -9,11 +9,18 @@ from collections.abc import AsyncGenerator
 
 import pytest
 
+from mlx_realtime.audio.formats import PCMA, PCMU
 from mlx_realtime.config import AudioReserveConfig, SegmenterConfig, SilenceTrimConfig
 from mlx_realtime.providers.base import Lang, LLMDone, PCMChunk, SpeechTiming, TextDelta
 from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.session.observer import NullObserver
-from mlx_realtime.session.pipeline import PipelineContext, PipelineRequest, run_pipeline
+from mlx_realtime.session.pipeline import (
+    KEEPALIVE_SILENCE_MS,
+    PipelineContext,
+    PipelineRequest,
+    run_pipeline,
+    silence,
+)
 from mlx_realtime.session.signals import (
     PipelineSignal,
     SegmentAudio,
@@ -24,6 +31,7 @@ from mlx_realtime.text.normalize import NormalizerOptions
 from tests.support import ManualClock
 
 SEGMENTER = SegmenterConfig(first_min_chars=2, first_max_wait_ms=0, min_chars=2, max_chars=80)
+KEEPALIVE = bytes(24_000 * 2 * KEEPALIVE_SILENCE_MS // 1000)  # 20 ms of 24 kHz PCM16 silence
 FIRST = "一二三四五六七八九十" * 2 + "一二三四五六七八九。"  # 30 characters: 3 s
 SECOND = "好的。"
 
@@ -39,6 +47,11 @@ class Recorder:
         self.posted.append((self.clock.now(), signal))
 
     def audio(self) -> list[tuple[float, SegmentAudio]]:
+        """Synthesized audio (keepalive silence left out)."""
+        return [(at, s) for at, s in self.deltas() if s.pcm != KEEPALIVE]
+
+    def deltas(self) -> list[tuple[float, SegmentAudio]]:
+        """Every delta, keepalive silence included."""
         return [(at, s) for at, s in self.posted if isinstance(s, SegmentAudio)]
 
 
@@ -123,6 +136,16 @@ async def test_the_reserve_holds_back_audio_and_keeps_deltas_flowing_while_the_t
     times = [at - start for at, _ in sent[19:]]
     step = 0.05 + 1e-6  # the virtual clock moves in steps of 50 ms
     assert max(b - a for a, b in itertools.pairwise(times)) <= 0.5 + step
+    for _ in range(40):  # 2 s more, the second segment still queued
+        clock.advance(0.05)
+        await settle()
+    # Then 20 ms of silence every keepalive_ms: the wire never goes quiet for longer.
+    every = [at - start for at, _ in recorder.deltas()[19:]]
+    assert max(b - a for a, b in itertools.pairwise(every)) <= 0.5 + step
+    kept = [(at - start, s) for at, s in recorder.deltas() if s.pcm == KEEPALIVE]
+    assert len(kept) == 4  # from 3.0 s: 3.0, 3.5, 4.0, 4.5 s
+    assert kept[0][0] >= times[-1] + 0.5 - 1e-6  # only once the reserve was spent
+    assert {s.index for _, s in kept} == {0}  # the silence belongs to the segment before it
     assert 0.5 - 1e-6 <= times[1] <= 0.5 + step  # a keepalive delta: the buffer still held 1.9 s
     # Played from the first delta, the client never ran dry before the reserve did.
     for index, (at, _) in enumerate(sent):
@@ -135,6 +158,63 @@ async def test_the_reserve_holds_back_audio_and_keeps_deltas_flowing_while_the_t
     second = kinds.index(("SegmentStarted", 1))
     assert all(kind != "SegmentAudio" or index == 1 for kind, index in kinds[second:-1])
     assert kinds[-1] == ("SpeechFinished", None)
+
+
+async def test_keepalive_silence_can_be_switched_off() -> None:
+    clock = ManualClock()
+    recorder = Recorder(clock)
+    llm, tts = EchoLLM(), SineTTS(ms_per_char=100, chunk_ms=100)
+    llm.script(TextDelta(FIRST), TextDelta(SECOND), LLMDone("stop", None))
+    tts.queue.hold(after=1)
+    reserve = AudioReserveConfig(
+        hold_ms=1000, keepalive_ms=500, min_lead_ms=400, keepalive_silence=False
+    )
+    task = asyncio.create_task(
+        run_pipeline(REQUEST, make_context(llm, tts, recorder, reserve=reserve))
+    )
+    for _ in range(100):  # 5 s, the second segment queued throughout
+        clock.advance(0.05)
+        await settle()
+    assert len(recorder.deltas()) == len(recorder.audio()) == 30  # M6's reserve alone
+    tts.queue.release()
+    await settle()
+    clock.advance(0.05)
+    await asyncio.wait_for(task, 1)
+
+
+async def test_no_keepalive_silence_before_the_first_audio_nor_after_the_last() -> None:
+    clock = ManualClock()
+    recorder = Recorder(clock)
+    llm, tts = EchoLLM(), SineTTS(ms_per_char=100, chunk_ms=100)
+    llm.script(TextDelta(SECOND), LLMDone("stop", None))
+    tts.queue.hold(after=0)  # even the first segment waits
+    reserve = AudioReserveConfig(hold_ms=1000, keepalive_ms=500, min_lead_ms=400)
+    task = asyncio.create_task(
+        run_pipeline(REQUEST, make_context(llm, tts, recorder, reserve=reserve))
+    )
+    for _ in range(40):  # 2 s with nothing to say yet: the first audio's deadline is AICC's
+        clock.advance(0.05)
+        await settle()
+    assert recorder.deltas() == []
+    tts.queue.release()
+    await settle()
+    clock.advance(0.05)
+    await asyncio.wait_for(task, 1)
+    for _ in range(40):
+        clock.advance(0.05)
+        await settle()
+    assert len(recorder.deltas()) == len(recorder.audio()) == 3  # the last segment: no silence
+    assert isinstance(recorder.posted[-1][1], SpeechFinished)
+
+
+@pytest.mark.parametrize(
+    ("audio_format", "sample"), [(PCMU, b"\xff"), (PCMA, b"\xd5")], ids=["pcmu", "pcma"]
+)
+def test_keepalive_silence_in_g711(audio_format: object, sample: bytes) -> None:
+    from mlx_realtime.audio.formats import AudioFormat
+
+    assert isinstance(audio_format, AudioFormat)
+    assert silence(audio_format, KEEPALIVE_SILENCE_MS) == sample * 160
 
 
 async def test_without_more_segments_to_come_nothing_is_held() -> None:

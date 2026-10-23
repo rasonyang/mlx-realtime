@@ -33,7 +33,11 @@ output:
   # it a delta at a time: after keepalive_ms without a delta (AICC's watchdog is 2 s), or when
   # the client's modelled buffer drops below min_lead_ms. Keeps deltas flowing while the next
   # segment waits in the shared TTS queue.
-  reserve: {enabled: true, hold_ms: 1500, keepalive_ms: 1000, min_lead_ms: 400}
+  # Real stack (2026-10-23): with two sessions, a next segment waited 2.3 s behind another
+  # session's long one after the reserve was spent; keepalive_silence then sends 20 ms of
+  # silence every keepalive_ms until it comes (the caller hears the same pause).
+  reserve: {enabled: true, hold_ms: 1500, keepalive_ms: 1000, min_lead_ms: 400,
+            keepalive_silence: true}
 
 # M7: G.711 sessions (audio/pcmu, audio/pcma at 8 kHz). soxr quality of the caller's 8 -> 16 kHz
 # step (LQ: 32 ms mean lag vs HQ's 64, M0 S7; -8 dB at 3.4 kHz) and of the TTS's 24 -> 8 kHz.
