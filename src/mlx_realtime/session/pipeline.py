@@ -18,6 +18,14 @@ every terminal event itself.
   queue, so everything downstream counts the audio actually sent.
 - The sender posts that audio paced (D6): at once, but at most ``max_lead_ms`` ahead of real
   time. A segment's transcript goes out just before its first audio delta.
+- Multi-session TTS fairness (M6). Each TTS request carries a deadline: when this response's
+  audio runs out without it (the playout horizon of the audio synthesized so far), or, for the
+  first segment, when the pipeline started (plus ``first_segment_grace_s``); a shared TTS
+  queue serves the earliest first. With
+  the audio reserve on, the sender holds back up to ``hold_ms`` of audio while segments are
+  still to come and releases it a delta at a time, at least every ``keepalive_ms`` and whenever
+  the client's modelled buffer runs low, so deltas keep flowing while the next segment waits
+  in the queue.
 - Text modality runs the LLM reader (or the line) alone and never opens TTS.
 - Tool calls go to the actor as they complete, whatever the TTS is doing, so a tool-only
   response is done as soon as the LLM is. A call the response did not offer (``tool_choice``
@@ -30,6 +38,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections import deque
 from collections.abc import Awaitable, Callable, Coroutine, Sequence
 from contextlib import aclosing
 from dataclasses import dataclass
@@ -38,7 +47,7 @@ from typing import Literal
 from mlx_realtime.audio.codec import OutputEncoder
 from mlx_realtime.audio.pcm import SAMPLE_WIDTH, WIRE_RATE, ms_to_bytes
 from mlx_realtime.audio.trim import SilenceTrimmer
-from mlx_realtime.config import SegmenterConfig, SilenceTrimConfig
+from mlx_realtime.config import AudioReserveConfig, SegmenterConfig, SilenceTrimConfig
 from mlx_realtime.providers.base import (
     LLMDone,
     LLMProvider,
@@ -53,6 +62,7 @@ from mlx_realtime.providers.base import (
 )
 from mlx_realtime.session.clock import Clock
 from mlx_realtime.session.errors import first_leaf
+from mlx_realtime.session.observer import NULL_OBSERVER, SessionObserver
 from mlx_realtime.session.pacing import Pacer
 from mlx_realtime.session.settings import Modality
 from mlx_realtime.session.signals import (
@@ -98,6 +108,9 @@ class PipelineContext:
     wait_for_room: Callable[[], Awaitable[None]]  # outbound backpressure, before each delta event
     clock: Clock
     trim_silence: SilenceTrimConfig  # each segment's edge silence (M0 S3)
+    reserve: AudioReserveConfig | None = None  # the audio reserve (M6); None: off
+    first_segment_grace_s: float = 0.0  # a first segment's TTS deadline after the start (M6)
+    observer: SessionObserver = NULL_OBSERVER  # TTS fallback uses and absorbed primary errors
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,7 +146,8 @@ async def run_pipeline(request: PipelineRequest, context: PipelineContext) -> No
                 audio: asyncio.Queue[_Audio] = asyncio.Queue()
                 scope.create_task(_stage("llm", _source(request, context, texts)))
                 scope.create_task(_segment(request.generation, texts, segments, context))
-                scope.create_task(_stage("tts", _synthesize(request, segments, audio, context)))
+                synthesize = _synthesize(request, segments, audio, context, context.clock.now())
+                scope.create_task(_stage("tts", synthesize))
                 scope.create_task(_send(request.generation, audio, context))
     except* _StageFailed as group:
         failure = first_leaf(group)
@@ -193,6 +207,14 @@ async def _read_llm(
     # held back after its latest until more text follows (else dropped at the end).
     started = False
     held = ""
+    first = True  # the first token's mark is taken here, when it arrives (M6)
+
+    def mark_first() -> None:
+        nonlocal first
+        if first:
+            first = False
+            context.post(PipelineMark(generation, "llm_first_token", context.clock.now()))
+
     # aclosing: a cancel that lands outside the provider (here, waiting for room) still
     # closes its stream, and with it the backend request, before this task ends.
     async with aclosing(stream):
@@ -206,6 +228,7 @@ async def _read_llm(
                         continue  # e.g. the newline a model writes around a tool call
                     started = True
                     text = body
+                    mark_first()
                     if texts is None:
                         await context.wait_for_room()  # text modality: each delta is an event
                         context.post(LlmText(generation, text))
@@ -213,6 +236,7 @@ async def _read_llm(
                         context.post(LlmText(generation, text))
                         texts.put_nowait(text)
                 case ToolCall(name=name) if name in callable_tools:
+                    mark_first()
                     context.post(LlmToolCall(generation, delta))
                 case ToolCall(name=name):
                     # The server parses call markup even when no tools were sent; a call the
@@ -279,19 +303,27 @@ async def _synthesize(
     segments: asyncio.Queue[str | None],
     audio: asyncio.Queue[_Audio],
     context: PipelineContext,
+    started_at: float,
 ) -> None:
     """One TTS request per segment, in order; every stream is read as fast as it arrives."""
     limit_bytes = ms_to_bytes(context.max_audio_ms, WIRE_RATE)
     produced = 0
     first_chunk = True
     index = 0
+    horizon = _Horizon(context.clock)
     while (text := await segments.get()) is not None:
         lang = detect_lang(text)  # mixed text is zh
         spoken, source = normalize_with_map(text, context.normalizer, lang=lang)
         segment = SegmentStarted(request.generation, index, text, spoken, source)
         index += 1
         if _speakable(spoken):
-            timing = SpeechTiming()
+            deadline = (
+                started_at + context.first_segment_grace_s
+                if horizon.dry_at is None
+                else horizon.dry_at
+            )
+            slack_s = max(deadline - context.clock.now(), 0.0)
+            timing = SpeechTiming(deadline=deadline, slack_s=slack_s)
             encoder = OutputEncoder(context.max_delta_ms)
             trimmer: SilenceTrimmer | None = None
             rate = 0
@@ -307,8 +339,10 @@ async def _synthesize(
                     for delta in encoder.encode(pcm, chunk.sample_rate):
                         audio.put_nowait(_Delta(segment, delta))
                         produced += len(delta)
+                        horizon.add(len(delta))
                     if produced > limit_bytes:
                         break
+            _report_fallback(timing, context)
             # Only audio that passed the trimmer exists from here on: the segment map,
             # truncation, D5 and the echo reference all count what is sent.
             tail = b"" if trimmer is None else trimmer.flush()
@@ -316,10 +350,36 @@ async def _synthesize(
             for pcm in [*deltas, *encoder.flush()]:
                 audio.put_nowait(_Delta(segment, pcm))
                 produced += len(pcm)
+                horizon.add(len(pcm))
         audio.put_nowait(_SegmentEnd(segment))
         if produced > limit_bytes:
             break  # the actor ends the response incomplete once this much audio is sent
     audio.put_nowait(None)
+
+
+class _Horizon:
+    """When the audio synthesized so far runs out at the client, if it plays from when each
+    piece was made (the response's deadline for its next segment)."""
+
+    def __init__(self, clock: Clock) -> None:
+        self._clock = clock
+        self.dry_at: float | None = None
+
+    def add(self, nbytes: int) -> None:
+        now = self._clock.now()
+        start = now if self.dry_at is None else max(self.dry_at, now)
+        self.dry_at = start + _audio_ms(nbytes) / 1000
+
+
+def _report_fallback(timing: SpeechTiming, context: PipelineContext) -> None:
+    if timing.fallback:
+        context.observer.tts_fallback()
+    if timing.primary_error is not None:
+        context.observer.provider_error("tts", timing.primary_error)
+
+
+def _audio_ms(nbytes: int) -> float:
+    return nbytes / SAMPLE_WIDTH * 1000 / WIRE_RATE
 
 
 def _trimmer(sample_rate: int, context: PipelineContext) -> SilenceTrimmer | None:
@@ -350,12 +410,16 @@ def _first_chunk_mark(
 
 async def _send(generation: int, audio: asyncio.Queue[_Audio], context: PipelineContext) -> None:
     """Post the synthesized audio, paced (D6); each segment's transcript just before its audio."""
+    reserve = context.reserve
+    if reserve is not None and reserve.enabled and reserve.hold_ms > 0:
+        await _ReserveSender(generation, audio, context, reserve).run()
+        return
     pacer = Pacer(context.max_lead_ms, context.clock)
     announced: set[int] = set()
     while (item := await audio.get()) is not None:
         segment = item.segment
         if isinstance(item, _Delta):
-            await pacer.admit(len(item.pcm) / SAMPLE_WIDTH * 1000 / WIRE_RATE)
+            await pacer.admit(_audio_ms(len(item.pcm)))
             await context.wait_for_room()
             if segment.index not in announced:
                 announced.add(segment.index)
@@ -365,6 +429,112 @@ async def _send(generation: int, audio: asyncio.Queue[_Audio], context: Pipeline
             announced.add(segment.index)
             context.post(segment)  # a segment that produced no audio still has its transcript
     context.post(SpeechFinished(generation))
+
+
+class _ReserveSender:
+    """The sender with the audio reserve (M6): while more audio is to come, the last
+    ``hold_ms`` of what is synthesized stays here and goes out one delta at a time, when the
+    wire has been quiet for ``keepalive_ms`` or the client's modelled buffer (the pacer's lead)
+    drops below ``min_lead_ms``. Everything else goes out as the plain sender sends it."""
+
+    def __init__(
+        self,
+        generation: int,
+        audio: asyncio.Queue[_Audio],
+        context: PipelineContext,
+        reserve: AudioReserveConfig,
+    ) -> None:
+        self._generation = generation
+        self._audio = audio
+        self._context = context
+        self._clock = context.clock
+        self._hold_ms = reserve.hold_ms
+        self._keepalive_s = reserve.keepalive_ms / 1000
+        self._min_lead_ms = reserve.min_lead_ms
+        self._pacer = Pacer(context.max_lead_ms, context.clock)
+        self._pending: deque[_Delta | _SegmentEnd] = deque()
+        self._pending_ms = 0.0
+        self._finished = False
+        self._announced: set[int] = set()
+        self._last_sent: float | None = None
+        self._getter: asyncio.Task[_Audio] | None = None
+
+    async def run(self) -> None:
+        try:
+            while True:
+                self._take_available()
+                if self._pending:
+                    head = self._pending[0]
+                    if isinstance(head, _SegmentEnd):
+                        self._pending.popleft()
+                        self._announce(head.segment)
+                        continue
+                    wait_s = self._hold_s(head)
+                    if wait_s <= 0:
+                        await self._send(head)
+                        continue
+                elif self._finished:
+                    break
+                else:
+                    wait_s = None
+                await self._wait(wait_s)
+        finally:
+            if self._getter is not None:
+                self._getter.cancel()
+        self._context.post(SpeechFinished(self._generation))
+
+    def _take_available(self) -> None:
+        while not self._finished and not self._audio.empty():
+            self._accept(self._audio.get_nowait())
+
+    def _accept(self, item: _Audio) -> None:
+        if item is None:
+            self._finished = True
+            return
+        self._pending.append(item)
+        if isinstance(item, _Delta):
+            self._pending_ms += _audio_ms(len(item.pcm))
+
+    def _hold_s(self, head: _Delta) -> float:
+        """How long the head delta may still wait; 0 or less: send it now."""
+        if self._finished or self._pending_ms - _audio_ms(len(head.pcm)) >= self._hold_ms:
+            return 0.0
+        if self._last_sent is None:
+            return 0.0  # the response's first audio never waits
+        now = self._clock.now()
+        keepalive_s = self._last_sent + self._keepalive_s - now
+        lead_s = (self._pacer.lead_ms() - self._min_lead_ms) / 1000
+        return min(keepalive_s, lead_s)
+
+    async def _send(self, item: _Delta) -> None:
+        self._pending.popleft()
+        self._pending_ms -= _audio_ms(len(item.pcm))
+        await self._pacer.admit(_audio_ms(len(item.pcm)))
+        await self._context.wait_for_room()
+        self._announce(item.segment)
+        self._context.post(SegmentAudio(self._generation, item.segment.index, item.pcm))
+        self._last_sent = self._clock.now()
+
+    def _announce(self, segment: SegmentStarted) -> None:
+        if segment.index not in self._announced:
+            self._announced.add(segment.index)
+            self._context.post(segment)
+
+    async def _wait(self, wait_s: float | None) -> None:
+        """Until more audio arrives, or ``wait_s`` has passed (None: no limit)."""
+        if self._getter is None:
+            self._getter = asyncio.ensure_future(self._audio.get())
+        if wait_s is None:
+            await asyncio.wait({self._getter})
+        else:
+            sleeper = asyncio.ensure_future(self._clock.sleep(wait_s))
+            try:
+                await asyncio.wait({self._getter, sleeper}, return_when=asyncio.FIRST_COMPLETED)
+            finally:
+                sleeper.cancel()
+        if self._getter.done():
+            getter, self._getter = self._getter, None
+            self._accept(getter.result())
 
 
 def _speakable(text: str) -> bool:

@@ -83,3 +83,4 @@ providers:
 
 observability:
   log_level: info
+  debug_endpoints: true        # GET /debug/turns for bench/ (the mock stack is never in service)

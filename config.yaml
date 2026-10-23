@@ -29,6 +29,11 @@ output:
   # gate on 20 ms frames keeps at most max_lead_ms / max_tail_ms of it; the first voiced frame
   # goes out at once, inner pauses are kept.
   trim_silence: {enabled: true, threshold_dbfs: -50, frame_ms: 20, max_lead_ms: 60, max_tail_ms: 100}
+  # M6: while a response has segments to come, hold back up to hold_ms of its audio and release
+  # it a delta at a time: after keepalive_ms without a delta (AICC's watchdog is 2 s), or when
+  # the client's modelled buffer drops below min_lead_ms. Keeps deltas flowing while the next
+  # segment waits in the shared TTS queue.
+  reserve: {enabled: true, hold_ms: 1500, keepalive_ms: 1000, min_lead_ms: 400}
 
 # D16: a response whose own instructions start with one of these is spoken as written, without
 # the LLM (AICC's greetings, announces, wait and closing lines). [] turns lines off.
@@ -153,7 +158,11 @@ providers:
     base_url: http://127.0.0.1:8103
     sample_rate: 24000
     max_in_flight: 1             # the server runs one stream at a time; the rest queue here
-    queue_timeout_ms: 2000       # then backend_busy
+    # M6: edf serves first the request whose session runs out of audio soonest; a first segment
+    # (no audio yet) counts from its response's start, plus first_segment_grace_ms. fifo: arrival.
+    scheduling: edf
+    first_segment_grace_ms: 0
+    queue_timeout_ms: 2000       # past the request's deadline; then backend_busy
     warmup_texts: {zh: "您好，请问有什么可以帮您？", en: "Hello, how can I help you?"}
     primary:
       model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit
@@ -209,3 +218,9 @@ backends:
 
 observability:
   log_level: info
+  quantile_window_turns: 200   # /metrics: P50/P95 gauges over each stage's last N turns
+  # GET /debug/turns?session_id=...: each turn's marks and stage durations, for bench/ (D8).
+  # Unauthenticated, like /metrics; keep it off in service.
+  debug_endpoints: false
+  debug_sessions: 64
+  debug_turns_per_session: 500

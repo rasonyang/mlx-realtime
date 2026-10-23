@@ -3,17 +3,21 @@
 - ``RequestClock`` keeps one request's deadlines: the first item (first token or transcript)
   and the total are absolute; the idle deadline restarts at every item. Expiry raises
   ``ProviderTimeout``. Connecting is bounded by the client's own connect timeout.
-- ``Slots`` bounds the requests in flight per backend; waiting longer than the queue timeout
-  raises ``ProviderError("overloaded")``.
+- ``Slots`` bounds the requests in flight per backend and queues the rest, in arrival order or
+  earliest deadline first; waiting longer than the queue timeout raises
+  ``ProviderError("overloaded")``.
 - Transport failures and HTTP statuses map to ``ProviderError`` kinds.
 """
 
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncGenerator
+import heapq
+import itertools
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from typing import Literal
 
 import httpx2
 
@@ -80,25 +84,80 @@ class RequestClock:
 
 
 class Slots:
-    """At most ``limit`` requests in flight to one backend."""
+    """At most ``limit`` requests in flight to one backend; the rest wait in a queue.
 
-    def __init__(self, limit: int, queue_timeout_s: float) -> None:
-        self._semaphore = asyncio.Semaphore(limit)
+    ``fifo`` serves waiting requests in arrival order. ``edf`` serves the earliest ``deadline``
+    first (requests without one count from their arrival, on the same clock as the deadlines),
+    arrival order breaking ties. A request waits at most ``queue_timeout_s`` plus its
+    ``slack_s``, then raises ``ProviderError("overloaded")``.
+    """
+
+    def __init__(
+        self,
+        limit: int,
+        queue_timeout_s: float,
+        *,
+        policy: Literal["fifo", "edf"] = "fifo",
+        now: Callable[[], float] | None = None,
+    ) -> None:
+        self._free = limit
         self._queue_timeout_s = queue_timeout_s
+        self._policy: Literal["fifo", "edf"] = policy
+        self._now = now
+        self._waiters: list[tuple[float, int, asyncio.Future[None]]] = []  # a heap
+        self._arrivals = itertools.count()
+
+    @property
+    def waiting(self) -> int:
+        """Requests waiting for a slot now."""
+        return sum(1 for _, _, future in self._waiters if not future.done())
 
     @asynccontextmanager
-    async def slot(self) -> AsyncGenerator[None]:
-        try:
-            async with asyncio.timeout(self._queue_timeout_s):
-                await self._semaphore.acquire()
-        except TimeoutError:
-            raise ProviderError(
-                "overloaded", "too many requests in flight", retryable=True
-            ) from None
+    async def slot(
+        self, *, deadline: float | None = None, slack_s: float = 0.0
+    ) -> AsyncGenerator[None]:
+        await self._acquire(deadline, slack_s)
         try:
             yield
         finally:
-            self._semaphore.release()
+            self._release()
+
+    async def _acquire(self, deadline: float | None, slack_s: float) -> None:
+        if self._free > 0 and not self.waiting:
+            self._free -= 1
+            return
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[None] = loop.create_future()
+        key = 0.0
+        if self._policy == "edf":
+            key = deadline if deadline is not None else (self._now or loop.time)()
+        heapq.heappush(self._waiters, (key, next(self._arrivals), future))
+        try:
+            async with asyncio.timeout(self._queue_timeout_s + max(slack_s, 0.0)):
+                await future
+        except TimeoutError:
+            self._abandon(future)
+            raise ProviderError(
+                "overloaded", "too many requests in flight", retryable=True
+            ) from None
+        except asyncio.CancelledError:
+            self._abandon(future)
+            raise
+
+    def _abandon(self, future: asyncio.Future[None]) -> None:
+        """A waiter gave up: pass on the slot if it had just been handed one."""
+        if future.done() and not future.cancelled():
+            self._release()
+        else:
+            future.cancel()
+
+    def _release(self) -> None:
+        while self._waiters:
+            _, _, future = heapq.heappop(self._waiters)
+            if not future.done():
+                future.set_result(None)
+                return
+        self._free += 1
 
 
 def new_client(

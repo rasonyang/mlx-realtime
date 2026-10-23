@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, runtime_checkable
 
 Lang = Literal["zh", "en"]
 ToolChoice = Literal["auto", "none"]
@@ -79,6 +79,13 @@ class SpeechTiming:
     queued_s: float = 0.0  # time spent waiting for a backend slot, over every attempt
     model: str = ""  # the model that produced the audio
     fallback: bool = False  # the stream was served by the fallback model
+    primary_error: ProviderErrorKind | None = None  # why the primary failed, if the fallback spoke
+    # Set by the caller (M6). ``deadline``: when, on the session clock, the session runs out of
+    # audio without this segment; a shared queue serves the earliest first. ``slack_s``: how
+    # far ahead of now that deadline lies, so a queue can let the request wait that much
+    # longer before giving up.
+    deadline: float | None = None
+    slack_s: float = 0.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,3 +167,16 @@ class ASRBackend(ASRProvider, Backend, Protocol): ...
 
 
 class TTSBackend(TTSProvider, Backend, Protocol): ...
+
+
+@runtime_checkable
+class Queued(Protocol):
+    """A provider that queues requests for its backend, and can say how many wait now."""
+
+    @property
+    def queue_depth(self) -> int: ...
+
+
+def queue_depth(provider: object) -> int:
+    """The requests waiting in ``provider``'s queue now (0 for a provider without one)."""
+    return provider.queue_depth if isinstance(provider, Queued) else 0

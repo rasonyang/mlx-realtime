@@ -6,18 +6,22 @@ WebSocket at `/v1/realtime`. Inside, it is a cascade: VAD → turn detection →
 Chinese, English and code-switched speech. The official `openai` Python SDK connects by changing only
 `base_url`.
 
-**Status: milestone M4.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
+**Status: milestone M6.** A full spoken turn: speech is detected with Silero VAD and Smart Turn,
 transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by Qwen3-TTS, streamed per
 sentence with Kokoro as the fallback (`mlx_audio.server`). Audio goes out paced, at most 10 s ahead
 of real time. The caller can interrupt (barge-in, cancellation and truncation are deterministic),
 and the service cancels the echo of its own speech on telephone calls (WebRTC AEC3, referenced to
-a model of the client's playout). See [`docs/PROGRESS.md`](docs/PROGRESS.md).
+a model of the client's playout). The LLM calls tools (M5). Every stage of a turn is measured
+(`/metrics`), the benchmark in `bench/` reports per-stage latency and ASR accuracy
+([`docs/LATENCY.md`](docs/LATENCY.md)), and concurrent sessions share the TTS fairly (M6). See
+[`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 | Document | What it holds |
 |---|---|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | the design and the decisions D1–D19 |
 | [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | what the gateway supports, event by event and field by field |
 | [`docs/PROGRESS.md`](docs/PROGRESS.md) | what each milestone delivered, and what is left |
+| [`docs/LATENCY.md`](docs/LATENCY.md) | the latency report: how it is generated, and its results |
 | [`CLAUDE.md`](CLAUDE.md) | the repository rules (uv only) |
 
 ## Requirements
@@ -48,6 +52,7 @@ The gateway listens on `127.0.0.1:8000` (`config.yaml`). Check it:
 ```sh
 curl localhost:8000/healthz   # the event loop answers
 curl localhost:8000/readyz    # every backend is warm; 503 until then
+curl localhost:8000/metrics   # Prometheus: stage histograms, windowed P50/P95, counters, gauges
 ```
 
 Talk to it with the official SDK:
@@ -76,7 +81,7 @@ asyncio.run(main())
 Leave out `output_modalities` to get audio: `response.output_audio.delta` events carry base64 PCM16 at
 24 kHz alongside `response.output_audio_transcript.delta`, one transcript delta per spoken sentence.
 `audio.output.voice` takes a name from `voices` in `config.yaml` (`vivian`, `serena`, `uncle_fu`,
-`ryan`, `aiden`); any other name is spoken by the default voice and echoed as such. A
+`aiden`); any other name is spoken by the default voice and echoed as such. A
 `response.create` whose `instructions` start with "Say exactly this, word for word, and add nothing
 else:\n" (or the Chinese direction in `config.yaml`) speaks the rest as written, without the LLM.
 
@@ -103,12 +108,15 @@ An unknown key or a bad value stops startup with the dotted path of the problem.
 ```sh
 make fmt         # ruff: sort imports, format
 make lint        # ruff check, ruff format --check
-make typecheck   # pyright (strict on src/)
+make typecheck   # pyright (strict on src/ and bench/)
 make test        # unit and integration tests (fake backends, the real VAD models)
 make test-e2e    # the official SDK against the gateway (marker e2e)
 make test-backend  # the real backends (marker backend): run `make dev` first
 make aicc-probe AICC_REPO=~/src/ai-native-callcenter   # AICC's own client against `make dev`
 make aicc-probe-mock AICC_REPO=~/src/ai-native-callcenter  # the same against mock providers
+make bench       # the latency/ASR benchmark against a running gateway (docs/LATENCY.md)
+make bench-mock  # the same against a gateway of its own on the mock stack
+make fairness    # multi-session TTS fairness, before and after the M6 mitigations
 ```
 
 The AICC targets run AICC's Realtime client harness (`go test` in its `internal/provider`, with
@@ -124,7 +132,8 @@ protocol change, regenerate them with `uv run --locked pytest tests/integration/
 
 ```
 src/mlx_realtime/
-  server/      Starlette app, WebSocket transport (reader, single writer), admission, readiness
+  server/      Starlette app, WebSocket transport (reader, single writer), admission, readiness,
+               metrics and the /debug/turns records
   protocol/    GA wire layer: client events → commands, facts → server events, ids, errors
   session/     the session actor: conversation, input buffer, turn manager, responses, pipeline,
                the echo reference and canceller stage
@@ -136,5 +145,6 @@ src/mlx_realtime/
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256
+bench/                             the benchmark: input, replay over /v1/realtime, scoring, report
 tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes · tests/aicc
 ```

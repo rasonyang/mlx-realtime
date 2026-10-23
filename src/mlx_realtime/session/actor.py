@@ -19,6 +19,7 @@ from mlx_realtime import logs
 from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, ms_to_samples
 from mlx_realtime.config import (
     AecConfig,
+    AudioReserveConfig,
     BargeInConfig,
     LimitsConfig,
     SegmenterConfig,
@@ -95,6 +96,7 @@ from mlx_realtime.session.feeder import VadFeeder
 from mlx_realtime.session.history import build_messages
 from mlx_realtime.session.inbox import Inbox
 from mlx_realtime.session.input_buffer import CommittedAudio, InputBuffer
+from mlx_realtime.session.observer import NULL_OBSERVER, SessionObserver, TurnReport
 from mlx_realtime.session.output import Delivery, OutputLedger
 from mlx_realtime.session.pipeline import PipelineContext, PipelineRequest, run_pipeline
 from mlx_realtime.session.response import Response, ResponseStatus, StatusDetails
@@ -176,6 +178,9 @@ class SessionDeps:
     barge_in: BargeInConfig
     echo: EchoRuntime | None  # the canceller's executor and engine (D17), when enabled
     trim_silence: SilenceTrimConfig  # each TTS segment's edge silence (M0 S3)
+    reserve: AudioReserveConfig | None = None  # the audio reserve (M6); None: off
+    first_segment_grace_s: float = 0.0  # TTS queue order: see PipelineContext (M6)
+    observer: SessionObserver = NULL_OBSERVER  # metrics and the debug endpoint (M6)
 
 
 class SessionActor:
@@ -255,6 +260,9 @@ class SessionActor:
             wait_for_room=wait_for_room,
             clock=deps.clock,
             trim_silence=deps.trim_silence,
+            reserve=deps.reserve,
+            first_segment_grace_s=deps.first_segment_grace_s,
+            observer=deps.observer,
         )
 
     async def run(self) -> None:
@@ -352,6 +360,7 @@ class SessionActor:
                 if self._response is not None and vad.interrupt_response:
                     self._barge_ins.add(self._turn_item_id)
                     self._echo_counts["barge_ins"] += 1
+                    self._deps.observer.barge_in()
                     self._stop_response(self._response, StatusDetails("cancelled", "turn_detected"))
             case EvaluateTurn(evaluation=evaluation, start_ms=start_ms, end_ms=end_ms):
                 audio = self._input.slice(start_ms, end_ms)
@@ -467,11 +476,13 @@ class SessionActor:
         if detected and self._is_echo(item):
             item.echo = True
             self._echo_counts["echo_turns"] += 1
+            self._deps.observer.echo_turn()
             logger.info("a turn matched our own speech: treated as noise", extra={"item": item.id})
         if item.id in self._barge_ins:
             self._barge_ins.discard(item.id)
             if item.echo or not item.transcript.strip():
                 self._echo_counts["barge_ins_empty_or_echo"] += 1
+                self._deps.observer.barge_in_empty_or_echo()
                 logger.info("a barge-in turned out empty or echo", extra={"item": item.id})
         self._emit(TranscriptCompleted(item, self._conversation.previous_id(item.id)))
         self._log_timeline_unless_answered(item.id)
@@ -515,6 +526,7 @@ class SessionActor:
             self._timelines.pop(signal.item_id, None)
             return
         item.status = "completed"
+        self._deps.observer.provider_error("asr", signal.error.kind)
         error = _backend_error("asr", signal.error)
         self._emit(TranscriptionFailed(item, self._conversation.previous_id(item.id), error))
         self._log_timeline_unless_answered(item.id)
@@ -565,6 +577,7 @@ class SessionActor:
         timeline = None if item_id is None else self._timelines.pop(item_id, None)
         if timeline is not None:
             timeline.log()
+            self._deps.observer.turn_finished(TurnReport(self._session_id, timeline))
 
     def _log_timeline_unless_answered(self, item_id: str) -> None:
         """A turn no response answers ends with its transcript; the others with their response."""
@@ -797,6 +810,7 @@ class SessionActor:
                 response.tts_done = True
                 self._finish_if_done(response)
             case PipelineFailed(stage=stage, error=error):
+                self._deps.observer.provider_error(stage, error.kind)
                 info = _backend_error(stage, error)
                 self._stop_response(response, StatusDetails("failed", error=info), info)
             case PipelineMark(name=name, at_s=at_s, values=values):
@@ -919,10 +933,14 @@ class SessionActor:
         if self._echo is not None:
             self._echo.response_finished(response.generation)
         self._emit(ResponseFinished(response))
+        self._deps.observer.response_finished(status)
         if response.turn_item_id is not None:
             self._timelines.pop(response.turn_item_id, None)
         if response.timeline is not None:
             response.timeline.log(response_id=response.id)
+            self._deps.observer.turn_finished(
+                TurnReport(self._session_id, response.timeline, response.id, status)
+            )
 
     # Helpers
 

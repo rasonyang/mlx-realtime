@@ -11,6 +11,7 @@ dependencies = [
     "httpx2>=2.16.0",
     "numpy>=2.5.4",
     "onnxruntime>=1.31.0",
+    "prometheus-client>=0.26.0",
     "pydantic>=2.14.1",
     "pywebrtc-audio==0.2.0",
     "pyyaml>=6.0.3",
@@ -59,11 +60,11 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 "mlx_audio".msg = "The gateway never imports MLX; model code lives in backends/ (ARCHITECTURE §4.1)."
 
 [tool.pyright]
-include = ["src", "tests"]
+include = ["src", "tests", "bench"]
 exclude = ["spikes", "**/.venv", "**/__pycache__"]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
-strict = ["src"]
+strict = ["src", "bench"]
 venvPath = "."
 venv = ".venv"
 

@@ -38,6 +38,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
+import numpy as np
 import uvicorn
 
 type Json = dict[str, Any]
@@ -384,12 +385,8 @@ def _speech_chunks(
     if voice:
         tone = (voice * (2 * samples // len(voice) + 1))[: 2 * samples]
     else:
-        tone = b"".join(
-            int(6000 * math.sin(2 * math.pi * 220 * n / SPEECH_RATE)).to_bytes(
-                2, "little", signed=True
-            )
-            for n in range(samples)
-        )
+        times = np.arange(samples, dtype=np.float64) / SPEECH_RATE
+        tone = (6000 * np.sin(2 * math.pi * 220 * times)).astype("<i2").tobytes()
     if "kokoro" in str(body.get("model", "")).lower():
         return deque([tone] if tone else [])
     interval = float(body.get("streaming_interval", 2.0))

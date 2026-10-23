@@ -1,4 +1,5 @@
-"""The Starlette application: ``/v1/realtime`` (WebSocket), ``/healthz`` and ``/readyz``."""
+"""The Starlette application: ``/v1/realtime`` (WebSocket), ``/healthz``, ``/readyz``, ``/metrics``
+and, when ``observability.debug_endpoints`` is on, ``/debug/turns``."""
 
 from __future__ import annotations
 
@@ -18,6 +19,7 @@ from starlette.websockets import WebSocket
 from mlx_realtime.protocol.encode import EventEncoder
 from mlx_realtime.server.connection import Connection
 from mlx_realtime.server.gateway import Gateway
+from mlx_realtime.server.metrics import CONTENT_TYPE
 from mlx_realtime.session.errors import ErrorInfo
 
 logger = logging.getLogger(__name__)
@@ -28,18 +30,22 @@ _TRY_AGAIN_LATER = 1013
 def create_app(gateway: Gateway) -> Starlette:
     async def realtime(websocket: WebSocket) -> None:
         if not gateway.authorized(websocket.headers.get("authorization")):
+            gateway.metrics.session_refused("invalid_api_key")
             body = {"error": {"type": "invalid_request_error", "code": "invalid_api_key"}}
             await websocket.send_denial_response(JSONResponse(body, status_code=401))
             return
         await websocket.accept()
         if not gateway.readiness.ever_ready:
+            gateway.metrics.session_refused("not_ready")
             await _refuse(websocket, "not_ready", "The service is starting; try again shortly.")
             return
         if gateway.admission.full:
+            gateway.metrics.session_refused("session_limit_reached")
             await _refuse(websocket, "session_limit_reached", "Too many sessions; try again later.")
             return
         connection = Connection(websocket, gateway, model=websocket.query_params.get("model"))
         gateway.admission.enter(connection)
+        gateway.metrics.session_started()
         try:
             await connection.run()
         finally:
@@ -53,6 +59,23 @@ def create_app(gateway: Gateway) -> Starlette:
         return JSONResponse(
             {"ready": ready, "backends": backends}, status_code=200 if ready else 503
         )
+
+    async def metrics(_: Request) -> Response:
+        backends = (await gateway.readiness.report())[1]
+        gateway.metrics.set_readiness(backends)
+        return Response(gateway.metrics.exposition(), media_type=CONTENT_TYPE)
+
+    async def debug_turns(request: Request) -> Response:
+        """Each turn's marks and stage durations for one session (the benchmark, D8); without
+        ``session_id``, the sessions kept."""
+        records = gateway.metrics.debug
+        session_id = request.query_params.get("session_id")
+        if session_id is None:
+            return JSONResponse({"sessions": records.sessions()})
+        turns = records.session(session_id)
+        if turns is None:
+            return JSONResponse({"error": f"no turns kept for session '{session_id}'"}, 404)
+        return JSONResponse({"session_id": session_id, "turns": turns})
 
     @contextlib.asynccontextmanager
     async def lifespan(_: Starlette) -> AsyncGenerator[None]:
@@ -69,7 +92,10 @@ def create_app(gateway: Gateway) -> Starlette:
         WebSocketRoute("/v1/realtime", realtime),
         Route("/healthz", healthz),
         Route("/readyz", readyz),
+        Route("/metrics", metrics),
     ]
+    if gateway.config.observability.debug_endpoints:
+        routes.append(Route("/debug/turns", debug_turns))
     return Starlette(routes=routes, lifespan=lifespan)
 
 

@@ -1024,3 +1024,213 @@ text has a number, address or ID the new normalizer reads.
 - DECISIONS: the default history shaping (`merge`, `pending`) until the M0 LLM spike reports;
   vivian → aiden for English segments (deviation 7) for the owner; the normalizer's widened ID
   detection.
+
+## M6 — Metrics, the benchmark, and multi-session TTS fairness (2026-10-23)
+
+**Goal.** Measure every turn: the timeline marks of M2–M5 become Prometheus metrics on `/metrics`,
+with windowed P50/P95 computed in-process and per-turn records on an opt-in `/debug/turns`; a
+benchmark (`bench/`) replays the M0 utterances over `/v1/realtime` and writes the latency and ASR
+report (`docs/LATENCY.md`). With it, the multi-session TTS mitigations scheduled by DECISIONS
+(2026-10-23): a per-session audio reserve and earliest-deadline-first ordering of the TTS queue.
+
+**Not yet run on the real backends.** M0's LLM spikes hold the GPU. Everything ran on mocks and
+the fake servers; the real latency report is pending (LATENCY.md §2 has the command).
+
+### What was built
+
+| Area | Contents |
+|---|---|
+| `server/metrics.py` | `Metrics` (each gateway's own `CollectorRegistry`; also the sessions' observer), `WindowedQuantiles`, `DebugTurns`, `turn_record`, `quantile` |
+| `session/observer.py` | `SessionObserver`, the interface the session layer reports through (turns, responses, barge-ins, echo turns, provider errors, TTS fallback uses), `NullObserver`, `TurnReport` |
+| `session/timeline.py` | `STAGES`, `stages_s()`, `e2e_s()`, `marks`, `values` |
+| `session/pipeline.py` | `_ReserveSender` (the audio reserve); a deadline and slack on every TTS request; `llm_first_token` marked by the LLM reader when the token arrives; per-segment fallback reporting |
+| `session/actor.py` | observer calls next to the M4 echo counters, at each provider error, response end and timeline log |
+| `providers/http.py` | `Slots`: a heap of waiters, `fifo` or `edf`, the queue timeout plus the request's slack, `waiting` |
+| `providers/base.py`, `mlx_audio_tts.py`, `fallback.py` | `SpeechTiming.deadline`, `slack_s`, `primary_error`; `queue_depth` (`Queued`) |
+| `server/app.py`, `gateway.py` | `/metrics`, `/debug/turns`, session and refusal counters, the TTS queue gauge |
+| `config.py`, `config*.yaml` | `output.reserve`, `providers.tts.scheduling` / `first_segment_grace_ms`, `observability.quantile_window_turns` / `debug_endpoints` / `debug_sessions` / `debug_turns_per_session`; `config.mock.yaml` turns `/debug/turns` on |
+| `bench/` | `bench.py` (CLI, replay, `--serve`), `dataset.py` (manifest or WAV directory, 8 kHz WAVs and G.711 streams to 24 kHz, G.711 codec, speech-end estimate), `scoring.py` (M0's `text_norm`, CER/WER/MER), `report.py` (P50/P95, scores, markdown) |
+| `tests/fairness.py` | the fairness harness and its before/after table (`make fairness`) |
+| `Makefile`, `pyproject.toml` | `bench`, `bench-mock`, `fairness`; `prometheus-client` (uv add); pyright strict on `bench/` |
+
+**Metrics** (ARCHITECTURE §9; PROTOCOL §1). Histograms: `mlxrt_stage_seconds{stage}` (7 stages),
+`mlxrt_e2e_seconds`, `mlxrt_tts_queue_wait_seconds`. Counters: `mlxrt_sessions_total`,
+`mlxrt_sessions_refused_total{reason}`, `mlxrt_responses_total{status}`, `mlxrt_barge_ins_total`,
+`mlxrt_barge_ins_empty_or_echo_total`, `mlxrt_echo_turns_total`,
+`mlxrt_provider_errors_total{backend,kind}` (including primary TTS failures the fallback absorbed),
+`mlxrt_tts_fallback_total`. Gauges: `mlxrt_active_sessions`, `mlxrt_backend_ready{backend}` (probed
+at each scrape), `mlxrt_tts_queue_depth`, `mlxrt_stage_p50_seconds{stage}`,
+`mlxrt_stage_p95_seconds{stage}`, `mlxrt_e2e_p50_seconds`, `mlxrt_e2e_p95_seconds` (linear
+interpolation over each series' last `quantile_window_turns`, default 200). Labels are fixed sets:
+stage, status, reason, backend (`llm`, `asr`, `tts`, `pipeline`, `vad`), error kind; never an id.
+
+Each stage is named after the mark that ends it and runs from the mark before it:
+`speech_stopped` (from `speech_end`), `turn_confirmed`, `asr_done` (from `turn_confirmed` or
+`committed`), `llm_first_token` (from the later of `asr_done` and `response_created`),
+`first_sentence_ready`, `tts_first_chunk`, `first_audio_sent`. Only timelines that answer a user
+audio turn are measured; a verbatim line's or a text-turn response's are not.
+
+**`/debug/turns`** (off by default). One record per finished turn: ids, status, marks in ms after
+the earliest, stage durations, end to end, and the logged values; the most recent 64 sessions, at
+most 500 turns each. No transcripts, no audio.
+
+**The benchmark.** Replays each utterance in 20 ms frames at real-time speed with `server_vad`
+(`silence_duration_ms` 500, as AICC), then streams silence until the turn is answered, so the line
+never goes quiet. Per utterance: the client's end to end (from sending the end of the speech to the
+first audio delta), the server's stages from `/debug/turns`, the transcript. Report: per-stage and
+end-to-end P50/P95, ASR CER (zh) / WER (en) / MER (mix, and all rows), rows with numbers apart;
+JSON and markdown. Options: `--concurrency`, `--turns-per-session`, `--sets`, `--ids`,
+`--numbers`, `--limit`, `--variant wide|tel16k|tel8k`, `--codec pcm|pcmu|pcma` (G.711 from M7:
+the original 8 kHz bytes when the law matches), `--serve CONFIG`. G.711 decode and encode match
+`audioop` on every code and every 16-bit value; `text_norm` reproduces all 126 manifest rows.
+
+**Multi-session TTS fairness.**
+
+- *The audio reserve* (`output.reserve`: `hold_ms` 1500, `keepalive_ms` 1000, `min_lead_ms` 400).
+  While a response has segments to come, the sender keeps up to 1.5 s of its synthesized audio and
+  releases it one delta at a time: after 1 s without a delta, or when the client's modelled buffer
+  (the pacer's lead) drops under 400 ms. The response's first delta never waits; once the last
+  segment is synthesized the rest goes out as before. Held audio is unsent, so a barge-in discards
+  it and truncation and D5 count only what was sent.
+- *EDF* (`providers.tts.scheduling: edf`). Each TTS request carries a deadline: when its response's
+  synthesized audio runs out (played from when it was made), or for a first segment, when the
+  pipeline started (plus `first_segment_grace_ms`, default 0), which puts it ahead of every
+  session that still has audio. A request waits at most `queue_timeout_ms` past its deadline, then
+  `backend_busy`.
+
+**Fairness, before and after** (`uv run --locked python -m tests.fairness`). The real TTS provider
+against the fake `mlx_audio.server` at S3's pace, Mandarin at 220 ms per character, the echoing LLM
+mock at 40 tokens/s; every session plays 2 turns of a 2-segment, 5.3 s reply with 3 s between
+turns, sessions starting 0.7 s apart (a burst). Rules: delta gap < 2 s, first audio ≤ 3 s after
+`response.created`. "before" is `fifo` without the reserve (M5).
+
+Capped pace (TTFC 110 ms, RTF 0.56: Low Power Mode, the pace the M3 tests use):
+
+| sessions | policy | responses: failed / no audio | max delta gap | gaps ≥ 2 s | first audio p50 / max | first audio > 3 s |
+|---|---|---|---|---|---|---|
+| 2 | before: fifo | 4: 0 / 0 | 2.04 s | 1 | 0.91 / 2.00 s | 0 |
+| 2 | fifo + reserve | 4: 0 / 0 | 1.42 s | 0 | 0.92 / 2.00 s | 0 |
+| 2 | edf | 4: 0 / 0 | 2.05 s | 1 | 0.91 / 2.00 s | 0 |
+| 2 | after: edf + reserve | 4: 0 / 0 | 1.41 s | 0 | 0.94 / 2.06 s | 0 |
+| 3 | before: fifo | 6: 2 / 1 | 3.06 s | 3 | 1.30 / 2.07 s | 0 |
+| 3 | fifo + reserve | 6: 2 / 1 | 2.43 s | 1 | 1.30 / 2.07 s | 0 |
+| 3 | edf | 6: 2 / 0 | 3.07 s | 4 | 1.24 / 2.07 s | 0 |
+| 3 | after: edf + reserve | 6: 2 / 0 | 2.43 s | 2 | 1.24 / 2.07 s | 0 |
+| 4 | before: fifo | 8: 4 / 3 | 3.06 s | 3 | 1.29 / 2.07 s | 0 |
+| 4 | fifo + reserve | 8: 4 / 3 | 2.43 s | 1 | 1.30 / 2.07 s | 0 |
+| 4 | edf | 8: 4 / 2 | 3.08 s | 4 | 1.30 / 2.08 s | 0 |
+| 4 | after: edf + reserve | 8: 4 / 2 | 2.42 s | 2 | 1.30 / 2.07 s | 0 |
+| 8 | before: fifo | 16: 12 / 10 | 3.07 s | 4 | 1.69 / 2.34 s | 0 |
+| 8 | fifo + reserve | 16: 12 / 10 | 2.43 s | 2 | 1.69 / 2.35 s | 0 |
+| 8 | edf | 16: 13 / 7 | 3.07 s | 2 | 2.24 / 2.49 s | 0 |
+| 8 | after: edf + reserve | 16: 13 / 7 | 2.43 s | 2 | 2.23 / 2.47 s | 0 |
+
+Uncapped pace (TTFC 76 ms, RTF 0.33: High Power, `--pace uncapped`):
+
+| sessions | policy | responses: failed / no audio | max delta gap | gaps ≥ 2 s | first audio p50 / max | first audio > 3 s |
+|---|---|---|---|---|---|---|
+| 2 | before: fifo | 4: 0 / 0 | 1.24 s | 0 | 0.59 / 1.38 s | 0 |
+| 2 | after: edf + reserve | 4: 0 / 0 | 0.10 s | 0 | 0.58 / 1.38 s | 0 |
+| 3 | before: fifo | 6: 0 / 0 | 2.13 s | 1 | 0.58 / 2.02 s | 0 |
+| 3 | after: edf + reserve | 6: 0 / 0 | 1.20 s | 0 | 0.77 / 1.37 s | 0 |
+| 4 | before: fifo | 8: 1 / 1 | 2.13 s | 2 | 1.35 / 2.26 s | 0 |
+| 4 | after: edf + reserve | 8: 0 / 0 | 2.36 s | 2 | 0.87 / 1.43 s | 0 |
+| 8 | before: fifo | 16: 9 / 9 | 2.40 s | 4 | 2.02 / 2.31 s | 0 |
+| 8 | after: edf + reserve | 16: 9 / 4 | 2.43 s | 4 | 1.56 / 2.25 s | 0 |
+
+What the numbers say:
+
+- **The reserve fixes the risk DECISIONS named** while the TTS has capacity: the wire gap no longer
+  starts when a segment's audio has been sent but when the client's buffer runs out. Two sessions
+  capped: 2.04 → 1.41 s; three uncapped: 2.13 → 1.20 s with no gap over 2 s; two uncapped: deltas
+  never pause more than 100 ms.
+- **EDF alone changes little** in these bursts (fifo already alternates between similar sessions);
+  its effect is on who fails: first segments go first, so fewer responses end without any audio
+  (8 sessions capped: 10 → 7; uncapped: 9 → 4) and first audio is faster (4 uncapped: p50 1.35 →
+  0.87 s, max 2.26 → 1.43 s), while continuations wait longer.
+- **One serialized TTS stream is a capacity limit no ordering removes.** At RTF 0.56 it supplies
+  about 1.8 sessions speaking at once; at 0.33 about 3. Past that, responses fail with
+  `backend_busy` at the queue timeout (the gateway's choice; AICC would abandon them at its own
+  2–3 s watchdogs) and gaps reach ~2.4 s (the 2 s queue timeout past the deadline, plus a first
+  chunk). No answered response missed the 3 s first-audio rule in any run. More capacity — a second
+  TTS process, or a batched worker on mlx-audio's `batch_generate` (S3) — is the remaining lever.
+- Tried and not adopted as defaults (measured on 2–4 sessions, a 4-segment reply):
+  `first_segment_grace_ms: 1000` (AICC-rule EDF: first segment by 3 s, continuation by 2 s) and
+  a 1–1.5 s queue timeout. A shorter timeout keeps every gap under 2 s by failing such requests
+  sooner; it trades gaps for failed responses, an owner decision.
+
+### How to run and verify
+
+```sh
+uv run --locked pytest                     # everything but the backend tests
+make lint typecheck
+curl localhost:8000/metrics                # with make dev or make dev-mock running
+make bench-mock                            # the benchmark on the mock stack, in-process
+make fairness                              # the before/after table (~6 min, no GPU)
+# The real stack (pending the GPU):
+MLXRT__OBSERVABILITY__DEBUG_ENDPOINTS=true make dev
+uv run --locked python -m bench.bench --url ws://127.0.0.1:8000/v1/realtime \
+    --input spikes/data/manifest.jsonl --variant tel8k --concurrency 1 --out bench/results/real-tel8k
+```
+
+### Test results
+
+All green on 2026-10-23: **1548 passed, 19 skipped** (the `backend` tests and the AICC runs that
+need `AICC_REPO`) in about 180 s (`uv run --locked pytest`; +40 s for the real-time fairness
+tests). `ruff check`, `ruff format --check` and `pyright` (strict on `src/` and `bench/`) report
+nothing.
+
+| Suite | Tests | New in M6 |
+|---|---|---|
+| unit | 1388 | metrics (12: quantiles against numpy, the window, histograms and gauges from turns, unmeasured timelines, every counter and gauge with bounded labels, separate registries, debug records bounded and only when enabled, the record's shape); `Slots` (5: fifo, edf with ties and arrival-time defaults, a free slot with a zero timeout, timeout plus slack, a cancelled waiter passing on its slot); the reserve and deadlines (4, on a virtual clock: held audio with keepalive and buffer-low releases while the TTS is queued, nothing held at the end, transcript order, each request's deadline and slack, fallback reporting); the bench (15: `text_norm` on the README examples and every manifest row, tokens, alignment, G.711 against `audioop` exhaustively, the speech end, both input layouts with 8 kHz audio, the report's aggregation and markdown); the timeline (3: stages); the configuration (6) |
+| integration | 137 | `test_observability.py` (4: every stage of a spoken turn on `/metrics`, provider errors and refusals, `/debug/turns` on and off); `test_bench.py` (2: the bench against `config.mock.yaml` with two sessions and an 8 kHz WAV, an empty selection); `test_tts_fairness.py` (2: two sessions before/after within AICC's rules, eight sessions degrading cleanly) |
+| e2e | 5 | unchanged |
+| tests/aicc | 19 | unchanged |
+| backend | 18 | unchanged, not run |
+
+No golden trace changed: the mocks synthesize faster than real time and finish before the
+reserve holds anything back for long, and event order is unchanged by design.
+
+### Pending the GPU runs
+
+- The real latency report (LATENCY.md §2): `tel8k` at concurrency 1, 2 and 4, `wide` at 1.
+- The fairness rules on the real TTS: the same burst through `bench --concurrency 2..4`, and the
+  owner's choice of `queue_timeout_ms` / `first_segment_grace_ms` under overload.
+- M2–M5's backend tests.
+
+### Known gaps, by milestone
+
+| Milestone | What M6 leaves for it |
+|---|---|
+| M7 | `--codec pcmu/pcma` in the bench is written but untested end to end (the gateway rejects G.711 until M7) |
+| open | TTS capacity beyond ~2 (capped) or ~3 (uncapped) concurrently speaking sessions; metrics for dropped tool calls, trimmed silence, token-cap hits and the echo canceller's ERLE and bypasses (M4/M5 asked; not in the M6 brief) |
+
+### Deviations from ARCHITECTURE, with reasons
+
+1. **Stage names are the marks that end them** (`asr_done`, not `asr`), and `llm_first_token` starts
+   at the later of `asr_done` and `response_created`: a client may create the response after the
+   transcript, and only then can the LLM start.
+2. **`llm_first_token` is marked by the pipeline's LLM reader** when the token arrives (the actor
+   marked it when it handled the token, which could fall after `first_sentence_ready`). The
+   pipeline's marks test lists it.
+3. **Extra series beyond §9**: `mlxrt_tts_queue_wait_seconds`, `mlxrt_sessions_refused_total`,
+   `mlxrt_barge_ins_empty_or_echo_total`, the end-to-end P50/P95 gauges.
+4. **`/metrics` and `/debug/turns` are unauthenticated** (like `/healthz`); the debug endpoint is off
+   by default and never carries transcripts. `config.mock.yaml` turns it on.
+5. **The queue timeout counts from the request's deadline** under `edf` (from arrival under `fifo`,
+   as before): a continuation whose session still has audio may wait that much longer.
+6. **The fake `mlx_audio.server` builds its tone with numpy**: the per-sample Python loop blocked
+   the event loop ~50 ms per long request, which distorted the gap measurements. Same samples.
+7. **`first_segment_grace_ms`** is a knob the brief did not ask for (default 0 keeps "a first
+   segment is most urgent"); it lets the owner try rule-based deadlines.
+
+### Suggested changes to ARCHITECTURE and DECISIONS
+
+- §9: the stage definitions above; the extra series; `/debug/turns`'s record and bounds; the
+  observer interface between session and server.
+- §7 Pacing / §4.4: the audio reserve, and the TTS queue's EDF with deadline-relative timeout.
+- §10: `output.reserve`, `providers.tts.scheduling`, `first_segment_grace_ms`, the observability keys.
+- §11 Benchmark: `bench/` as built (layouts, replay, the client and server end to end, scoring).
+- DECISIONS: the reserve and EDF are on by default; one TTS stream supports about 2 concurrently
+  speaking sessions at S3's capped pace (3 uncapped), so more TTS capacity is needed for more; the
+  overload trade-off (`queue_timeout_ms`) is for the owner.

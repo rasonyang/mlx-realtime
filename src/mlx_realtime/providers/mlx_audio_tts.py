@@ -11,8 +11,9 @@ The backend's behaviour (mlx-audio 0.6.1, checked in M0) shapes the provider:
 
 - The server runs every stream on one worker thread and never batches them, so the gateway
   keeps at most ``max_in_flight`` requests open (default 1) and queues the rest itself, where
-  the wait is measured (``SpeechTiming.queued_s``, the turn timeline) and bounded
-  (``queue_timeout_ms``, then ``overloaded``).
+  the wait is measured (``SpeechTiming.queued_s``, the turn timeline), ordered (``scheduling``:
+  earliest ``SpeechTiming.deadline`` first, M6) and bounded (``queue_timeout_ms`` past the
+  deadline, then ``overloaded``).
 - Each request first has the worker confirm its model is loaded, and models load lazily, so a
   cold model costs seconds: the warmup speaks one Chinese and one English sentence per
   configured voice.
@@ -90,7 +91,9 @@ class SpeechServer:
         self, config: MlxAudioSpeechConfig, *, transport: httpx2.AsyncBaseTransport | None = None
     ) -> None:
         self.sample_rate = config.sample_rate
-        self.slots = Slots(config.max_in_flight, config.queue_timeout_ms / 1000)
+        self.slots = Slots(
+            config.max_in_flight, config.queue_timeout_ms / 1000, policy=config.scheduling
+        )
         self._base_url = config.base_url
         self._connect_s = config.primary.timeouts.connect_ms / 1000
         self._transport = transport
@@ -147,6 +150,11 @@ class MlxAudioTTS:
     @property
     def model(self) -> str:
         return self._config.model
+
+    @property
+    def queue_depth(self) -> int:
+        """Requests waiting for the backend's stream slot now (every model of the backend)."""
+        return self._server.slots.waiting
 
     def stream(
         self,
@@ -238,7 +246,7 @@ class MlxAudioTTS:
         timing.fallback = self._role == "fallback"
         loop = asyncio.get_running_loop()
         queued_at = loop.time()
-        async with self._server.slots.slot():
+        async with self._server.slots.slot(deadline=timing.deadline, slack_s=timing.slack_s):
             timing.queued_s += loop.time() - queued_at
             clock = RequestClock(deadlines)
             client = self._server.client()

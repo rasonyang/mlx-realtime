@@ -30,6 +30,7 @@ from mlx_realtime.providers.base import (
     Readiness,
     SpeechTiming,
     TTSBackend,
+    queue_depth,
 )
 
 logger = logging.getLogger(__name__)
@@ -125,6 +126,7 @@ class FallbackTTS:
                     "primary tts failed before its first chunk; the fallback speaks the segment",
                     extra={"error": str(error), "kind": error.kind},
                 )
+                timing.primary_error = error.kind
             else:
                 self.breaker.success()
                 return
@@ -132,6 +134,11 @@ class FallbackTTS:
         async with aclosing(fallback):
             async for chunk in fallback:
                 yield chunk
+
+    @property
+    def queue_depth(self) -> int:
+        """Requests waiting for a stream slot (both models share the backend's queue)."""
+        return max(queue_depth(self.primary), queue_depth(self.fallback))
 
     async def warmup(self) -> None:
         await self.primary.warmup()

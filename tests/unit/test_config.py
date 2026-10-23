@@ -6,6 +6,7 @@ import pytest
 
 from mlx_realtime.config import (
     DEFAULT_VERBATIM_PREFIXES,
+    AudioReserveConfig,
     ConfigError,
     MlxAudioAsrConfig,
     MlxAudioSpeechConfig,
@@ -301,3 +302,39 @@ def test_session_defaults_must_name_a_configured_voice() -> None:
     config = validate_config({"session_defaults": {"audio": {"output": {"voice": "marin"}}}})
     with pytest.raises(ConfigError, match=r"session_defaults\.audio\.output\.voice: 'marin'"):
         Gateway(config, build_providers(config.providers))
+
+
+def test_m6_defaults_and_the_repository_values() -> None:
+    defaults = validate_config({})
+    assert defaults.output.reserve == AudioReserveConfig(
+        enabled=True, hold_ms=1500, keepalive_ms=1000, min_lead_ms=400
+    )
+    observability = defaults.observability
+    assert (observability.quantile_window_turns, observability.debug_endpoints) == (200, False)
+    speech = validate_config({"providers": {"tts": {"type": "mlx_audio_speech"}}}).providers.tts
+    assert isinstance(speech, MlxAudioSpeechConfig)
+    assert (speech.scheduling, speech.first_segment_grace_ms) == ("edf", 0)
+    repository = load_config(REPO_CONFIG, {})
+    assert repository.output.reserve == defaults.output.reserve
+    assert repository.observability == defaults.observability
+    assert isinstance(repository.providers.tts, MlxAudioSpeechConfig)
+    assert repository.providers.tts.scheduling == "edf"
+    assert load_config(MOCK_CONFIG, {}).observability.debug_endpoints  # for bench/
+
+
+@pytest.mark.parametrize(
+    ("raw", "path"),
+    [
+        ({"output": {"reserve": {"keepalive_ms": 2000}}}, "output.reserve.keepalive_ms"),
+        ({"output": {"reserve": {"hold_ms": -1}}}, "output.reserve.hold_ms"),
+        ({"observability": {"quantile_window_turns": 0}}, "observability.quantile_window_turns"),
+        ({"observability": {"debug_sessions": 0}}, "observability.debug_sessions"),
+        (
+            {"providers": {"tts": {"type": "mlx_audio_speech", "scheduling": "lifo"}}},
+            "providers.tts.scheduling",
+        ),
+    ],
+)
+def test_m6_settings_are_validated(raw: dict[str, object], path: str) -> None:
+    with pytest.raises(ConfigError, match=path.replace(".", r"\.")):
+        validate_config(raw)

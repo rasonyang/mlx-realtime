@@ -68,6 +68,20 @@ class SilenceTrimConfig(_Section):
     max_tail_ms: int = Field(default=100, ge=0)
 
 
+class AudioReserveConfig(_Section):
+    """The per-session audio reserve (M6, DECISIONS 2026-10-23): while a response still has
+    segments to come, the sender holds back up to ``hold_ms`` of its synthesized audio, so deltas
+    keep flowing while the next segment waits in the shared TTS queue. A held delta goes out
+    when the wire has been quiet for ``keepalive_ms`` (under AICC's 2 s gap watchdog), or when
+    the client's modelled buffer drops below ``min_lead_ms`` (so playback never starves for
+    it). Once the last segment is synthesized, everything left goes out paced as usual."""
+
+    enabled: bool = True
+    hold_ms: int = Field(default=1500, ge=0)
+    keepalive_ms: int = Field(default=1000, gt=0, le=1900)
+    min_lead_ms: int = Field(default=400, ge=0)
+
+
 class OutputConfig(_Section):
     """Output audio: deltas of at most ``max_delta_ms``, sent as soon as they are synthesized but
     never more than ``max_lead_ms`` ahead of real time, counted from a response's first delta
@@ -76,6 +90,7 @@ class OutputConfig(_Section):
     max_delta_ms: int = Field(default=100, gt=0, le=1000)
     max_lead_ms: int = Field(default=10_000, gt=0)
     trim_silence: SilenceTrimConfig = SilenceTrimConfig()
+    reserve: AudioReserveConfig = AudioReserveConfig()
 
     @model_validator(mode="after")
     def _lead_holds_a_delta(self) -> Self:
@@ -431,14 +446,22 @@ class TtsFallbackConfig(TtsModelConfig):
 
 class MlxAudioSpeechConfig(_Section):
     """``mlx_audio.server``'s streaming speech route, one model per request (primary, fallback).
-    The server runs one stream at a time, so requests queue in the gateway, at most
-    ``queue_timeout_ms`` (then ``backend_busy``)."""
+    The server runs one stream at a time, so requests queue in the gateway.
+
+    ``scheduling`` orders that queue (M6): ``edf`` serves first the request whose session runs
+    out of audio soonest (a first segment, whose session has no audio yet, counts from when its
+    response started, so it goes ahead of every session that still has audio); ``fifo`` serves
+    in arrival order. ``first_segment_grace_ms`` places a first segment's deadline that long
+    after its response started (0: before every session that still has audio). A request waits
+    at most ``queue_timeout_ms`` past its deadline (then ``backend_busy``)."""
 
     type: Literal["mlx_audio_speech"]
     base_url: str = "http://127.0.0.1:8103"
     sample_rate: int = Field(default=24_000, gt=0)  # the PCM the server streams
     max_in_flight: int = Field(default=1, ge=1)
     queue_timeout_ms: int = Field(default=2000, ge=0)
+    scheduling: Literal["edf", "fifo"] = "edf"
+    first_segment_grace_ms: int = Field(default=0, ge=0, le=10_000)
     warmup_texts: dict[SegmentLang, str] = Field(
         default_factory=lambda: {
             "zh": "您好，请问有什么可以帮您？",
@@ -535,7 +558,20 @@ class BackendsConfig(_Section):
 
 
 class ObservabilityConfig(_Section):
+    """Logs, ``/metrics`` (always served) and ``GET /debug/turns`` (ARCHITECTURE §9).
+
+    - ``quantile_window_turns``: the windowed P50/P95 gauges cover each stage's last N turns.
+    - ``debug_endpoints``: serve ``/debug/turns``, each turn's marks and stage durations for
+      the benchmark (off by default; it is unauthenticated, like ``/metrics``). It keeps the
+      ``debug_sessions`` most recent sessions, and at most ``debug_turns_per_session`` turns
+      of each.
+    """
+
     log_level: Literal["debug", "info", "warning", "error"] = "info"
+    quantile_window_turns: int = Field(default=200, ge=1, le=100_000)
+    debug_endpoints: bool = False
+    debug_sessions: int = Field(default=64, ge=1, le=10_000)
+    debug_turns_per_session: int = Field(default=500, ge=1, le=100_000)
 
 
 class Config(_Section):

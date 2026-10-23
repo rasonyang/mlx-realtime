@@ -1,5 +1,5 @@
 # Every target runs in the locked uv environment: a stale uv.lock fails loudly (CLAUDE.md).
-.PHONY: fmt lint typecheck test test-e2e test-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock
+.PHONY: fmt lint typecheck test test-e2e test-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock bench bench-mock fairness
 
 fmt:
 	uv sync --locked
@@ -58,3 +58,21 @@ aicc-probe:
 # The same against a gateway of its own with mock providers (config.mock.yaml, no backends).
 aicc-probe-mock: models
 	uv run --locked python tests/aicc/probe.py --aicc-repo "$(AICC_REPO)" --serve config.mock.yaml
+
+# The latency and ASR benchmark (docs/LATENCY.md) against a running gateway started with
+# MLXRT__OBSERVABILITY__DEBUG_ENDPOINTS=true (for the server's stage durations):
+#   make bench [BENCH_ARGS="--variant tel8k --concurrency 1 --out bench/results/<name>"]
+BENCH_URL ?= ws://127.0.0.1:8000/v1/realtime
+BENCH_ARGS ?=
+bench:
+	uv sync --locked
+	uv run --locked python -m bench.bench --url "$(BENCH_URL)" $(BENCH_ARGS)
+
+# The same against a gateway of its own on the mock stack (config.mock.yaml): the format example.
+bench-mock: models
+	uv run --locked python -m bench.bench --serve config.mock.yaml $(BENCH_ARGS)
+
+# Multi-session TTS fairness, before and after the M6 mitigations (fake TTS at M0 S3's pace).
+fairness:
+	uv sync --locked
+	uv run --locked python -m tests.fairness $(FAIRNESS_ARGS)

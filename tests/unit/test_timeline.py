@@ -43,3 +43,51 @@ def test_arrivals_map_a_timeline_position_to_when_its_audio_came() -> None:
     assert arrivals.time_of(201) is None  # not arrived yet
     arrivals.record(end_ms=300_000, at_s=500)
     assert arrivals.time_of(100) is None  # forgotten: more than two minutes back
+
+
+def test_stages_run_from_the_mark_before_and_end_to_end_from_speech_end() -> None:
+    timeline = TurnTimeline("turn_1", "item_1")
+    for name, at in {
+        "speech_end": 10.0,
+        "speech_stopped": 10.2,
+        "turn_confirmed": 10.3,
+        "response_created": 10.3,
+        "asr_done": 10.5,
+        "llm_first_token": 10.8,
+        "first_sentence_ready": 11.0,
+        "tts_first_chunk": 11.1,
+        "first_audio_sent": 11.15,
+    }.items():
+        timeline.mark(name, at)
+    assert timeline.stages_s() == pytest.approx(
+        {
+            "speech_stopped": 0.2,
+            "turn_confirmed": 0.1,
+            "asr_done": 0.2,
+            "llm_first_token": 0.3,
+            "first_sentence_ready": 0.2,
+            "tts_first_chunk": 0.1,
+            "first_audio_sent": 0.05,
+        }
+    )
+    assert timeline.e2e_s() == pytest.approx(1.15)
+
+
+def test_the_llm_starts_at_the_later_of_the_transcript_and_the_response() -> None:
+    timeline = TurnTimeline("turn_1", "item_1")
+    timeline.mark("committed", 5.0)  # manual commit: no VAD marks
+    timeline.mark("asr_done", 5.2)
+    timeline.mark("response_created", 6.0)  # the client asked later
+    timeline.mark("llm_first_token", 6.4)
+    assert timeline.stages_s() == pytest.approx({"asr_done": 0.2, "llm_first_token": 0.4})
+    assert timeline.e2e_s() is None  # no speech_end, no first audio
+
+
+def test_a_stage_whose_marks_are_out_of_order_is_left_out() -> None:
+    timeline = TurnTimeline("turn_1", None)
+    timeline.mark("tts_first_chunk", 2.0)
+    timeline.mark("first_audio_sent", 1.0)
+    assert timeline.stages_s() == {}
+    assert timeline.values == {}
+    timeline.note("tts_queue_ms", 12)
+    assert timeline.values == {"tts_queue_ms": 12}

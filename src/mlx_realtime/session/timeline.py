@@ -8,7 +8,12 @@ Under manual commit, ``committed`` stands in for speech_stopped and turn_confirm
 that answers no user audio turn (a client ``response.create`` after text items, a verbatim
 line) gets a timeline of its own, from ``response_created``. Values logged next to the marks:
 ``tts_queue_ms`` (the first segment's wait for a TTS slot), ``tts_model``, ``tts_fallback``,
-``verbatim``. M6 turns the stages into metrics.
+``verbatim``.
+
+Stages (M6): each stage is named after the mark that ends it and measured from the mark before
+it in the chain below (``STAGES``); a stage whose marks were not both taken is left out.
+``llm_first_token`` starts at the later of ``asr_done`` and ``response_created``, when the LLM
+request could start. End to end is ``first_audio_sent − speech_end``.
 """
 
 from __future__ import annotations
@@ -34,6 +39,18 @@ MARKS = (
 )
 
 _ARRIVALS_KEPT_MS = 120_000
+
+STAGES: dict[str, tuple[str, ...]] = {
+    # stage (its end mark): the marks it may start from; the latest one taken counts
+    "speech_stopped": ("speech_end",),
+    "turn_confirmed": ("speech_stopped",),
+    "asr_done": ("turn_confirmed", "committed"),
+    "llm_first_token": ("asr_done", "response_created"),
+    "first_sentence_ready": ("llm_first_token",),
+    "tts_first_chunk": ("first_sentence_ready",),
+    "first_audio_sent": ("tts_first_chunk",),
+}
+"""The stages of a turn, in order (ARCHITECTURE §9)."""
 
 
 class TurnTimeline:
@@ -61,6 +78,31 @@ class TurnTimeline:
             for name in MARKS
             if name in self._marks
         }
+
+    @property
+    def marks(self) -> dict[str, float]:
+        return dict(self._marks)
+
+    @property
+    def values(self) -> dict[str, object]:
+        return dict(self._values)
+
+    def stages_s(self) -> dict[str, float]:
+        """Every stage whose marks were taken, in seconds (a negative one is left out)."""
+        stages: dict[str, float] = {}
+        for stage, starts in STAGES.items():
+            end = self._marks.get(stage)
+            begun = [self._marks[name] for name in starts if name in self._marks]
+            if end is not None and begun and end >= max(begun):
+                stages[stage] = end - max(begun)
+        return stages
+
+    def e2e_s(self) -> float | None:
+        """``first_audio_sent − speech_end``: what the caller waits, when both were taken."""
+        start, end = self._marks.get("speech_end"), self._marks.get("first_audio_sent")
+        if start is None or end is None or end < start:
+            return None
+        return end - start
 
     def log(self, *, response_id: str | None = None) -> None:
         with logs.bound(turn=self.turn_id, item=self.item_id, response=response_id):

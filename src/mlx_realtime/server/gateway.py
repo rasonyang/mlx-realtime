@@ -1,5 +1,5 @@
 """Process-wide gateway state shared by every connection: configuration, providers, the speech
-and end-of-turn detectors, the session defaults, admission and readiness.
+and end-of-turn detectors, the session defaults, admission, readiness and metrics.
 """
 
 from __future__ import annotations
@@ -12,14 +12,22 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Protocol
 
-from mlx_realtime.config import BackendsConfig, Config, ConfigError, NormalizerConfig, TurnConfig
+from mlx_realtime.config import (
+    BackendsConfig,
+    Config,
+    ConfigError,
+    MlxAudioSpeechConfig,
+    NormalizerConfig,
+    TurnConfig,
+)
 from mlx_realtime.hub import hub_cache, snapshot_dir
 from mlx_realtime.protocol.fields import ProtocolError
 from mlx_realtime.protocol.ids import IdFactory
 from mlx_realtime.protocol.session import decode_session_defaults
-from mlx_realtime.providers.base import Backend, Readiness
+from mlx_realtime.providers.base import Backend, Readiness, queue_depth
 from mlx_realtime.providers.registry import Providers, build_providers
 from mlx_realtime.providers.voices import VoiceBook
+from mlx_realtime.server.metrics import Metrics
 from mlx_realtime.server.readiness import ReadinessMonitor
 from mlx_realtime.session.actor import SessionDeps
 from mlx_realtime.session.clock import Clock, LoopClock
@@ -119,6 +127,12 @@ class Gateway:
         self.clock: Clock = clock or LoopClock()
         aec = config.aec
         self.echo = EchoRuntime(aec.engine, aec.workers) if aec.enabled else None
+        tts = self.providers.tts
+        self.metrics = Metrics(
+            config.observability,
+            active_sessions=lambda: self.admission.active,
+            tts_queue_depth=lambda: queue_depth(tts),
+        )
 
     def authorized(self, authorization: str | None) -> bool:
         """Bearer auth with ``gateway.api_key``; an empty key disables it."""
@@ -150,6 +164,9 @@ class Gateway:
             barge_in=config.barge_in,
             echo=self.echo,
             trim_silence=config.output.trim_silence,
+            reserve=config.output.reserve,
+            first_segment_grace_s=_first_segment_grace_s(config),
+            observer=self.metrics,
         )
 
     async def aclose(self) -> None:
@@ -175,6 +192,11 @@ def _session_defaults(config: Config, voices: VoiceBook) -> SessionSettings:
             f"'{defaults.voice}' is not in voices.map ({known})"
         )
     return defaults
+
+
+def _first_segment_grace_s(config: Config) -> float:
+    tts = config.providers.tts
+    return tts.first_segment_grace_ms / 1000 if isinstance(tts, MlxAudioSpeechConfig) else 0.0
 
 
 def pinned_snapshots(backends: BackendsConfig, cache: Path) -> Callable[[str], Path | None]:

@@ -230,8 +230,9 @@ async def test_timeline_marks() -> None:
     posted: list[PipelineSignal] = []
     await run_pipeline(request(), context(llm, tts, posted, StepClock()))
     marks = [signal for signal in posted if isinstance(signal, PipelineMark)]
-    assert [mark.name for mark in marks] == ["first_sentence_ready", "tts_first_chunk"]
-    values = dict(marks[1].values)
+    names = ["llm_first_token", "first_sentence_ready", "tts_first_chunk"]  # M6: the first token
+    assert [mark.name for mark in marks] == names
+    values = dict(marks[2].values)
     assert values == {"tts_queue_ms": 0, "tts_model": "sine"}
     assert all(mark.generation == 7 for mark in marks)
 

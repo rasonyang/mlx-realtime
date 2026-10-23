@@ -1,6 +1,6 @@
 # mlx-realtime — Realtime GA protocol profile
 
-> **Status: M5 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
+> **Status: M6 (2026-10-23).** What the gateway accepts and emits on `/v1/realtime`, event by event and
 > field by field, and in which milestone each unsupported part arrives. M2 made `server_vad` real
 > (Silero VAD + Smart Turn) and the transcripts real (Qwen3-ASR); answers come from the LLM. M3 made
 > the audio real: Qwen3-TTS streamed per segment (Kokoro as the fallback), paced at most 10 s ahead
@@ -9,7 +9,8 @@
 > echo cancellation in the service (D17) with its second line of defence, which gates the speech
 > events while the client is modelled as playing our audio. M5 made tool calling real: calls from
 > the LLM server's parser, `tool_choice` enforced in the gateway, and the round trip's history
-> shaped for the Qwen template (§11.5, §11.14).
+> shaped for the Qwen template (§11.5, §11.14). M6 added `/metrics` and the opt-in `/debug/turns`
+> (§1), and the multi-session TTS mitigations, which change only when audio deltas are sent (§11.8).
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -47,6 +48,8 @@ Contents: [1 Transport](#1-transport) · [2 Client events](#2-client-events) ·
 | Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions`: `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
 | `/healthz` | 200 while the event loop answers. No backend calls. |
 | `/readyz` | 200 once every backend has been warmed and reports ready, else 503; per-backend detail in the body: `llm`, `asr`, `tts`, and `vad` (the CPU detectors) when Silero runs. |
+| `/metrics` | Prometheus text format (0.0.4), always served and unauthenticated (ARCHITECTURE §9). Backend readiness is probed at each scrape. No label carries an id. |
+| `/debug/turns` | Only with `observability.debug_endpoints: true` (off by default; 404 otherwise). `?session_id=sess_…`: `{"session_id", "turns": [...]}`, one record per finished turn with `turn_id`, `item_id`, `response_id`, `status`, `marks_ms` (ms after the earliest mark), `stages_ms`, `e2e_ms` and `values` (`tts_queue_ms`, `tts_model`, ...); 404 for a session not kept. Without `session_id`: `{"sessions": [...]}`. Kept for the most recent `debug_sessions` sessions, at most `debug_turns_per_session` turns each; transcripts and audio are never included. For `bench/` (D8). |
 
 **Close codes.**
 
@@ -435,6 +438,17 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
    gateway: a barge-in or `response.cancel` discards it unsent (§11.2). `response.done` follows the
    last delta. The writer's backpressure still applies: producers wait whenever half of
    `outbound_queue_events` are queued.
+
+   **Multi-session TTS (M6).** Sessions share one serialized TTS stream, so a response's next
+   segment can wait behind other sessions. While a response still has segments to come, the
+   gateway holds back up to `output.reserve.hold_ms` (1.5 s) of its synthesized audio and sends it
+   a delta at a time: after `keepalive_ms` (1 s) without a delta, or when the client's modelled
+   buffer falls below `min_lead_ms` (400 ms). The client sees the same deltas in the same order,
+   only spread out, so the gap between deltas stays under AICC's 2 s watchdog while the client
+   still has audio to play. The TTS queue serves the request whose session runs out of audio
+   soonest first (`providers.tts.scheduling: edf`); a first segment counts from when its response
+   started. A request waits at most `queue_timeout_ms` (2 s) past that point, then the response
+   fails with `backend_busy` (§9).
 9. **Turn detection (`server_vad`, D4).** Speech detection runs off the session's event loop, on
    CPU executors; positions are on the input timeline, so the same audio always yields the same
    turns.
