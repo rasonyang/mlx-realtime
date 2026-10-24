@@ -114,15 +114,17 @@ def _events(fact: Fact) -> list[Event]:
         case TranscriptCompleted(item=item, previous_item_id=previous):
             events: list[Event] = []
             if item.show_transcript:
-                events.append(
-                    {
-                        "type": "conversation.item.input_audio_transcription.completed",
-                        "item_id": item.id,
-                        "content_index": 0,
-                        "transcript": item.transcript or "",
-                        "usage": {"type": "duration", "seconds": item.audio_ms / 1000},
-                    }
-                )
+                completed: Event = {
+                    "type": "conversation.item.input_audio_transcription.completed",
+                    "item_id": item.id,
+                    "content_index": 0,
+                    "transcript": item.transcript or "",
+                    "usage": {"type": "duration", "seconds": item.audio_ms / 1000},
+                }
+                if item.language:  # transcription sessions; AICC reads `language`
+                    completed["language"] = item.language
+                    completed["languages"] = [{"code": item.language}]
+                events.append(completed)
             return [*events, _item_event("conversation.item.done", item, previous)]
         case TranscriptionFailed(item=item, previous_item_id=previous, error=error):
             events = []

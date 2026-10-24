@@ -2379,3 +2379,282 @@ test now also checks the keepalive); `test_session_state.py` (+1); `test_supervi
   - The bypass resume rule (flagged for owner review).
   - TTS capacity for three calls: a second TTS process, batched TTS or shorter segments (owner
     decision); size `AICC_BOT_MAX_CALLS` to it.
+
+## Transcription sessions and 4 sessions (issue #2, 2026-10-24)
+
+Implemented the code, config, tests and docs, then measured it on the real stack (`spikes/transcription`,
+below). One bug fixed, one config value changed (`transcription.voiced_rms` 100 → 400), and a defect found
+and then fixed on the owner's approval: non-speech commits (hold music, DTMF) are not safe to send to
+the ASR (an ASR token cap and a Silero speech check, "Mitigations" below).
+
+- **Protocol**: `session.type: "transcription"` is decoded (`protocol/session.py`) and echoed as GA's
+  transcription session object; `?intent=transcription` selects it at the handshake
+  (`server/app.py`); a `session.update` can switch the type until the session has had audio, items or
+  responses. PROTOCOL §3.1 and DECISIONS 2026-10-24 record every choice.
+- **Session**: the actor treats a transcription session as ASR-only (`session/actor.py`): no echo
+  path, no detectors, realtime-only events rejected by name, items dropped after their transcript.
+  The input buffer is rolling (`session/input_buffer.py`): idle silence trimmed to 1 s, oldest speech
+  dropped over the maximum, silent commits answered without the ASR.
+- **Config**: `gateway.max_sessions` 4, `asr.max_in_flight` 4, `llm.max_in_flight` 5, new
+  `transcription: {idle_keep_ms, voiced_rms}` section.
+- **Tests**: `tests/integration/test_transcription_session.py`, decode/encode/input-buffer unit tests.
+
+### Measurement (`spikes/transcription`, 2026-10-24)
+
+**Corpus.** 24 synthesised two-party customer-service calls, Chinese with the mixed-in English terms of
+`spikes/asr_context` (brands, products, jargon, order codes spoken character by character). 157 minutes
+in all, 3.5 to 9.4 minutes each (`calls.jsonl`: the scripts and reference texts, committed; `script.py`
+writes them, `synth.py` makes the audio). 1418 utterances (about 29 000 characters), agent voices vivian
+and serena, customer voices uncle_fu and aiden (Qwen3-TTS CustomVoice 8-bit), one channel per leg. Features:
+11 long speeches of 29 to 47 s, 19 holds of 36 to 87 s (9 with a looped tone melody on the customer leg,
+10 silent), 9 DTMF sequences (8 digits and #, 120 ms tones) on the customer leg, 63 crosstalk overlaps
+(the other party starts 0.6 to 1.5 s before the speaker ends), line noise per leg (band-limited
+100–3400 Hz noise plus a 50 Hz hum at 16-bit RMS 20 / 80 / 200: clean, moderate, noisy). Each leg goes
+through the switch tap path: `Resampler` 24 → 8 kHz, G.711 μ-law encode and decode (`audio/g711.py`),
+`Resampler` 8 → 24 kHz. Audio and TTS cache are outside git (`spikes/transcription/data`).
+
+**Harness** (`tap.py`, `harness.py`): behaves like AICC's `openairt.go` + `pump.go` (read both): same
+`session.update` (`turn_detection` null, model, `language` zh, `prompt` = the hints joined with ", "), 20 ms
+appends in real time, commit after 600 ms below RMS 500 following speech (checked every 100 ms of audio
+time), a WebSocket ping every 15 s, `failed` and `error` end the session (except in the CER runs, which
+count failures and go on). The CER runs stream at 4× real time, two calls (four sessions) at a time; every
+latency figure below is from real-time runs. AICC's own `openairt.go` and `pump.go` ran against the server
+too (below).
+
+**Reference.** CER is `spikes/asr_context`'s normalisation (`bench.scoring.norm_text`, whitespace removed,
+零一…九 → 0–9), character edit distance, pooled per leg kind. The reference of a leg is all its utterances
+in time order; the hypothesis all its `completed` transcripts in commit order. A commit that overlaps no
+reference utterance (hold music, DTMF) is **junk** and is also reported apart. "CER" counts the junk
+transcripts as insertions, "CER (speech)" leaves those commits out.
+
+#### CER per leg, before the mitigations below (prompt = the term list, `voiced_rms` 400, all 24 calls)
+
+| leg | reference chars | CER, all commits | CER (speech) | commits | junk commits | failed (4× load) |
+|---|---|---|---|---|---|---|
+| agent | 17 432 | 0.71 % | 0.53 % | 981 | 1 | 1 |
+| customer | 7 664 | 73.90 % | 6.58 % | 943 | 16 | 1 |
+| both | 25 096 | 23.06 % | 2.38 % | 1924 | 17 | 2 |
+
+The customer figure is dominated by 16 junk commits (9 hold music, 7 DTMF), each answered with the prompt
+(below). The customer voices are harder (uncle_fu and aiden) and the customer utterances shorter ("有没有便宜一点的？"
+→ "唉。"), hence 6.6 % against 0.5 %. 2 of 1924 commits (6 at `voiced_rms` 100) failed with `backend_busy` (`overloaded`) at 4× load; they are not in
+the CER, and none occurred in the real-time runs.
+
+With and without `prompt` (`CALLS` = the 10 calls without hold music or DTMF, because a non-speech commit
+without a prompt wedges the ASR, below; `voiced_rms` 400):
+
+| leg | with the term list | without |
+|---|---|---|
+| agent | 0.41 % | 0.83 % |
+| customer | 2.06 % | 3.30 % |
+| both | 0.90 % | 1.55 % |
+
+#### `voiced_rms` 100 against 400 (prompt = the term list, all calls)
+
+| `voiced_rms` | agent CER (speech) | customer CER (speech) | both (speech) | utterances with > 3 s of noise ahead | longest noise ahead |
+|---|---|---|---|---|---|
+| 100 | 6.46 % | 24.48 % | 11.98 % | 211 of 1908 | 58.7 s |
+| 400 | 0.53 % | 6.58 % | 2.38 % | 2 | 3.7 s |
+
+The rolling buffer (`bufsim.py` runs the real `InputBuffer` on the tap audio with the pump's commits;
+no server) shows why: at RMS 100 the idle noise of a moderate (80) and a noisy (200) leg is voiced, so the
+buffer never trims. Mean noise ahead of an utterance by leg noise: 0.40 s (clean), 1.61 s (moderate, up to
+58.7 s), 5.53 s (noisy, up to 57.3 s) at 100; 0.39 / 0.44 / 0.55 s at 300 and 400 (identical in this
+corpus). Given that noise, Qwen3-ASR writes the prompt's terms in front of the real transcript: 30 of 1918
+commits at 100 contain the whole term list, 18 at 400 (16 of them the music and DTMF commits). The speech
+lost from the start of an utterance was 0 at every setting from 50 to 400 (`lost_start`) because
+`idle_keep_ms` keeps the second before the first voiced frame; 500 and 2000 ms keep also lose nothing, so
+`idle_keep_ms` stays 1000. Every commit AICC's pump sends has a frame at RMS 500, so any `voiced_rms` up to
+about 450 treats it as voiced; 400 keeps a margin for frame alignment. A noise floor above 400 would bring
+the problem back; the pump itself stops working at 500.
+
+#### Commit-to-`completed` latency (real time, client side)
+
+First 240 s of the agent leg (1 session) or both legs (2, 4 sessions) of two calls without hold music or
+DTMF (call04, call07); 4 sessions = those 2 transcription sessions + 2 realtime bot sessions
+(`aiccflow.py`, two processes started together, each looping its call, so the bots speak at the same
+moment).
+
+| sessions open | commits | P50 ms | P95 ms | max ms | commits over 8 s of audio (P50) |
+|---|---|---|---|---|---|
+| 1 transcription | 58 | 250 | 342 | 361 | 319 (n=3) |
+| 2 transcription | 109 | 226 | 332 | 360 | 324 (n=3) |
+| 2 transcription + 2 bots | 109 | 221 | 321 | 364 | 321 (n=3) |
+
+No failed item, no early end in these runs. A commit costs the ASR about 0.1 s for 2 s of speech and 0.35 s
+for 12 s; the pump's 600 ms of trailing silence is in the buffer.
+
+#### ASR time against utterance length (one session, `sweep`; alone and beside 3 streaming sessions)
+
+| utterance (s of audio sent) | n | P50 ms alone | max alone | P50 ms, 3 other sessions | max, 3 others |
+|---|---|---|---|---|---|
+| 2 | 8 | 117 | 143 | 117 | 160 |
+| 3 | 4 | 132 | 142 | 133 | 142 |
+| 5 | 4 | 169 | 212 | 168 | 212 |
+| 8 | 4 | 262 | 292 | 261 | 289 |
+| 12 | 4 | 347 | 359 | 346 | 534 |
+| 31–38 | 4 | 1001 | 1784 | 1014 | 1950 |
+| 38–43 | 4 | 1136 | 1205 | 1191 | 1540 |
+| 45–48 | 3 | 1202 | 1274 | 1192 | 1369 |
+
+Roughly 25 ms per second of audio, so a 60 s commit is under 2 s: far from the ASR timeouts
+(`first_item_ms` 5000, `total_ms` 10000) and from `queue_timeout_ms` (1000). No timeout and no
+`queue_timeout_ms` failure in any real-time run. (One 32 s speech had 301 characters for 129 reference
+characters: Qwen3-ASR appended the prompt's term list after the speech; see below.)
+
+#### Bot calls beside two busy transcription sessions (`aiccflow.py`, 8 calls per bot, two bots)
+
+| (ms) | 2 bots alone | 2 bots + 2 transcription sessions |
+|---|---|---|
+| announce, first audio P50 / P95 | 188 / 1885 (n=16) | 182 / 840 (n=16) |
+| answers to spoken turns, first audio P50 / P95 (n=32) | 638 / 1306 | 606 / 1273 |
+| longest delta gap per response P50 / P95 / max | 174 / 1001 / 1002 | 175 / 390 / 838 |
+| `asr_done` stage P50 / P95 / max (server, bot turns) | 167 / 260 / 522 (n=80) | 170 / 275 / 417 (n=78) |
+
+No regression: the differences are inside the run-to-run spread. The ASR is one serialized stream; two
+legs add a request of 0.1–0.4 s every few seconds, which a bot turn waits behind only briefly.
+
+#### Findings (fixed under "Mitigations")
+
+1. **A non-speech commit can wedge the ASR for 30–60 s.** AICC's pump treats anything above RMS 500 as
+   speech, so hold music (RMS ~2200 here) and DTMF are committed: 9 music commits (40–87 s, truncated at
+   60 s by `input_audio_buffer_max_ms`) and 7 DTMF commits in the corpus. Without a prompt Qwen3-ASR runs to
+   its token limit on them (`asr_direct.py`, the backend alone): music 61 s (twice) and 4 s, DTMF 30 s, 1128 to 8192
+   characters of "啊啊啊…" / "哦哦哦…". The backend serves one request at a time and **does not stop when the
+   gateway gives up** (`giveup_probe.py`: a DTMF request abandoned after 2 s, the next 3 s clip then waited
+   28.4 s), so every session's next commits fail with `backend_timeout` or `backend_busy` until it finishes. In
+   the 4× pass without a prompt 578 of 1924 commits failed this way.
+2. **With a prompt, non-speech comes back as the prompt.** 9 of 9 music and 7 of 7 DTMF commits returned
+   the whole term list (twice or more for 60 s of music); on the corpus' other commits 2 of 1900. AICC
+   would show "NovaNet, Orbix, …" as a customer utterance. A pure 1 s tone behaves the same (coordinator's smoke test).
+
+#### Mitigations (owner-approved; both on by default)
+
+**1. ASR token cap** (`providers.asr.token_cap: {base: 16, per_s: 10}`, null disables). Every ASR request, realtime
+and transcription sessions alike, carries `max_tokens = ceil(base + per_s × seconds of audio sent)`
+(`providers/mlx_audio_asr.py`, the TTS `token_cap`'s style; the warmup is capped too). The backend honours it:
+`mlxrt_audio.serve` passes the form field through to Qwen3-ASR's `generate` next to the context
+(`backends/audio/tests/test_serve.py::test_the_server_honours_max_tokens_with_a_context`; on the real backend the
+capped DTMF burst returned in 0.3 s instead of 30 s). Sizing (`token_rate.py`, Qwen3-ASR's tokenizer over the 1418
+reference utterances): the densest utterance is 5.1 tokens per second of speech ("好，那就换成 5G 畅享 199 吧。"),
+3.6 per second of the audio the ASR actually gets (speech plus the pump's 0.6 s of silence and up to 1 s of
+lead), median 2.6. `16 + 10 × s` leaves at least 2.6 times the need on every utterance of the corpus; no
+transcript was cut (CER below). Its bound: a 3 s DTMF burst stops after 46 tokens, a 60 s hold after 616. With the
+cap alone (check off, `harness nonspeech`, 8 music and 8 DTMF commits): no prompt, music 4.2 s median (4.4 s max)
+instead of 30–61 s, DTMF 0.12 s, nothing failed; with the prompt still the term list, music 2.3 s, DTMF 0.4 s.
+
+**2. Silero speech check on transcription commits** (`transcription.min_speech_ms: 224`, `speech_threshold: 0.5`,
+0 disables). A voiced commit (`voiced_rms`) is checked before the ASR: the session's own Silero stream on the
+shared Silero executor scores the buffer's 32 ms frames (reset first; one `await` per frame, so realtime
+sessions' frames interleave; it stops at the first frame that makes 224 ms of speech, so a speech commit costs
+a few frames). Below the threshold the commit is answered with an empty `completed` and no ASR request, logged
+(`no speech in the commit`) and counted (`mlxrt_transcription_skipped_total`). A detector failure counts as
+speech. Realtime sessions are untouched.
+
+Tuning (`gate_tune.py`: the real `InputBuffer` at the shipped settings on the 24 calls' tap audio, AICC's pump
+commits, Silero scored once per frame; 1908 speech commits and the 16 music and DTMF commits that reach the ASR
+check). Cell: non-speech commits skipped (of 16) / speech commits lost (of 1908).
+
+| min speech ms | p ≥ 0.3 | p ≥ 0.4 | p ≥ 0.5 | p ≥ 0.6 | p ≥ 0.7 |
+|---|---|---|---|---|---|
+| 64 | 11 / 10 | 13 / 14 | 14 / 16 | 14 / 25 | 15 / 30 |
+| 96 | 13 / 13 | 14 / 17 | 14 / 21 | 15 / 28 | **16** / 34 |
+| 128 | 13 / 14 | 14 / 20 | 14 / 27 | 15 / 34 | 16 / 43 |
+| 160 | 13 / 17 | 14 / 26 | 15 / 31 | **16** / 39 | 16 / 47 |
+| 192 | 13 / 25 | 14 / 31 | 15 / 38 | 16 / 42 | 16 / 52 |
+| 224 (between 192 and 256) | – | – | **16** / ≈40 | – | – |
+| 256 | 14 / 28 | 14 / 35 | **16** / 41 | 16 / 51 | 16 / 57 |
+| 320 | 14 / 36 | 15 / 45 | 16 / 54 | 16 / 62 | 16 / 68 |
+
+At p ≥ 0.5 the 16 non-speech commits have 0 ms of speech (13 of them), 32, 128 and 192 ms, so 224 ms
+(7 frames) is the smallest multiple of a frame that skips all 16 with a margin of one frame; p ≥ 0.7 with 96 ms
+loses 6 fewer real commits but sits within 32 ms of the largest tone's speech, on 16 samples. The probability
+threshold stays at the model's usual 0.5. The speech commits lost are mostly one-word answers: of the first 40,
+"嗯。", "行。" (×5), "好的"; but also "解决了，谢谢。", "好，那我等你们的短信。", "有没有便宜一点的？", "我换了新手机，什么都是默认的。" (TTS voices
+with little Silero speech after the G.711 tap; real speech may differ). 40 of 1924 commits (2.1 %) came back empty in
+the full pass. Silero over a 60 s buffer takes 0.17 s on an idle CPU; speech commits stop at the first 7 speech frames.
+
+**Before and after** (the 16 non-speech commits of the corpus unless noted):
+
+| | before (`voiced_rms` 400, no cap, no check) | after (cap + check) |
+|---|---|---|
+| non-speech commits with the prompt (`nonspeech`, 8 music + 8 DTMF, 2× each) | 16 of 16 answered with the whole term list; 1–3 s of ASR each | 32 of 32 empty, 24–259 ms, no ASR request |
+| non-speech commits without a prompt | runaway to 8192 tokens, 30–61 s, `backend_timeout` and a cascade | 32 of 32 empty (same run), 24–259 ms |
+| CER, all commits, prompt = term list: agent / customer / both | 0.71 % / 73.90 % / 23.06 % | **0.57 % / 2.33 % / 1.11 %** |
+| CER, all commits, no prompt (all calls, 4×) | 2.46 % but **578 of 1924 commits failed** (`voiced_rms` 100) | 0.92 % / 3.43 % / 1.68 %, **0 failed** |
+| failed commits at 4× load, prompt | 2 (`voiced_rms` 400) | 0 |
+| commit → `completed` with hold music and DTMF in the window (P50 / P95 ms): 1 / 2 transcription sessions; 2 + 2 bots | – | 251 / 347 (n=56); 212 / 327 (n=116); 211 / 335 (n=116) |
+| the same, calls without music or DTMF: 1 / 2 sessions, before and after | 251 / 342; 226 / 332 | 246 / 349; 223 / 324 (no measurable cost of the check) |
+| bots' answers beside 2 busy sessions with music and DTMF (first audio P50 / P95 ms) | 2 bots alone: 698 / 1704 | 669 / 1573 (`asr_done` P50 / P95 167 / 275 alone, 171 / 273 beside) |
+
+The music and DTMF commits in the latency runs (41 s and 69 s of music, a 3 s DTMF burst) were answered empty in
+196–273 ms and 11–37 ms, the Silero time included; the real-time runs had no failed item. The 16 skipped commits of
+the CER pass and the 40 real ones are the only difference in the counts. Both full-corpus passes (prompt and no
+prompt, 4×) ended with no failed commit and no unanswered one.
+
+#### Failure paths (real stack, `failures.py`; all pass)
+
+| case | expected | result |
+|---|---|---|
+| commit with an empty buffer | `committed`, `item.added`, `completed` with an empty transcript, no `error`; the session goes on | pass (then transcribed a reference utterance) |
+| two commits in a row after audio | one transcript, one empty `completed`, no `error` (order not fixed: the empty one overtakes) | pass |
+| `response.create` | `error` `invalid_event` naming it, session stays open | pass |
+| malformed base64 `append` | `error` (`invalid_value`, `param: "audio"`), session stays open | pass |
+| a 5th session with 4 open | `error` `session_limit_reached`, close 1013 | pass |
+| client vanishes mid-utterance (TCP abort) | slot freed (4 sessions opened right after), no `ERROR` or traceback in the gateway log | pass |
+| 10 minutes of digital silence with a ping every 15 s, then an utterance | session alive, transcript equal to the reference | pass (`failures.py silence`) |
+
+#### AICC end to end (`spikes/transcription/aicc_e2e.sh`, `tests/aicc/zz_mlx_transcribe_test.go`)
+
+A real call is impossible here. Instead AICC's own `transcribe.New` (`openairt.go`) and `newPump`
+(`pump.go`), added to `internal/streamin` with `go test -overlay` (nothing in the AICC checkout is changed),
+ran with `AICC_TRANSCRIBE_PROVIDER=openai`, `AICC_TRANSCRIBE_ENDPOINT=ws://127.0.0.1:8000/v1/realtime?intent=transcription`,
+`OPENAI_API_KEY=local`, one session and pump per leg, in real time on the first 240 s of call04
+(`HUMAN_AGENT` and `CUSTOMER` legs): 24 finals on the agent leg and 28 on the customer leg, no error event;
+the transcripts read as the script (not scored). **No partials**: the server sends no deltas (PROTOCOL §3.1; deltas are optional), so
+AICC shows finals only. (The owner's real phone call, 2 calls through AICC, was done by the coordinator and had no errors.)
+
+#### Bug found and fixed
+
+`SessionActor._update_session` compared the turn detection to the settings after `_switch_type` had
+replaced them, so a session that changed type before any audio never restarted its detection: a
+transcription session switched to realtime had no VAD at all (no `speech_started`, no turns), and a
+realtime session switched to transcription kept its detection configured. Fixed by taking the previous
+settings first. Two integration tests (`test_a_realtime_session_that_becomes_a_transcription_session_transcribes`,
+`test_a_transcription_session_that_becomes_a_realtime_session_gets_its_echo_path`) cover both directions,
+the feeder's echo reference (the earlier stale-reference bug) and the detection restart; both fail without the fixes.
+
+#### Harness notes
+
+`call05_customer` showing 35 commits and 34 finals in the first CER log was a failed item (`overloaded`, 4× load),
+printed as "no final". The log now prints finals, failed and unanswered separately: no run has an unanswered
+commit (every commit got a `completed` or a `failed`), and the harness waits up to 60 s for outstanding
+finals before closing.
+
+#### How to reproduce
+
+```
+uv sync --locked --project spikes/transcription
+uv run --locked --project spikes/transcription python spikes/transcription/script.py     # calls.jsonl
+# a TTS server on a free port, as spikes/asr_context: uv run --locked --project backends/audio mlx_audio.server --port 8131
+uv run --locked --project spikes/transcription python spikes/transcription/synth.py tts
+uv run --locked --project spikes/transcription python spikes/transcription/synth.py render
+uv run --locked --project spikes/transcription python spikes/transcription/bufsim.py       # buffer settings, offline
+make dev        # observability.debug_endpoints: true for the bots' ASR stage (/debug/turns)
+zsh spikes/transcription/cer_passes.sh terms_gate terms none_gate none                      # CER, resumable; CALLS=... for a subset
+AICC_REPO=~/src/ai-native-callcenter zsh spikes/transcription/latency_runs.sh holdmusic call06,call14 300   # tag, calls, seconds
+spikes/transcription/run.sh gate_tune --out spikes/results/transcription_gate_tune.json     # the speech-check table
+(cd spikes/transcription && uv run --locked --project ../.. python token_rate.py)           # tokens per second, sizes the cap
+spikes/transcription/run.sh giveup_probe                                                      # the backend keeps generating
+spikes/transcription/run.sh harness sweep --out spikes/results/transcription_sweep_alone.json --per-length 4 [--load 3]
+spikes/transcription/run.sh asr_direct spikes/results/transcription_asr_direct.json         # the non-speech runaway
+spikes/transcription/run.sh failures main --log gateway.log --out spikes/results/transcription_failures.json
+spikes/transcription/run.sh failures silence --minutes 10 --out spikes/results/transcription_silence.json
+zsh spikes/transcription/aicc_e2e.sh call04 240 1
+spikes/transcription/run.sh score spikes/results/transcription_cer_terms400.json
+spikes/transcription/run.sh latency_report --tag holdmusic; spikes/transcription/run.sh sweep_report spikes/results/transcription_sweep_alone.json
+```
+
+Results: `spikes/results/transcription_*.json`: `_cer_terms_gate` and `_cer_none_gate` are the final passes, `_latency_holdmusic_*` and `_cleangate_*` the final latency runs, `_nonspeech_gate` and `_nonspeech_caponly` the non-speech commits. The 100-vs-400 `voiced_rms` comparison and the no-prompt pass before the mitigations
+are `transcription_cer_terms100.json`, `transcription_cer_none100.json` (the wedge: 578 failed) and
+`transcription_cer_none100clean.json`, `transcription_cer_none400clean.json`.

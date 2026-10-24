@@ -12,7 +12,7 @@
 gateway:
   host: 127.0.0.1
   port: 8000
-  max_sessions: 3
+  max_sessions: 4
   api_key: ""              # empty: no authentication
   max_session_s: 3600
 

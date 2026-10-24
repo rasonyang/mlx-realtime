@@ -29,6 +29,9 @@ class ScriptedSpeech:
     async def speech_probability(self, frame: bytes, *, start_ms: int, in_speech: bool) -> float:
         return self.probability_at(start_ms)
 
+    def reset(self) -> None:
+        return None
+
 
 class ScriptedTurnEnd:
     """Returns scripted end-of-turn probabilities in order, then ``default``."""

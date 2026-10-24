@@ -77,13 +77,21 @@ machines, persistence, server-side tool execution, full Realtime parity.
 is pinned by revision and fetched ahead of time (`mlxrt models --mlx`); the backends run with
 `HF_HUB_OFFLINE=1`.
 
-**Capacity.** At most 3 concurrent calls (`gateway.max_sessions: 3`, the owner's target for this
-development Mac), with one process per backend. The LLM batches requests (`max_in_flight` 4: one
-response per call plus a prompt-cache warm-up), and the ASR takes 3 at once. The TTS server
-synthesizes one stream at a time, so the calls share it through a gateway-side queue (§4.4, §7), and
-that queue is the capacity limit. One call meets AICC's deadlines with margin. Three calls do not
-reliably meet them: first segments wait up to 1.9 s for the TTS (G4, `docs/LATENCY.md` §4). More TTS
-capacity is an open owner decision (`docs/DECISIONS.md`, 2026-10-24).
+**Capacity.** At most 4 concurrent sessions (`gateway.max_sessions: 4`; the owner's target for this
+development Mac was 3 calls, raised on 2026-10-24 for AICC's human-call transcription, issue #2:
+each human call opens two transcription sessions), with one process per backend. A transcription
+session (`session.type: "transcription"`, PROTOCOL §3.1) asks the ASR for each utterance and nothing
+else: no LLM, no TTS, no Silero, Smart Turn or canceller. The LLM batches requests (`max_in_flight`
+5: one response per session at most, plus a prompt-cache warm-up), and the ASR takes 4 at once. The
+TTS server synthesizes one stream at a time, so the bot calls share it through a gateway-side queue
+(§4.4, §7), and that queue is the capacity limit of bot calls. One call meets AICC's deadlines with
+margin. Three bot calls do not reliably meet them: first segments wait up to 1.9 s for the TTS (G4,
+`docs/LATENCY.md` §4). More TTS capacity is an open owner decision (`docs/DECISIONS.md`,
+2026-10-24). Two busy transcription sessions cost the bot calls nothing measurable (`docs/LATENCY.md` §3.8).
+A transcription session never sends non-speech to the ASR: a voiced commit goes through a Silero
+speech check first (`transcription.min_speech_ms`), and every ASR request carries a `max_tokens` in
+proportion to its audio (`providers.asr.token_cap`), because Qwen3-ASR copies its prompt or runs to
+its token limit on hold music and DTMF, and the backend does not stop when the gateway gives up.
 
 **What the desk check found** (mlx-lm 0.32.2, mlx-audio 0.6.1; confirmed hands-on in M0 and the
 real-stack validation):
@@ -404,7 +412,7 @@ model inputs, so wideband and telephony input share one code path.
 | TTS audio per response | `max_response_audio_ms` (120 s); the TTS stage drains every stream into the response's queue at once | response ends `incomplete` |
 | audio held back per response (the reserve, §7) | `output.reserve.hold_ms` (1.5 s) while more segments are to come | released one delta at a time (after `keepalive_ms` without a delta, or when the client's modelled buffer drops below `min_lead_ms`); then 20 ms keepalive silence (§7) |
 | outbound events per session | 256 events | Pipeline producers wait once half the queue is full; the actor never waits. A backlog over the limit, or a write stalled longer than `client_write_timeout` (5 s), closes the session (1008, `slow_client`) |
-| backend in-flight requests | per-backend slots (`max_in_flight`: LLM 4, ASR 3, TTS 1) + `queue_timeout_ms` (LLM and ASR 1 s from arrival) | response `failed`, `error` code `backend_busy` |
+| backend in-flight requests | per-backend slots (`max_in_flight`: LLM 5, ASR 4, TTS 1) + `queue_timeout_ms` (LLM and ASR 1 s from arrival) | response `failed`, `error` code `backend_busy` |
 | TTS queue (one stream shared by every session) | `scheduling: edf`: the request whose session runs out of audio soonest goes first, a first segment counting from its response's start; `queue_timeout_ms` (2 s) past that deadline | response `failed`, `backend_busy` |
 
 ## 5. Provider interfaces
@@ -565,7 +573,7 @@ hands-on in M0 and on the real stack.
 | Role | Request | Response | Readiness |
 |---|---|---|---|
 | LLM (`mlxrt_llm.serve`, i.e. `mlx_lm.server`) | `POST /v1/chat/completions`: `messages`, `stream: true`, `stream_options: {include_usage: true}` (sending `stream_options` without that key fails mid-stream), `max_completion_tokens`, `temperature`, `top_p`, `tools`, `chat_template_kwargs: {enable_thinking: false}`; no `model` (the server runs its pinned snapshot); no `seed` (it disables batching) | SSE `data:` chunks whose deltas carry `content`, `reasoning` or `tool_calls`. A usage chunk, with `cached_tokens`, precedes `[DONE]`. `: keepalive` comment lines arrive during prefill | `GET /health` (503 once the generation thread has died) |
-| ASR (`mlxrt_audio.serve`, i.e. `mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `context` (omit when there is none), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` lists the model, plus the warmup request |
+| ASR (`mlxrt_audio.serve`, i.e. `mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `context` (omit when there is none), `max_tokens` (`token_cap`: 16 + 10 per second of audio; omitted when `token_cap` is null), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` lists the model, plus the warmup request |
 | TTS (`mlx_audio.server`) | `POST /v1/audio/speech`, JSON: `model`, `input`, `voice`, `lang_code` (`chinese` / `english` / `auto`), `response_format: "pcm"`, `stream: true`, `streaming_interval` (0.16), `max_tokens` (in proportion to the text, against runaways) | chunked body of raw s16le mono at 24 kHz, one chunk per `streaming_interval × 12.5` codec frames (80 ms each). Without `stream: true` nothing arrives until synthesis ends. A failure inside generation cuts the body (`bad_response`). One stream at a time: the gateway queues the rest (`max_in_flight` 1) | as ASR, for both models |
 
 **The audio backend** (`backends/audio`): the TTS runs stock `mlx_audio.server` (G1); the ASR runs
@@ -1221,10 +1229,11 @@ Abridged from `config.yaml`, which is the reference and explains every key in it
 (`src/mlx_realtime/config.py` has the schema and the defaults):
 
 ```yaml
-gateway:   {host: 127.0.0.1, port: 8000, max_sessions: 3, api_key: "", max_session_s: 3600}
+gateway:   {host: 127.0.0.1, port: 8000, max_sessions: 4, api_key: "", max_session_s: 3600}
 limits:    {client_max_message_bytes: 16777216, inbox_max_ms: 2000, inbox_max_commands: 256,
             input_audio_buffer_max_ms: 60000, outbound_queue_events: 256, client_write_timeout_ms: 5000,
             max_response_audio_ms: 120000}
+transcription: {idle_keep_ms: 1000, voiced_rms: 400, min_speech_ms: 224, speech_threshold: 0.5}  # issue #2
 output:
   max_delta_ms: 100
   max_lead_ms: 10000                    # D6
@@ -1290,11 +1299,12 @@ providers:
     system_note: "(System note: {text})"
     tool_interlude: merge               # M5 history shaping
     unanswered_calls: pending
-    max_in_flight: 4                    # 3 calls plus a warm-up
+    max_in_flight: 5                    # 4 sessions (a response each) plus a warm-up
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000, warmup_ms: 600000}
   asr: {type: mlx_audio_transcription, base_url: http://127.0.0.1:8102,
-        model: mlx-community/Qwen3-ASR-1.7B-8bit, max_in_flight: 3, queue_timeout_ms: 1000,
+        model: mlx-community/Qwen3-ASR-1.7B-8bit, max_in_flight: 4, queue_timeout_ms: 1000,
+        token_cap: {base: 16, per_s: 10},  # max_tokens = base + per_s × seconds of audio; null: none
         context: null,                  # default ASR context (≤ 1024 chars); a session prompt replaces it
         timeouts: …}
   tts:
@@ -1449,6 +1459,8 @@ Follow-up work after M7, each recorded in `docs/PROGRESS.md`:
   and prefix warming, which keep AICC's 3 s windows after instructions changes (§5.2, §5.3).
 - **G7 dual path, D13, capacity** (2026-10-23): the SpeexDSP ASR path, the 4-bit Qwen3-TTS fallback,
   and `max_sessions` 3.
+- **Transcription sessions and 4 sessions** (2026-10-24, issue #2): `session.type: "transcription"`
+  for AICC's human-call tap (PROTOCOL §3.1), `max_sessions` 4, `asr.max_in_flight` 4, LLM 5.
 - **Real-stack validation** (2026-10-23/24): every backend test, AICC's harness in both profiles,
   the benchmark (`docs/LATENCY.md`), the soak, recovery, G4 and G6; with it the readiness re-warm,
   the keepalive silence and the bypass resume rule.

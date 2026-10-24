@@ -23,7 +23,7 @@ import httpx2
 import numpy as np
 
 from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, bytes_to_ms
-from mlx_realtime.config import MlxAudioAsrConfig
+from mlx_realtime.config import AsrTokenCapConfig, MlxAudioAsrConfig
 from mlx_realtime.providers.base import ProviderError, Readiness, Transcript
 from mlx_realtime.providers.http import (
     Deadlines,
@@ -127,6 +127,8 @@ class MlxAudioASR:
             form["language"] = LANGUAGE_NAMES.get(language.lower(), language)
         if context:
             form["context"] = context
+        if (cap := self._config.token_cap) is not None:
+            form["max_tokens"] = str(token_cap(audio_ms, cap))
         files = {"file": ("audio.wav", wav_file(pcm), "audio/wav")}
         async with self._slots.slot():
             clock = RequestClock(deadlines)
@@ -152,6 +154,11 @@ class MlxAudioASR:
                 self._config.base_url, self._deadlines.connect_s, self._transport
             )
         return self._http
+
+
+def token_cap(audio_ms: int, cap: AsrTokenCapConfig) -> int:
+    """The tokens a transcription of ``audio_ms`` of audio may take (a runaway stops here)."""
+    return math.ceil(cap.base + cap.per_s * audio_ms / 1000)
 
 
 def parse_transcript(body: bytes, audio_ms: int) -> Transcript:

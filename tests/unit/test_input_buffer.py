@@ -6,7 +6,7 @@ from mlx_realtime.audio.formats import PCMU
 from mlx_realtime.audio.resample import Quality
 from mlx_realtime.config import AsrInput
 from mlx_realtime.session.errors import SessionFatal
-from mlx_realtime.session.input_buffer import InputBuffer
+from mlx_realtime.session.input_buffer import InputBuffer, Rolling
 from tests.support import g711_tone, tone
 
 CANONICAL_BYTES_PER_MS = 32
@@ -195,3 +195,64 @@ def test_a_format_change_flushes_the_old_decoder_onto_the_timeline() -> None:
     audio = buffer.commit()
     assert audio is not None
     assert (audio.start_ms, audio.end_ms) == (0, 500)
+
+
+def rolling(max_ms: int = 60_000, keep_ms: int = 1000) -> InputBuffer:
+    return InputBuffer(max_ms, rolling=Rolling(keep_ms=keep_ms, voiced_rms=100))
+
+
+def silence(ms: int) -> bytes:
+    return bytes(48 * ms)
+
+
+def test_a_rolling_buffer_holds_only_the_tail_of_a_silence() -> None:
+    buffer = rolling()
+    for _ in range(600):  # a minute of silence, past the 60 s maximum
+        buffer.append(silence(100))
+    assert buffer.end_ms >= 59_900
+    assert buffer.end_ms - buffer.start_ms <= 1000
+    audio = buffer.commit(empty_ok=True)
+    assert audio is not None
+    assert not audio.voiced
+    assert audio.audio_ms <= 1000
+
+
+def test_speech_after_a_silence_starts_with_the_kept_tail_and_is_voiced() -> None:
+    buffer = rolling()
+    for _ in range(300):
+        buffer.append(silence(100))
+    buffer.append(tone(500))
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.voiced
+    assert 1400 <= audio.audio_ms <= 1600  # 1 s of silence kept, then the 500 ms tone
+    assert buffer.commit() is None  # strict commit: nothing left
+    again = buffer.commit(empty_ok=True)  # a second commit in a row: empty, never an error
+    assert again is not None
+    assert (again.audio_ms, again.voiced) == (0, False)
+
+
+def test_a_rolling_buffer_over_its_maximum_drops_its_oldest_audio_and_warns(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    buffer = rolling(max_ms=1000)
+    with caplog.at_level("WARNING", logger="mlx_realtime.session.input_buffer"):
+        for _ in range(30):
+            buffer.append(tone(100))  # 3 s of speech into a 1 s buffer
+    assert buffer.end_ms - buffer.start_ms <= 1000
+    assert buffer.end_ms >= 2900
+    assert len([r for r in caplog.records if "over its maximum" in r.getMessage()]) == 1
+    audio = buffer.commit()
+    assert audio is not None
+    assert audio.voiced
+    assert audio.audio_ms <= 1000
+
+
+def test_a_quiet_hum_is_not_voiced() -> None:
+    buffer = rolling()
+    quiet = b"".join((50 if n % 2 else -50).to_bytes(2, "little", signed=True) for n in range(960))
+    for _ in range(10):
+        buffer.append(quiet * 5)  # 100 ms chunks of RMS 50
+    audio = buffer.commit()
+    assert audio is not None
+    assert not audio.voiced

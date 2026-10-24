@@ -181,19 +181,19 @@ def test_echo_settings_are_validated(section: dict[str, object], message: str) -
 
 def test_the_g7_dual_path_and_the_capacity_defaults() -> None:
     """G7 final: Speex feeds the ASR (64 ms filter, the echo kept 0-44 ms behind its reference,
-    20 ms after a move, the 3.8 kHz pre-filter, the preprocessor); 3 concurrent calls."""
+    20 ms after a move, the 3.8 kHz pre-filter, the preprocessor); 4 concurrent sessions."""
     config = validate_config({})
     assert config.aec.asr_input == "speex"
     speex = config.aec.speex
     assert (speex.filter_ms, speex.target_delay_ms, speex.max_delay_ms) == (64, 20, 44)
     assert (speex.prefilter_hz, speex.preprocess) == (3800, True)
-    assert config.gateway.max_sessions == 3
+    assert config.gateway.max_sessions == 4
     repository = load_config(REPO_CONFIG, {})
-    assert repository.gateway.max_sessions == 3
+    assert repository.gateway.max_sessions == 4
     llm, asr = repository.providers.llm, repository.providers.asr
     assert isinstance(llm, MlxLmChatConfig)
     assert isinstance(asr, MlxAudioAsrConfig)
-    assert (llm.max_in_flight, asr.max_in_flight) == (4, 3)  # a response each, and a warm-up
+    assert (llm.max_in_flight, asr.max_in_flight) == (5, 4)  # a response each, and a warm-up
     assert (repository.aec.workers, repository.turn.smart_turn.workers) == (2, 2)
     assert repository.aec.speex == speex
     # Without the delay guard nothing aligns Speex: another ASR input is needed.
@@ -426,3 +426,33 @@ def test_m6_defaults_and_the_repository_values() -> None:
 def test_m6_settings_are_validated(raw: dict[str, object], path: str) -> None:
     with pytest.raises(ConfigError, match=path.replace(".", r"\.")):
         validate_config(raw)
+
+
+def test_transcription_session_defaults_and_the_repository_config_agree() -> None:
+    defaults = validate_config({}).transcription
+    assert (defaults.idle_keep_ms, defaults.voiced_rms) == (1000, 400)
+    assert load_config(REPO_CONFIG, {}).transcription == defaults
+    assert validate_config({"transcription": {"idle_keep_ms": 0}}).transcription.idle_keep_ms == 0
+    with pytest.raises(ConfigError, match=r"transcription\.voiced_rms"):
+        validate_config({"transcription": {"voiced_rms": 0}})
+
+
+def test_the_speech_check_and_the_asr_token_cap_defaults_agree_with_the_repository_config() -> None:
+    defaults = validate_config({})
+    assert (defaults.transcription.min_speech_ms, defaults.transcription.speech_threshold) == (
+        224,
+        0.5,
+    )
+    assert validate_config({"transcription": {"min_speech_ms": 0}}).transcription.min_speech_ms == 0
+    with pytest.raises(ConfigError, match=r"transcription\.speech_threshold"):
+        validate_config({"transcription": {"speech_threshold": 1.0}})
+    repository = load_config(REPO_CONFIG, {})
+    assert repository.transcription == defaults.transcription
+    asr = repository.providers.asr
+    assert isinstance(asr, MlxAudioAsrConfig)
+    assert asr.token_cap is not None
+    assert (asr.token_cap.base, asr.token_cap.per_s) == (16, 10.0)
+    disabled = {"providers": {"asr": {"type": "mlx_audio_transcription", "token_cap": None}}}
+    disabled_asr = validate_config(disabled).providers.asr
+    assert isinstance(disabled_asr, MlxAudioAsrConfig)
+    assert disabled_asr.token_cap is None

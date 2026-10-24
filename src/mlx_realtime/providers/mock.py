@@ -289,6 +289,7 @@ class ScriptedASR(_MockBackend):
         self.calls = StreamLog()
         self.requests: list[int] = []
         self.contexts: list[str | None] = []  # the context of each request, in order
+        self.languages: list[str | None] = []  # the language of each request, in order
         self._script = list(transcripts)
         self._next = 0
 
@@ -298,6 +299,7 @@ class ScriptedASR(_MockBackend):
         audio_ms = bytes_to_ms(len(pcm16_16k), CANONICAL_RATE)
         self.requests.append(audio_ms)
         self.contexts.append(context)
+        self.languages.append(language)
         self.calls.open()
         try:
             await self.result()

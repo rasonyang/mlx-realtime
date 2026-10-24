@@ -202,3 +202,12 @@ def test_a_changed_hook_site_is_refused(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(serve, "_ADAPTER_FILTERS", "if key in something_else")
     with pytest.raises(serve.PatchError, match="passes a request field only if generate names it"):
         serve.install()
+
+
+def test_the_server_honours_max_tokens_with_a_context(patched: None) -> None:
+    """The gateway caps the tokens by the audio's length (providers.asr.token_cap); the request's
+    ``max_tokens`` has to reach Qwen3-ASR's ``generate`` next to the context."""
+    model = QwenLike()
+    run_serial(model, context="NovaNet", language="Chinese", max_tokens=46)
+    assert model.calls[0]["max_tokens"] == 46
+    assert model.calls[0]["system_prompt"] == "NovaNet"

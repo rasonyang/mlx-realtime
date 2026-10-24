@@ -91,6 +91,20 @@ def facts() -> Iterator[Fact]:
     yield TranscriptCompleted(
         AudioMessage("item_6", 100, show_transcript=False, transcript=""), None
     )
+    yield SessionStarted(
+        "sess_2", "conv_2", SessionSettings(type="transcription", turn_detection=None)
+    )
+    yield TranscriptCompleted(
+        AudioMessage(
+            "item_9",
+            400,
+            show_transcript=True,
+            transcript="hello",
+            language="en",
+            status="completed",
+        ),
+        "item_7",
+    )
     failed = AudioMessage("item_7", 100, show_transcript=True, status="completed")
     yield TranscriptionFailed(failed, "item_6", ErrorInfo("server_error", "backend_timeout", "asr"))
     yield ItemDeleted("item_7")
@@ -194,6 +208,40 @@ def test_session_echo_is_the_full_effective_session() -> None:
         "auto",
         None,
     )
+
+
+def test_a_transcription_session_echoes_only_what_applies() -> None:
+    settings = SessionSettings(
+        type="transcription",
+        turn_detection=None,
+        transcription=Transcription(model="qwen3-asr", language="zh", prompt="NovaNet"),
+    )
+    for fact in (SessionStarted("sess_1", "conv_1", settings), SessionUpdated("sess_1", settings)):
+        session = EventEncoder().encode(fact)[0]["session"]
+        assert session == {
+            "type": "transcription",
+            "object": "realtime.transcription_session",
+            "id": "sess_1",
+            "include": None,
+            "audio": {
+                "input": {
+                    "format": {"type": "audio/pcm", "rate": 24000},
+                    "transcription": {"model": "qwen3-asr", "language": "zh", "prompt": "NovaNet"},
+                    "noise_reduction": None,
+                    "turn_detection": None,
+                }
+            },
+        }
+
+
+def test_a_completed_transcript_carries_the_language_when_the_asr_reported_one() -> None:
+    def completed(language: str | None) -> Event:
+        item = AudioMessage("item_1", 400, True, "hi", "completed", language=language)
+        return EventEncoder().encode(TranscriptCompleted(item, None))[0]
+
+    assert completed(None).keys().isdisjoint({"language", "languages"})
+    event = completed("zh")
+    assert (event["language"], event["languages"]) == ("zh", [{"code": "zh"}])
 
 
 def test_error_event_echoes_the_client_event_id() -> None:

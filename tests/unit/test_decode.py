@@ -9,7 +9,8 @@ import pytest
 from mlx_realtime.audio.formats import PCM as PCM_FORMAT
 from mlx_realtime.audio.formats import PCMA, PCMU, AudioFormat
 from mlx_realtime.protocol.decode import decode_text_frame, reject_binary_frame
-from mlx_realtime.protocol.session import decode_session
+from mlx_realtime.protocol.fields import ProtocolError
+from mlx_realtime.protocol.session import decode_session, decode_session_defaults
 from mlx_realtime.providers.base import ToolDef
 from mlx_realtime.session.commands import (
     AppendAudio,
@@ -45,6 +46,14 @@ def session_update(session: dict[str, object]) -> dict[str, object]:
     return {"type": "session.update", "event_id": "c1", "session": {"type": "realtime", **session}}
 
 
+def transcription_update(session: dict[str, object]) -> dict[str, object]:
+    return {
+        "type": "session.update",
+        "event_id": "c1",
+        "session": {"type": "transcription", **session},
+    }
+
+
 def item_create(item: dict[str, object], **extra: object) -> dict[str, object]:
     return {"type": "conversation.item.create", "event_id": "c1", "item": item, **extra}
 
@@ -67,7 +76,12 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
     ("unknown type", {"type": "scooby.dooby.doo"}, "invalid_value", "type"),
     ("retrieve", {"type": "conversation.item.retrieve", "item_id": "x"}, "invalid_event", "type"),
     ("webrtc clear", {"type": "output_audio_buffer.clear"}, "invalid_event", "type"),
-    ("transcription session", {"type": "transcription_session.update"}, "invalid_event", "type"),
+    (
+        "beta transcription update",
+        {"type": "transcription_session.update"},
+        "invalid_event",
+        "type",
+    ),
     (
         "event_id not a string",
         {"type": "input_audio_buffer.commit", "event_id": 1},
@@ -110,11 +124,45 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
         "invalid_value",
         "session.type",
     ),
+    # transcription sessions
     (
-        "transcription type",
-        {"type": "session.update", "session": {"type": "transcription"}},
+        "transcription server_vad",
+        transcription_update({"audio": {"input": {"turn_detection": {"type": "server_vad"}}}}),
         "invalid_value",
-        "session.type",
+        "session.audio.input.turn_detection",
+    ),
+    (
+        "transcription semantic_vad",
+        transcription_update({"audio": {"input": {"turn_detection": {"type": "semantic_vad"}}}}),
+        "invalid_value",
+        "session.audio.input.turn_detection",
+    ),
+    (
+        "transcription pcm rate",
+        transcription_update(
+            {"audio": {"input": {"format": {"type": "audio/pcm", "rate": 16000}}}}
+        ),
+        "invalid_value",
+        "session.audio.input.format.rate",
+    ),
+    (
+        "transcription output audio",
+        transcription_update({"audio": {"output": {"voice": "vivian"}}}),
+        "invalid_value",
+        "session.audio.output",
+    ),
+    (
+        "transcription instructions",
+        transcription_update({"instructions": "x"}),
+        "invalid_value",
+        "session.instructions",
+    ),
+    ("transcription model", transcription_update({"model": "x"}), "invalid_value", "session.model"),
+    (
+        "transcription prompt too long",
+        transcription_update({"audio": {"input": {"transcription": {"prompt": "术" * 1025}}}}),
+        "invalid_value",
+        "session.audio.input.transcription.prompt",
     ),
     (
         "other session type",
@@ -819,6 +867,7 @@ def test_full_ga_session_update() -> None:
     )
     assert command == UpdateSession(
         SessionPatch(
+            type="realtime",
             model="gpt-realtime",
             instructions="Be brief.",
             output_modality="text",
@@ -839,7 +888,7 @@ def test_a_prompt_of_exactly_the_limit_is_accepted() -> None:
     prompt = "术" * 1024  # characters, not bytes
     command = decode(session_update({"audio": {"input": {"transcription": {"prompt": prompt}}}}))
     assert command == UpdateSession(
-        SessionPatch(transcription=TranscriptionPatch(prompt=prompt)), "c1"
+        SessionPatch(type="realtime", transcription=TranscriptionPatch(prompt=prompt)), "c1"
     )
 
 
@@ -856,9 +905,11 @@ def test_nulls_clear_and_absent_fields_stay_unset() -> None:
     command = decode(
         session_update({"audio": {"input": {"transcription": None, "turn_detection": None}}})
     )
-    assert command == UpdateSession(SessionPatch(transcription=None, turn_detection=None), "c1")
+    assert command == UpdateSession(
+        SessionPatch(type="realtime", transcription=None, turn_detection=None), "c1"
+    )
     command = decode(session_update({"instructions": ""}))
-    assert command == UpdateSession(SessionPatch(instructions=""), "c1")
+    assert command == UpdateSession(SessionPatch(type="realtime", instructions=""), "c1")
 
 
 @pytest.mark.parametrize("trace", sorted(TRACES.glob("*.jsonl")), ids=lambda path: path.stem)
@@ -946,6 +997,54 @@ def test_session_defaults_need_no_type() -> None:
     assert decode_session(
         {"instructions": "x"}, "session_defaults", require_type=False
     ) == SessionPatch(instructions="x")
+    assert (
+        decode_session({"type": "realtime"}, "session_defaults", require_type=False).type
+        == "realtime"
+    )
+
+
+def test_a_transcription_session_update_is_decoded() -> None:
+    """AICC's exact update (internal/transcribe/openairt.go): the input format, the
+    transcription's model, language and prompt, and turn detection null."""
+    command = decode(
+        transcription_update(
+            {
+                "audio": {
+                    "input": {
+                        "format": {"type": "audio/pcm", "rate": 24000},
+                        "transcription": {"model": "m", "language": "zh", "prompt": "NovaNet"},
+                        "turn_detection": None,
+                    }
+                }
+            }
+        )
+    )
+    assert command == UpdateSession(
+        SessionPatch(
+            type="transcription",
+            input_format=PCM_FORMAT,
+            transcription=TranscriptionPatch(model="m", language="zh", prompt="NovaNet"),
+        ),
+        "c1",
+    )
+    # G.711 is accepted like in realtime sessions; an unknown model is echoed, never judged.
+    g711 = decode(
+        transcription_update(
+            {
+                "audio": {
+                    "input": {"format": {"type": "audio/pcmu"}, "transcription": {"model": "?"}}
+                }
+            }
+        )
+    )
+    assert isinstance(g711, UpdateSession)
+    assert g711.patch.input_format == PCMU
+    assert g711.patch.transcription == TranscriptionPatch(model="?")
+
+
+def test_transcription_sessions_are_not_a_session_default() -> None:
+    with pytest.raises(ProtocolError, match="transcription"):
+        decode_session_defaults({"type": "transcription"})
 
 
 @pytest.mark.parametrize(
@@ -968,7 +1067,7 @@ def test_g711_formats_are_accepted_with_no_rate_or_8000(
         session_update({"audio": {"input": {"format": given}, "output": {"format": given}}})
     )
     assert command == UpdateSession(
-        SessionPatch(input_format=expected, output_format=expected), "c1"
+        SessionPatch(type="realtime", input_format=expected, output_format=expected), "c1"
     )
     mixed = decode(
         session_update(
@@ -980,7 +1079,9 @@ def test_g711_formats_are_accepted_with_no_rate_or_8000(
             }
         )
     )
-    assert mixed == UpdateSession(SessionPatch(input_format=PCMU, output_format=PCM_FORMAT), "c1")
+    assert mixed == UpdateSession(
+        SessionPatch(type="realtime", input_format=PCMU, output_format=PCM_FORMAT), "c1"
+    )
 
 
 def test_a_response_may_set_its_own_output_format() -> None:

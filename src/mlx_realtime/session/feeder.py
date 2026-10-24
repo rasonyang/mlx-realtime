@@ -72,6 +72,13 @@ class VadFeeder:
         if reference is not None:
             reference.on_change = self._ready.set  # held audio may have become final
 
+    def attach(self, reference: EchoReference | None, echo: EchoStage | None) -> None:
+        """Swap the echo path (a session that changes type before any audio has arrived)."""
+        self._reference = reference
+        self._echo = echo
+        if reference is not None:
+            reference.on_change = self._ready.set
+
     def configure(self, epoch: int, params: GateParams | None) -> None:
         """From the next audio on: a new epoch and a fresh gate (``None`` stops detection)."""
         self._put(_Configure(epoch, params))

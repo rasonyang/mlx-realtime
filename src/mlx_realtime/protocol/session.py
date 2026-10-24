@@ -34,6 +34,7 @@ from mlx_realtime.session.settings import (
     ServerVadPatch,
     SessionPatch,
     SessionSettings,
+    SessionType,
     Transcription,
     TranscriptionPatch,
 )
@@ -50,6 +51,21 @@ _SESSION_UNSUPPORTED = {
     "parallel_tool_calls": "tool calls are made one at a time.",
     "reasoning": "the model's reasoning is always off.",
 }
+_TRANSCRIPTION_SESSION_KEYS = ("type", "audio", "include")
+_TRANSCRIPTION_SESSION_UNSUPPORTED: dict[str, str] = dict.fromkeys(
+    (
+        "model",
+        "instructions",
+        "output_modalities",
+        "tools",
+        "tool_choice",
+        "max_output_tokens",
+        "truncation",
+        "tracing",
+        "prompt",
+    ),
+    "a transcription session runs no model and speaks nothing; send session.type 'realtime'.",
+)
 _BETA_SESSION_KEYS = frozenset(
     {"modalities", "voice", "turn_detection", "input_audio_format", "output_audio_format"}
     | {"input_audio_transcription", "temperature", "max_response_output_tokens"}
@@ -59,9 +75,12 @@ _BETA_SESSION_KEYS = frozenset(
 def decode_session(value: object, path: str, *, require_type: bool = True) -> SessionPatch:
     """Validate a GA session object (``session.update``'s ``session``) into a patch."""
     obj = expect_object(value, path)
-    check_keys(obj, path, _SESSION_KEYS, unsupported=_SESSION_UNSUPPORTED, beta=_BETA_SESSION_KEYS)
+    session_type: Maybe[SessionType] = UNSET
     if require_type or "type" in obj:
-        _decode_session_type(require(obj, "type", path), child(path, "type"))
+        session_type = _decode_session_type(require(obj, "type", path), child(path, "type"))
+    if session_type == "transcription":
+        return _decode_transcription_session(obj, path)
+    check_keys(obj, path, _SESSION_KEYS, unsupported=_SESSION_UNSUPPORTED, beta=_BETA_SESSION_KEYS)
 
     model: Maybe[str] = UNSET
     instructions: Maybe[str] = UNSET
@@ -97,6 +116,7 @@ def decode_session(value: object, path: str, *, require_type: bool = True) -> Se
     if obj.get("include") not in (None, []):
         raise value_error(child(path, "include"), "only null or an empty array is supported.")
     return SessionPatch(
+        type=session_type,
         model=model,
         instructions=instructions,
         output_modality=modality,
@@ -117,7 +137,13 @@ def decode_session_defaults(
     """The configured ``session_defaults``, validated exactly like a ``session.update``, over
     ``base`` (the built-in settings by default)."""
     builtin = base or SessionSettings()
-    return builtin.apply(decode_session(dict(raw), "session_defaults", require_type=False), builtin)
+    patch = decode_session(dict(raw), "session_defaults", require_type=False)
+    if patch.type == "transcription":
+        raise value_error(
+            "session_defaults.type",
+            "the defaults are a realtime session's; transcription sessions derive theirs.",
+        )
+    return builtin.apply(patch, builtin)
 
 
 def decode_modalities(value: object, param: str) -> Modality:
@@ -185,11 +211,41 @@ def decode_voice(value: object, param: str) -> str:
     return expect_str(value, param)
 
 
-def _decode_session_type(value: object, param: str) -> None:
-    if value == "transcription":
-        message = "Transcription sessions are not supported; use 'realtime'."
-        raise ProtocolError("invalid_value", message, param)
-    expect_choice(value, param, ("realtime",))
+def _decode_session_type(value: object, param: str) -> SessionType:
+    return expect_choice(value, param, ("realtime", "transcription"))
+
+
+def _decode_transcription_session(obj: Mapping[str, object], path: str) -> SessionPatch:
+    """``RealtimeTranscriptionSessionCreateRequest``: input audio and its transcription only."""
+    check_keys(
+        obj,
+        path,
+        _TRANSCRIPTION_SESSION_KEYS,
+        unsupported=_TRANSCRIPTION_SESSION_UNSUPPORTED,
+        beta=_BETA_SESSION_KEYS,
+    )
+    transcription: Maybe[TranscriptionPatch | None] = UNSET
+    input_format: Maybe[AudioFormat] = UNSET
+    if "audio" in obj:
+        audio_path = child(path, "audio")
+        audio = expect_object(obj["audio"], audio_path)
+        check_keys(audio, audio_path, ("input",))
+        if "input" in audio:
+            input_path = child(audio_path, "input")
+            audio_in = expect_object(audio["input"], input_path)
+            if audio_in.get("turn_detection") is not None:
+                param = child(input_path, "turn_detection")
+                message = (
+                    f"Invalid value for '{param}': a transcription session is committed by the "
+                    "client (input_audio_buffer.commit); the only supported value is null."
+                )
+                raise ProtocolError("invalid_value", message, param)
+            transcription, _, _, input_format, _ = _decode_audio({"input": audio_in}, audio_path)
+    if obj.get("include") not in (None, []):
+        raise value_error(child(path, "include"), "only null or an empty array is supported.")
+    return SessionPatch(
+        type="transcription", transcription=transcription, input_format=input_format
+    )
 
 
 type _AudioPatch = tuple[
@@ -374,6 +430,8 @@ def _expect_default(obj: Mapping[str, object], path: str, key: str, default: str
 
 def render_session(session_id: str, settings: SessionSettings) -> dict[str, object]:
     """The full effective session, as ``session.created`` and ``session.updated`` carry it."""
+    if settings.type == "transcription":
+        return _render_transcription_session(session_id, settings)
     return {
         "type": "realtime",
         "object": "realtime.session",
@@ -400,6 +458,24 @@ def render_session(session_id: str, settings: SessionSettings) -> dict[str, obje
                 "voice": settings.voice,
                 "speed": 1.0,
             },
+        },
+    }
+
+
+def _render_transcription_session(session_id: str, settings: SessionSettings) -> dict[str, object]:
+    """Only what applies: the input audio and its transcription (GA's transcription session)."""
+    return {
+        "type": "transcription",
+        "object": "realtime.transcription_session",
+        "id": session_id,
+        "include": None,
+        "audio": {
+            "input": {
+                "format": render_format(settings.input_format),
+                "transcription": _render_transcription(settings.transcription),
+                "noise_reduction": None,
+                "turn_detection": None,
+            }
         },
     }
 

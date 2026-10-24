@@ -16,6 +16,7 @@ from mlx_realtime.audio.formats import PCM, AudioFormat
 from mlx_realtime.providers.base import ToolChoice, ToolDef
 
 type Modality = Literal["audio", "text"]
+type SessionType = Literal["realtime", "transcription"]
 
 
 class Unset(enum.Enum):
@@ -44,6 +45,7 @@ class Transcription:
 
 @dataclass(frozen=True, slots=True)
 class SessionSettings:
+    type: SessionType = "realtime"
     model: str = "mlx-realtime"
     instructions: str = ""
     output_modality: Modality = "audio"
@@ -59,6 +61,7 @@ class SessionSettings:
     def apply(self, patch: SessionPatch, defaults: SessionSettings) -> SessionSettings:
         """The settings after ``patch``; ``defaults`` seeds nested objects that were null."""
         return SessionSettings(
+            type=_pick(patch.type, self.type),
             model=_pick(patch.model, self.model),
             instructions=_pick(patch.instructions, self.instructions),
             output_modality=_pick(patch.output_modality, self.output_modality),
@@ -75,6 +78,17 @@ class SessionSettings:
             tool_choice=_pick(patch.tool_choice, self.tool_choice),
             max_output_tokens=_pick(patch.max_output_tokens, self.max_output_tokens),
         )
+
+
+def settings_for(
+    defaults: SessionSettings, session_type: SessionType, model: str
+) -> SessionSettings:
+    """A session's settings as its type starts: the configured defaults, except that a
+    transcription session has no turn detection (the client commits each utterance). It runs no
+    model, so ``model`` is only kept for a switch to ``realtime``."""
+    if session_type == "realtime":
+        return replace(defaults, type="realtime", model=model)
+    return replace(defaults, type="transcription", model=model, turn_detection=None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +109,7 @@ class TranscriptionPatch:
 
 @dataclass(frozen=True, slots=True)
 class SessionPatch:
+    type: Maybe[SessionType] = UNSET
     model: Maybe[str] = UNSET
     instructions: Maybe[str] = UNSET
     output_modality: Maybe[Modality] = UNSET

@@ -56,8 +56,10 @@ from mlx_realtime.session.settings import UNSET, Maybe, Modality
 
 _UNSUPPORTED_EVENTS = {
     "conversation.item.retrieve": "items are not retrievable from this server.",
-    "output_audio_buffer.clear": "it is a WebRTC/SIP event; over WebSocket send response.cancel.",
-    "transcription_session.update": "transcription sessions are not supported.",
+    "output_audio_buffer.clear": "it is a WebRTC/SIP event, and nothing is played back over "
+    "WebSocket (send response.cancel to stop a response).",
+    "transcription_session.update": "it is the beta event; send session.update with "
+    "session.type 'transcription'.",
 }
 _SERVER_CREATED_ITEMS = frozenset(
     {"function_call", "mcp_call", "mcp_list_tools", "mcp_approval_request", "mcp_approval_response"}
