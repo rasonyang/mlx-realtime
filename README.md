@@ -6,7 +6,7 @@ WebSocket at `/v1/realtime`. Inside, it is a cascade: VAD → turn detection →
 Chinese, English and code-switched speech. The official `openai` Python SDK connects by changing only
 `base_url`.
 
-**Status: milestone M7 and the G7 dual path.** A full spoken turn: speech is detected with Silero
+**Status: milestones M0–M7 are done and validated on the real stack.** A full spoken turn: speech is detected with Silero
 VAD and Smart Turn, transcribed by Qwen3-ASR, answered by the LLM (`mlx_lm.server`) and spoken by
 Qwen3-TTS, streamed per sentence, with a 4-bit build of the same model and voices as the fallback
 (`mlx_audio.server`). Audio goes out paced, at most 10 s ahead of real time. The caller can
@@ -18,12 +18,20 @@ turn is measured (`/metrics`), the benchmark in `bench/` reports per-stage laten
 ([`docs/LATENCY.md`](docs/LATENCY.md)), concurrent sessions share the TTS fairly (M6), and G.711
 telephony works end to end (M7). See [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
+Measured on an M3 Max (128 GB, High Power) with the real models, from the end of the caller's
+speech to the first audio sent, on turns Smart Turn judged complete: P50 1.37–1.39 s and P95
+1.52–1.54 s with one call; P50 1.43–1.47 s and P95 2.53–2.78 s with three. One call meets every
+deadline of the AICC client with margin; three calls do not reliably, because they share one TTS
+stream. Details and the remaining risks: [`docs/LATENCY.md`](docs/LATENCY.md).
+
 | Document | What it holds |
 |---|---|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | the design and the decisions D1–D19 |
 | [`docs/PROTOCOL.md`](docs/PROTOCOL.md) | what the gateway supports, event by event and field by field |
 | [`docs/PROGRESS.md`](docs/PROGRESS.md) | what each milestone delivered, and what is left |
 | [`docs/LATENCY.md`](docs/LATENCY.md) | the latency report: how it is generated, and its results |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | the decision log, one dated line per decision |
+| [`docs/SPIKE.md`](docs/SPIKE.md) | the M0 validation spikes, their findings and gates |
 | [`CLAUDE.md`](CLAUDE.md) | the repository rules (uv only) |
 
 ## Requirements
@@ -158,4 +166,16 @@ vendor/speexdsp-aec                SpeexDSP 1.2.1's echo canceller (BSD C source
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256
 bench/                             the benchmark: input, replay over /v1/realtime, scoring, report
 tests/unit · tests/integration · tests/golden · tests/e2e · tests/backend · tests/fakes · tests/aicc
+spikes/                            M0 and later measurement projects (each its own uv project) and
+                                   their results; datasets and audio are downloaded, not committed
 ```
+
+## License
+
+Apache License 2.0; see [`LICENSE`](LICENSE).
+
+Exceptions: the SpeexDSP sources in `vendor/speexdsp-aec/speexdsp` keep their BSD-3-Clause license
+([`COPYING`](vendor/speexdsp-aec/speexdsp/COPYING)). The models are not part of this repository and
+are downloaded under their own licenses: the ONNX models' are recorded in
+[`models/MANIFEST.json`](models/MANIFEST.json); for the MLX models pinned in `config.yaml`, see their
+Hugging Face model cards.

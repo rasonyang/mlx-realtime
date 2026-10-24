@@ -3,6 +3,8 @@ name = "mlx-realtime"
 version = "0.1.0"
 description = "A local OpenAI Realtime (GA) voice service on Apple Silicon"
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [
     { name = "rason yang", email = "rason.yang@gmail.com" }
 ]

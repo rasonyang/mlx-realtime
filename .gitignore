@@ -11,6 +11,20 @@ spikes/data/
 *.pcm
 *.wav
 
+# Build and test output
+dist/
+.coverage
+.coverage.*
+htmlcov/
+
+# Logs, local secrets and editor state
+*.log
+.env
+.env.*
+.idea/
+.vscode/
+.claude/settings.local.json
+
 .DS_Store
 
 # ITU-T G.168 echo-path coefficients (© ITU, all rights reserved): never commit
