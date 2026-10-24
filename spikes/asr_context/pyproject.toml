@@ -1,0 +1,17 @@
+[project]
+name = "spike-asr-context"
+version = "0.1.0"
+description = "ASR context biasing (issue #1): domain-term hit rate, CER and latency with and without a context string"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "mlx-realtime",
+    "pyyaml>=6.0.3",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
+package = false
+build-constraint-dependencies = ["setuptools==84.0.0"]
+
+[tool.uv.sources]
+mlx-realtime = { path = "../../", editable = true }
