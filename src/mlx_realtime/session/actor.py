@@ -16,7 +16,7 @@ from dataclasses import dataclass, field, replace
 from typing import Protocol
 
 from mlx_realtime import logs
-from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, ms_to_samples
+from mlx_realtime.audio.pcm import CANONICAL_RATE, SAMPLE_WIDTH, bytes_to_ms, ms_to_samples
 from mlx_realtime.config import (
     AecConfig,
     AudioReserveConfig,
@@ -25,6 +25,7 @@ from mlx_realtime.config import (
     LimitsConfig,
     SegmenterConfig,
     SilenceTrimConfig,
+    TranscriptionSessionConfig,
     TurnConfig,
 )
 from mlx_realtime.providers.base import (
@@ -37,6 +38,7 @@ from mlx_realtime.providers.base import (
     ToolCall,
     ToolChoice,
     ToolDef,
+    Transcript,
     TTSProvider,
 )
 from mlx_realtime.providers.voices import VoiceBook
@@ -100,12 +102,18 @@ from mlx_realtime.session.facts import (
 from mlx_realtime.session.feeder import VadFeeder
 from mlx_realtime.session.history import build_messages
 from mlx_realtime.session.inbox import Inbox
-from mlx_realtime.session.input_buffer import CommittedAudio, InputBuffer
+from mlx_realtime.session.input_buffer import CommittedAudio, InputBuffer, Rolling
 from mlx_realtime.session.observer import NULL_OBSERVER, SessionObserver, TurnReport
 from mlx_realtime.session.output import Delivery, OutputLedger
 from mlx_realtime.session.pipeline import PipelineContext, PipelineRequest, run_pipeline
 from mlx_realtime.session.response import Response, ResponseStatus, StatusDetails
-from mlx_realtime.session.settings import UNSET, ServerVad, SessionSettings
+from mlx_realtime.session.settings import (
+    UNSET,
+    ServerVad,
+    SessionSettings,
+    SessionType,
+    settings_for,
+)
 from mlx_realtime.session.signals import (
     LlmFinished,
     LlmText,
@@ -135,7 +143,7 @@ from mlx_realtime.session.turn import (
 )
 from mlx_realtime.text.normalize import NormalizerOptions
 from mlx_realtime.text.similarity import overlap, units
-from mlx_realtime.vad.base import SpeechDetector, TurnEndDetector
+from mlx_realtime.vad.base import FRAME_MS, FRAME_SAMPLES, SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
 logger = logging.getLogger(__name__)
@@ -187,6 +195,9 @@ class SessionDeps:
     first_segment_grace_s: float = 0.0  # TTS queue order: see PipelineContext (M6)
     observer: SessionObserver = NULL_OBSERVER  # metrics and the debug endpoint (M6)
     g711: G711Config = field(default_factory=G711Config)  # G.711 resampling, both ways (M7)
+    transcription: TranscriptionSessionConfig = field(  # transcription sessions' input buffer
+        default_factory=TranscriptionSessionConfig
+    )
 
 
 class SessionActor:
@@ -214,27 +225,9 @@ class SessionActor:
         self._emit = emit
         self._clock = deps.clock
         self._conversation = Conversation()
-        # D17: the client's modelled playout of our audio, for the cancellers' reference and
-        # the barge-in rules; the cancellers themselves when enabled (G7 dual path: AEC3 for
-        # detection, the ASR path's per aec.asr_input).
         self._echo: EchoReference | None = None
-        stage: EchoStage | None = None
-        if deps.echo is not None or deps.barge_in.active:
-            self._echo = EchoReference(
-                EchoParams.of(deps.aec, deps.barge_in), deps.clock, deps.g711.input_quality
-            )
-            ledger.listener = self._echo
-            if deps.echo is not None:
-                stage = EchoStage(
-                    deps.echo.engine(), self._echo, deps.echo.executor, deps.echo.asr_path()
-                )
-        self._input = InputBuffer(
-            deps.limits.input_audio_buffer_max_ms,
-            processed=stage is not None,
-            asr_input=deps.aec.asr_input,
-            input_format=settings.input_format,
-            g711_quality=deps.g711.input_quality,
-        )
+        self._input: InputBuffer
+        stage = self._attach_audio_path()
         # Audio the detector has not seen is never trimmed from the input buffer, so the
         # buffer's bound is the backlog's too: a client may send faster than real time.
         self._feeder = VadFeeder(
@@ -245,6 +238,10 @@ class SessionActor:
             echo=stage,
             clock=deps.clock,
         )
+        self._used = False  # audio, an item or a response has come: the session type is fixed
+        self._tail_id: str | None = None  # a transcription session's latest item
+        self._previous: dict[str, str | None] = {}  # its items in flight: their predecessors
+        self._speech_check = asyncio.Lock()  # one commit at a time on the session's Silero state
         self._barge_ins: set[str] = set()  # turns that interrupted a response
         self._detected: set[str] = set()  # turns the VAD found, until their transcript
         self._spoken: dict[str, AssistantMessage] = {}  # recent audio answers, for echo turns
@@ -280,6 +277,44 @@ class SessionActor:
             observer=deps.observer,
             g711_quality=deps.g711.output_quality,
         )
+
+    @property
+    def _transcribing(self) -> bool:
+        return self._settings.type == "transcription"
+
+    def _attach_audio_path(self) -> EchoStage | None:
+        """The session's input buffer and, in a realtime session, the echo path around it
+        (re-made when a session still without audio changes type). A transcription session has
+        neither echo nor detectors: its audio goes to the ASR as it arrived."""
+        deps, settings = self._deps, self._settings
+        # D17: the client's modelled playout of our audio, for the cancellers' reference and
+        # the barge-in rules; the cancellers themselves when enabled (G7 dual path: AEC3 for
+        # detection, the ASR path's per aec.asr_input).
+        self._echo = None
+        self._ledger.listener = None
+        stage: EchoStage | None = None
+        rolling: Rolling | None = None
+        if self._transcribing:
+            config = deps.transcription
+            rolling = Rolling(config.idle_keep_ms, config.voiced_rms)
+        elif deps.echo is not None or deps.barge_in.active:
+            self._echo = EchoReference(
+                EchoParams.of(deps.aec, deps.barge_in), deps.clock, deps.g711.input_quality
+            )
+            self._ledger.listener = self._echo
+            if deps.echo is not None:
+                stage = EchoStage(
+                    deps.echo.engine(), self._echo, deps.echo.executor, deps.echo.asr_path()
+                )
+        self._input = InputBuffer(
+            deps.limits.input_audio_buffer_max_ms,
+            processed=stage is not None,
+            asr_input=deps.aec.asr_input,
+            input_format=settings.input_format,
+            g711_quality=deps.g711.input_quality,
+            rolling=rolling,
+        )
+        return stage
 
     async def run(self) -> None:
         try:
@@ -339,6 +374,7 @@ class SessionActor:
             )
             self._reject("invalid_value", message, command.event_id, "audio")
             return
+        self._used = True
         self._input_arrived(*self._input.append(command.audio))
 
     def _input_arrived(self, start: int, canonical: bytes) -> None:
@@ -419,6 +455,9 @@ class SessionActor:
         self._inbox.put_signal(TurnVerdict(epoch, evaluation, probability))
 
     def _commit_buffer(self, event_id: str | None) -> None:
+        if self._transcribing:
+            self._commit_for_transcription()
+            return
         audio = self._input.commit()
         if audio is None:
             self._reject(
@@ -432,6 +471,31 @@ class SessionActor:
             self._ids.item(), audio, create_response=False, marks={"committed": self._now()}
         )
 
+    def _commit_for_transcription(self) -> None:
+        """One commit, one item and one transcript, whatever the buffer holds: an empty or
+        silent buffer gets an empty transcript at once (no ASR request), never an error."""
+        audio = self._input.commit(empty_ok=True)
+        if audio is None:
+            return
+        self._used = True
+        marks = {"committed": self._now()}
+        if audio.voiced:
+            self._commit(self._ids.item(), audio, create_response=False, marks=marks)
+            return
+        item_id = self._ids.item()
+        item = AudioMessage(
+            item_id,
+            audio.audio_ms,
+            show_transcript=True,
+            transcript="",
+            status="completed",
+            start_ms=audio.start_ms,
+            end_ms=audio.end_ms,
+        )
+        previous, self._tail_id = self._tail_id, item_id
+        self._emit(AudioCommitted(item, previous))
+        self._emit(TranscriptCompleted(item, previous))
+
     def _commit(
         self,
         item_id: str,
@@ -442,20 +506,26 @@ class SessionActor:
         detected: bool = False,
     ) -> None:
         """``detected``: a speech turn the VAD found (only those can be echo turns)."""
+        self._used = True
         transcription = self._settings.transcription
         item = AudioMessage(
             item_id,
             audio.audio_ms,
-            show_transcript=transcription is not None,
+            show_transcript=transcription is not None or self._transcribing,
             start_ms=audio.start_ms,
             end_ms=audio.end_ms,
         )
         if detected:
             self._detected.add(item_id)
         previous = self._last_item_id()
+        if self._transcribing:
+            self._previous[item_id] = previous
+            self._tail_id = item_id
         self._conversation.append(item)
         self._emit(AudioCommitted(item, previous))
         timeline = TurnTimeline(self._ids.turn(), item_id)
+        if self._transcribing:
+            timeline.note("session_type", "transcription")
         for name, at_s in marks.items():
             timeline.mark(name, at_s)
         self._timelines[item_id] = timeline
@@ -463,7 +533,15 @@ class SessionActor:
         # Both are read now: a later session.update never reaches a turn already committed.
         context = transcription.prompt if transcription is not None else None
         with logs.bound(turn=timeline.turn_id, item=item_id):
-            self._spawn(self._transcribe(item_id, audio.pcm, language, context))
+            self._spawn(
+                self._transcribe(
+                    item_id,
+                    audio.pcm,
+                    language,
+                    context,
+                    speech_check_from_ms=audio.start_ms if self._transcribing else None,
+                )
+            )
         if create_response and self._response is None:
             self._start_response(ResponseParams(), turn_item_id=item_id, voice=self._settings.voice)
 
@@ -479,9 +557,51 @@ class SessionActor:
             self._turns.reset()
         self._feeder.configure(self._vad_epoch, self._gate_params())
 
+    async def _has_speech(self, pcm: bytes, start_ms: int) -> bool:
+        """Whether Silero finds ``transcription.min_speech_ms`` of speech in a transcription
+        session's commit; stops at the first frame that makes it so. A detector that fails
+        counts as speech (the ASR decides)."""
+        config = self._deps.transcription
+        detector = self._deps.speech
+        frame_bytes = FRAME_SAMPLES * SAMPLE_WIDTH
+        found = 0
+        try:
+            async with self._speech_check:  # a later commit's reset() must not cut into this one
+                detector.reset()
+                for k in range(len(pcm) // frame_bytes):
+                    frame = pcm[k * frame_bytes : (k + 1) * frame_bytes]
+                    probability = await detector.speech_probability(
+                        frame, start_ms=start_ms + k * FRAME_MS, in_speech=False
+                    )
+                    if probability >= config.speech_threshold:
+                        found += FRAME_MS
+                        if found >= config.min_speech_ms:
+                            return True
+        except Exception:
+            logger.exception("speech check failed; the commit goes to the ASR")
+            return True
+        return False
+
     async def _transcribe(
-        self, item_id: str, pcm: bytes, language: str | None, context: str | None
+        self,
+        item_id: str,
+        pcm: bytes,
+        language: str | None,
+        context: str | None,
+        speech_check_from_ms: int | None = None,
     ) -> None:
+        if (
+            speech_check_from_ms is not None
+            and self._deps.transcription.min_speech_ms > 0
+            and not await self._has_speech(pcm, speech_check_from_ms)
+        ):
+            logger.info("no speech in the commit; no ASR request", extra={"item": item_id})
+            self._deps.observer.transcription_skipped()
+            skipped = Transcript(
+                text="", language=None, audio_ms=bytes_to_ms(len(pcm), CANONICAL_RATE)
+            )
+            self._inbox.put_signal(TranscriptReady(item_id, skipped))
+            return
         try:
             transcript = await self._deps.asr.transcribe(pcm, language=language, context=context)
         except ProviderError as error:
@@ -504,6 +624,7 @@ class SessionActor:
             self._barge_ins.discard(signal.item_id)
             return  # deleted while it was being transcribed
         item.transcript = signal.transcript.text
+        item.language = signal.transcript.language if self._transcribing else None
         item.status = "completed"
         logger.debug("transcript", extra={"item": item.id, "transcript": item.transcript})
         if detected and self._is_echo(item):
@@ -517,10 +638,22 @@ class SessionActor:
                 self._echo_counts["barge_ins_empty_or_echo"] += 1
                 self._deps.observer.barge_in_empty_or_echo()
                 logger.info("a barge-in turned out empty or echo", extra={"item": item.id})
-        self._emit(TranscriptCompleted(item, self._conversation.previous_id(item.id)))
+        self._emit(TranscriptCompleted(item, self._previous_id(item)))
+        self._finish_transcribed(item)
         self._log_timeline_unless_answered(item.id)
         if self._response is not None and self._response.awaiting_transcript:
             self._advance(self._response)
+
+    def _previous_id(self, item: AudioMessage) -> str | None:
+        if self._transcribing:
+            return self._previous.pop(item.id, None)
+        return self._conversation.previous_id(item.id)
+
+    def _finish_transcribed(self, item: AudioMessage) -> None:
+        """A transcription session keeps no item once its transcript is out: nothing reads the
+        conversation, so hours of utterances must not pile up in it."""
+        if self._transcribing:
+            self._conversation.remove(item.id)
 
     def _is_echo(self, item: AudioMessage) -> bool:
         """Echo-turn suppression (D17): the transcript closely matches assistant speech the
@@ -565,7 +698,8 @@ class SessionActor:
             extra={"item": item.id, "kind": signal.error.kind, "error": str(signal.error)},
         )
         error = _backend_error("asr", signal.error)
-        self._emit(TranscriptionFailed(item, self._conversation.previous_id(item.id), error))
+        self._emit(TranscriptionFailed(item, self._previous_id(item), error))
+        self._finish_transcribed(item)
         self._log_timeline_unless_answered(item.id)
         response = self._response
         if response is None or not response.awaiting_transcript:
@@ -625,6 +759,18 @@ class SessionActor:
 
     def _update_session(self, command: UpdateSession) -> None:
         patch = command.patch
+        previous = self._settings  # before a type switch: its turn detection must restart
+        if patch.type is not UNSET and patch.type != self._settings.type:
+            if self._used:
+                message = (
+                    "Cannot change the session type once the session has had input audio, "
+                    "items or responses."
+                )
+                self._reject("invalid_value", message, command.event_id, "session.type")
+                if patch.input_format is not UNSET:
+                    self._inbox.input_format_settled(self._settings.input_format)
+                return
+            self._switch_type(patch.type)
         if patch.voice is not UNSET:
             voice = self._effective_voice(patch.voice)
             if self._voice_locked and voice != self._settings.voice:
@@ -634,10 +780,9 @@ class SessionActor:
                     self._inbox.input_format_settled(self._settings.input_format)
                 return
             patch = replace(patch, voice=voice)
-        previous = self._settings
-        previous_vad = self._settings.turn_detection
+        previous_vad = previous.turn_detection
         self._settings = self._settings.apply(patch, self._defaults)
-        if (previous.instructions, previous.tools) != (
+        if not self._transcribing and (previous.instructions, previous.tools) != (
             self._settings.instructions,
             self._settings.tools,
         ):
@@ -653,6 +798,20 @@ class SessionActor:
             self._turns = self._new_turn_manager()
             self._restart_turn_detection()
         self._emit(SessionUpdated(self._session_id, self._settings))
+
+    def _switch_type(self, session_type: SessionType) -> None:
+        """A session that has had no audio, items or responses becomes the other type: the new
+        type's defaults, except the input format and the transcription settings, which both
+        types have. Its audio path is made again; the turn detection follows in the caller."""
+        current = self._settings
+        self._settings = replace(
+            settings_for(self._defaults, session_type, current.model),
+            input_format=current.input_format,
+            transcription=current.transcription,
+        )
+        stage = self._attach_audio_path()  # re-makes self._echo: read it after
+        self._feeder.attach(self._echo, stage)
+        logger.info("session type changed", extra={"type": session_type})
 
     def _warm_prefix(self) -> None:
         """The instructions or tools changed (M0 S2): put the next LLM request's prefix in the
@@ -674,6 +833,8 @@ class SessionActor:
         self._warmup = self._spawn(warm)
 
     def _create_item(self, command: CreateItem) -> None:
+        if self._not_in_transcription("conversation.item.create", command.event_id):
+            return
         spec = command.item
         if spec.id is not None and spec.id in self._conversation:
             self._reject(
@@ -702,9 +863,12 @@ class SessionActor:
         else:
             self._conversation.insert_after(item, after)
             previous = None if after == ROOT else after
+        self._used = True
         self._emit(ItemCreated(item, previous))
 
     def _truncate(self, command: TruncateItem) -> None:
+        if self._not_in_transcription("conversation.item.truncate", command.event_id):
+            return
         item = self._conversation.get(command.item_id)
         if item is None:
             self._item_not_found(command.item_id, command.event_id)
@@ -730,6 +894,8 @@ class SessionActor:
         self._emit(ItemTruncated(item.id, audio_end_ms))
 
     def _delete(self, command: DeleteItem) -> None:
+        if self._not_in_transcription("conversation.item.delete", command.event_id):
+            return
         if self._conversation.remove(command.item_id) is None:
             self._item_not_found(command.item_id, command.event_id)
             return
@@ -740,6 +906,8 @@ class SessionActor:
     # Responses
 
     def _create_response(self, command: CreateResponse) -> None:
+        if self._not_in_transcription("response.create", command.event_id):
+            return
         active = self._response
         if active is not None:
             message = (
@@ -760,6 +928,8 @@ class SessionActor:
         self._start_response(command.params, turn_item_id=turn_item_id, voice=voice)
 
     def _cancel_response(self, command: CancelResponse) -> None:
+        if self._not_in_transcription("response.cancel", command.event_id):
+            return
         response = self._response
         if response is None or command.response_id not in (None, response.id):
             param = None if command.response_id is None else "response_id"
@@ -772,6 +942,7 @@ class SessionActor:
         self, params: ResponseParams, *, turn_item_id: str | None, voice: str
     ) -> None:
         settings = self._settings
+        self._used = True
         self._generation += 1
         modality = params.output_modality or settings.output_modality
         verbatim = self._verbatim_line(params.instructions)
@@ -1062,6 +1233,8 @@ class SessionActor:
         return voice
 
     def _last_item_id(self) -> str | None:
+        if self._transcribing:
+            return self._tail_id
         last = self._conversation.last()
         return None if last is None else last.id
 
@@ -1069,6 +1242,17 @@ class SessionActor:
         self, code: str, message: str, event_id: str | None, param: str | None = None
     ) -> None:
         self._emit(ErrorRaised(ErrorInfo("invalid_request_error", code, message, param, event_id)))
+
+    def _not_in_transcription(self, event_type: str, event_id: str | None) -> bool:
+        """Reject a realtime-only event in a transcription session; the session stays open."""
+        if not self._transcribing:
+            return False
+        message = (
+            f"'{event_type}' is not supported in a transcription session: it runs no model "
+            "and creates no response."
+        )
+        self._reject("invalid_event", message, event_id, "type")
+        return True
 
     def _item_not_found(self, item_id: str, event_id: str | None) -> None:
         message = f"Item with item_id '{item_id}' not found."

@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
@@ -25,6 +25,7 @@ from mlx_realtime.session.errors import ErrorInfo, SessionFatal, first_leaf
 from mlx_realtime.session.facts import Fact, OutputAudioDelta, OutputTranscriptDelta
 from mlx_realtime.session.inbox import Inbox
 from mlx_realtime.session.output import OutputLedger
+from mlx_realtime.session.settings import SessionType, settings_for
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +51,23 @@ class _Close:
 
 
 class Connection:
-    def __init__(self, websocket: WebSocket, gateway: Gateway, *, model: str | None) -> None:
+    def __init__(
+        self,
+        websocket: WebSocket,
+        gateway: Gateway,
+        *,
+        model: str | None,
+        session_type: SessionType = "realtime",
+    ) -> None:
         config = gateway.config
         self._ws = websocket
         self._session_id = gateway.ids.session()
         self._write_timeout_s = config.limits.client_write_timeout_ms / 1000
         self._max_duration_s = config.gateway.max_session_s
-        settings = gateway.defaults if model is None else replace(gateway.defaults, model=model)
+        settings = settings_for(
+            gateway.defaults, session_type, gateway.defaults.model if model is None else model
+        )
+        self._session_type = session_type
         self._inbox = Inbox(
             max_audio_ms=config.limits.inbox_max_ms,
             max_commands=config.limits.inbox_max_commands,
@@ -87,7 +98,7 @@ class Connection:
 
     async def run(self) -> None:
         with logs.bound(session=self._session_id):
-            logger.info("session started")
+            logger.info("session started", extra={"type": self._session_type})
             close = await self._serve()
             await self._close(close)
             logger.info("session closed", extra={"code": close.code, "reason": close.reason})

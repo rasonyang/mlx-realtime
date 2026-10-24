@@ -16,7 +16,12 @@ from typing import Any, get_args
 
 import numpy as np
 from openai import BaseModel as SDKModel
-from openai.types.realtime import RealtimeServerEvent, RealtimeSessionCreateRequest
+from openai.types.realtime import (
+    ConversationItemInputAudioTranscriptionCompletedEvent,
+    RealtimeServerEvent,
+    RealtimeSessionCreateRequest,
+    RealtimeTranscriptionSessionCreateRequest,
+)
 from websockets.asyncio.client import ClientConnection, connect
 
 from mlx_realtime.audio import g711
@@ -45,7 +50,7 @@ _SDK_EVENTS: dict[str, type[SDKModel]] = {
 def sdk_parse(event: Event) -> SDKModel:
     """Validate a server event with the SDK's own model for its type: every required field must
     be present and typed right, and no field may be unknown to the SDK (the session's ``id`` and
-    ``object`` excepted, which the SDK reads as extras)."""
+    ``object`` excepted, which the SDK reads as extras; a transcript's ``language`` too)."""
     model = _SDK_EVENTS[event["type"]].model_validate(event)
     unknown = list(_unknown_fields(model, event["type"]))
     assert not unknown, f"fields unknown to the SDK: {unknown}"
@@ -53,7 +58,11 @@ def sdk_parse(event: Event) -> SDKModel:
 
 
 def _unknown_fields(model: SDKModel, path: str) -> list[str]:
-    allowed = {"id", "object"} if isinstance(model, RealtimeSessionCreateRequest) else set[str]()
+    allowed = set[str]()
+    if isinstance(model, RealtimeSessionCreateRequest | RealtimeTranscriptionSessionCreateRequest):
+        allowed = {"id", "object"}
+    elif isinstance(model, ConversationItemInputAudioTranscriptionCompletedEvent):
+        allowed = {"language"}  # what AICC reads; GA's own `languages` is there too
     found = [f"{path}.{key}" for key in model.model_extra or {} if key not in allowed]
     for name in type(model).model_fields:
         value = getattr(model, name)
@@ -114,6 +123,9 @@ ECHO_OFF: dict[str, dict[str, object]] = {
         "min_speech_ms_while_playing": None,
         "echo_turn_suppression": False,
     },
+    # Tests send tones the scripted detector knows nothing about: no speech check, unless a test
+    # asks for it (test_transcription_session.py).
+    "transcription": {"min_speech_ms": 0},
 }
 """The echo canceller and the barge-in rules off: scripted detectors and audio sent faster
 than real time leave no client playout to model (the M4 echo tests turn them on)."""
@@ -194,9 +206,11 @@ class Client:
         *,
         model: str | None = "test-model",
         headers: Mapping[str, str] | None = None,
+        intent: str | None = None,
     ) -> AsyncIterator[Client]:
-        query = "" if model is None else f"?model={model}"
-        url = f"ws://{address}/v1/realtime{query}"
+        params = {"model": model, "intent": intent}
+        query = "&".join(f"{key}={value}" for key, value in params.items() if value is not None)
+        url = f"ws://{address}/v1/realtime{'?' + query if query else ''}"
         async with connect(url, additional_headers=headers, max_size=None, proxy=None) as ws:
             yield cls(ws)
 

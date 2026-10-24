@@ -25,6 +25,10 @@ class SpeechDetector(Protocol):
         """
         ...
 
+    def reset(self) -> None:
+        """Forget the audio heard so far (a new, unrelated stretch of audio follows)."""
+        ...
+
 
 class TurnEndDetector(Protocol):
     """Probability that the speaker has finished their turn."""

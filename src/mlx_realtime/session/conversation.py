@@ -45,6 +45,7 @@ class AudioMessage:
     start_ms: int = 0  # where the committed audio lies on the input timeline
     end_ms: int = 0
     echo: bool = False  # the transcript was our own speech coming back (D17): not a turn
+    language: str | None = None  # transcription sessions: the language the ASR reported
 
     @property
     def transcript_pending(self) -> bool:

@@ -35,6 +35,9 @@ class SileroDetector:
         call = partial(self.stream.probability, frame, in_speech=in_speech)
         return await asyncio.get_running_loop().run_in_executor(self._executor, call)
 
+    def reset(self) -> None:
+        self.stream.reset_states()
+
 
 class _WorkerModel(threading.local):
     model: SmartTurnModel | None = None

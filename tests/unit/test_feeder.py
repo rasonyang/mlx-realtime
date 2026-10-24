@@ -40,6 +40,9 @@ class Recorder:
         self.busy -= 1
         return self._script.probability_at(start_ms)
 
+    def reset(self) -> None:
+        return None
+
 
 @asynccontextmanager
 async def feeding(

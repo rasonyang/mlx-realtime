@@ -27,7 +27,13 @@ async def fake() -> AsyncIterator[tuple[FakeMlxAudio, str]]:
         yield server, url
 
 
-def provider(base_url: str, *, context: str | None = None, **timeouts: int) -> MlxAudioASR:
+def provider(
+    base_url: str,
+    *,
+    context: str | None = None,
+    token_cap: dict[str, float] | None = None,
+    **timeouts: int,
+) -> MlxAudioASR:
     values = {"connect_ms": 500, "first_item_ms": 2000, "idle_ms": 1000, "total_ms": 5000}
     config = MlxAudioAsrConfig.model_validate(
         {
@@ -35,6 +41,7 @@ def provider(base_url: str, *, context: str | None = None, **timeouts: int) -> M
             "base_url": base_url,
             "timeouts": values | timeouts,
             "context": context,
+            "token_cap": token_cap,
         }
     )
     return MlxAudioASR(config)
@@ -261,3 +268,32 @@ def free_port() -> int:
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         return probe.getsockname()[1]
+
+
+async def test_max_tokens_follows_the_audio_when_a_token_cap_is_configured(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    asr = provider(url, token_cap={"base": 16, "per_s": 10})
+    await asr.transcribe(SPEECH)  # 1 s
+    await asr.transcribe(SPEECH * 3)  # 3 s
+    await asr.transcribe(SPEECH[: 16000 // 2 * 2])  # 0.5 s
+    await asr.warmup()  # its 1 s tone: capped like any request
+    await asr.aclose()
+    assert [upload.fields["max_tokens"] for upload in server.uploads] == ["26", "46", "21", "26"]
+
+
+async def test_the_default_token_cap_is_on_and_null_disables_it(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    on = MlxAudioASR(
+        MlxAudioAsrConfig.model_validate({"type": "mlx_audio_transcription", "base_url": url})
+    )
+    await on.transcribe(SPEECH * 60)  # 60 s: 16 + 600
+    await on.aclose()
+    off = provider(url, token_cap=None)
+    await off.transcribe(SPEECH)
+    await off.aclose()
+    assert server.uploads[0].fields["max_tokens"] == "616"
+    assert "max_tokens" not in server.uploads[1].fields

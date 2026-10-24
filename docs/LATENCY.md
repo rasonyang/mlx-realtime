@@ -151,7 +151,7 @@ every segment, which the trimmer drops; `tts_first_chunk` without a queue is 75�
 
 ### 3.3 Two and three sessions
 
-Three sessions is the capacity target (`gateway.max_sessions` 3). Every session talks without a
+Three sessions was the capacity target when this was measured (`gateway.max_sessions` is 4 since 2026-10-24, for transcription sessions, which are not in these tables). Every session talks without a
 pause (an utterance, the answer played out, 300 ms, the next utterance), which is busier than a
 call.
 
@@ -273,6 +273,28 @@ TTS costs the LLM 12 % of its decode rate. A long prefill is another matter: whi
 prefilled ~16k tokens (22.8 s), the TTS ran at half real time, so any session speaking then would
 starve. AICC's prompts are ~1.6k tokens (a cold prefill ≈ 1.5 s); M0's suggested
 `--prefill-step-size` was not tried.
+
+### 3.8 Transcription sessions beside bot calls (issue #2)
+
+Real time, `spikes/transcription` (tables, corpus and commands in `docs/PROGRESS.md`): a transcription
+session is the client's commit to the `completed` event, with AICC's pump endpointing (600 ms below RMS
+500) on G.711 tap audio.
+
+| sessions open | commits | commit → `completed` ms, P50 / P95 |
+|---|---|---|
+| 1 transcription | 58 | 250 / 342 |
+| 2 transcription (the two legs of a call) | 109 | 226 / 332 |
+| 2 transcription + 2 bot sessions speaking | 109 | 221 / 321 |
+| same, calls with hold music and DTMF (after the speech check and the token cap): 1 / 2 / 2 + 2 bots | 56 / 116 / 116 | 251 / 347; 212 / 327; 211 / 335 |
+
+ASR time is about 25 ms per second of audio (2 s: 117 ms, 12 s: 347 ms, 45 s: 1.2 s), alone or beside three
+streaming sessions. The bot sessions do not regress with two busy transcription sessions beside them (first
+audio of the answers to spoken turns P50 / P95 638 / 1306 ms alone, 606 / 1273 ms beside them; the
+announce 188 / 1885 and 182 / 840 ms; `asr_done` P50 / P95 167 / 260 and 170 / 275 ms). With hold music (41 s and
+69 s commits) and DTMF in the transcription legs, and the Silero speech check and the ASR token cap on, the bots'
+answers are 698 / 1704 ms alone and 669 / 1573 ms beside the two sessions, `asr_done` 167 / 275 and 171 / 273 ms; the
+music and DTMF commits are answered empty in 11–273 ms. Without the check and the cap a non-speech commit held the
+single ASR stream for 30–61 s (`PROGRESS.md`, findings and mitigations).
 
 ## 4. Budget and targets (G4)
 

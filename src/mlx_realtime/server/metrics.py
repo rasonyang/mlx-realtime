@@ -180,6 +180,11 @@ class Metrics:
             "Turns suppressed as the echo of our own speech (D17).",
             registry=registry,
         )
+        self._transcription_skipped = Counter(
+            "mlxrt_transcription_skipped",
+            "Transcription-session commits answered empty with no ASR request: no speech in them.",
+            registry=registry,
+        )
         self._provider_errors = Counter(
             "mlxrt_provider_errors",
             "Provider errors, by backend and kind (absorbed TTS primary failures included).",
@@ -225,6 +230,9 @@ class Metrics:
 
     def echo_turn(self) -> None:
         self._echo_turns.inc()
+
+    def transcription_skipped(self) -> None:
+        self._transcription_skipped.inc()
 
     def provider_error(self, backend: str, kind: str) -> None:
         self._provider_errors.labels(backend, kind).inc()

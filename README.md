@@ -44,8 +44,8 @@ stream. Details and the remaining risks: [`docs/LATENCY.md`](docs/LATENCY.md).
   vendored SpeexDSP echo canceller in `vendor/speexdsp-aec` (BSD sources from the release tarball,
   checked against their sha256) into a Python extension; at run time it needs nothing outside the
   lockfile.
-- The service is sized for development and testing: at most 3 concurrent calls
-  (`gateway.max_sessions`).
+- The service is sized for development and testing: at most 4 concurrent sessions
+  (`gateway.max_sessions`): bot calls, and the two transcription sessions of a human call.
 
 ## Run
 

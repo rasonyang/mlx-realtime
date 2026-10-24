@@ -163,6 +163,7 @@ class Gateway:
             first_segment_grace_s=_first_segment_grace_s(config),
             observer=self.metrics,
             g711=config.g711,
+            transcription=config.transcription,
         )
 
     async def aclose(self) -> None:

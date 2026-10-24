@@ -9,7 +9,10 @@
 gateway:
   host: 127.0.0.1
   port: 8000
-  max_sessions: 3          # the Mac's capacity target (owner, 2026-10-23): at most 3 concurrent calls
+  # The Mac's capacity target (owner): 3 concurrent calls (2026-10-23), raised to 4 sessions on
+  # 2026-10-24 for AICC's human-call transcription (issue #2): each human call opens two
+  # transcription sessions (one per leg), which run no LLM and no TTS but share the ASR queue.
+  max_sessions: 4
   api_key: ""              # empty: no authentication
   max_session_s: 3600
 
@@ -129,6 +132,22 @@ barge_in:
   echo_match_min_units: 4
   echo_match_window_ms: 3000
 
+# Transcription sessions (session.type "transcription", issue #2): no VAD, no echo cancellation,
+# no LLM, no TTS. The client sends audio continuously and commits after each utterance. While no
+# 20 ms frame has an RMS of voiced_rms, the buffer keeps only the last idle_keep_ms (a 90 s hold
+# holds ~1 s); a commit with nothing voiced is answered empty without asking the ASR. Speech
+# longer than limits.input_audio_buffer_max_ms loses its oldest audio, logged; the session lives.
+# voiced_rms 400 (spikes/transcription, docs/PROGRESS.md): AICC commits only after a frame of RMS 500,
+# so every utterance it ends is voiced; line noise of RMS 80-200 on the G.711 tap was voiced at 100,
+# kept up to 58 s of noise in front of an utterance, and Qwen3-ASR answered it with the prompt's terms.
+# min_speech_ms 224, speech_threshold 0.5: a voiced commit goes to the ASR only if Silero finds 224 ms
+# (7 frames) of speech in it, else it is answered with an empty transcript and no ASR request
+# (mlxrt_transcription_skipped). AICC's pump commits hold music and DTMF (RMS above 500); Qwen3-ASR
+# answers them with the prompt or runs on. spikes/transcription: all 16 such commits of the corpus
+# have at most 192 ms of speech; 40 of 1908 real commits (2.1 %, mostly one-word answers) are skipped.
+# 0 disables.
+transcription: {idle_keep_ms: 1000, voiced_rms: 400, min_speech_ms: 224, speech_threshold: 0.5}
+
 text:
   segmenter: {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
   # TTS input only; transcripts keep the original text. G5 (M0 S9): only what Qwen3-TTS misreads
@@ -165,7 +184,7 @@ providers:
     tool_interlude: merge
     unanswered_calls: pending
     pending_tool_output: '{"status": "pending", "note": "The result has not arrived yet."}'
-    max_in_flight: 4             # 3 calls (gateway.max_sessions), one response each, plus a warm-up
+    max_in_flight: 5             # 4 sessions (gateway.max_sessions), one response each, plus a warm-up
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000,
                warmup_ms: 600000}
@@ -173,13 +192,20 @@ providers:
     type: mlx_audio_transcription
     base_url: http://127.0.0.1:8102
     model: mlx-community/Qwen3-ASR-1.7B-8bit
-    max_in_flight: 3             # one turn per call
+    max_in_flight: 4             # one turn per session (gateway.max_sessions), transcription sessions too
     # Words to expect (brand and product names, at most 1024 characters), sent as the ASR context
     # of every turn whose session sets no transcription.prompt; a session prompt replaces it.
     # Unset: turns carry no context. Example: "NovaNet, Wi-Fi 7, eSIM, 5G 畅享 199". Name terms,
     # not example codes (the ASR copies them into transcripts); ~300 characters cost ~60 ms a
     # turn at one call (spikes/asr_context).
     # context: ...
+    # max_tokens per request = base + per_s x seconds of audio sent (every request, realtime and
+    # transcription sessions alike). spikes/transcription: the densest corpus utterance needs 5.1
+    # tokens per second of speech (3.6 with the pump's silence), so 16 + 10 x s leaves 2.6x. Without
+    # it Qwen3-ASR ran to 8192 tokens on hold music and DTMF (30-60 s of the one ASR stream, which
+    # does not stop when the gateway gives up): a 3 s DTMF burst now ends after 46 tokens, a 60 s
+    # hold after 616. null: no cap.
+    token_cap: {base: 16, per_s: 10}
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 2000, total_ms: 10000,
                warmup_ms: 300000}

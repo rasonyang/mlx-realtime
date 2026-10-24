@@ -13,7 +13,8 @@
 > (§1), and the multi-session TTS mitigations, which change only when audio deltas are sent (§11.8).
 > M7 added G.711: `audio/pcmu` and `audio/pcma` at 8 kHz, in either direction or both (§3, §11.15).
 > After M7 (G7 dual path, D13, capacity): the ASR transcribes a linear echo canceller's output
-> (§11.13), the TTS fallback is Qwen3-TTS's 4-bit build, and at most 3 sessions run at once.
+> (§11.13) and the TTS fallback is Qwen3-TTS's 4-bit build. Issue #2 (2026-10-24) added
+> transcription sessions (`session.type: "transcription"`, §3.1) and raised the limit to 4 sessions.
 
 **Sources.** The protocol source of truth is **openai-python 3.36.1**: the types in
 `openai/types/realtime/` name every event and field below (SDK type names are given in `code`). Where
@@ -43,12 +44,13 @@ Contents: [1 Transport](#1-transport) · [2 Client events](#2-client-events) ·
 |---|---|
 | Endpoint | `GET /v1/realtime`, upgraded to WebSocket. The SDK derives it from `base_url="http://<host>:<port>/v1"`. |
 | Auth | `Authorization: Bearer <gateway.api_key>`. With an empty key, auth is off. A missing or wrong key gets HTTP 401 before the upgrade. |
-| `?model=` | Echoed as `session.model`; never used for routing. Without it, `session_defaults.model` is echoed. |
+| `?model=` | Echoed as `session.model`; never used for routing. Without it, `session_defaults.model` is echoed. A transcription session has no `model` to echo. |
+| `?intent=` | `transcription` makes the session a transcription session from `session.created` on (§3.1). Any other value is ignored. |
 | `OpenAI-Beta` header | Ignored: only the GA shape is served. |
 | Frames | One JSON object per text frame. A binary frame or invalid JSON draws an `error` (`invalid_event`); the session stays open. |
 | Frame size | At most `limits.client_max_message_bytes` (16 MiB; GA allows 15 MiB of base64 per append). A larger frame closes the connection with 1009. |
 | First events | `session.created`, then `conversation.created`, before any client event is processed. |
-| Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions` (3, the Mac's capacity target): `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
+| Admission | Before the first successful readiness: `error` `not_ready`, close 1013. Over `gateway.max_sessions` (4, the Mac's capacity target; realtime and transcription sessions count alike): `error` `session_limit_reached`, close 1013. Both after the upgrade, as the SDK expects. |
 | `/healthz` | 200 while the event loop answers. No backend calls. |
 | `/readyz` | 200 once every backend has been warmed and reports ready, else 503; per-backend detail in the body: `llm`, `asr`, `tts`, and `vad` (the CPU detectors) when Silero runs. |
 | `/metrics` | Prometheus text format (0.0.4), always served and unauthenticated (ARCHITECTURE §9). Backend readiness is probed at each scrape. No label carries an id. |
@@ -74,22 +76,22 @@ causes echoes it in `error.event_id`.
 |---|---|---|---|
 | `session.update` | `SessionUpdateEvent` | **Supported** | Validated as a whole (§3), then merged field by field; answered by `session.updated` with the full effective session. A rejected update changes nothing. |
 | `input_audio_buffer.append` | `InputAudioBufferAppendEvent` | **Supported** | `audio`: base64 of the session's input format: `audio/pcm` 24 kHz mono s16le, whole samples (an odd byte count is `invalid_value`, `param: "audio"`), or G.711 at 8 kHz, one byte a sample (any byte count; AICC sends 160 bytes every 20 ms). No confirmation event. Never dropped: an inbox over `limits.inbox_max_ms` of queued audio (counted in the input format's duration) is fatal. |
-| `input_audio_buffer.commit` | `InputAudioBufferCommitEvent` | **Supported** | Commits the whole buffer, the resampler's tail included → `input_audio_buffer.committed`, `conversation.item.added`. Creates no response. Allowed in `server_vad` mode too (a speech turn in progress ends without `speech_stopped`). An empty buffer: `invalid_event`. |
+| `input_audio_buffer.commit` | `InputAudioBufferCommitEvent` | **Supported** | Commits the whole buffer, the resampler's tail included → `input_audio_buffer.committed`, `conversation.item.added`. Creates no response. Allowed in `server_vad` mode too (a speech turn in progress ends without `speech_stopped`). An empty buffer: `invalid_event`. In a transcription session an empty or silent buffer is never an error (§3.1). |
 | `input_audio_buffer.clear` | `InputAudioBufferClearEvent` | **Supported** | → `input_audio_buffer.cleared`; a speech turn in progress is dropped. |
-| `conversation.item.create` | `ConversationItemCreateEvent` | **Partial** | Messages and `function_call_output` (§5); `previous_item_id` absent (append), `"root"` (first) or an existing id. → `conversation.item.added`, `conversation.item.done`. Client-created `function_call` items: Unsupported. |
+| `conversation.item.create` | `ConversationItemCreateEvent` | **Partial** | Not in a transcription session (§3.1). Messages and `function_call_output` (§5); `previous_item_id` absent (append), `"root"` (first) or an existing id. → `conversation.item.added`, `conversation.item.done`. Client-created `function_call` items: Unsupported. |
 | `conversation.item.truncate` | `ConversationItemTruncateEvent` | **Supported** | Assistant messages with audio, `content_index: 0`, in progress or completed (AICC truncates after `response.done`). An `audio_end_ms` beyond the audio sent is clamped to it with a warning in the log, never an error (D18). → `conversation.item.truncated` (§11.3). |
 | `conversation.item.delete` | `ConversationItemDeleteEvent` | **Supported** | Any item, including one a response is still producing (§11.4). → `conversation.item.deleted`. Unknown id: `item_not_found`, `param: "item_id"` (D18). |
 | `conversation.item.retrieve` | `ConversationItemRetrieveEvent` | **Unsupported** | `invalid_event`, `param: "type"`: user audio is not retained in the wire format, and an item without its audio would silently diverge from GA. |
-| `response.create` | `ResponseCreateEvent` | **Partial** | §4. While a response is active: `conversation_already_has_active_response` (not queued). `response.created` is immediate (D7). |
+| `response.create` | `ResponseCreateEvent` | **Partial** | Not in a transcription session (§3.1). §4. While a response is active: `conversation_already_has_active_response` (not queued). `response.created` is immediate (D7). |
 | `response.cancel` | `ResponseCancelEvent` | **Supported** | With or without `response_id`. Nothing active, or another id: `response_cancel_not_active` (D18). → the terminal events, `response.done{cancelled, client_cancelled}`. |
-| `output_audio_buffer.clear` | `OutputAudioBufferClearEvent` | **Never** | WebRTC/SIP only. `invalid_event`, `param: "type"`; over WebSocket, send `response.cancel`. |
-| `transcription_session.update` | — | **Unsupported** | Transcription sessions are not served: `invalid_event`, `param: "type"`. |
+| `output_audio_buffer.clear` | `OutputAudioBufferClearEvent` | **Never** | WebRTC/SIP only. `invalid_event`, `param: "type"`; over WebSocket, send `response.cancel` (in a realtime session). |
+| `transcription_session.update` | — | **Never** | The beta event. `invalid_event`, `param: "type"`: send `session.update` with `session.type: "transcription"` (§3.1). |
 | any other `type` | — | — | `invalid_value`, `param: "type"` (as GA's `scooby.dooby.doo` example). A missing `type`: `invalid_event`. |
 
 ## 3. Session object
 
-`session.update.session` is a `RealtimeSessionCreateRequest` (the `RealtimeTranscriptionSessionCreateRequest`
-alternative is rejected). `session.created` and `session.updated` echo the full effective session in
+`session.update.session` is a `RealtimeSessionCreateRequest`, or a `RealtimeTranscriptionSessionCreateRequest`
+when `type` is `"transcription"` (§3.1; the table below is the realtime session's). `session.created` and `session.updated` echo the full effective session in
 the same shape, plus `id` (`sess_…`) and `object: "realtime.session"`, which the SDK reads as extra
 fields. `config.yaml`'s `session_defaults` uses this shape and the same validation.
 
@@ -99,7 +101,7 @@ the configured session defaults, so its absent fields take their configured valu
 
 | Field (SDK type) | Status | Accepted | Echo | Rejection `param` |
 |---|---|---|---|---|
-| `type` | **Supported** | `"realtime"`, required in `session.update` | `"realtime"` | `session.type` (`"transcription"` included) |
+| `type` | **Supported** | `"realtime"` or `"transcription"`, required in `session.update`; a change of type only before any input audio, item or response (§3.1) | `"realtime"` or `"transcription"` | `session.type` |
 | `model` | **Supported** | any string; echoed only | last value set, else `?model=`, else the default | `session.model` |
 | `instructions` | **Supported** | any string (`""` clears) | effective | `session.instructions` |
 | `output_modalities` | **Supported** | `["audio"]` or `["text"]` (D12) | effective | `session.output_modalities` |
@@ -124,6 +126,80 @@ the configured session defaults, so its absent fields take their configured valu
 
 `expires_at`, present in GA's `session.created` example, is not emitted: sessions are capped by
 `gateway.max_session_s` but no expiry is advertised.
+
+### 3.1 Transcription sessions
+
+A transcription session turns audio into transcripts and nothing else (issue #2; AICC's human-call
+transcription, one session per leg). It runs no LLM, no TTS, no Silero or Smart Turn and no echo
+canceller: the audio goes to the ASR as it arrived, after the format conversion of §11.15. The
+client owns endpointing: it appends audio continuously, silence included, and commits after each
+utterance.
+
+**Selecting the type.** `?intent=transcription` on the handshake makes the session a transcription
+session from `session.created` on. Otherwise a `session.update` with `session.type: "transcription"`
+(or `"realtime"`) changes the type, while the session has had no input audio, no item and no
+response; the new type starts from its own defaults, and only the input format and the
+transcription settings carry over. After that, a type change is `invalid_value`, `param:
+"session.type"`, and the session stays as it was. An update of the type the session already has is
+an ordinary update.
+
+**The session object** is `RealtimeTranscriptionSessionCreateRequest` in `session.update`, and in
+`session.created` and `session.updated` it is echoed as `{type: "transcription", object:
+"realtime.transcription_session", id, include: null, audio: {input: {format, transcription,
+noise_reduction: null, turn_detection: null}}}`. Nothing else is rendered: no `model`,
+`instructions`, `voice`, `output`, `tools`.
+
+| Field | Behaviour | Rejection `param` |
+|---|---|---|
+| `audio.input.format` | as in realtime sessions (§3): `audio/pcm` at 24 kHz, or G.711 at 8 kHz | `session.audio.input.format.type` / `.rate` |
+| `audio.input.transcription` | as in realtime sessions: `model` is echoed and never judged (an unknown model is accepted, because the ASR is `providers.asr.model`; DECISIONS 2026-10-24), `language`, `prompt` (the same context path as D15's: the prompt in force at commit is the turn's). On by default; `null` still transcribes, with no language or prompt | `session.audio.input.transcription.<key>` |
+| `audio.input.turn_detection` | `null` only, and `null` is the default (a realtime session defaults to `server_vad`). `server_vad` and `semantic_vad` are `invalid_value` | `session.audio.input.turn_detection` |
+| `audio.input.noise_reduction` | `null` only | `session.audio.input.noise_reduction` |
+| `include` | `null` or `[]` | `session.include` |
+| `audio.output`, `model`, `instructions`, `output_modalities`, `tools`, `tool_choice`, `max_output_tokens`, `truncation`, `tracing`, `prompt` | not part of the object: rejected | `session.<field>` |
+
+**Events a transcription session does not take.** `response.create`, `response.cancel`,
+`conversation.item.create`, `.truncate` and `.delete` get an `error` (`invalid_request_error`,
+`invalid_event`, `param: "type"`) whose message names the event; `output_audio_buffer.clear` is
+refused everywhere (§2). The session stays open. `input_audio_buffer.append`, `.commit` and `.clear`
+and `session.update` work as in realtime sessions.
+
+**One commit, one transcript.** Each `input_audio_buffer.commit` → `input_audio_buffer.committed`,
+`conversation.item.added`, then `conversation.item.input_audio_transcription.completed` (`item_id`,
+`transcript`, `usage`, and `language` plus GA's `languages: [{code}]` when the ASR reported one) and
+`conversation.item.done`. `previous_item_id` chains the items. No `.delta` events are sent: the
+final transcript is the only one (AICC's final replaces any accumulated deltas). A failed
+transcription is `…transcription.failed` for that item, as in realtime sessions. Items of
+different commits finish in the order the ASR answers; an empty commit, which needs no ASR, may
+overtake a transcript still being made. Items are not kept after their transcript is out, so a session
+of hours holds no audio and no history (a realtime session keeps its items as the LLM's context).
+
+**An empty or silent commit is never an error** (GA answers an empty buffer with
+`input_audio_buffer_commit_empty`, and realtime sessions here with `invalid_event`). The client
+cannot always know: AICC commits after speech, and a leg can go quiet before the commit lands.
+The commit gets the same events with `transcript: ""` and no ASR request. "Silent" means no 20 ms
+frame with an RMS of `transcription.voiced_rms` (400, on 16-bit samples) in the buffer, or, in a
+buffer that has one, less than `transcription.min_speech_ms` (224) of speech by Silero
+(`transcription.speech_threshold` 0.5): hold music and DTMF are loud, AICC's pump commits them, and
+the ASR would answer with its prompt or run to its token limit. Such a commit is answered
+`transcript: ""` too, and counted in `mlxrt_transcription_skipped`. `min_speech_ms: 0` turns the
+check off. A second commit straight after a first is such an empty commit.
+
+**Silence costs nothing.** While no frame in the buffer is voiced, it keeps only the last
+`transcription.idle_keep_ms` (1 s), so a 90 s hold is 1 s of memory and the next utterance reaches
+the ASR with at most that much silence in front of it (AICC commits after speech only, so a silent hold
+is never committed on its own; hold music is above AICC's RMS 500 and is committed when it ends: it reaches the ASR as
+"speech", `docs/PROGRESS.md`). Speech longer than `limits.input_audio_buffer_max_ms` (60 s)
+without a commit loses its oldest audio, with a warning in the log; the session
+lives, where a realtime session ends with `input_audio_buffer_overflow` (§9). The other limits
+apply as before: `limits.inbox_max_ms` bounds audio queued faster than the actor reads it, not
+audio over time; no idle timer exists, so pings and silence keep a session open for
+`gateway.max_session_s` (3600 s); AICC reconnects after that.
+
+**Metrics.** A voiced commit has a turn timeline (`committed` → `asr_done`) like a realtime turn,
+with `session_type: "transcription"` among its logged values and in `/debug/turns`; its `asr_done`
+stage is in `mlxrt_stage_seconds` with the realtime turns'. Transcription sessions share the
+ASR's `max_in_flight` (4) and `queue_timeout_ms` with the realtime ones.
 
 ## 4. `response.create` parameters
 
@@ -350,7 +426,7 @@ it has in flight.
 
 | Code | When | `param` |
 |---|---|---|
-| `invalid_event` | invalid JSON, a binary frame, a missing `type`, an unsupported event type, an empty buffer on commit | `"type"` for event types, else `null` |
+| `invalid_event` | invalid JSON, a binary frame, a missing `type`, an unsupported event type, an empty buffer on commit (realtime sessions only), a realtime-only event in a transcription session (§3.1) | `"type"` for event types, else `null` |
 | `invalid_value` | a field missing, mistyped, out of range, unsupported or unknown; an unknown `previous_item_id` or `call_id`; a duplicate item id; a truncate of something other than an assistant audio message, or with `content_index` ≠ 0 | the dotted path: `session.audio.input.turn_detection.type`, `item.content[0].type`, `response.metadata.k`, … |
 | `conversation_already_has_active_response` | `response.create` while a response is active (D18) | `null` |
 | `response_cancel_not_active` | `response.cancel` with no active response, or naming another one (D18) | `null`, or `"response_id"` |
@@ -365,7 +441,7 @@ it has in flight.
 | `session_limit_reached` | over `gateway.max_sessions` | close 1013 |
 | `backend_unavailable` / `backend_timeout` / `backend_busy` / `provider_error` | a provider raised `ProviderError` of kind `unavailable` / `timeout` / `overloaded` / `bad_response` or `internal` | the response ends `failed`; the session continues |
 | `input_queue_overflow` | more than `limits.inbox_max_ms` of audio, or `limits.inbox_max_commands` events, queued | fatal: close 1011 |
-| `input_audio_buffer_overflow` | the input buffer exceeds `limits.input_audio_buffer_max_ms` | fatal: close 1011 |
+| `input_audio_buffer_overflow` | the input buffer of a realtime session exceeds `limits.input_audio_buffer_max_ms` (a transcription session drops its oldest audio instead, §3.1) | fatal: close 1011 |
 | `slow_client` | the client stopped reading (§1) | close 1008; the `error` is sent if the socket still accepts it |
 | `internal_error` | an unexpected exception in the session | fatal: close 1011; other sessions are unaffected |
 
@@ -658,6 +734,7 @@ requirements (ARCHITECTURE §2) at M5:
 | Transcripts | one `conversation.item.input_audio_transcription.completed` per utterance, without being asked (D15). |
 | Errors | only the codes of §9, and only where required (D18); AICC never meets `cannot_update_voice`. |
 | Audio | 20 ms appends at any time, also while the bot speaks (960 bytes of PCM, or 160 of G.711); output deltas of whole samples, at most 100 ms, at most 10 s ahead of real time (D6; AICC queues at most 30 s). |
+| Human-call transcription (issue #2) | `?intent=transcription` and AICC's `session.update` (`type: "transcription"`, `turn_detection: null`, `transcription` with `language` and `prompt`) are accepted; its continuous appends, silence included, and its commit after each utterance give `committed`, `item.added`, `…transcription.completed` (with `language`) and `item.done`; the session never meets `response.create` (§3.1). |
 
 Trace by trace (what each replay checks beyond "no error"):
 

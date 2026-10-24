@@ -42,9 +42,11 @@ class _Section(BaseModel):
 class GatewayConfig(_Section):
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=0, le=65535)
-    # The Mac serves at most 3 concurrent calls (DECISIONS 2026-10-23: one TTS process, one
-    # LLM and one ASR process; real-time latency over throughput).
-    max_sessions: int = Field(default=3, ge=1)
+    # The Mac serves at most 4 concurrent sessions (DECISIONS 2026-10-23, raised 2026-10-24:
+    # one TTS process, one LLM and one ASR process; real-time latency over throughput). A human
+    # call's transcription takes two (one per leg), a bot call one; transcription sessions run
+    # no LLM and no TTS.
+    max_sessions: int = Field(default=4, ge=1)
     api_key: str = ""
     max_session_s: int = Field(default=3600, gt=0)
 
@@ -195,7 +197,7 @@ class VadConfig(_Section):
 
     type: Literal["mock", "silero"] = "mock"
     model: str = "models/silero_vad.onnx"
-    min_speech_ms: int = Field(default=150, ge=0)
+    min_speech_ms: int = Field(default=224, ge=0)
     # pipecat's periodic reset of Silero's recurrent state during clear non-speech; null: never.
     model_reset_interval_s: float | None = Field(default=None, gt=0)
 
@@ -433,8 +435,9 @@ class MlxLmChatConfig(_Section):
     tool_interlude: Literal["merge", "after_output"] = "merge"
     unanswered_calls: Literal["pending", "keep", "drop"] = "pending"
     pending_tool_output: str = Field(default=PENDING_TOOL_OUTPUT, min_length=1)
-    # Sized for 3 concurrent calls (gateway.max_sessions): one response each, plus a warm-up.
-    max_in_flight: int = Field(default=4, ge=1)
+    # One response per session at most (gateway.max_sessions: 4; transcription sessions ask
+    # the LLM for nothing, so 4 is the worst case), plus a warm-up.
+    max_in_flight: int = Field(default=5, ge=1)
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts()
 
@@ -446,16 +449,32 @@ class MlxLmChatConfig(_Section):
         return value
 
 
+class AsrTokenCapConfig(_Section):
+    """The tokens a transcription may generate: ``base`` plus ``per_s`` per second of audio sent,
+    as the request's ``max_tokens`` (the backend's own limit is 8192). Speech needs 2-5 tokens a
+    second (spikes/transcription: the densest utterance of the corpus 5.1 per second of speech,
+    3.6 counting the pump's silence); the defaults leave at least 2.6 times that. Without the cap
+    Qwen3-ASR runs to 8192 tokens on hold music or DTMF (30-60 s of the shared ASR stream); with
+    it a 3 s tone burst stops after 46 tokens and a 60 s hold after 616."""
+
+    base: int = Field(default=16, ge=1)
+    per_s: float = Field(default=10.0, gt=0)
+
+
 class MlxAudioAsrConfig(_Section):
     type: Literal["mlx_audio_transcription"]
     base_url: str = "http://127.0.0.1:8102"
     model: str = "mlx-community/Qwen3-ASR-1.7B-8bit"
-    max_in_flight: int = Field(default=3, ge=1)  # one turn per call, 3 calls at most
+    # One turn per session (gateway.max_sessions: 4), realtime and transcription alike.
+    max_in_flight: int = Field(default=4, ge=1)
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts(first_item_ms=5000, idle_ms=2000, total_ms=10_000)
     # Words to expect, sent as the ASR context of every turn whose session sets no (or an
     # empty) transcription.prompt; a session prompt replaces it. Unset: no context.
     context: str | None = Field(default=None, max_length=MAX_ASR_CONTEXT_CHARS)
+    # A max_tokens per request in proportion to its audio (every ASR request: realtime and
+    # transcription sessions share the stream); None sends none and the backend's 8192 applies.
+    token_cap: AsrTokenCapConfig | None = AsrTokenCapConfig()
 
 
 _TTS_TIMEOUTS = HttpTimeouts(first_item_ms=1500, idle_ms=1000, total_ms=60_000, warmup_ms=300_000)
@@ -629,6 +648,31 @@ class ObservabilityConfig(_Section):
     debug_turns_per_session: int = Field(default=500, ge=1, le=100_000)
 
 
+class TranscriptionSessionConfig(_Section):
+    """Transcription sessions (``session.type: "transcription"``): the client sends audio all the
+    time, silence included, and commits after each utterance. Until a 20 ms frame has an RMS of
+    ``voiced_rms`` (16-bit samples) the session's buffer keeps only the last ``idle_keep_ms``,
+    so a hold costs nothing and an utterance starts with at most that much silence; a commit of
+    a buffer with no voiced frame is answered with an empty transcript without asking the ASR.
+    Speech that outgrows ``limits.input_audio_buffer_max_ms`` loses its oldest audio (logged)
+    rather than ending the session."""
+
+    idle_keep_ms: int = Field(default=1000, ge=0)
+    # A voiced commit goes to the ASR only if Silero finds at least ``min_speech_ms`` of speech
+    # (frames at ``speech_threshold``) in it; otherwise the answer is an empty transcript without
+    # an ASR request. Hold music and DTMF are committed by AICC's pump (RMS above 500) and make
+    # Qwen3-ASR copy its prompt or run to its token limit. spikes/transcription: at 0.5, 224 ms (7
+    # frames) skips all 16 music and DTMF commits of the corpus (the most speech in one: 192 ms)
+    # and 40 of 1908 real ones (2.1 %: mostly one-word answers). 0 disables.
+    min_speech_ms: int = Field(default=224, ge=0)
+    speech_threshold: float = Field(default=0.5, gt=0, lt=1)
+    # 400, below AICC's own endpointing level (RMS 500, internal/streamin/pump.go), so every
+    # utterance AICC commits is voiced; above the idle noise of a phone leg (spikes/transcription:
+    # at 100 a noisy leg kept up to 58 s of noise in front of an utterance, and Qwen3-ASR wrote
+    # the prompt's terms for it).
+    voiced_rms: int = Field(default=400, ge=1)
+
+
 class Config(_Section):
     gateway: GatewayConfig = GatewayConfig()
     limits: LimitsConfig = LimitsConfig()
@@ -640,6 +684,7 @@ class Config(_Section):
     turn: TurnConfig = TurnConfig()
     aec: AecConfig = AecConfig()
     barge_in: BargeInConfig = BargeInConfig()
+    transcription: TranscriptionSessionConfig = TranscriptionSessionConfig()
     text: TextConfig = TextConfig()
     providers: ProvidersConfig = ProvidersConfig()
     backends: BackendsConfig = BackendsConfig()

@@ -43,7 +43,14 @@ def create_app(gateway: Gateway) -> Starlette:
             gateway.metrics.session_refused("session_limit_reached")
             await _refuse(websocket, "session_limit_reached", "Too many sessions; try again later.")
             return
-        connection = Connection(websocket, gateway, model=websocket.query_params.get("model"))
+        # ``?intent=transcription`` starts a transcription session; any other intent is ignored.
+        intent = websocket.query_params.get("intent")
+        connection = Connection(
+            websocket,
+            gateway,
+            model=websocket.query_params.get("model"),
+            session_type="transcription" if intent == "transcription" else "realtime",
+        )
         gateway.admission.enter(connection)
         gateway.metrics.session_started()
         try:
