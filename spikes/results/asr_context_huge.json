@@ -1,0 +1,63 @@
+{
+ "kind": "huge",
+ "label": "patched",
+ "base_url": "http://127.0.0.1:8132",
+ "context_field": "context",
+ "context_chars": 6420,
+ "context_bytes": 10192,
+ "requests": [
+  {
+   "id": "u001",
+   "text": "Zentra 最近有什么优惠活动吗？",
+   "none": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 147.7,
+    "status": 200
+   },
+   "huge10k": {
+    "hyp": "Centra 最近有什么优惠活动吗？",
+    "ms": 1322.9,
+    "status": 200
+   }
+  },
+  {
+   "id": "u002",
+   "text": "我说，Orbix 是做什么的？",
+   "none": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 170.9,
+    "status": 200
+   },
+   "huge10k": {
+    "hyp": "我说 Orbix 是做什么的？",
+    "ms": 1319.2,
+    "status": 200
+   }
+  },
+  {
+   "id": "u003",
+   "text": "刚才你说的 IP 地址 我没听懂，再讲一遍。",
+   "none": {
+    "hyp": "刚才你说的IP地址我没听懂，再讲一遍。",
+    "ms": 207.2,
+    "status": 200
+   },
+   "huge10k": {
+    "hyp": "刚才你说的 IP 地址我没听懂，再讲一遍。",
+    "ms": 1421.5,
+    "status": 200
+   }
+  }
+ ],
+ "baseline_before": {
+  "hyp": "CENTRA 最近有什么优惠活动吗？",
+  "ms": 151.0,
+  "status": 200
+ },
+ "baseline_after": {
+  "hyp": "CENTRA 最近有什么优惠活动吗？",
+  "ms": 153.4,
+  "status": 200
+ },
+ "models_status_after": 200
+}

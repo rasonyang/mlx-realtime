@@ -1,0 +1,324 @@
+{"id": "u001", "text": "Zentra 最近有什么优惠活动吗？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u002", "text": "我说，Orbix 是做什么的？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u003", "text": "刚才你说的 IP 地址 我没听懂，再讲一遍。", "terms": ["IP 地址"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u004", "text": "我要取消订单 NV20240403。", "tts": "我要取消订单 N V 二 零 二 四 零 四 零 三。", "terms": ["NV20240403"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u005", "text": "我要取消订单 RMA-2399。", "tts": "我要取消订单 R M A 二 三 九 九。", "terms": ["RMA-2399"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u006", "text": "请问 NovaNet Max 怎么开通？", "terms": ["NovaNet Max"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u007", "text": "DNS 是不是要重新弄一下？", "terms": ["DNS"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u008", "text": "工单号 NN8790X，什么时候能处理？", "tts": "工单号 N N 八 七 九 零 X，什么时候能处理？", "terms": ["NN8790X"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u009", "text": "我想办一个 Wi-Fi 7 的套餐。", "terms": ["Wi-Fi 7"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u010", "text": "我的订单号是 NV20241018，帮我查一下进度。", "tts": "我的订单号是 N V 二 零 二 四 一 零 一 八，帮我查一下进度。", "terms": ["NV20241018"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u011", "text": "我想办一个 NovaNet Home Pro 的套餐。", "terms": ["NovaNet Home Pro"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u012", "text": "刚才你说的 OTA 升级 我没听懂，再讲一遍。", "terms": ["OTA 升级"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u013", "text": "维修单 NN9898K 的师傅怎么还没来？", "tts": "维修单 N N 九 八 九 八 K 的师傅怎么还没来？", "terms": ["NN9898K"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u014", "text": "我想办一个 5G 畅享 199 的套餐。", "terms": ["5G 畅享 199"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u015", "text": "你们的 Wi-Fi 6 有什么优惠吗？", "terms": ["Wi-Fi 6"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u016", "text": "SSID 是不是要重新弄一下？", "terms": ["SSID"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u017", "text": "请问 Lumio 和别的运营商有什么区别？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u018", "text": "我听朋友推荐了 SkyWave，想了解一下。", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u019", "text": "我要取消订单 NN3715X。", "tts": "我要取消订单 N N 三 七 一 五 X。", "terms": ["NN3715X"], "category": "order", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u020", "text": "我这个 OTA 升级 老是出问题。", "terms": ["OTA 升级"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u021", "text": "我的订单号是 TK-58027，帮我查一下进度。", "tts": "我的订单号是 T K 五 八 零 二 七，帮我查一下进度。", "terms": ["TK-58027"], "category": "order", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u022", "text": "Wi-Fi 6 覆盖我们小区吗？", "terms": ["Wi-Fi 6"], "category": "product", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u023", "text": "工单号 SO-366-365，什么时候能处理？", "tts": "工单号 S O 三 六 六 三 六 五，什么时候能处理？", "terms": ["SO-366-365"], "category": "order", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u024", "text": "我朋友用的 IPTV，我也想试试。", "terms": ["IPTV"], "category": "product", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u025", "text": "SO-100-263 这个订单的收货地址我想改一下。", "tts": "S O 一 零 零 二 六 三 这个订单的收货地址我想改一下。", "terms": ["SO-100-263"], "category": "order", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u026", "text": "5G 尊享 299 每个月多少钱？", "terms": ["5G 尊享 299"], "category": "product", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u027", "text": "刚才你说的 VPN 我没听懂，再讲一遍。", "terms": ["VPN"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u028", "text": "我说，SkyWave 是做什么的？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u029", "text": "Orbix 的 NovaNet Max 我昨天刚装好，还是不行。", "terms": ["NovaNet Max", "Orbix"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u030", "text": "Ping 值 是不是要重新弄一下？", "terms": ["Ping 值"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u031", "text": "刚才你说的 Ping 值 我没听懂，再讲一遍。", "terms": ["Ping 值"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u032", "text": "我听朋友推荐了 Orbix，想了解一下。", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u033", "text": "NovaCloud 覆盖我们小区吗？", "terms": ["NovaCloud"], "category": "product", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u034", "text": "APN 是不是要重新弄一下？", "terms": ["APN"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u035", "text": "Lumio 的客服电话是多少？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u036", "text": "昨天开始 LTE 就不能用了。", "terms": ["LTE"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u037", "text": "我这个 Ping 值 老是出问题。", "terms": ["Ping 值"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u038", "text": "我想问一下 Lumio 的营业厅在哪里？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u039", "text": "Wi-Fi 7 每个月多少钱？", "terms": ["Wi-Fi 7"], "category": "product", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u040", "text": "SkyWave 的客服电话是多少？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u041", "text": "NovaNet 的客服电话是多少？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u042", "text": "我想办一个 5G-A 的套餐。", "terms": ["5G-A"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u043", "text": "我要取消订单 TK-56941。", "tts": "我要取消订单 T K 五 六 九 四 一。", "terms": ["TK-56941"], "category": "order", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u044", "text": "能不能帮我看看 SIM 卡 怎么设置？", "terms": ["SIM 卡"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u045", "text": "5G-A 每个月多少钱？", "terms": ["5G-A"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u046", "text": "我家的 IP 地址 一直不行，你们能远程处理吗？", "terms": ["IP 地址"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u047", "text": "App 是不是要重新弄一下？", "terms": ["App"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u048", "text": "我想把现在的套餐换成 NovaCloud。", "terms": ["NovaCloud"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u049", "text": "昨天开始 Ping 值 就不能用了。", "terms": ["Ping 值"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u050", "text": "我这个 App 老是出问题。", "terms": ["App"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u051", "text": "IPTV 每个月多少钱？", "terms": ["IPTV"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u052", "text": "Zentra 的客服电话是多少？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u053", "text": "Veltra 是做什么的？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u054", "text": "我家的 NovaCloud 连不上 Lumio 的网络。", "terms": ["NovaCloud", "Lumio"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u055", "text": "SkyWave 的 5G-A 我昨天刚装好，还是不行。", "terms": ["5G-A", "SkyWave"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u056", "text": "我家的 5G 尊享 299 连不上 Zentra 的网络。", "terms": ["5G 尊享 299", "Zentra"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u057", "text": "帮我转接到 Lumio 的人工客服。", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u058", "text": "昨天开始 VIP 就不能用了。", "terms": ["VIP"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u059", "text": "我要取消订单 RMA-5720。", "tts": "我要取消订单 R M A 五 七 二 零。", "terms": ["RMA-5720"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u060", "text": "我朋友用的 5G 尊享 299，我也想试试。", "terms": ["5G 尊享 299"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u061", "text": "我想办一个 IPTV 的套餐。", "terms": ["IPTV"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u062", "text": "昨天开始 SSID 就不能用了。", "terms": ["SSID"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u063", "text": "SkyWave 是做什么的？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u064", "text": "我朋友用的 eSIM，我也想试试。", "terms": ["eSIM"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u065", "text": "TK-17578 这个订单的收货地址我想改一下。", "tts": "T K 一 七 五 七 八 这个订单的收货地址我想改一下。", "terms": ["TK-17578"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u066", "text": "你们是 NovaNet 的客服吗？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u067", "text": "我想办一个 NovaNet Max 的套餐。", "terms": ["NovaNet Max"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u068", "text": "你们的 eSIM 有什么优惠吗？", "terms": ["eSIM"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u069", "text": "我是 NovaNet 的老用户了，想问个问题。", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u070", "text": "工单号 TK-67279，什么时候能处理？", "tts": "工单号 T K 六 七 二 七 九，什么时候能处理？", "terms": ["TK-67279"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u071", "text": "工单号 NV20240224，什么时候能处理？", "tts": "工单号 N V 二 零 二 四 零 二 二 四，什么时候能处理？", "terms": ["NV20240224"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u072", "text": "Veltra 最近有什么优惠活动吗？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u073", "text": "5G 畅享 199 覆盖我们小区吗？", "terms": ["5G 畅享 199"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u074", "text": "工单号 RMA-7677，什么时候能处理？", "tts": "工单号 R M A 七 六 七 七，什么时候能处理？", "terms": ["RMA-7677"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u075", "text": "我的订单号是 RMA-9050，帮我查一下进度。", "tts": "我的订单号是 R M A 九 零 五 零，帮我查一下进度。", "terms": ["RMA-9050"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u076", "text": "你们的 NovaCloud 有什么优惠吗？", "terms": ["NovaCloud"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u077", "text": "麻烦核对一下 NV20241206 这个单号。", "tts": "麻烦核对一下 N V 二 零 二 四 一 二 零 六 这个单号。", "terms": ["NV20241206"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u078", "text": "工单号 NN5799K，什么时候能处理？", "tts": "工单号 N N 五 七 九 九 K，什么时候能处理？", "terms": ["NN5799K"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u079", "text": "我家的 SSID 一直不行，你们能远程处理吗？", "terms": ["SSID"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u080", "text": "我朋友用的 5G 畅享 199，我也想试试。", "terms": ["5G 畅享 199"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u081", "text": "昨天开始 VPN 就不能用了。", "terms": ["VPN"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u082", "text": "我想把现在的套餐换成 NovaNet Max。", "terms": ["NovaNet Max"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u083", "text": "维修单 NV20240321 的师傅怎么还没来？", "tts": "维修单 N V 二 零 二 四 零 三 二 一 的师傅怎么还没来？", "terms": ["NV20240321"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u084", "text": "我家的 PIN 码 一直不行，你们能远程处理吗？", "terms": ["PIN 码"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u085", "text": "Zentra 是做什么的？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u086", "text": "SO-910-408 这个订单的收货地址我想改一下。", "tts": "S O 九 一 零 四 零 八 这个订单的收货地址我想改一下。", "terms": ["SO-910-408"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u087", "text": "我想把现在的套餐换成 eSIM。", "terms": ["eSIM"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u088", "text": "我家的 DNS 一直不行，你们能远程处理吗？", "terms": ["DNS"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u089", "text": "我朋友用的 NovaTV，我也想试试。", "terms": ["NovaTV"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u090", "text": "我家的 SIM 卡 一直不行，你们能远程处理吗？", "terms": ["SIM 卡"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u091", "text": "你们的 NovaTV 有什么优惠吗？", "terms": ["NovaTV"], "category": "product", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u092", "text": "RMA-6610 这个订单的收货地址我想改一下。", "tts": "R M A 六 六 一 零 这个订单的收货地址我想改一下。", "terms": ["RMA-6610"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u093", "text": "我家的 VPN 一直不行，你们能远程处理吗？", "terms": ["VPN"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u094", "text": "你们是 SkyWave 的客服吗？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u095", "text": "麻烦核对一下 RMA-3004 这个单号。", "tts": "麻烦核对一下 R M A 三 零 零 四 这个单号。", "terms": ["RMA-3004"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u096", "text": "能不能帮我看看 App 怎么设置？", "terms": ["App"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u097", "text": "请问 NovaNet Home Pro 怎么开通？", "terms": ["NovaNet Home Pro"], "category": "product", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u098", "text": "请问 NovaNet 和别的运营商有什么区别？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u099", "text": "我家的 App 一直不行，你们能远程处理吗？", "terms": ["App"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u100", "text": "请问 Veltra 和别的运营商有什么区别？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u101", "text": "请问 Wi-Fi 7 怎么开通？", "terms": ["Wi-Fi 7"], "category": "product", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u102", "text": "刚才你说的 VIP 我没听懂，再讲一遍。", "terms": ["VIP"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u103", "text": "工单号 RMA-8711，什么时候能处理？", "tts": "工单号 R M A 八 七 一 一，什么时候能处理？", "terms": ["RMA-8711"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u104", "text": "我的订单号是 SO-916-216，帮我查一下进度。", "tts": "我的订单号是 S O 九 一 六 二 一 六，帮我查一下进度。", "terms": ["SO-916-216"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u105", "text": "我想办一个 AX3000 的套餐。", "terms": ["AX3000"], "category": "product", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u106", "text": "IPTV 覆盖我们小区吗？", "terms": ["IPTV"], "category": "product", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u107", "text": "我听朋友推荐了 Zentra，想了解一下。", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u108", "text": "我想问一下 Zentra 的营业厅在哪里？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u109", "text": "SkyWave 的 VoLTE 我昨天刚装好，还是不行。", "terms": ["VoLTE", "SkyWave"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u110", "text": "Lumio 是做什么的？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u111", "text": "麻烦核对一下 TK-29002 这个单号。", "tts": "麻烦核对一下 T K 二 九 零 零 二 这个单号。", "terms": ["TK-29002"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u112", "text": "维修单 RMA-2468 的师傅怎么还没来？", "tts": "维修单 R M A 二 四 六 八 的师傅怎么还没来？", "terms": ["RMA-2468"], "category": "order", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u113", "text": "维修单 NN5602B 的师傅怎么还没来？", "tts": "维修单 N N 五 六 零 二 B 的师傅怎么还没来？", "terms": ["NN5602B"], "category": "order", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u114", "text": "NovaNet Home Pro 每个月多少钱？", "terms": ["NovaNet Home Pro"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u115", "text": "我的订单号是 NV20240820，帮我查一下进度。", "tts": "我的订单号是 N V 二 零 二 四 零 八 二 零，帮我查一下进度。", "terms": ["NV20240820"], "category": "order", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u116", "text": "我想办一个 VoLTE 的套餐。", "terms": ["VoLTE"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u117", "text": "昨天开始 PIN 码 就不能用了。", "terms": ["PIN 码"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u118", "text": "我想问一下 Veltra 的营业厅在哪里？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u119", "text": "我的订单号是 NN6266A，帮我查一下进度。", "tts": "我的订单号是 N N 六 二 六 六 A，帮我查一下进度。", "terms": ["NN6266A"], "category": "order", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u120", "text": "能不能帮我看看 IP 地址 怎么设置？", "terms": ["IP 地址"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u121", "text": "能不能帮我看看 VIP 怎么设置？", "terms": ["VIP"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u122", "text": "Mesh 路由器 覆盖我们小区吗？", "terms": ["Mesh 路由器"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u123", "text": "Veltra 的 5G 畅享 199 我昨天刚装好，还是不行。", "terms": ["5G 畅享 199", "Veltra"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u124", "text": "Veltra 的 NovaTV 我昨天刚装好，还是不行。", "terms": ["NovaTV", "Veltra"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u125", "text": "我想把现在的套餐换成 Wi-Fi 7。", "terms": ["Wi-Fi 7"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u126", "text": "麻烦核对一下 NN5616K 这个单号。", "tts": "麻烦核对一下 N N 五 六 一 六 K 这个单号。", "terms": ["NN5616K"], "category": "order", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u127", "text": "维修单 NV20240811 的师傅怎么还没来？", "tts": "维修单 N V 二 零 二 四 零 八 一 一 的师傅怎么还没来？", "terms": ["NV20240811"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u128", "text": "我家的 Wi-Fi 7 连不上 NovaNet 的网络。", "terms": ["Wi-Fi 7", "NovaNet"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u129", "text": "Lumio 最近有什么优惠活动吗？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u130", "text": "IP 地址 是不是要重新弄一下？", "terms": ["IP 地址"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u131", "text": "我是 Veltra 的老用户了，想问个问题。", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u132", "text": "我想把现在的套餐换成 5G 畅享 199。", "terms": ["5G 畅享 199"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u133", "text": "请问 IPTV 怎么开通？", "terms": ["IPTV"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u134", "text": "我说，Lumio 是做什么的？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u135", "text": "能不能帮我看看 OTA 升级 怎么设置？", "terms": ["OTA 升级"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u136", "text": "能不能帮我看看 LTE 怎么设置？", "terms": ["LTE"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u137", "text": "我是 Orbix 的老用户了，想问个问题。", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u138", "text": "我听朋友推荐了 Lumio，想了解一下。", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u139", "text": "刚才你说的 APN 我没听懂，再讲一遍。", "terms": ["APN"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u140", "text": "我说，Zentra 是做什么的？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u141", "text": "我的订单号是 RMA-7478，帮我查一下进度。", "tts": "我的订单号是 R M A 七 四 七 八，帮我查一下进度。", "terms": ["RMA-7478"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u142", "text": "请问 5G-A 怎么开通？", "terms": ["5G-A"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u143", "text": "Orbix 最近有什么优惠活动吗？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u144", "text": "我听朋友推荐了 NovaNet，想了解一下。", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u145", "text": "你们是 Zentra 的客服吗？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u146", "text": "你们的 5G 畅享 199 有什么优惠吗？", "terms": ["5G 畅享 199"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u147", "text": "请问 eSIM 怎么开通？", "terms": ["eSIM"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u148", "text": "我想问一下 Orbix 的营业厅在哪里？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u149", "text": "NN9051X 这个订单的收货地址我想改一下。", "tts": "N N 九 零 五 一 X 这个订单的收货地址我想改一下。", "terms": ["NN9051X"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u150", "text": "NovaTV 覆盖我们小区吗？", "terms": ["NovaTV"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u151", "text": "帮我转接到 Orbix 的人工客服。", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u152", "text": "我说，Veltra 是做什么的？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u153", "text": "你们的 Mesh 路由器 有什么优惠吗？", "terms": ["Mesh 路由器"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u154", "text": "你们的 AX3000 有什么优惠吗？", "terms": ["AX3000"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u155", "text": "维修单 TK-17719 的师傅怎么还没来？", "tts": "维修单 T K 一 七 七 一 九 的师傅怎么还没来？", "terms": ["TK-17719"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u156", "text": "帮我转接到 SkyWave 的人工客服。", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u157", "text": "我听朋友推荐了 Veltra，想了解一下。", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u158", "text": "eSIM 覆盖我们小区吗？", "terms": ["eSIM"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u159", "text": "我说，NovaNet 是做什么的？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u160", "text": "我想把现在的套餐换成 VoLTE。", "terms": ["VoLTE"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u161", "text": "Orbix 的 Wi-Fi 6 我昨天刚装好，还是不行。", "terms": ["Wi-Fi 6", "Orbix"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u162", "text": "SkyWave 最近有什么优惠活动吗？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u163", "text": "Wi-Fi 6 每个月多少钱？", "terms": ["Wi-Fi 6"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u164", "text": "我家的 NovaNet Home Pro 连不上 NovaNet 的网络。", "terms": ["NovaNet Home Pro", "NovaNet"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u165", "text": "SIM 卡 是不是要重新弄一下？", "terms": ["SIM 卡"], "category": "codeswitch", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u166", "text": "我这个 APN 老是出问题。", "terms": ["APN"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u167", "text": "TK-23355 这个订单的收货地址我想改一下。", "tts": "T K 二 三 三 五 五 这个订单的收货地址我想改一下。", "terms": ["TK-23355"], "category": "order", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u168", "text": "我朋友用的 5G-A，我也想试试。", "terms": ["5G-A"], "category": "product", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u169", "text": "我要取消订单 NN3768A。", "tts": "我要取消订单 N N 三 七 六 八 A。", "terms": ["NN3768A"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u170", "text": "昨天开始 APN 就不能用了。", "terms": ["APN"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u171", "text": "麻烦核对一下 SO-122-845 这个单号。", "tts": "麻烦核对一下 S O 一 二 二 八 四 五 这个单号。", "terms": ["SO-122-845"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u172", "text": "我朋友用的 AX3000，我也想试试。", "terms": ["AX3000"], "category": "product", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u173", "text": "我是 Lumio 的老用户了，想问个问题。", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u174", "text": "我这个 DNS 老是出问题。", "terms": ["DNS"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u175", "text": "麻烦核对一下 TK-20328 这个单号。", "tts": "麻烦核对一下 T K 二 零 三 二 八 这个单号。", "terms": ["TK-20328"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u176", "text": "NovaNet Max 每个月多少钱？", "terms": ["NovaNet Max"], "category": "product", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u177", "text": "维修单 SO-395-756 的师傅怎么还没来？", "tts": "维修单 S O 三 九 五 七 五 六 的师傅怎么还没来？", "terms": ["SO-395-756"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u178", "text": "你们的 NovaNet Home Pro 有什么优惠吗？", "terms": ["NovaNet Home Pro"], "category": "product", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u179", "text": "我想把现在的套餐换成 Mesh 路由器。", "terms": ["Mesh 路由器"], "category": "product", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u180", "text": "请问 SkyWave 和别的运营商有什么区别？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u181", "text": "我想把现在的套餐换成 Wi-Fi 6。", "terms": ["Wi-Fi 6"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u182", "text": "我家的 LTE 一直不行，你们能远程处理吗？", "terms": ["LTE"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u183", "text": "我家的 Mesh 路由器 连不上 Zentra 的网络。", "terms": ["Mesh 路由器", "Zentra"], "category": "codeswitch", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u184", "text": "我想问一下 NovaNet 的营业厅在哪里？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u185", "text": "请问 Orbix 和别的运营商有什么区别？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u186", "text": "帮我转接到 Zentra 的人工客服。", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u187", "text": "能不能帮我看看 PIN 码 怎么设置？", "terms": ["PIN 码"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u188", "text": "我家的 eSIM 连不上 Lumio 的网络。", "terms": ["eSIM", "Lumio"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u189", "text": "我这个 LTE 老是出问题。", "terms": ["LTE"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u190", "text": "工单号 TK-50137，什么时候能处理？", "tts": "工单号 T K 五 零 一 三 七，什么时候能处理？", "terms": ["TK-50137"], "category": "order", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u191", "text": "NV20240511 这个订单的收货地址我想改一下。", "tts": "N V 二 零 二 四 零 五 一 一 这个订单的收货地址我想改一下。", "terms": ["NV20240511"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u192", "text": "刚才你说的 SSID 我没听懂，再讲一遍。", "terms": ["SSID"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u193", "text": "请问 NovaTV 怎么开通？", "terms": ["NovaTV"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u194", "text": "我要取消订单 SO-986-737。", "tts": "我要取消订单 S O 九 八 六 七 三 七。", "terms": ["SO-986-737"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u195", "text": "我的订单号是 TK-20775，帮我查一下进度。", "tts": "我的订单号是 T K 二 零 七 七 五，帮我查一下进度。", "terms": ["TK-20775"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u196", "text": "5G 尊享 299 覆盖我们小区吗？", "terms": ["5G 尊享 299"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u197", "text": "Orbix 的客服电话是多少？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u198", "text": "Veltra 的客服电话是多少？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u199", "text": "你们是 Lumio 的客服吗？", "terms": ["Lumio"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u200", "text": "我朋友用的 Mesh 路由器，我也想试试。", "terms": ["Mesh 路由器"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u201", "text": "请问 Wi-Fi 6 怎么开通？", "terms": ["Wi-Fi 6"], "category": "product", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u202", "text": "VPN 是不是要重新弄一下？", "terms": ["VPN"], "category": "codeswitch", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u203", "text": "你们是 Orbix 的客服吗？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u204", "text": "工单号 SO-141-370，什么时候能处理？", "tts": "工单号 S O 一 四 一 三 七 零，什么时候能处理？", "terms": ["SO-141-370"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u205", "text": "你们是 Veltra 的客服吗？", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "clean"}
+{"id": "u206", "text": "我想办一个 Mesh 路由器 的套餐。", "terms": ["Mesh 路由器"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u207", "text": "帮我转接到 NovaNet 的人工客服。", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "g711"}
+{"id": "u208", "text": "昨天开始 OTA 升级 就不能用了。", "terms": ["OTA 升级"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u209", "text": "我想办一个 5G 尊享 299 的套餐。", "terms": ["5G 尊享 299"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u210", "text": "你们的 NovaNet Max 有什么优惠吗？", "terms": ["NovaNet Max"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u211", "text": "我的订单号是 SO-909-659，帮我查一下进度。", "tts": "我的订单号是 S O 九 零 九 六 五 九，帮我查一下进度。", "terms": ["SO-909-659"], "category": "order", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u212", "text": "刚才你说的 SIM 卡 我没听懂，再讲一遍。", "terms": ["SIM 卡"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u213", "text": "我想把现在的套餐换成 NovaTV。", "terms": ["NovaTV"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u214", "text": "维修单 RMA-1107 的师傅怎么还没来？", "tts": "维修单 R M A 一 一 零 七 的师傅怎么还没来？", "terms": ["RMA-1107"], "category": "order", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u215", "text": "VoLTE 覆盖我们小区吗？", "terms": ["VoLTE"], "category": "product", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u216", "text": "请问 AX3000 怎么开通？", "terms": ["AX3000"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "clean"}
+{"id": "u217", "text": "我是 Zentra 的老用户了，想问个问题。", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "noise"}
+{"id": "u218", "text": "NovaNet 是做什么的？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "onset"}
+{"id": "u219", "text": "我朋友用的 VoLTE，我也想试试。", "terms": ["VoLTE"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "g711"}
+{"id": "u220", "text": "帮我转接到 Veltra 的人工客服。", "terms": ["Veltra"], "category": "brand", "set": "tts", "voice": "uncle_fu", "degradation": "echo"}
+{"id": "u221", "text": "麻烦核对一下 NV20240902 这个单号。", "tts": "麻烦核对一下 N V 二 零 二 四 零 九 零 二 这个单号。", "terms": ["NV20240902"], "category": "order", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u222", "text": "Orbix 是做什么的？", "terms": ["Orbix"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "clean"}
+{"id": "u223", "text": "能不能帮我看看 DNS 怎么设置？", "terms": ["DNS"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u224", "text": "我要取消订单 SO-196-224。", "tts": "我要取消订单 S O 一 九 六 二 二 四。", "terms": ["SO-196-224"], "category": "order", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u225", "text": "5G-A 覆盖我们小区吗？", "terms": ["5G-A"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "noise"}
+{"id": "u226", "text": "麻烦核对一下 NN3657K 这个单号。", "tts": "麻烦核对一下 N N 三 六 五 七 K 这个单号。", "terms": ["NN3657K"], "category": "order", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u227", "text": "我想把现在的套餐换成 5G 尊享 299。", "terms": ["5G 尊享 299"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "onset"}
+{"id": "u228", "text": "我这个 PIN 码 老是出问题。", "terms": ["PIN 码"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u229", "text": "NovaCloud 每个月多少钱？", "terms": ["NovaCloud"], "category": "product", "set": "tts", "voice": "vivian", "degradation": "echo"}
+{"id": "u230", "text": "AX3000 每个月多少钱？", "terms": ["AX3000"], "category": "product", "set": "tts", "voice": "serena", "degradation": "clean"}
+{"id": "u231", "text": "VoLTE 每个月多少钱？", "terms": ["VoLTE"], "category": "product", "set": "tts", "voice": "serena", "degradation": "g711"}
+{"id": "u232", "text": "请问 Zentra 和别的运营商有什么区别？", "terms": ["Zentra"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "g711"}
+{"id": "u233", "text": "我这个 VIP 老是出问题。", "terms": ["VIP"], "category": "codeswitch", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "u234", "text": "NV20241022 这个订单的收货地址我想改一下。", "tts": "N V 二 零 二 四 一 零 二 二 这个订单的收货地址我想改一下。", "terms": ["NV20241022"], "category": "order", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u235", "text": "我是 SkyWave 的老用户了，想问个问题。", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "noise"}
+{"id": "u236", "text": "我朋友用的 NovaNet Home Pro，我也想试试。", "terms": ["NovaNet Home Pro"], "category": "product", "set": "tts", "voice": "serena", "degradation": "noise"}
+{"id": "u237", "text": "我想问一下 SkyWave 的营业厅在哪里？", "terms": ["SkyWave"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "onset"}
+{"id": "u238", "text": "请问 NovaCloud 怎么开通？", "terms": ["NovaCloud"], "category": "product", "set": "tts", "voice": "serena", "degradation": "onset"}
+{"id": "u239", "text": "你们的 Wi-Fi 7 有什么优惠吗？", "terms": ["Wi-Fi 7"], "category": "product", "set": "tts", "voice": "serena", "degradation": "echo"}
+{"id": "u240", "text": "NovaNet 最近有什么优惠活动吗？", "terms": ["NovaNet"], "category": "brand", "set": "tts", "voice": "aiden", "degradation": "echo"}
+{"id": "mix_001_clean", "text": "就是感觉很fancy", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_001", "path_16k": "asr/16k/mix_001.wav"}}
+{"id": "mix_001_g711", "text": "就是感觉很fancy", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_001", "path_16k": "asr/16k/mix_001.wav"}}
+{"id": "mix_002_clean", "text": "三件套Mac吗", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_002", "path_16k": "asr/16k/mix_002.wav"}}
+{"id": "mix_002_g711", "text": "三件套Mac吗", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_002", "path_16k": "asr/16k/mix_002.wav"}}
+{"id": "mix_003_clean", "text": "AI最近这么火", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_003", "path_16k": "asr/16k/mix_003.wav"}}
+{"id": "mix_003_g711", "text": "AI最近这么火", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_003", "path_16k": "asr/16k/mix_003.wav"}}
+{"id": "mix_004_clean", "text": "然后一直在考虑budget的问题", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_004", "path_16k": "asr/16k/mix_004.wav"}}
+{"id": "mix_004_g711", "text": "然后一直在考虑budget的问题", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_004", "path_16k": "asr/16k/mix_004.wav"}}
+{"id": "mix_005_clean", "text": "也是那个hardware", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_005", "path_16k": "asr/16k/mix_005.wav"}}
+{"id": "mix_005_g711", "text": "也是那个hardware", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_005", "path_16k": "asr/16k/mix_005.wav"}}
+{"id": "mix_006_clean", "text": "你觉得Mac和Windows比哪个", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_006", "path_16k": "asr/16k/mix_006.wav"}}
+{"id": "mix_006_g711", "text": "你觉得Mac和Windows比哪个", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_006", "path_16k": "asr/16k/mix_006.wav"}}
+{"id": "mix_007_clean", "text": "也不是也不完全是ai", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_007", "path_16k": "asr/16k/mix_007.wav"}}
+{"id": "mix_007_g711", "text": "也不是也不完全是ai", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_007", "path_16k": "asr/16k/mix_007.wav"}}
+{"id": "mix_008_clean", "text": "is too risky我们不能", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_008", "path_16k": "asr/16k/mix_008.wav"}}
+{"id": "mix_008_g711", "text": "is too risky我们不能", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_008", "path_16k": "asr/16k/mix_008.wav"}}
+{"id": "mix_009_clean", "text": "就是still long way to go", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_009", "path_16k": "asr/16k/mix_009.wav"}}
+{"id": "mix_009_g711", "text": "就是still long way to go", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_009", "path_16k": "asr/16k/mix_009.wav"}}
+{"id": "mix_010_clean", "text": "就是说给一些data set然后你", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_010", "path_16k": "asr/16k/mix_010.wav"}}
+{"id": "mix_010_g711", "text": "就是说给一些data set然后你", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_010", "path_16k": "asr/16k/mix_010.wav"}}
+{"id": "mix_011_clean", "text": "AI做出了一个错误的判断", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_011", "path_16k": "asr/16k/mix_011.wav"}}
+{"id": "mix_011_g711", "text": "AI做出了一个错误的判断", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_011", "path_16k": "asr/16k/mix_011.wav"}}
+{"id": "mix_012_clean", "text": "能就是帮人类做很多work", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_012", "path_16k": "asr/16k/mix_012.wav"}}
+{"id": "mix_012_g711", "text": "能就是帮人类做很多work", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_012", "path_16k": "asr/16k/mix_012.wav"}}
+{"id": "mix_013_clean", "text": "呃work shop学校应该也有统一的的work shop", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_013", "path_16k": "asr/16k/mix_013.wav"}}
+{"id": "mix_013_g711", "text": "呃work shop学校应该也有统一的的work shop", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_013", "path_16k": "asr/16k/mix_013.wav"}}
+{"id": "mix_014_clean", "text": "哦那个是那个是wind好像是做", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_014", "path_16k": "asr/16k/mix_014.wav"}}
+{"id": "mix_014_g711", "text": "哦那个是那个是wind好像是做", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_014", "path_16k": "asr/16k/mix_014.wav"}}
+{"id": "mix_015_clean", "text": "我们的department其实hardware跟software其实是各半", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_015", "path_16k": "asr/16k/mix_015.wav"}}
+{"id": "mix_015_g711", "text": "我们的department其实hardware跟software其实是各半", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_015", "path_16k": "asr/16k/mix_015.wav"}}
+{"id": "mix_016_clean", "text": "我认为现在的AI比如说在", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_016", "path_16k": "asr/16k/mix_016.wav"}}
+{"id": "mix_016_g711", "text": "我认为现在的AI比如说在", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_016", "path_16k": "asr/16k/mix_016.wav"}}
+{"id": "mix_017_clean", "text": "self driving方面自动驾驶方面", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_017", "path_16k": "asr/16k/mix_017.wav"}}
+{"id": "mix_017_g711", "text": "self driving方面自动驾驶方面", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_017", "path_16k": "asr/16k/mix_017.wav"}}
+{"id": "mix_018_clean", "text": "就之前运用到的一些都是一些现存的package", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_018", "path_16k": "asr/16k/mix_018.wav"}}
+{"id": "mix_018_g711", "text": "就之前运用到的一些都是一些现存的package", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_018", "path_16k": "asr/16k/mix_018.wav"}}
+{"id": "mix_019_clean", "text": "然后再建一个model去optimization这样", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_019", "path_16k": "asr/16k/mix_019.wav"}}
+{"id": "mix_019_g711", "text": "然后再建一个model去optimization这样", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_019", "path_16k": "asr/16k/mix_019.wav"}}
+{"id": "mix_020_clean", "text": "对反正我们就只能做一些这种比较entry level的东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_020", "path_16k": "asr/16k/mix_020.wav"}}
+{"id": "mix_020_g711", "text": "对反正我们就只能做一些这种比较entry level的东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_020", "path_16k": "asr/16k/mix_020.wav"}}
+{"id": "mix_021_clean", "text": "我并不是要做N L P的对我并不是要做natural language processing", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_021", "path_16k": "asr/16k/mix_021.wav"}}
+{"id": "mix_021_g711", "text": "我并不是要做N L P的对我并不是要做natural language processing", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_021", "path_16k": "asr/16k/mix_021.wav"}}
+{"id": "mix_022_clean", "text": "不过后来就是focus在先把G P A提高吗", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_022", "path_16k": "asr/16k/mix_022.wav"}}
+{"id": "mix_022_g711", "text": "不过后来就是focus在先把G P A提高吗", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_022", "path_16k": "asr/16k/mix_022.wav"}}
+{"id": "mix_023_clean", "text": "那图像识别其实上学上个semester我们", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_023", "path_16k": "asr/16k/mix_023.wav"}}
+{"id": "mix_023_g711", "text": "那图像识别其实上学上个semester我们", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_023", "path_16k": "asr/16k/mix_023.wav"}}
+{"id": "mix_024_clean", "text": "感觉还不错robotics就是robotics mix with language application", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_024", "path_16k": "asr/16k/mix_024.wav"}}
+{"id": "mix_024_g711", "text": "感觉还不错robotics就是robotics mix with language application", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_024", "path_16k": "asr/16k/mix_024.wav"}}
+{"id": "mix_025_clean", "text": "呃对它analyzed或者是哦对就你刚你说的那些东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_025", "path_16k": "asr/16k/mix_025.wav"}}
+{"id": "mix_025_g711", "text": "呃对它analyzed或者是哦对就你刚你说的那些东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_025", "path_16k": "asr/16k/mix_025.wav"}}
+{"id": "mix_026_clean", "text": "that's the reason我来就是最后决定做那个", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_026", "path_16k": "asr/16k/mix_026.wav"}}
+{"id": "mix_026_g711", "text": "that's the reason我来就是最后决定做那个", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_026", "path_16k": "asr/16k/mix_026.wav"}}
+{"id": "mix_027_clean", "text": "做optimization然后再去做预测主要还是做预测", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_027", "path_16k": "asr/16k/mix_027.wav"}}
+{"id": "mix_027_g711", "text": "做optimization然后再去做预测主要还是做预测", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_027", "path_16k": "asr/16k/mix_027.wav"}}
+{"id": "mix_028_clean", "text": "然后但是我当时读了很多相关的paper", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_028", "path_16k": "asr/16k/mix_028.wav"}}
+{"id": "mix_028_g711", "text": "然后但是我当时读了很多相关的paper", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_028", "path_16k": "asr/16k/mix_028.wav"}}
+{"id": "mix_029_clean", "text": "去全部赌在A去全部押在AI身上", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_029", "path_16k": "asr/16k/mix_029.wav"}}
+{"id": "mix_029_g711", "text": "去全部赌在A去全部押在AI身上", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_029", "path_16k": "asr/16k/mix_029.wav"}}
+{"id": "mix_030_clean", "text": "对business那边social活动多一点就有很多活动要参加", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_030", "path_16k": "asr/16k/mix_030.wav"}}
+{"id": "mix_030_g711", "text": "对business那边social活动多一点就有很多活动要参加", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_030", "path_16k": "asr/16k/mix_030.wav"}}
+{"id": "mix_031_clean", "text": "就你要申请去交换你并不需要去说哦我要去哪一个department交换是直接选school", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_031", "path_16k": "asr/16k/mix_031.wav"}}
+{"id": "mix_031_g711", "text": "就你要申请去交换你并不需要去说哦我要去哪一个department交换是直接选school", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_031", "path_16k": "asr/16k/mix_031.wav"}}
+{"id": "mix_032_clean", "text": "还有就是比如说会呃我们上次就我上次做的一个project是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_032", "path_16k": "asr/16k/mix_032.wav"}}
+{"id": "mix_032_g711", "text": "还有就是比如说会呃我们上次就我上次做的一个project是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_032", "path_16k": "asr/16k/mix_032.wav"}}
+{"id": "mix_033_clean", "text": "嗯你觉得那你为什么会呃你就是觉得国外更open minded然后有更多", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_033", "path_16k": "asr/16k/mix_033.wav"}}
+{"id": "mix_033_g711", "text": "嗯你觉得那你为什么会呃你就是觉得国外更open minded然后有更多", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_033", "path_16k": "asr/16k/mix_033.wav"}}
+{"id": "mix_034_clean", "text": "对啊大家最近都是觉得AI有一天能够replace人类", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_034", "path_16k": "asr/16k/mix_034.wav"}}
+{"id": "mix_034_g711", "text": "对啊大家最近都是觉得AI有一天能够replace人类", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_034", "path_16k": "asr/16k/mix_034.wav"}}
+{"id": "mix_035_clean", "text": "对我的我undergraduate的时候学的major也是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_035", "path_16k": "asr/16k/mix_035.wav"}}
+{"id": "mix_035_g711", "text": "对我的我undergraduate的时候学的major也是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_035", "path_16k": "asr/16k/mix_035.wav"}}
+{"id": "mix_036_clean", "text": "然后在打算申请graduate school的时候我考虑过挺多major的", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_036", "path_16k": "asr/16k/mix_036.wav"}}
+{"id": "mix_036_g711", "text": "然后在打算申请graduate school的时候我考虑过挺多major的", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_036", "path_16k": "asr/16k/mix_036.wav"}}
+{"id": "mix_037_clean", "text": "所以你平时就现在大部分时间还是tennis就打网球", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_037", "path_16k": "asr/16k/mix_037.wav"}}
+{"id": "mix_037_g711", "text": "所以你平时就现在大部分时间还是tennis就打网球", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_037", "path_16k": "asr/16k/mix_037.wav"}}
+{"id": "mix_038_clean", "text": "就是会有很多呃比如说跟alumnus聚会啊一起吃饭然后用就是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_038", "path_16k": "asr/16k/mix_038.wav"}}
+{"id": "mix_038_g711", "text": "就是会有很多呃比如说跟alumnus聚会啊一起吃饭然后用就是", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_038", "path_16k": "asr/16k/mix_038.wav"}}
+{"id": "mix_039_clean", "text": "当时其实有一个就是做communication的professor想找我进组", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_039", "path_16k": "asr/16k/mix_039.wav"}}
+{"id": "mix_039_g711", "text": "当时其实有一个就是做communication的professor想找我进组", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_039", "path_16k": "asr/16k/mix_039.wav"}}
+{"id": "mix_040_clean", "text": "大四上学期好像是反正好像是六月份的时候才开始准备IELTS", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_040", "path_16k": "asr/16k/mix_040.wav"}}
+{"id": "mix_040_g711", "text": "大四上学期好像是反正好像是六月份的时候才开始准备IELTS", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_040", "path_16k": "asr/16k/mix_040.wav"}}
+{"id": "mix_041_clean", "text": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_041", "path_16k": "asr/16k/mix_041.wav"}}
+{"id": "mix_041_g711", "text": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_041", "path_16k": "asr/16k/mix_041.wav"}}
+{"id": "mix_042_clean", "text": "也就是我现在supervisor呢就跟我说哎那你过来跟我做我就给你一些robotics相关的题目啊这样子做那我就说哎那其实", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "clean", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_042", "path_16k": "asr/16k/mix_042.wav"}}
+{"id": "mix_042_g711", "text": "也就是我现在supervisor呢就跟我说哎那你过来跟我做我就给你一些robotics相关的题目啊这样子做那我就说哎那其实", "terms": [], "category": "ascend", "set": "ascend", "voice": "human", "degradation": "g711", "source": {"corpus": "ASCEND test (mixed)", "id": "mix_042", "path_16k": "asr/16k/mix_042.wav"}}

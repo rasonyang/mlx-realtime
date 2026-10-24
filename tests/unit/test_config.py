@@ -203,6 +203,19 @@ def test_the_g7_dual_path_and_the_capacity_defaults() -> None:
     )
 
 
+def test_the_asr_context_default_is_unset_and_at_most_1024_characters() -> None:
+    asr: dict[str, object] = {"type": "mlx_audio_transcription"}
+    default = validate_config({"providers": {"asr": asr}}).providers.asr
+    assert isinstance(default, MlxAudioAsrConfig)
+    assert default.context is None
+    repository = load_config(REPO_CONFIG, {}).providers.asr
+    assert isinstance(repository, MlxAudioAsrConfig)
+    assert repository.context is None
+    exact = validate_config({"providers": {"asr": {**asr, "context": "术" * 1024}}}).providers.asr
+    assert isinstance(exact, MlxAudioAsrConfig)
+    assert exact.context == "术" * 1024
+
+
 def test_every_barge_in_rule_can_be_switched_off() -> None:
     config = validate_config(
         {
@@ -247,6 +260,11 @@ def test_env_override_is_parsed_as_yaml(tmp_path: Path) -> None:
         ("providers: {llm: {type: nope}}\n", {}, "providers.llm"),
         ("providers: {llm: {type: mlx_lm_chat, top_p: 2}}\n", {}, "providers.llm.top_p"),
         ("providers: {asr: {type: mlx_audio_transcription, url: x}}\n", {}, "providers.asr.url"),
+        (
+            "providers: {asr: {type: mlx_audio_transcription, context: " + "x" * 1025 + "}}\n",
+            {},
+            "providers.asr.context",
+        ),
         (
             "providers: {llm: {type: mlx_lm_chat, system_note: x}}\n",
             {},

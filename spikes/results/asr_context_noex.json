@@ -1,0 +1,8133 @@
+{
+ "kind": "run",
+ "label": "patched-noex",
+ "base_url": "http://127.0.0.1:8132",
+ "model": "mlx-community/Qwen3-ASR-1.7B-8bit",
+ "context_field": "context",
+ "language": null,
+ "modes": [
+  "none",
+  "context_noex"
+ ],
+ "context_lengths": {
+  "none": null,
+  "context_noex": 254
+ },
+ "wall_s": 129.1,
+ "rows": [
+  {
+   "id": "u001",
+   "text": "Zentra 最近有什么优惠活动吗？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u002",
+   "text": "我说，Orbix 是做什么的？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u003",
+   "text": "刚才你说的 IP 地址 我没听懂，再讲一遍。",
+   "terms": [
+    "IP 地址"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u004",
+   "text": "我要取消订单 NV20240403。",
+   "tts": "我要取消订单 N V 二 零 二 四 零 四 零 三。",
+   "terms": [
+    "NV20240403"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u005",
+   "text": "我要取消订单 RMA-2399。",
+   "tts": "我要取消订单 R M A 二 三 九 九。",
+   "terms": [
+    "RMA-2399"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u006",
+   "text": "请问 NovaNet Max 怎么开通？",
+   "terms": [
+    "NovaNet Max"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u007",
+   "text": "DNS 是不是要重新弄一下？",
+   "terms": [
+    "DNS"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u008",
+   "text": "工单号 NN8790X，什么时候能处理？",
+   "tts": "工单号 N N 八 七 九 零 X，什么时候能处理？",
+   "terms": [
+    "NN8790X"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u009",
+   "text": "我想办一个 Wi-Fi 7 的套餐。",
+   "terms": [
+    "Wi-Fi 7"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u010",
+   "text": "我的订单号是 NV20241018，帮我查一下进度。",
+   "tts": "我的订单号是 N V 二 零 二 四 一 零 一 八，帮我查一下进度。",
+   "terms": [
+    "NV20241018"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u011",
+   "text": "我想办一个 NovaNet Home Pro 的套餐。",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u012",
+   "text": "刚才你说的 OTA 升级 我没听懂，再讲一遍。",
+   "terms": [
+    "OTA 升级"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u013",
+   "text": "维修单 NN9898K 的师傅怎么还没来？",
+   "tts": "维修单 N N 九 八 九 八 K 的师傅怎么还没来？",
+   "terms": [
+    "NN9898K"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u014",
+   "text": "我想办一个 5G 畅享 199 的套餐。",
+   "terms": [
+    "5G 畅享 199"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u015",
+   "text": "你们的 Wi-Fi 6 有什么优惠吗？",
+   "terms": [
+    "Wi-Fi 6"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u016",
+   "text": "SSID 是不是要重新弄一下？",
+   "terms": [
+    "SSID"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u017",
+   "text": "请问 Lumio 和别的运营商有什么区别？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u018",
+   "text": "我听朋友推荐了 SkyWave，想了解一下。",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u019",
+   "text": "我要取消订单 NN3715X。",
+   "tts": "我要取消订单 N N 三 七 一 五 X。",
+   "terms": [
+    "NN3715X"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u020",
+   "text": "我这个 OTA 升级 老是出问题。",
+   "terms": [
+    "OTA 升级"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u021",
+   "text": "我的订单号是 TK-58027，帮我查一下进度。",
+   "tts": "我的订单号是 T K 五 八 零 二 七，帮我查一下进度。",
+   "terms": [
+    "TK-58027"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u022",
+   "text": "Wi-Fi 6 覆盖我们小区吗？",
+   "terms": [
+    "Wi-Fi 6"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u023",
+   "text": "工单号 SO-366-365，什么时候能处理？",
+   "tts": "工单号 S O 三 六 六 三 六 五，什么时候能处理？",
+   "terms": [
+    "SO-366-365"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u024",
+   "text": "我朋友用的 IPTV，我也想试试。",
+   "terms": [
+    "IPTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u025",
+   "text": "SO-100-263 这个订单的收货地址我想改一下。",
+   "tts": "S O 一 零 零 二 六 三 这个订单的收货地址我想改一下。",
+   "terms": [
+    "SO-100-263"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u026",
+   "text": "5G 尊享 299 每个月多少钱？",
+   "terms": [
+    "5G 尊享 299"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u027",
+   "text": "刚才你说的 VPN 我没听懂，再讲一遍。",
+   "terms": [
+    "VPN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u028",
+   "text": "我说，SkyWave 是做什么的？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u029",
+   "text": "Orbix 的 NovaNet Max 我昨天刚装好，还是不行。",
+   "terms": [
+    "NovaNet Max",
+    "Orbix"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u030",
+   "text": "Ping 值 是不是要重新弄一下？",
+   "terms": [
+    "Ping 值"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u031",
+   "text": "刚才你说的 Ping 值 我没听懂，再讲一遍。",
+   "terms": [
+    "Ping 值"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u032",
+   "text": "我听朋友推荐了 Orbix，想了解一下。",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u033",
+   "text": "NovaCloud 覆盖我们小区吗？",
+   "terms": [
+    "NovaCloud"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u034",
+   "text": "APN 是不是要重新弄一下？",
+   "terms": [
+    "APN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u035",
+   "text": "Lumio 的客服电话是多少？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u036",
+   "text": "昨天开始 LTE 就不能用了。",
+   "terms": [
+    "LTE"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u037",
+   "text": "我这个 Ping 值 老是出问题。",
+   "terms": [
+    "Ping 值"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u038",
+   "text": "我想问一下 Lumio 的营业厅在哪里？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u039",
+   "text": "Wi-Fi 7 每个月多少钱？",
+   "terms": [
+    "Wi-Fi 7"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u040",
+   "text": "SkyWave 的客服电话是多少？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u041",
+   "text": "NovaNet 的客服电话是多少？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u042",
+   "text": "我想办一个 5G-A 的套餐。",
+   "terms": [
+    "5G-A"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u043",
+   "text": "我要取消订单 TK-56941。",
+   "tts": "我要取消订单 T K 五 六 九 四 一。",
+   "terms": [
+    "TK-56941"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u044",
+   "text": "能不能帮我看看 SIM 卡 怎么设置？",
+   "terms": [
+    "SIM 卡"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u045",
+   "text": "5G-A 每个月多少钱？",
+   "terms": [
+    "5G-A"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u046",
+   "text": "我家的 IP 地址 一直不行，你们能远程处理吗？",
+   "terms": [
+    "IP 地址"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u047",
+   "text": "App 是不是要重新弄一下？",
+   "terms": [
+    "App"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u048",
+   "text": "我想把现在的套餐换成 NovaCloud。",
+   "terms": [
+    "NovaCloud"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u049",
+   "text": "昨天开始 Ping 值 就不能用了。",
+   "terms": [
+    "Ping 值"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u050",
+   "text": "我这个 App 老是出问题。",
+   "terms": [
+    "App"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u051",
+   "text": "IPTV 每个月多少钱？",
+   "terms": [
+    "IPTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u052",
+   "text": "Zentra 的客服电话是多少？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u053",
+   "text": "Veltra 是做什么的？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u054",
+   "text": "我家的 NovaCloud 连不上 Lumio 的网络。",
+   "terms": [
+    "NovaCloud",
+    "Lumio"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u055",
+   "text": "SkyWave 的 5G-A 我昨天刚装好，还是不行。",
+   "terms": [
+    "5G-A",
+    "SkyWave"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u056",
+   "text": "我家的 5G 尊享 299 连不上 Zentra 的网络。",
+   "terms": [
+    "5G 尊享 299",
+    "Zentra"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u057",
+   "text": "帮我转接到 Lumio 的人工客服。",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u058",
+   "text": "昨天开始 VIP 就不能用了。",
+   "terms": [
+    "VIP"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u059",
+   "text": "我要取消订单 RMA-5720。",
+   "tts": "我要取消订单 R M A 五 七 二 零。",
+   "terms": [
+    "RMA-5720"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u060",
+   "text": "我朋友用的 5G 尊享 299，我也想试试。",
+   "terms": [
+    "5G 尊享 299"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u061",
+   "text": "我想办一个 IPTV 的套餐。",
+   "terms": [
+    "IPTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u062",
+   "text": "昨天开始 SSID 就不能用了。",
+   "terms": [
+    "SSID"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u063",
+   "text": "SkyWave 是做什么的？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u064",
+   "text": "我朋友用的 eSIM，我也想试试。",
+   "terms": [
+    "eSIM"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u065",
+   "text": "TK-17578 这个订单的收货地址我想改一下。",
+   "tts": "T K 一 七 五 七 八 这个订单的收货地址我想改一下。",
+   "terms": [
+    "TK-17578"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u066",
+   "text": "你们是 NovaNet 的客服吗？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u067",
+   "text": "我想办一个 NovaNet Max 的套餐。",
+   "terms": [
+    "NovaNet Max"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u068",
+   "text": "你们的 eSIM 有什么优惠吗？",
+   "terms": [
+    "eSIM"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u069",
+   "text": "我是 NovaNet 的老用户了，想问个问题。",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u070",
+   "text": "工单号 TK-67279，什么时候能处理？",
+   "tts": "工单号 T K 六 七 二 七 九，什么时候能处理？",
+   "terms": [
+    "TK-67279"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u071",
+   "text": "工单号 NV20240224，什么时候能处理？",
+   "tts": "工单号 N V 二 零 二 四 零 二 二 四，什么时候能处理？",
+   "terms": [
+    "NV20240224"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u072",
+   "text": "Veltra 最近有什么优惠活动吗？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u073",
+   "text": "5G 畅享 199 覆盖我们小区吗？",
+   "terms": [
+    "5G 畅享 199"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u074",
+   "text": "工单号 RMA-7677，什么时候能处理？",
+   "tts": "工单号 R M A 七 六 七 七，什么时候能处理？",
+   "terms": [
+    "RMA-7677"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u075",
+   "text": "我的订单号是 RMA-9050，帮我查一下进度。",
+   "tts": "我的订单号是 R M A 九 零 五 零，帮我查一下进度。",
+   "terms": [
+    "RMA-9050"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u076",
+   "text": "你们的 NovaCloud 有什么优惠吗？",
+   "terms": [
+    "NovaCloud"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u077",
+   "text": "麻烦核对一下 NV20241206 这个单号。",
+   "tts": "麻烦核对一下 N V 二 零 二 四 一 二 零 六 这个单号。",
+   "terms": [
+    "NV20241206"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u078",
+   "text": "工单号 NN5799K，什么时候能处理？",
+   "tts": "工单号 N N 五 七 九 九 K，什么时候能处理？",
+   "terms": [
+    "NN5799K"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u079",
+   "text": "我家的 SSID 一直不行，你们能远程处理吗？",
+   "terms": [
+    "SSID"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u080",
+   "text": "我朋友用的 5G 畅享 199，我也想试试。",
+   "terms": [
+    "5G 畅享 199"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u081",
+   "text": "昨天开始 VPN 就不能用了。",
+   "terms": [
+    "VPN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u082",
+   "text": "我想把现在的套餐换成 NovaNet Max。",
+   "terms": [
+    "NovaNet Max"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u083",
+   "text": "维修单 NV20240321 的师傅怎么还没来？",
+   "tts": "维修单 N V 二 零 二 四 零 三 二 一 的师傅怎么还没来？",
+   "terms": [
+    "NV20240321"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u084",
+   "text": "我家的 PIN 码 一直不行，你们能远程处理吗？",
+   "terms": [
+    "PIN 码"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u085",
+   "text": "Zentra 是做什么的？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u086",
+   "text": "SO-910-408 这个订单的收货地址我想改一下。",
+   "tts": "S O 九 一 零 四 零 八 这个订单的收货地址我想改一下。",
+   "terms": [
+    "SO-910-408"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u087",
+   "text": "我想把现在的套餐换成 eSIM。",
+   "terms": [
+    "eSIM"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u088",
+   "text": "我家的 DNS 一直不行，你们能远程处理吗？",
+   "terms": [
+    "DNS"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u089",
+   "text": "我朋友用的 NovaTV，我也想试试。",
+   "terms": [
+    "NovaTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u090",
+   "text": "我家的 SIM 卡 一直不行，你们能远程处理吗？",
+   "terms": [
+    "SIM 卡"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u091",
+   "text": "你们的 NovaTV 有什么优惠吗？",
+   "terms": [
+    "NovaTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u092",
+   "text": "RMA-6610 这个订单的收货地址我想改一下。",
+   "tts": "R M A 六 六 一 零 这个订单的收货地址我想改一下。",
+   "terms": [
+    "RMA-6610"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u093",
+   "text": "我家的 VPN 一直不行，你们能远程处理吗？",
+   "terms": [
+    "VPN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u094",
+   "text": "你们是 SkyWave 的客服吗？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u095",
+   "text": "麻烦核对一下 RMA-3004 这个单号。",
+   "tts": "麻烦核对一下 R M A 三 零 零 四 这个单号。",
+   "terms": [
+    "RMA-3004"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u096",
+   "text": "能不能帮我看看 App 怎么设置？",
+   "terms": [
+    "App"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u097",
+   "text": "请问 NovaNet Home Pro 怎么开通？",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u098",
+   "text": "请问 NovaNet 和别的运营商有什么区别？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u099",
+   "text": "我家的 App 一直不行，你们能远程处理吗？",
+   "terms": [
+    "App"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u100",
+   "text": "请问 Veltra 和别的运营商有什么区别？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u101",
+   "text": "请问 Wi-Fi 7 怎么开通？",
+   "terms": [
+    "Wi-Fi 7"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u102",
+   "text": "刚才你说的 VIP 我没听懂，再讲一遍。",
+   "terms": [
+    "VIP"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u103",
+   "text": "工单号 RMA-8711，什么时候能处理？",
+   "tts": "工单号 R M A 八 七 一 一，什么时候能处理？",
+   "terms": [
+    "RMA-8711"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u104",
+   "text": "我的订单号是 SO-916-216，帮我查一下进度。",
+   "tts": "我的订单号是 S O 九 一 六 二 一 六，帮我查一下进度。",
+   "terms": [
+    "SO-916-216"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u105",
+   "text": "我想办一个 AX3000 的套餐。",
+   "terms": [
+    "AX3000"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u106",
+   "text": "IPTV 覆盖我们小区吗？",
+   "terms": [
+    "IPTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u107",
+   "text": "我听朋友推荐了 Zentra，想了解一下。",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u108",
+   "text": "我想问一下 Zentra 的营业厅在哪里？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u109",
+   "text": "SkyWave 的 VoLTE 我昨天刚装好，还是不行。",
+   "terms": [
+    "VoLTE",
+    "SkyWave"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u110",
+   "text": "Lumio 是做什么的？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u111",
+   "text": "麻烦核对一下 TK-29002 这个单号。",
+   "tts": "麻烦核对一下 T K 二 九 零 零 二 这个单号。",
+   "terms": [
+    "TK-29002"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u112",
+   "text": "维修单 RMA-2468 的师傅怎么还没来？",
+   "tts": "维修单 R M A 二 四 六 八 的师傅怎么还没来？",
+   "terms": [
+    "RMA-2468"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u113",
+   "text": "维修单 NN5602B 的师傅怎么还没来？",
+   "tts": "维修单 N N 五 六 零 二 B 的师傅怎么还没来？",
+   "terms": [
+    "NN5602B"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u114",
+   "text": "NovaNet Home Pro 每个月多少钱？",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u115",
+   "text": "我的订单号是 NV20240820，帮我查一下进度。",
+   "tts": "我的订单号是 N V 二 零 二 四 零 八 二 零，帮我查一下进度。",
+   "terms": [
+    "NV20240820"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u116",
+   "text": "我想办一个 VoLTE 的套餐。",
+   "terms": [
+    "VoLTE"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u117",
+   "text": "昨天开始 PIN 码 就不能用了。",
+   "terms": [
+    "PIN 码"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u118",
+   "text": "我想问一下 Veltra 的营业厅在哪里？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u119",
+   "text": "我的订单号是 NN6266A，帮我查一下进度。",
+   "tts": "我的订单号是 N N 六 二 六 六 A，帮我查一下进度。",
+   "terms": [
+    "NN6266A"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u120",
+   "text": "能不能帮我看看 IP 地址 怎么设置？",
+   "terms": [
+    "IP 地址"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u121",
+   "text": "能不能帮我看看 VIP 怎么设置？",
+   "terms": [
+    "VIP"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u122",
+   "text": "Mesh 路由器 覆盖我们小区吗？",
+   "terms": [
+    "Mesh 路由器"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u123",
+   "text": "Veltra 的 5G 畅享 199 我昨天刚装好，还是不行。",
+   "terms": [
+    "5G 畅享 199",
+    "Veltra"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u124",
+   "text": "Veltra 的 NovaTV 我昨天刚装好，还是不行。",
+   "terms": [
+    "NovaTV",
+    "Veltra"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u125",
+   "text": "我想把现在的套餐换成 Wi-Fi 7。",
+   "terms": [
+    "Wi-Fi 7"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u126",
+   "text": "麻烦核对一下 NN5616K 这个单号。",
+   "tts": "麻烦核对一下 N N 五 六 一 六 K 这个单号。",
+   "terms": [
+    "NN5616K"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u127",
+   "text": "维修单 NV20240811 的师傅怎么还没来？",
+   "tts": "维修单 N V 二 零 二 四 零 八 一 一 的师傅怎么还没来？",
+   "terms": [
+    "NV20240811"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u128",
+   "text": "我家的 Wi-Fi 7 连不上 NovaNet 的网络。",
+   "terms": [
+    "Wi-Fi 7",
+    "NovaNet"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u129",
+   "text": "Lumio 最近有什么优惠活动吗？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u130",
+   "text": "IP 地址 是不是要重新弄一下？",
+   "terms": [
+    "IP 地址"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u131",
+   "text": "我是 Veltra 的老用户了，想问个问题。",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u132",
+   "text": "我想把现在的套餐换成 5G 畅享 199。",
+   "terms": [
+    "5G 畅享 199"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u133",
+   "text": "请问 IPTV 怎么开通？",
+   "terms": [
+    "IPTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u134",
+   "text": "我说，Lumio 是做什么的？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u135",
+   "text": "能不能帮我看看 OTA 升级 怎么设置？",
+   "terms": [
+    "OTA 升级"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u136",
+   "text": "能不能帮我看看 LTE 怎么设置？",
+   "terms": [
+    "LTE"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u137",
+   "text": "我是 Orbix 的老用户了，想问个问题。",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u138",
+   "text": "我听朋友推荐了 Lumio，想了解一下。",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u139",
+   "text": "刚才你说的 APN 我没听懂，再讲一遍。",
+   "terms": [
+    "APN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u140",
+   "text": "我说，Zentra 是做什么的？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u141",
+   "text": "我的订单号是 RMA-7478，帮我查一下进度。",
+   "tts": "我的订单号是 R M A 七 四 七 八，帮我查一下进度。",
+   "terms": [
+    "RMA-7478"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u142",
+   "text": "请问 5G-A 怎么开通？",
+   "terms": [
+    "5G-A"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u143",
+   "text": "Orbix 最近有什么优惠活动吗？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u144",
+   "text": "我听朋友推荐了 NovaNet，想了解一下。",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u145",
+   "text": "你们是 Zentra 的客服吗？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u146",
+   "text": "你们的 5G 畅享 199 有什么优惠吗？",
+   "terms": [
+    "5G 畅享 199"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u147",
+   "text": "请问 eSIM 怎么开通？",
+   "terms": [
+    "eSIM"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u148",
+   "text": "我想问一下 Orbix 的营业厅在哪里？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u149",
+   "text": "NN9051X 这个订单的收货地址我想改一下。",
+   "tts": "N N 九 零 五 一 X 这个订单的收货地址我想改一下。",
+   "terms": [
+    "NN9051X"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u150",
+   "text": "NovaTV 覆盖我们小区吗？",
+   "terms": [
+    "NovaTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u151",
+   "text": "帮我转接到 Orbix 的人工客服。",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u152",
+   "text": "我说，Veltra 是做什么的？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u153",
+   "text": "你们的 Mesh 路由器 有什么优惠吗？",
+   "terms": [
+    "Mesh 路由器"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u154",
+   "text": "你们的 AX3000 有什么优惠吗？",
+   "terms": [
+    "AX3000"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u155",
+   "text": "维修单 TK-17719 的师傅怎么还没来？",
+   "tts": "维修单 T K 一 七 七 一 九 的师傅怎么还没来？",
+   "terms": [
+    "TK-17719"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u156",
+   "text": "帮我转接到 SkyWave 的人工客服。",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u157",
+   "text": "我听朋友推荐了 Veltra，想了解一下。",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u158",
+   "text": "eSIM 覆盖我们小区吗？",
+   "terms": [
+    "eSIM"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u159",
+   "text": "我说，NovaNet 是做什么的？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u160",
+   "text": "我想把现在的套餐换成 VoLTE。",
+   "terms": [
+    "VoLTE"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u161",
+   "text": "Orbix 的 Wi-Fi 6 我昨天刚装好，还是不行。",
+   "terms": [
+    "Wi-Fi 6",
+    "Orbix"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u162",
+   "text": "SkyWave 最近有什么优惠活动吗？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u163",
+   "text": "Wi-Fi 6 每个月多少钱？",
+   "terms": [
+    "Wi-Fi 6"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u164",
+   "text": "我家的 NovaNet Home Pro 连不上 NovaNet 的网络。",
+   "terms": [
+    "NovaNet Home Pro",
+    "NovaNet"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u165",
+   "text": "SIM 卡 是不是要重新弄一下？",
+   "terms": [
+    "SIM 卡"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u166",
+   "text": "我这个 APN 老是出问题。",
+   "terms": [
+    "APN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u167",
+   "text": "TK-23355 这个订单的收货地址我想改一下。",
+   "tts": "T K 二 三 三 五 五 这个订单的收货地址我想改一下。",
+   "terms": [
+    "TK-23355"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u168",
+   "text": "我朋友用的 5G-A，我也想试试。",
+   "terms": [
+    "5G-A"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u169",
+   "text": "我要取消订单 NN3768A。",
+   "tts": "我要取消订单 N N 三 七 六 八 A。",
+   "terms": [
+    "NN3768A"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u170",
+   "text": "昨天开始 APN 就不能用了。",
+   "terms": [
+    "APN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u171",
+   "text": "麻烦核对一下 SO-122-845 这个单号。",
+   "tts": "麻烦核对一下 S O 一 二 二 八 四 五 这个单号。",
+   "terms": [
+    "SO-122-845"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u172",
+   "text": "我朋友用的 AX3000，我也想试试。",
+   "terms": [
+    "AX3000"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u173",
+   "text": "我是 Lumio 的老用户了，想问个问题。",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u174",
+   "text": "我这个 DNS 老是出问题。",
+   "terms": [
+    "DNS"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u175",
+   "text": "麻烦核对一下 TK-20328 这个单号。",
+   "tts": "麻烦核对一下 T K 二 零 三 二 八 这个单号。",
+   "terms": [
+    "TK-20328"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u176",
+   "text": "NovaNet Max 每个月多少钱？",
+   "terms": [
+    "NovaNet Max"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u177",
+   "text": "维修单 SO-395-756 的师傅怎么还没来？",
+   "tts": "维修单 S O 三 九 五 七 五 六 的师傅怎么还没来？",
+   "terms": [
+    "SO-395-756"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u178",
+   "text": "你们的 NovaNet Home Pro 有什么优惠吗？",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u179",
+   "text": "我想把现在的套餐换成 Mesh 路由器。",
+   "terms": [
+    "Mesh 路由器"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u180",
+   "text": "请问 SkyWave 和别的运营商有什么区别？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u181",
+   "text": "我想把现在的套餐换成 Wi-Fi 6。",
+   "terms": [
+    "Wi-Fi 6"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u182",
+   "text": "我家的 LTE 一直不行，你们能远程处理吗？",
+   "terms": [
+    "LTE"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u183",
+   "text": "我家的 Mesh 路由器 连不上 Zentra 的网络。",
+   "terms": [
+    "Mesh 路由器",
+    "Zentra"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u184",
+   "text": "我想问一下 NovaNet 的营业厅在哪里？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u185",
+   "text": "请问 Orbix 和别的运营商有什么区别？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u186",
+   "text": "帮我转接到 Zentra 的人工客服。",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u187",
+   "text": "能不能帮我看看 PIN 码 怎么设置？",
+   "terms": [
+    "PIN 码"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u188",
+   "text": "我家的 eSIM 连不上 Lumio 的网络。",
+   "terms": [
+    "eSIM",
+    "Lumio"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u189",
+   "text": "我这个 LTE 老是出问题。",
+   "terms": [
+    "LTE"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u190",
+   "text": "工单号 TK-50137，什么时候能处理？",
+   "tts": "工单号 T K 五 零 一 三 七，什么时候能处理？",
+   "terms": [
+    "TK-50137"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u191",
+   "text": "NV20240511 这个订单的收货地址我想改一下。",
+   "tts": "N V 二 零 二 四 零 五 一 一 这个订单的收货地址我想改一下。",
+   "terms": [
+    "NV20240511"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u192",
+   "text": "刚才你说的 SSID 我没听懂，再讲一遍。",
+   "terms": [
+    "SSID"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u193",
+   "text": "请问 NovaTV 怎么开通？",
+   "terms": [
+    "NovaTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u194",
+   "text": "我要取消订单 SO-986-737。",
+   "tts": "我要取消订单 S O 九 八 六 七 三 七。",
+   "terms": [
+    "SO-986-737"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u195",
+   "text": "我的订单号是 TK-20775，帮我查一下进度。",
+   "tts": "我的订单号是 T K 二 零 七 七 五，帮我查一下进度。",
+   "terms": [
+    "TK-20775"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u196",
+   "text": "5G 尊享 299 覆盖我们小区吗？",
+   "terms": [
+    "5G 尊享 299"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u197",
+   "text": "Orbix 的客服电话是多少？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u198",
+   "text": "Veltra 的客服电话是多少？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u199",
+   "text": "你们是 Lumio 的客服吗？",
+   "terms": [
+    "Lumio"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u200",
+   "text": "我朋友用的 Mesh 路由器，我也想试试。",
+   "terms": [
+    "Mesh 路由器"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u201",
+   "text": "请问 Wi-Fi 6 怎么开通？",
+   "terms": [
+    "Wi-Fi 6"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u202",
+   "text": "VPN 是不是要重新弄一下？",
+   "terms": [
+    "VPN"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u203",
+   "text": "你们是 Orbix 的客服吗？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u204",
+   "text": "工单号 SO-141-370，什么时候能处理？",
+   "tts": "工单号 S O 一 四 一 三 七 零，什么时候能处理？",
+   "terms": [
+    "SO-141-370"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u205",
+   "text": "你们是 Veltra 的客服吗？",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "clean"
+  },
+  {
+   "id": "u206",
+   "text": "我想办一个 Mesh 路由器 的套餐。",
+   "terms": [
+    "Mesh 路由器"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u207",
+   "text": "帮我转接到 NovaNet 的人工客服。",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "g711"
+  },
+  {
+   "id": "u208",
+   "text": "昨天开始 OTA 升级 就不能用了。",
+   "terms": [
+    "OTA 升级"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u209",
+   "text": "我想办一个 5G 尊享 299 的套餐。",
+   "terms": [
+    "5G 尊享 299"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u210",
+   "text": "你们的 NovaNet Max 有什么优惠吗？",
+   "terms": [
+    "NovaNet Max"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u211",
+   "text": "我的订单号是 SO-909-659，帮我查一下进度。",
+   "tts": "我的订单号是 S O 九 零 九 六 五 九，帮我查一下进度。",
+   "terms": [
+    "SO-909-659"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u212",
+   "text": "刚才你说的 SIM 卡 我没听懂，再讲一遍。",
+   "terms": [
+    "SIM 卡"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u213",
+   "text": "我想把现在的套餐换成 NovaTV。",
+   "terms": [
+    "NovaTV"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u214",
+   "text": "维修单 RMA-1107 的师傅怎么还没来？",
+   "tts": "维修单 R M A 一 一 零 七 的师傅怎么还没来？",
+   "terms": [
+    "RMA-1107"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u215",
+   "text": "VoLTE 覆盖我们小区吗？",
+   "terms": [
+    "VoLTE"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u216",
+   "text": "请问 AX3000 怎么开通？",
+   "terms": [
+    "AX3000"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u217",
+   "text": "我是 Zentra 的老用户了，想问个问题。",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "noise"
+  },
+  {
+   "id": "u218",
+   "text": "NovaNet 是做什么的？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "onset"
+  },
+  {
+   "id": "u219",
+   "text": "我朋友用的 VoLTE，我也想试试。",
+   "terms": [
+    "VoLTE"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u220",
+   "text": "帮我转接到 Veltra 的人工客服。",
+   "terms": [
+    "Veltra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "uncle_fu",
+   "degradation": "echo"
+  },
+  {
+   "id": "u221",
+   "text": "麻烦核对一下 NV20240902 这个单号。",
+   "tts": "麻烦核对一下 N V 二 零 二 四 零 九 零 二 这个单号。",
+   "terms": [
+    "NV20240902"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u222",
+   "text": "Orbix 是做什么的？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "clean"
+  },
+  {
+   "id": "u223",
+   "text": "能不能帮我看看 DNS 怎么设置？",
+   "terms": [
+    "DNS"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u224",
+   "text": "我要取消订单 SO-196-224。",
+   "tts": "我要取消订单 S O 一 九 六 二 二 四。",
+   "terms": [
+    "SO-196-224"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u225",
+   "text": "5G-A 覆盖我们小区吗？",
+   "terms": [
+    "5G-A"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u226",
+   "text": "麻烦核对一下 NN3657K 这个单号。",
+   "tts": "麻烦核对一下 N N 三 六 五 七 K 这个单号。",
+   "terms": [
+    "NN3657K"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u227",
+   "text": "我想把现在的套餐换成 5G 尊享 299。",
+   "terms": [
+    "5G 尊享 299"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u228",
+   "text": "我这个 PIN 码 老是出问题。",
+   "terms": [
+    "PIN 码"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u229",
+   "text": "NovaCloud 每个月多少钱？",
+   "terms": [
+    "NovaCloud"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "u230",
+   "text": "AX3000 每个月多少钱？",
+   "terms": [
+    "AX3000"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "clean"
+  },
+  {
+   "id": "u231",
+   "text": "VoLTE 每个月多少钱？",
+   "terms": [
+    "VoLTE"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "g711"
+  },
+  {
+   "id": "u232",
+   "text": "请问 Zentra 和别的运营商有什么区别？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "g711"
+  },
+  {
+   "id": "u233",
+   "text": "我这个 VIP 老是出问题。",
+   "terms": [
+    "VIP"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "u234",
+   "text": "NV20241022 这个订单的收货地址我想改一下。",
+   "tts": "N V 二 零 二 四 一 零 二 二 这个订单的收货地址我想改一下。",
+   "terms": [
+    "NV20241022"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u235",
+   "text": "我是 SkyWave 的老用户了，想问个问题。",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "noise"
+  },
+  {
+   "id": "u236",
+   "text": "我朋友用的 NovaNet Home Pro，我也想试试。",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "noise"
+  },
+  {
+   "id": "u237",
+   "text": "我想问一下 SkyWave 的营业厅在哪里？",
+   "terms": [
+    "SkyWave"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "onset"
+  },
+  {
+   "id": "u238",
+   "text": "请问 NovaCloud 怎么开通？",
+   "terms": [
+    "NovaCloud"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "onset"
+  },
+  {
+   "id": "u239",
+   "text": "你们的 Wi-Fi 7 有什么优惠吗？",
+   "terms": [
+    "Wi-Fi 7"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "serena",
+   "degradation": "echo"
+  },
+  {
+   "id": "u240",
+   "text": "NovaNet 最近有什么优惠活动吗？",
+   "terms": [
+    "NovaNet"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "aiden",
+   "degradation": "echo"
+  },
+  {
+   "id": "mix_001_clean",
+   "text": "就是感觉很fancy",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_001",
+    "path_16k": "asr/16k/mix_001.wav"
+   }
+  },
+  {
+   "id": "mix_001_g711",
+   "text": "就是感觉很fancy",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_001",
+    "path_16k": "asr/16k/mix_001.wav"
+   }
+  },
+  {
+   "id": "mix_002_clean",
+   "text": "三件套Mac吗",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_002",
+    "path_16k": "asr/16k/mix_002.wav"
+   }
+  },
+  {
+   "id": "mix_002_g711",
+   "text": "三件套Mac吗",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_002",
+    "path_16k": "asr/16k/mix_002.wav"
+   }
+  },
+  {
+   "id": "mix_003_clean",
+   "text": "AI最近这么火",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_003",
+    "path_16k": "asr/16k/mix_003.wav"
+   }
+  },
+  {
+   "id": "mix_003_g711",
+   "text": "AI最近这么火",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_003",
+    "path_16k": "asr/16k/mix_003.wav"
+   }
+  },
+  {
+   "id": "mix_004_clean",
+   "text": "然后一直在考虑budget的问题",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_004",
+    "path_16k": "asr/16k/mix_004.wav"
+   }
+  },
+  {
+   "id": "mix_004_g711",
+   "text": "然后一直在考虑budget的问题",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_004",
+    "path_16k": "asr/16k/mix_004.wav"
+   }
+  },
+  {
+   "id": "mix_005_clean",
+   "text": "也是那个hardware",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_005",
+    "path_16k": "asr/16k/mix_005.wav"
+   }
+  },
+  {
+   "id": "mix_005_g711",
+   "text": "也是那个hardware",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_005",
+    "path_16k": "asr/16k/mix_005.wav"
+   }
+  },
+  {
+   "id": "mix_006_clean",
+   "text": "你觉得Mac和Windows比哪个",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_006",
+    "path_16k": "asr/16k/mix_006.wav"
+   }
+  },
+  {
+   "id": "mix_006_g711",
+   "text": "你觉得Mac和Windows比哪个",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_006",
+    "path_16k": "asr/16k/mix_006.wav"
+   }
+  },
+  {
+   "id": "mix_007_clean",
+   "text": "也不是也不完全是ai",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_007",
+    "path_16k": "asr/16k/mix_007.wav"
+   }
+  },
+  {
+   "id": "mix_007_g711",
+   "text": "也不是也不完全是ai",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_007",
+    "path_16k": "asr/16k/mix_007.wav"
+   }
+  },
+  {
+   "id": "mix_008_clean",
+   "text": "is too risky我们不能",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_008",
+    "path_16k": "asr/16k/mix_008.wav"
+   }
+  },
+  {
+   "id": "mix_008_g711",
+   "text": "is too risky我们不能",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_008",
+    "path_16k": "asr/16k/mix_008.wav"
+   }
+  },
+  {
+   "id": "mix_009_clean",
+   "text": "就是still long way to go",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_009",
+    "path_16k": "asr/16k/mix_009.wav"
+   }
+  },
+  {
+   "id": "mix_009_g711",
+   "text": "就是still long way to go",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_009",
+    "path_16k": "asr/16k/mix_009.wav"
+   }
+  },
+  {
+   "id": "mix_010_clean",
+   "text": "就是说给一些data set然后你",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_010",
+    "path_16k": "asr/16k/mix_010.wav"
+   }
+  },
+  {
+   "id": "mix_010_g711",
+   "text": "就是说给一些data set然后你",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_010",
+    "path_16k": "asr/16k/mix_010.wav"
+   }
+  },
+  {
+   "id": "mix_011_clean",
+   "text": "AI做出了一个错误的判断",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_011",
+    "path_16k": "asr/16k/mix_011.wav"
+   }
+  },
+  {
+   "id": "mix_011_g711",
+   "text": "AI做出了一个错误的判断",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_011",
+    "path_16k": "asr/16k/mix_011.wav"
+   }
+  },
+  {
+   "id": "mix_012_clean",
+   "text": "能就是帮人类做很多work",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_012",
+    "path_16k": "asr/16k/mix_012.wav"
+   }
+  },
+  {
+   "id": "mix_012_g711",
+   "text": "能就是帮人类做很多work",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_012",
+    "path_16k": "asr/16k/mix_012.wav"
+   }
+  },
+  {
+   "id": "mix_013_clean",
+   "text": "呃work shop学校应该也有统一的的work shop",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_013",
+    "path_16k": "asr/16k/mix_013.wav"
+   }
+  },
+  {
+   "id": "mix_013_g711",
+   "text": "呃work shop学校应该也有统一的的work shop",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_013",
+    "path_16k": "asr/16k/mix_013.wav"
+   }
+  },
+  {
+   "id": "mix_014_clean",
+   "text": "哦那个是那个是wind好像是做",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_014",
+    "path_16k": "asr/16k/mix_014.wav"
+   }
+  },
+  {
+   "id": "mix_014_g711",
+   "text": "哦那个是那个是wind好像是做",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_014",
+    "path_16k": "asr/16k/mix_014.wav"
+   }
+  },
+  {
+   "id": "mix_015_clean",
+   "text": "我们的department其实hardware跟software其实是各半",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_015",
+    "path_16k": "asr/16k/mix_015.wav"
+   }
+  },
+  {
+   "id": "mix_015_g711",
+   "text": "我们的department其实hardware跟software其实是各半",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_015",
+    "path_16k": "asr/16k/mix_015.wav"
+   }
+  },
+  {
+   "id": "mix_016_clean",
+   "text": "我认为现在的AI比如说在",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_016",
+    "path_16k": "asr/16k/mix_016.wav"
+   }
+  },
+  {
+   "id": "mix_016_g711",
+   "text": "我认为现在的AI比如说在",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_016",
+    "path_16k": "asr/16k/mix_016.wav"
+   }
+  },
+  {
+   "id": "mix_017_clean",
+   "text": "self driving方面自动驾驶方面",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_017",
+    "path_16k": "asr/16k/mix_017.wav"
+   }
+  },
+  {
+   "id": "mix_017_g711",
+   "text": "self driving方面自动驾驶方面",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_017",
+    "path_16k": "asr/16k/mix_017.wav"
+   }
+  },
+  {
+   "id": "mix_018_clean",
+   "text": "就之前运用到的一些都是一些现存的package",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_018",
+    "path_16k": "asr/16k/mix_018.wav"
+   }
+  },
+  {
+   "id": "mix_018_g711",
+   "text": "就之前运用到的一些都是一些现存的package",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_018",
+    "path_16k": "asr/16k/mix_018.wav"
+   }
+  },
+  {
+   "id": "mix_019_clean",
+   "text": "然后再建一个model去optimization这样",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_019",
+    "path_16k": "asr/16k/mix_019.wav"
+   }
+  },
+  {
+   "id": "mix_019_g711",
+   "text": "然后再建一个model去optimization这样",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_019",
+    "path_16k": "asr/16k/mix_019.wav"
+   }
+  },
+  {
+   "id": "mix_020_clean",
+   "text": "对反正我们就只能做一些这种比较entry level的东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_020",
+    "path_16k": "asr/16k/mix_020.wav"
+   }
+  },
+  {
+   "id": "mix_020_g711",
+   "text": "对反正我们就只能做一些这种比较entry level的东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_020",
+    "path_16k": "asr/16k/mix_020.wav"
+   }
+  },
+  {
+   "id": "mix_021_clean",
+   "text": "我并不是要做N L P的对我并不是要做natural language processing",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_021",
+    "path_16k": "asr/16k/mix_021.wav"
+   }
+  },
+  {
+   "id": "mix_021_g711",
+   "text": "我并不是要做N L P的对我并不是要做natural language processing",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_021",
+    "path_16k": "asr/16k/mix_021.wav"
+   }
+  },
+  {
+   "id": "mix_022_clean",
+   "text": "不过后来就是focus在先把G P A提高吗",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_022",
+    "path_16k": "asr/16k/mix_022.wav"
+   }
+  },
+  {
+   "id": "mix_022_g711",
+   "text": "不过后来就是focus在先把G P A提高吗",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_022",
+    "path_16k": "asr/16k/mix_022.wav"
+   }
+  },
+  {
+   "id": "mix_023_clean",
+   "text": "那图像识别其实上学上个semester我们",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_023",
+    "path_16k": "asr/16k/mix_023.wav"
+   }
+  },
+  {
+   "id": "mix_023_g711",
+   "text": "那图像识别其实上学上个semester我们",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_023",
+    "path_16k": "asr/16k/mix_023.wav"
+   }
+  },
+  {
+   "id": "mix_024_clean",
+   "text": "感觉还不错robotics就是robotics mix with language application",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_024",
+    "path_16k": "asr/16k/mix_024.wav"
+   }
+  },
+  {
+   "id": "mix_024_g711",
+   "text": "感觉还不错robotics就是robotics mix with language application",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_024",
+    "path_16k": "asr/16k/mix_024.wav"
+   }
+  },
+  {
+   "id": "mix_025_clean",
+   "text": "呃对它analyzed或者是哦对就你刚你说的那些东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_025",
+    "path_16k": "asr/16k/mix_025.wav"
+   }
+  },
+  {
+   "id": "mix_025_g711",
+   "text": "呃对它analyzed或者是哦对就你刚你说的那些东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_025",
+    "path_16k": "asr/16k/mix_025.wav"
+   }
+  },
+  {
+   "id": "mix_026_clean",
+   "text": "that's the reason我来就是最后决定做那个",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_026",
+    "path_16k": "asr/16k/mix_026.wav"
+   }
+  },
+  {
+   "id": "mix_026_g711",
+   "text": "that's the reason我来就是最后决定做那个",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_026",
+    "path_16k": "asr/16k/mix_026.wav"
+   }
+  },
+  {
+   "id": "mix_027_clean",
+   "text": "做optimization然后再去做预测主要还是做预测",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_027",
+    "path_16k": "asr/16k/mix_027.wav"
+   }
+  },
+  {
+   "id": "mix_027_g711",
+   "text": "做optimization然后再去做预测主要还是做预测",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_027",
+    "path_16k": "asr/16k/mix_027.wav"
+   }
+  },
+  {
+   "id": "mix_028_clean",
+   "text": "然后但是我当时读了很多相关的paper",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_028",
+    "path_16k": "asr/16k/mix_028.wav"
+   }
+  },
+  {
+   "id": "mix_028_g711",
+   "text": "然后但是我当时读了很多相关的paper",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_028",
+    "path_16k": "asr/16k/mix_028.wav"
+   }
+  },
+  {
+   "id": "mix_029_clean",
+   "text": "去全部赌在A去全部押在AI身上",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_029",
+    "path_16k": "asr/16k/mix_029.wav"
+   }
+  },
+  {
+   "id": "mix_029_g711",
+   "text": "去全部赌在A去全部押在AI身上",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_029",
+    "path_16k": "asr/16k/mix_029.wav"
+   }
+  },
+  {
+   "id": "mix_030_clean",
+   "text": "对business那边social活动多一点就有很多活动要参加",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_030",
+    "path_16k": "asr/16k/mix_030.wav"
+   }
+  },
+  {
+   "id": "mix_030_g711",
+   "text": "对business那边social活动多一点就有很多活动要参加",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_030",
+    "path_16k": "asr/16k/mix_030.wav"
+   }
+  },
+  {
+   "id": "mix_031_clean",
+   "text": "就你要申请去交换你并不需要去说哦我要去哪一个department交换是直接选school",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_031",
+    "path_16k": "asr/16k/mix_031.wav"
+   }
+  },
+  {
+   "id": "mix_031_g711",
+   "text": "就你要申请去交换你并不需要去说哦我要去哪一个department交换是直接选school",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_031",
+    "path_16k": "asr/16k/mix_031.wav"
+   }
+  },
+  {
+   "id": "mix_032_clean",
+   "text": "还有就是比如说会呃我们上次就我上次做的一个project是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_032",
+    "path_16k": "asr/16k/mix_032.wav"
+   }
+  },
+  {
+   "id": "mix_032_g711",
+   "text": "还有就是比如说会呃我们上次就我上次做的一个project是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_032",
+    "path_16k": "asr/16k/mix_032.wav"
+   }
+  },
+  {
+   "id": "mix_033_clean",
+   "text": "嗯你觉得那你为什么会呃你就是觉得国外更open minded然后有更多",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_033",
+    "path_16k": "asr/16k/mix_033.wav"
+   }
+  },
+  {
+   "id": "mix_033_g711",
+   "text": "嗯你觉得那你为什么会呃你就是觉得国外更open minded然后有更多",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_033",
+    "path_16k": "asr/16k/mix_033.wav"
+   }
+  },
+  {
+   "id": "mix_034_clean",
+   "text": "对啊大家最近都是觉得AI有一天能够replace人类",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_034",
+    "path_16k": "asr/16k/mix_034.wav"
+   }
+  },
+  {
+   "id": "mix_034_g711",
+   "text": "对啊大家最近都是觉得AI有一天能够replace人类",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_034",
+    "path_16k": "asr/16k/mix_034.wav"
+   }
+  },
+  {
+   "id": "mix_035_clean",
+   "text": "对我的我undergraduate的时候学的major也是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_035",
+    "path_16k": "asr/16k/mix_035.wav"
+   }
+  },
+  {
+   "id": "mix_035_g711",
+   "text": "对我的我undergraduate的时候学的major也是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_035",
+    "path_16k": "asr/16k/mix_035.wav"
+   }
+  },
+  {
+   "id": "mix_036_clean",
+   "text": "然后在打算申请graduate school的时候我考虑过挺多major的",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_036",
+    "path_16k": "asr/16k/mix_036.wav"
+   }
+  },
+  {
+   "id": "mix_036_g711",
+   "text": "然后在打算申请graduate school的时候我考虑过挺多major的",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_036",
+    "path_16k": "asr/16k/mix_036.wav"
+   }
+  },
+  {
+   "id": "mix_037_clean",
+   "text": "所以你平时就现在大部分时间还是tennis就打网球",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_037",
+    "path_16k": "asr/16k/mix_037.wav"
+   }
+  },
+  {
+   "id": "mix_037_g711",
+   "text": "所以你平时就现在大部分时间还是tennis就打网球",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_037",
+    "path_16k": "asr/16k/mix_037.wav"
+   }
+  },
+  {
+   "id": "mix_038_clean",
+   "text": "就是会有很多呃比如说跟alumnus聚会啊一起吃饭然后用就是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_038",
+    "path_16k": "asr/16k/mix_038.wav"
+   }
+  },
+  {
+   "id": "mix_038_g711",
+   "text": "就是会有很多呃比如说跟alumnus聚会啊一起吃饭然后用就是",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_038",
+    "path_16k": "asr/16k/mix_038.wav"
+   }
+  },
+  {
+   "id": "mix_039_clean",
+   "text": "当时其实有一个就是做communication的professor想找我进组",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_039",
+    "path_16k": "asr/16k/mix_039.wav"
+   }
+  },
+  {
+   "id": "mix_039_g711",
+   "text": "当时其实有一个就是做communication的professor想找我进组",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_039",
+    "path_16k": "asr/16k/mix_039.wav"
+   }
+  },
+  {
+   "id": "mix_040_clean",
+   "text": "大四上学期好像是反正好像是六月份的时候才开始准备IELTS",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_040",
+    "path_16k": "asr/16k/mix_040.wav"
+   }
+  },
+  {
+   "id": "mix_040_g711",
+   "text": "大四上学期好像是反正好像是六月份的时候才开始准备IELTS",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_040",
+    "path_16k": "asr/16k/mix_040.wav"
+   }
+  },
+  {
+   "id": "mix_041_clean",
+   "text": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_041",
+    "path_16k": "asr/16k/mix_041.wav"
+   }
+  },
+  {
+   "id": "mix_041_g711",
+   "text": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_041",
+    "path_16k": "asr/16k/mix_041.wav"
+   }
+  },
+  {
+   "id": "mix_042_clean",
+   "text": "也就是我现在supervisor呢就跟我说哎那你过来跟我做我就给你一些robotics相关的题目啊这样子做那我就说哎那其实",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_042",
+    "path_16k": "asr/16k/mix_042.wav"
+   }
+  },
+  {
+   "id": "mix_042_g711",
+   "text": "也就是我现在supervisor呢就跟我说哎那你过来跟我做我就给你一些robotics相关的题目啊这样子做那我就说哎那其实",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_042",
+    "path_16k": "asr/16k/mix_042.wav"
+   }
+  }
+ ],
+ "clips": {
+  "u001": {
+   "none": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 145.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Centra 最近有什么优惠活动吗？",
+    "ms": 190.9,
+    "status": 200
+   }
+  },
+  "u002": {
+   "none": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 155.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说，Orbix 是做什么的？",
+    "ms": 190.9,
+    "status": 200
+   }
+  },
+  "u003": {
+   "none": {
+    "hyp": "刚才你说的IP地址我没听懂，再讲一遍。",
+    "ms": 183.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 IP 地址我没听懂，再讲一遍。",
+    "ms": 238.9,
+    "status": 200
+   }
+  },
+  "u004": {
+   "none": {
+    "hyp": "我要取消订单NV二零二四零四零三。",
+    "ms": 189.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 NV 二零二四零四零三。",
+    "ms": 235.8,
+    "status": 200
+   }
+  },
+  "u005": {
+   "none": {
+    "hyp": "我要取消订单RMA二三九九。",
+    "ms": 160.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 RMA 二三九九。",
+    "ms": 208.8,
+    "status": 200
+   }
+  },
+  "u006": {
+   "none": {
+    "hyp": "请问 NoWayNet Max 怎么开通？",
+    "ms": 152.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 NovaNet Max 怎么开通？",
+    "ms": 190.5,
+    "status": 200
+   }
+  },
+  "u007": {
+   "none": {
+    "hyp": "DNS是不是要重新弄一下？",
+    "ms": 134.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "DNS是不是要重新弄一下？",
+    "ms": 177.5,
+    "status": 200
+   }
+  },
+  "u008": {
+   "none": {
+    "hyp": "工单号 NN 八七九零 X，什么时候能处理？",
+    "ms": 205.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 NN 八七九零 X，什么时候能处理？",
+    "ms": 244.1,
+    "status": 200
+   }
+  },
+  "u009": {
+   "none": {
+    "hyp": "我想办一个WiFi七的套餐。",
+    "ms": 142.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 Wi-Fi 七的套餐。",
+    "ms": 197.2,
+    "status": 200
+   }
+  },
+  "u010": {
+   "none": {
+    "hyp": "我的订单号是NV二零二四一零一八，帮我查一下进度。",
+    "ms": 222.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 NV 二零二四一零一八，帮我查一下进度。",
+    "ms": 273.7,
+    "status": 200
+   }
+  },
+  "u011": {
+   "none": {
+    "hyp": "我想办一个 Nova Net Home Pro 的套餐。",
+    "ms": 167.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 NovaNet Home Pro 的套餐。",
+    "ms": 205.2,
+    "status": 200
+   }
+  },
+  "u012": {
+   "none": {
+    "hyp": "刚才你说的 OTA 升级我没听懂，再讲一遍。",
+    "ms": 194.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 OTA 升级我没听懂，再讲一遍。",
+    "ms": 235.6,
+    "status": 200
+   }
+  },
+  "u013": {
+   "none": {
+    "hyp": "维修单N N九八九八K的师傅怎么还没来？",
+    "ms": 203.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 NN 九八九八 K 的师傅怎么还没来？",
+    "ms": 245.2,
+    "status": 200
+   }
+  },
+  "u014": {
+   "none": {
+    "hyp": "我想办一个五G畅享一九九的套餐。",
+    "ms": 171.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 5G 唱享 199 的套餐。",
+    "ms": 240.7,
+    "status": 200
+   }
+  },
+  "u015": {
+   "none": {
+    "hyp": "你们的WiFi六有什么优惠吗？",
+    "ms": 141.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 Wi-Fi 六有什么优惠吗？",
+    "ms": 197.2,
+    "status": 200
+   }
+  },
+  "u016": {
+   "none": {
+    "hyp": "杂丝异地是不是要重新弄一下？",
+    "ms": 142.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "咱 C E D 是不是要重新弄一下？",
+    "ms": 200.2,
+    "status": 200
+   }
+  },
+  "u017": {
+   "none": {
+    "hyp": "请问 Lumio 和别的运营商有什么区别？",
+    "ms": 160.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Lumio 和别的运营商有什么区别？",
+    "ms": 202.9,
+    "status": 200
+   }
+  },
+  "u018": {
+   "none": {
+    "hyp": "我听朋友推荐了 Sky Wave，想了解一下。",
+    "ms": 156.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我听朋友推荐了 SkyWave，想了解一下。",
+    "ms": 202.1,
+    "status": 200
+   }
+  },
+  "u019": {
+   "none": {
+    "hyp": "我要取消订单N三七一五X。",
+    "ms": 161.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 N 三七一五 X。",
+    "ms": 205.2,
+    "status": 200
+   }
+  },
+  "u020": {
+   "none": {
+    "hyp": "我这个 O T 分升机老是出问题。",
+    "ms": 170.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 OT 分升机老是出问题。",
+    "ms": 204.0,
+    "status": 200
+   }
+  },
+  "u021": {
+   "none": {
+    "hyp": "我的订单号是 T K 五八零二七，帮我查一下进度。",
+    "ms": 213.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 TK 五八零二七，帮我查一下进度。",
+    "ms": 249.5,
+    "status": 200
+   }
+  },
+  "u022": {
+   "none": {
+    "hyp": "微发六覆盖我们小区吗？",
+    "ms": 138.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Wi-Fi 6 覆盖我们小区吗？",
+    "ms": 207.0,
+    "status": 200
+   }
+  },
+  "u023": {
+   "none": {
+    "hyp": "工单号 SO 三六六三六五，什么时候能处理？",
+    "ms": 213.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 SO 三六六三六五，什么时候能处理？",
+    "ms": 251.4,
+    "status": 200
+   }
+  },
+  "u024": {
+   "none": {
+    "hyp": "我朋友用的 IPTV，我也想试试。",
+    "ms": 167.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 IPTV，我也想试试。",
+    "ms": 203.8,
+    "status": 200
+   }
+  },
+  "u025": {
+   "none": {
+    "hyp": "S O一零零二六三这个订单的收货地址，我想改一下。",
+    "ms": 217.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "S O 一零零二六三这个订单的收货地址，我想改一下。",
+    "ms": 267.7,
+    "status": 200
+   }
+  },
+  "u026": {
+   "none": {
+    "hyp": "5G尊享二百九十九，每个月多少钱？",
+    "ms": 169.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "5G 尊享 299，每个月多少钱？",
+    "ms": 217.4,
+    "status": 200
+   }
+  },
+  "u027": {
+   "none": {
+    "hyp": "刚才你说的VPN我没听懂，再讲一遍。",
+    "ms": 174.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 V P N 我没听懂，再讲一遍。",
+    "ms": 234.8,
+    "status": 200
+   }
+  },
+  "u028": {
+   "none": {
+    "hyp": "我说，Sky Wave 是做什么的？",
+    "ms": 137.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说 SkyWave 是做什么的？",
+    "ms": 175.2,
+    "status": 200
+   }
+  },
+  "u029": {
+   "none": {
+    "hyp": "Orbix 的 Nova Net Max，我昨天刚装好，还是不行。",
+    "ms": 208.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Orbix 的 NovaNet Max，我昨天刚装好，还是不行。",
+    "ms": 252.7,
+    "status": 200
+   }
+  },
+  "u030": {
+   "none": {
+    "hyp": "品值是不是要重新弄一下？",
+    "ms": 138.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Ping 值是不是要重新弄一下？",
+    "ms": 194.7,
+    "status": 200
+   }
+  },
+  "u031": {
+   "none": {
+    "hyp": "刚才你说的聘值我没听懂，再讲一遍。",
+    "ms": 170.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 Ping 值我没听懂，再讲一遍。",
+    "ms": 226.6,
+    "status": 200
+   }
+  },
+  "u032": {
+   "none": {
+    "hyp": "我听朋友推荐了 Orbex，想了解一下。",
+    "ms": 170.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我听朋友推荐了 Orbix，想了解一下。",
+    "ms": 204.2,
+    "status": 200
+   }
+  },
+  "u033": {
+   "none": {
+    "hyp": "Overcloud覆盖我们小区吗？",
+    "ms": 131.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaCloud 覆盖我们小区吗？",
+    "ms": 194.9,
+    "status": 200
+   }
+  },
+  "u034": {
+   "none": {
+    "hyp": "A P N是不是要重新弄一下？",
+    "ms": 146.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "A P N 是不是要重新弄一下？",
+    "ms": 196.8,
+    "status": 200
+   }
+  },
+  "u035": {
+   "none": {
+    "hyp": "Lumio的客服电话是多少？",
+    "ms": 138.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Lumio 的客服电话是多少？",
+    "ms": 181.6,
+    "status": 200
+   }
+  },
+  "u036": {
+   "none": {
+    "hyp": "昨天开始，LTE就不能用了。",
+    "ms": 141.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始 LTE 就不能用了。",
+    "ms": 186.1,
+    "status": 200
+   }
+  },
+  "u037": {
+   "none": {
+    "hyp": "我这个聘职老是出问题。",
+    "ms": 144.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个聘职老是出问题。",
+    "ms": 187.8,
+    "status": 200
+   }
+  },
+  "u038": {
+   "none": {
+    "hyp": "我想问一下，Lumio的营业厅在哪里？",
+    "ms": 166.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问一下 Lumio 的营业厅在哪里？",
+    "ms": 198.3,
+    "status": 200
+   }
+  },
+  "u039": {
+   "none": {
+    "hyp": "WiFi七每个月多少钱？",
+    "ms": 122.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Wi-Fi 七每个月多少钱？",
+    "ms": 178.1,
+    "status": 200
+   }
+  },
+  "u040": {
+   "none": {
+    "hyp": "Skywave的客服电话是多少？",
+    "ms": 135.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "SkyWave的客服电话是多少？",
+    "ms": 176.1,
+    "status": 200
+   }
+  },
+  "u041": {
+   "none": {
+    "hyp": "Novinet的客服电话是多少？",
+    "ms": 133.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet 的客服电话是多少？",
+    "ms": 177.2,
+    "status": 200
+   }
+  },
+  "u042": {
+   "none": {
+    "hyp": "我想办一个五G A的套餐。",
+    "ms": 158.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 5G-A 的套餐。",
+    "ms": 208.9,
+    "status": 200
+   }
+  },
+  "u043": {
+   "none": {
+    "hyp": "我要取消订单，TK五六九四一。",
+    "ms": 151.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 TK 五六九四一。",
+    "ms": 198.3,
+    "status": 200
+   }
+  },
+  "u044": {
+   "none": {
+    "hyp": "能不能帮我看看赛姆卡怎么设置？",
+    "ms": 157.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看赛姆卡怎么设置？",
+    "ms": 196.7,
+    "status": 200
+   }
+  },
+  "u045": {
+   "none": {
+    "hyp": "5G A每个月多少钱？",
+    "ms": 126.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "5G-A 每个月多少钱？",
+    "ms": 188.7,
+    "status": 200
+   }
+  },
+  "u046": {
+   "none": {
+    "hyp": "我家的IP地址一直不行，你们能远程处理吗？",
+    "ms": 181.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 IP 地址一直不行，你们能远程处理吗？",
+    "ms": 238.1,
+    "status": 200
+   }
+  },
+  "u047": {
+   "none": {
+    "hyp": "app是不是要重新弄一下？",
+    "ms": 133.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "App是不是要重新弄一下？",
+    "ms": 177.5,
+    "status": 200
+   }
+  },
+  "u048": {
+   "none": {
+    "hyp": "我想把现在的套餐换成 Nova Cloud。",
+    "ms": 149.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 Nova Cloud。",
+    "ms": 186.0,
+    "status": 200
+   }
+  },
+  "u049": {
+   "none": {
+    "hyp": "昨天开始拼值，就不能用了。",
+    "ms": 138.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，Ping 值就不能用了。",
+    "ms": 195.7,
+    "status": 200
+   }
+  },
+  "u050": {
+   "none": {
+    "hyp": "我这个 app 老是出问题。",
+    "ms": 152.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 app 老是出问题。",
+    "ms": 195.0,
+    "status": 200
+   }
+  },
+  "u051": {
+   "none": {
+    "hyp": "A P T V每个月多少钱？",
+    "ms": 134.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "A P T V 每个月多少钱？",
+    "ms": 196.5,
+    "status": 200
+   }
+  },
+  "u052": {
+   "none": {
+    "hyp": "CENTRA的客服电话是多少？",
+    "ms": 132.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Centra 的客服电话是多少？",
+    "ms": 176.2,
+    "status": 200
+   }
+  },
+  "u053": {
+   "none": {
+    "hyp": "Velcro 是做什么的？",
+    "ms": 125.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Veltra 是做什么的？",
+    "ms": 167.8,
+    "status": 200
+   }
+  },
+  "u054": {
+   "none": {
+    "hyp": "我家的 Nova Cloud 连不上 Lumio 的网络。",
+    "ms": 173.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 Nova Cloud 连不上 Lumio 的网络。",
+    "ms": 210.1,
+    "status": 200
+   }
+  },
+  "u055": {
+   "none": {
+    "hyp": "Gawave的无极A，我昨天刚装好，还是不行。",
+    "ms": 205.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet 的无极 A，我昨天刚装好，还是不行。",
+    "ms": 242.4,
+    "status": 200
+   }
+  },
+  "u056": {
+   "none": {
+    "hyp": "我家的五G尊享二百九十九，连不上Zentra的网络。",
+    "ms": 216.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 5G 尊享 299 连不上 Zentra 的网络。",
+    "ms": 279.2,
+    "status": 200
+   }
+  },
+  "u057": {
+   "none": {
+    "hyp": "帮我转接到 Lumio 的人工客服。",
+    "ms": 163.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 Lumio 的人工客服。",
+    "ms": 205.7,
+    "status": 200
+   }
+  },
+  "u058": {
+   "none": {
+    "hyp": "昨天开始，VIP就不能用了。",
+    "ms": 133.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，VIP就不能用了。",
+    "ms": 178.8,
+    "status": 200
+   }
+  },
+  "u059": {
+   "none": {
+    "hyp": "我要取消订单，RMA五七二零。",
+    "ms": 182.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 RMA 五七二零。",
+    "ms": 218.8,
+    "status": 200
+   }
+  },
+  "u060": {
+   "none": {
+    "hyp": "我朋友用的五G尊享二百九十九，我也想试试。",
+    "ms": 214.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 5G 尊享 299，我也想试试。",
+    "ms": 278.1,
+    "status": 200
+   }
+  },
+  "u061": {
+   "none": {
+    "hyp": "我想办一个 IPTV 的套餐。",
+    "ms": 142.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 IPTV 的套餐。",
+    "ms": 184.4,
+    "status": 200
+   }
+  },
+  "u062": {
+   "none": {
+    "hyp": "昨天开始，SACID就不能用了。",
+    "ms": 157.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，SACID就不能用了。",
+    "ms": 198.5,
+    "status": 200
+   }
+  },
+  "u063": {
+   "none": {
+    "hyp": "Skywave是做什么的？",
+    "ms": 127.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "SkyWave 是做什么的？",
+    "ms": 169.1,
+    "status": 200
+   }
+  },
+  "u064": {
+   "none": {
+    "hyp": "我朋友用的Esome，我也想试试。",
+    "ms": 166.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 eSIM，我也想试试。",
+    "ms": 205.6,
+    "status": 200
+   }
+  },
+  "u065": {
+   "none": {
+    "hyp": "T K一七五七八，这个订单的收货地址我想改一下。",
+    "ms": 212.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "T K 一七五七八，这个订单的收货地址我想改一下。",
+    "ms": 262.0,
+    "status": 200
+   }
+  },
+  "u066": {
+   "none": {
+    "hyp": "你们是 Noble Net 的客服吗？",
+    "ms": 139.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是 NovaNet 的客服吗？",
+    "ms": 182.9,
+    "status": 200
+   }
+  },
+  "u067": {
+   "none": {
+    "hyp": "我想办一个 Novatel Max 的套餐。",
+    "ms": 147.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 NovaNet Max 的套餐。",
+    "ms": 190.7,
+    "status": 200
+   }
+  },
+  "u068": {
+   "none": {
+    "hyp": "的意思呢？为什么优惠吗？",
+    "ms": 131.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的意思呢？为什么优惠吗？",
+    "ms": 172.4,
+    "status": 200
+   }
+  },
+  "u069": {
+   "none": {
+    "hyp": "我是Novanet的老用户啦，想问个问题。",
+    "ms": 179.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我是 NovaNet 的老用户啦，想问个问题。",
+    "ms": 215.6,
+    "status": 200
+   }
+  },
+  "u070": {
+   "none": {
+    "hyp": "工单号 T K 六七二七九，什么时候能处理？",
+    "ms": 219.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 TK 六七二七九，什么时候能处理？",
+    "ms": 256.5,
+    "status": 200
+   }
+  },
+  "u071": {
+   "none": {
+    "hyp": "订单号NV二零二四零二二四，什么时候能处理？",
+    "ms": 214.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 NV 二零二四零二二四，什么时候能处理？",
+    "ms": 264.4,
+    "status": 200
+   }
+  },
+  "u072": {
+   "none": {
+    "hyp": "Veltra最近有什么优惠活动吗？",
+    "ms": 139.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Veltra 最近有什么优惠活动吗？",
+    "ms": 188.5,
+    "status": 200
+   }
+  },
+  "u073": {
+   "none": {
+    "hyp": "五G畅享一九九覆盖我们小区吗？",
+    "ms": 165.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "5G畅享199覆盖我们小区吗？",
+    "ms": 209.6,
+    "status": 200
+   }
+  },
+  "u074": {
+   "none": {
+    "hyp": "工单号 RMA 七六七七，什么时候能处理？",
+    "ms": 198.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 RMA 七六七七，什么时候能处理？",
+    "ms": 240.7,
+    "status": 200
+   }
+  },
+  "u075": {
+   "none": {
+    "hyp": "我的订单号是RMA九零五零，帮我查一下进度。",
+    "ms": 203.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 RMA 九零五零，帮我查一下进度。",
+    "ms": 255.3,
+    "status": 200
+   }
+  },
+  "u076": {
+   "none": {
+    "hyp": "你们的 Nova Cloud 有什么优惠吗？",
+    "ms": 156.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 Nova Cloud 有什么优惠吗？",
+    "ms": 196.3,
+    "status": 200
+   }
+  },
+  "u077": {
+   "none": {
+    "hyp": "麻烦核对一下 NV 二零二四一二零六这个单号。",
+    "ms": 207.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 NV 二零二四一二零六这个单号。",
+    "ms": 254.6,
+    "status": 200
+   }
+  },
+  "u078": {
+   "none": {
+    "hyp": "中弹号N特5799K，什么时候能处理？",
+    "ms": 199.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 N 特 5799K 什么时候能处理？",
+    "ms": 257.9,
+    "status": 200
+   }
+  },
+  "u079": {
+   "none": {
+    "hyp": "我家的SSID一直不行，你们能远程处理吗？",
+    "ms": 180.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 SSID 一直不行，你们能远程处理吗？",
+    "ms": 234.3,
+    "status": 200
+   }
+  },
+  "u080": {
+   "none": {
+    "hyp": "我朋友用的五G畅享一九九，我也想试试。",
+    "ms": 204.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 5G 畅享 199，我也想试试。",
+    "ms": 278.2,
+    "status": 200
+   }
+  },
+  "u081": {
+   "none": {
+    "hyp": "昨天开始，V P N就不能用了。",
+    "ms": 141.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，VPN就不能用了。",
+    "ms": 176.5,
+    "status": 200
+   }
+  },
+  "u082": {
+   "none": {
+    "hyp": "我想把现在的套餐换成 Novatel Max。",
+    "ms": 158.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 NovaNet Max。",
+    "ms": 203.2,
+    "status": 200
+   }
+  },
+  "u083": {
+   "none": {
+    "hyp": "修单NV二零二四零三二一的师傅怎么还没来？",
+    "ms": 207.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "修单 NV 二零二四零三二一的师傅怎么还没来？",
+    "ms": 258.3,
+    "status": 200
+   }
+  },
+  "u084": {
+   "none": {
+    "hyp": "我家的平安码一直不行，你们能远程处理吗？",
+    "ms": 189.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的平安码一直不行，你们能远程处理吗？",
+    "ms": 233.2,
+    "status": 200
+   }
+  },
+  "u085": {
+   "none": {
+    "hyp": "Zentra是做什么的？",
+    "ms": 130.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Zentra 是做什么的？",
+    "ms": 178.3,
+    "status": 200
+   }
+  },
+  "u086": {
+   "none": {
+    "hyp": "S O九一零四零八，这个订单的收货地址，我想改一下。",
+    "ms": 246.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "S O 九一零四零八，这个订单的收货地址我想改一下。",
+    "ms": 294.5,
+    "status": 200
+   }
+  },
+  "u087": {
+   "none": {
+    "hyp": "我想把现在的套餐换成E C。",
+    "ms": 139.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 eC。",
+    "ms": 188.3,
+    "status": 200
+   }
+  },
+  "u088": {
+   "none": {
+    "hyp": "我家的DNS一直不行，你们能远程处理吗？",
+    "ms": 179.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 DNS 一直不行，你们能远程处理吗？",
+    "ms": 228.2,
+    "status": 200
+   }
+  },
+  "u089": {
+   "none": {
+    "hyp": "我朋友用的Nova TV，我也想试试。",
+    "ms": 172.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 Nova TV，我也想试试。",
+    "ms": 217.3,
+    "status": 200
+   }
+  },
+  "u090": {
+   "none": {
+    "hyp": "我家的 SIM 卡一直不行，你们能远程处理吗？",
+    "ms": 191.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 SIM 卡一直不行，你们能远程处理吗？",
+    "ms": 235.4,
+    "status": 200
+   }
+  },
+  "u091": {
+   "none": {
+    "hyp": "你们的Nova TV有什么优惠吗？",
+    "ms": 141.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 NovaTV 有什么优惠吗？",
+    "ms": 194.6,
+    "status": 200
+   }
+  },
+  "u092": {
+   "none": {
+    "hyp": "RMA六六一零，这个订单的收货地址我想改一下。",
+    "ms": 219.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "RMA六六一零，这个订单的收货地址我想改一下。",
+    "ms": 275.9,
+    "status": 200
+   }
+  },
+  "u093": {
+   "none": {
+    "hyp": "我家的VPN一直不行，能远程处理吗？",
+    "ms": 177.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 VPN 一直不行，能远程处理吗？",
+    "ms": 231.6,
+    "status": 200
+   }
+  },
+  "u094": {
+   "none": {
+    "hyp": "你们是 SkyWave 的客服吗？",
+    "ms": 142.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是 SkyWave 的客服吗？",
+    "ms": 192.9,
+    "status": 200
+   }
+  },
+  "u095": {
+   "none": {
+    "hyp": "麻烦核对一下 RMA 三零零四这个单号。",
+    "ms": 203.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 RMA 三零零四这个单号。",
+    "ms": 252.7,
+    "status": 200
+   }
+  },
+  "u096": {
+   "none": {
+    "hyp": "能不能帮我看看App怎么设置？",
+    "ms": 134.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 App 怎么设置？",
+    "ms": 194.4,
+    "status": 200
+   }
+  },
+  "u097": {
+   "none": {
+    "hyp": "请问 Nova Net Home Pro 怎么开通？",
+    "ms": 155.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 NovaNet Home Pro 怎么开通？",
+    "ms": 203.7,
+    "status": 200
+   }
+  },
+  "u098": {
+   "none": {
+    "hyp": "请问，Noonet和别的运营商有什么区别？",
+    "ms": 178.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 NovaNet 和别的运营商有什么区别？",
+    "ms": 221.1,
+    "status": 200
+   }
+  },
+  "u099": {
+   "none": {
+    "hyp": "我家的app一直不行，你们能远程处理吗？",
+    "ms": 181.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 App 一直不行，你们能远程处理吗？",
+    "ms": 227.4,
+    "status": 200
+   }
+  },
+  "u100": {
+   "none": {
+    "hyp": "请问，Verizon 和别的运营商有什么区别？",
+    "ms": 167.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Veltra 和别的运营商有什么区别？",
+    "ms": 202.4,
+    "status": 200
+   }
+  },
+  "u101": {
+   "none": {
+    "hyp": "请问WiFi七怎么开通？",
+    "ms": 129.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Wi-Fi 七怎么开通？",
+    "ms": 196.8,
+    "status": 200
+   }
+  },
+  "u102": {
+   "none": {
+    "hyp": "刚才你说的VIP，我没听懂，再讲一遍。",
+    "ms": 190.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 VIP 我没听懂，再讲一遍。",
+    "ms": 249.2,
+    "status": 200
+   }
+  },
+  "u103": {
+   "none": {
+    "hyp": "工单号 RMA 八七一一，什么时候能处理？",
+    "ms": 207.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 RMA 八七一一，什么时候能处理？",
+    "ms": 249.9,
+    "status": 200
+   }
+  },
+  "u104": {
+   "none": {
+    "hyp": "的订单号是S O九一六二一六，帮我查一下进度。",
+    "ms": 219.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 SO 九一六二一六，帮我查一下进度。",
+    "ms": 273.1,
+    "status": 200
+   }
+  },
+  "u105": {
+   "none": {
+    "hyp": "我想办一个A X三千的套餐。",
+    "ms": 149.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 AX 三千的套餐。",
+    "ms": 199.7,
+    "status": 200
+   }
+  },
+  "u106": {
+   "none": {
+    "hyp": "IPTV覆盖我们小区吗？",
+    "ms": 143.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "IPTV 覆盖我们小区吗？",
+    "ms": 206.3,
+    "status": 200
+   }
+  },
+  "u107": {
+   "none": {
+    "hyp": "我听朋友推荐了 Zentra，想了解一下。",
+    "ms": 177.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我听朋友推荐了 Zentra，想了解一下。",
+    "ms": 218.3,
+    "status": 200
+   }
+  },
+  "u108": {
+   "none": {
+    "hyp": "我想问一下，Santara的营业厅在哪里？",
+    "ms": 179.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问一下，Centra 的营业厅在哪里？",
+    "ms": 214.4,
+    "status": 200
+   }
+  },
+  "u109": {
+   "none": {
+    "hyp": "Skywave的VRT我昨天刚装好，还是不行。",
+    "ms": 200.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "SkyWave 的 VoLTE 我昨天刚装好，还是不行。",
+    "ms": 254.8,
+    "status": 200
+   }
+  },
+  "u110": {
+   "none": {
+    "hyp": "mium是做什么的？",
+    "ms": 120.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Miio 是做什么的？",
+    "ms": 177.0,
+    "status": 200
+   }
+  },
+  "u111": {
+   "none": {
+    "hyp": "麻烦核对一下 T K 二九零零二这个单号。",
+    "ms": 203.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 TK 二九零零二这个单号。",
+    "ms": 245.0,
+    "status": 200
+   }
+  },
+  "u112": {
+   "none": {
+    "hyp": "维修单RMA二四六八的师傅怎么还没来？",
+    "ms": 190.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 RMA 二四六八的师傅怎么还没来？",
+    "ms": 245.3,
+    "status": 200
+   }
+  },
+  "u113": {
+   "none": {
+    "hyp": "维修单 N N 五六零二 B 的师傅怎么还没来？",
+    "ms": 196.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 NN 五六零二 B 的师傅怎么还没来？",
+    "ms": 229.9,
+    "status": 200
+   }
+  },
+  "u114": {
+   "none": {
+    "hyp": "Nova Net Home Pro 每个月多少钱？",
+    "ms": 165.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet Home Pro 每个月多少钱？",
+    "ms": 207.8,
+    "status": 200
+   }
+  },
+  "u115": {
+   "none": {
+    "hyp": "我的订单号是 NV 二零二四零八二零，帮我查一下进度。",
+    "ms": 243.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 NV 二零二四零八二零，帮我查一下进度。",
+    "ms": 284.3,
+    "status": 200
+   }
+  },
+  "u116": {
+   "none": {
+    "hyp": "我想办一个我要提议的套餐。",
+    "ms": 154.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个我要提议的套餐。",
+    "ms": 191.5,
+    "status": 200
+   }
+  },
+  "u117": {
+   "none": {
+    "hyp": "昨天开始，P N码就不能用了。",
+    "ms": 149.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，PIN 码就不能用了。",
+    "ms": 196.0,
+    "status": 200
+   }
+  },
+  "u118": {
+   "none": {
+    "hyp": "我想问一下，Viltro的营业厅在哪里？",
+    "ms": 160.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问一下 Veltra 的营业厅在哪里？",
+    "ms": 215.3,
+    "status": 200
+   }
+  },
+  "u119": {
+   "none": {
+    "hyp": "我的订单号是N N六二六六A，帮我查一下进度。",
+    "ms": 217.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 NN六二六六A，帮我查一下进度。",
+    "ms": 259.6,
+    "status": 200
+   }
+  },
+  "u120": {
+   "none": {
+    "hyp": "能不能帮我看看IP地址怎么设置？",
+    "ms": 156.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 IP 地址怎么设置？",
+    "ms": 208.8,
+    "status": 200
+   }
+  },
+  "u121": {
+   "none": {
+    "hyp": "能不能帮我看看 VIP 怎么设置？",
+    "ms": 160.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 VIP 怎么设置？",
+    "ms": 200.8,
+    "status": 200
+   }
+  },
+  "u122": {
+   "none": {
+    "hyp": "Mesh路由器覆盖我们小区吗？",
+    "ms": 137.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Mesh 路由器覆盖我们小区吗？",
+    "ms": 214.0,
+    "status": 200
+   }
+  },
+  "u123": {
+   "none": {
+    "hyp": "vultra的5G畅享190，我昨天刚装好，还是不行。",
+    "ms": 259.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Veltra 的 5G 畅享 199，我昨天刚装好还是不行。",
+    "ms": 336.0,
+    "status": 200
+   }
+  },
+  "u124": {
+   "none": {
+    "hyp": "Veltr的Nova TV，我昨天刚装好，还是不行。",
+    "ms": 203.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Veltra 的 Nova TV 我昨天刚装好，还是不行。",
+    "ms": 245.6,
+    "status": 200
+   }
+  },
+  "u125": {
+   "none": {
+    "hyp": "想把现在的套餐换成WiFi七。",
+    "ms": 145.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 Wi-Fi 7。",
+    "ms": 209.7,
+    "status": 200
+   }
+  },
+  "u126": {
+   "none": {
+    "hyp": "麻烦核对一下 N N 五六一六 K 这个单号。",
+    "ms": 211.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 NN 五六一六 K 这个单号。",
+    "ms": 257.8,
+    "status": 200
+   }
+  },
+  "u127": {
+   "none": {
+    "hyp": "维修单 N V 二零二四零八一一的师傅怎么还没来？",
+    "ms": 259.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 NV 二零二四零八一一的师傅怎么还没来？",
+    "ms": 299.7,
+    "status": 200
+   }
+  },
+  "u128": {
+   "none": {
+    "hyp": "我家的WiFi七连不上Novatel的网络。",
+    "ms": 171.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 Wi-Fi 7 连不上 NovaNet 的网络。",
+    "ms": 233.3,
+    "status": 200
+   }
+  },
+  "u129": {
+   "none": {
+    "hyp": "Lumio最近有什么优惠活动吗？",
+    "ms": 153.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Lumio 最近有什么优惠活动吗？",
+    "ms": 211.6,
+    "status": 200
+   }
+  },
+  "u130": {
+   "none": {
+    "hyp": "哎，I P地址是不是要重新弄一下？",
+    "ms": 181.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "哎，IP 地址是不是要重新弄一下？",
+    "ms": 241.6,
+    "status": 200
+   }
+  },
+  "u131": {
+   "none": {
+    "hyp": "我是 Veltra 的老用户了，想问个问题。",
+    "ms": 189.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我是 Veltra 的老用户了，想问个问题。",
+    "ms": 228.2,
+    "status": 200
+   }
+  },
+  "u132": {
+   "none": {
+    "hyp": "我想把现在的套餐换成5G畅享199。",
+    "ms": 203.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 5G 畅享 199。",
+    "ms": 283.4,
+    "status": 200
+   }
+  },
+  "u133": {
+   "none": {
+    "hyp": "请问IPTV怎么开通？",
+    "ms": 139.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 IPTV 怎么开通？",
+    "ms": 195.6,
+    "status": 200
+   }
+  },
+  "u134": {
+   "none": {
+    "hyp": "我说，Lumio是做什么的？",
+    "ms": 158.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说， Lumio 是做什么的？",
+    "ms": 202.7,
+    "status": 200
+   }
+  },
+  "u135": {
+   "none": {
+    "hyp": "能不能帮我看看OTA升级怎么设置？",
+    "ms": 153.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 OTA 升级怎么设置？",
+    "ms": 215.1,
+    "status": 200
+   }
+  },
+  "u136": {
+   "none": {
+    "hyp": "能不能帮我看看 LTE 怎么设置？",
+    "ms": 159.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 LTE 怎么设置？",
+    "ms": 200.0,
+    "status": 200
+   }
+  },
+  "u137": {
+   "none": {
+    "hyp": "是Orbix的老用户了，想问个问题。",
+    "ms": 174.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "是 Orbix 的老用户了，想问个问题。",
+    "ms": 230.4,
+    "status": 200
+   }
+  },
+  "u138": {
+   "none": {
+    "hyp": "我听朋友推荐了 Lumio，想了解一下。",
+    "ms": 176.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我听朋友推荐了 Lumio，想了解一下。",
+    "ms": 222.0,
+    "status": 200
+   }
+  },
+  "u139": {
+   "none": {
+    "hyp": "刚才你说的A P N我没听懂，再讲一遍。",
+    "ms": 196.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 A P N 我没听懂，再讲一遍。",
+    "ms": 248.8,
+    "status": 200
+   }
+  },
+  "u140": {
+   "none": {
+    "hyp": "我说，Central是做什么的？",
+    "ms": 149.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说，Centra 是做什么的？",
+    "ms": 198.1,
+    "status": 200
+   }
+  },
+  "u141": {
+   "none": {
+    "hyp": "我的订单号是 RMA 七四七八，帮我查一下进度。",
+    "ms": 218.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 RMA 七四七八，帮我查一下进度。",
+    "ms": 269.2,
+    "status": 200
+   }
+  },
+  "u142": {
+   "none": {
+    "hyp": "请问五G怎么开通？",
+    "ms": 138.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问五G怎么开通？",
+    "ms": 177.8,
+    "status": 200
+   }
+  },
+  "u143": {
+   "none": {
+    "hyp": "欧贝克斯最近有什么优惠活动吗？",
+    "ms": 161.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Orbix 最近有什么优惠活动吗？",
+    "ms": 215.5,
+    "status": 200
+   }
+  },
+  "u144": {
+   "none": {
+    "hyp": "我听朋友推荐了 No1net，想了解一下。",
+    "ms": 180.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我听朋友推荐了 NovaNet，想了解一下。",
+    "ms": 226.7,
+    "status": 200
+   }
+  },
+  "u145": {
+   "none": {
+    "hyp": "你们是森彻的客服吗？",
+    "ms": 141.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是森彻的客服吗？",
+    "ms": 189.1,
+    "status": 200
+   }
+  },
+  "u146": {
+   "none": {
+    "hyp": "你们的五G畅享一九九有什么优惠吗？",
+    "ms": 172.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 5G 畅享 199 有什么优惠吗？",
+    "ms": 252.1,
+    "status": 200
+   }
+  },
+  "u147": {
+   "none": {
+    "hyp": "请问，eSIM怎么开通？",
+    "ms": 134.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 eSIM 怎么开通？",
+    "ms": 187.8,
+    "status": 200
+   }
+  },
+  "u148": {
+   "none": {
+    "hyp": "我想问下，Orbex的营业厅在哪里？",
+    "ms": 179.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问下 Orbix 的营业厅在哪里？",
+    "ms": 211.4,
+    "status": 200
+   }
+  },
+  "u149": {
+   "none": {
+    "hyp": "N N 九零五一 X 这个订单的收货地址，我想改一下。",
+    "ms": 252.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NN905EX这个订单的收货地址，我想改一下。",
+    "ms": 267.4,
+    "status": 200
+   }
+  },
+  "u150": {
+   "none": {
+    "hyp": "Nova TV 覆盖我们小区吗？",
+    "ms": 157.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaTV 覆盖我们小区吗？",
+    "ms": 201.3,
+    "status": 200
+   }
+  },
+  "u151": {
+   "none": {
+    "hyp": "帮我转接到 Orbix 的人工客服。",
+    "ms": 177.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 Orbix 的人工客服。",
+    "ms": 211.3,
+    "status": 200
+   }
+  },
+  "u152": {
+   "none": {
+    "hyp": "我说，Veltra是做什么的？",
+    "ms": 143.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说，Veltra 是做什么的？",
+    "ms": 187.0,
+    "status": 200
+   }
+  },
+  "u153": {
+   "none": {
+    "hyp": "你们的Mesh路由器有什么优惠吗？",
+    "ms": 149.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 Mesh 路由器有什么优惠吗？",
+    "ms": 216.0,
+    "status": 200
+   }
+  },
+  "u154": {
+   "none": {
+    "hyp": "你们的A X三千有什么优惠吗？",
+    "ms": 157.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 AX 三千有什么优惠吗？",
+    "ms": 203.5,
+    "status": 200
+   }
+  },
+  "u155": {
+   "none": {
+    "hyp": "维修单T K一七七一九的师傅怎么还没来？",
+    "ms": 200.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 TK 一七七一九的师傅怎么还没来？",
+    "ms": 246.6,
+    "status": 200
+   }
+  },
+  "u156": {
+   "none": {
+    "hyp": "帮我转接到 Skywave 的人工客服。",
+    "ms": 147.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 SkyWave 的人工客服。",
+    "ms": 192.0,
+    "status": 200
+   }
+  },
+  "u157": {
+   "none": {
+    "hyp": "听朋友推荐了Weltra，想了解一下。",
+    "ms": 152.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "听朋友推荐了 Veltra，想了解一下。",
+    "ms": 198.4,
+    "status": 200
+   }
+  },
+  "u158": {
+   "none": {
+    "hyp": "Esim 覆盖我们小区吗？",
+    "ms": 161.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "eSIM 覆盖我们小区吗？",
+    "ms": 203.8,
+    "status": 200
+   }
+  },
+  "u159": {
+   "none": {
+    "hyp": "我说，Novanet是做什么的？",
+    "ms": 146.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我说 NovaNet 是做什么的？",
+    "ms": 178.6,
+    "status": 200
+   }
+  },
+  "u160": {
+   "none": {
+    "hyp": "我想把现在的套餐换成VoLTE。",
+    "ms": 149.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 VoLTE。",
+    "ms": 188.8,
+    "status": 200
+   }
+  },
+  "u161": {
+   "none": {
+    "hyp": "Orbix 的 Wi-Fi 六，我昨天刚装好，还是不行。",
+    "ms": 215.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Orbix 的 Wi-Fi 6，我昨天刚装好，还是不行。",
+    "ms": 261.1,
+    "status": 200
+   }
+  },
+  "u162": {
+   "none": {
+    "hyp": "Sky Wave 最近有什么优惠活动吗？",
+    "ms": 147.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "SkyWave 最近有什么优惠活动吗？",
+    "ms": 190.9,
+    "status": 200
+   }
+  },
+  "u163": {
+   "none": {
+    "hyp": "WiFi六每个月多少钱？",
+    "ms": 131.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Wi-Fi 六每个月多少钱？",
+    "ms": 181.1,
+    "status": 200
+   }
+  },
+  "u164": {
+   "none": {
+    "hyp": "家的NovaNet Home Pro连不上NovaNet的网络。",
+    "ms": 178.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "家的 NovaNet Home Pro 连不上 NovaNet 的网络。",
+    "ms": 226.7,
+    "status": 200
+   }
+  },
+  "u165": {
+   "none": {
+    "hyp": "试验第一场是不是要重新弄一下？",
+    "ms": 155.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "CMV厂是不是要重新弄一下？",
+    "ms": 194.6,
+    "status": 200
+   }
+  },
+  "u166": {
+   "none": {
+    "hyp": "我这个A P N老是出问题。",
+    "ms": 153.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 A P N 老是出问题。",
+    "ms": 219.5,
+    "status": 200
+   }
+  },
+  "u167": {
+   "none": {
+    "hyp": "T K 二三三五五啊，这个订单的收货地址，我想改一下。",
+    "ms": 262.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "T K 二三三五五啊，这个订单的收货地址我想改一下。",
+    "ms": 296.2,
+    "status": 200
+   }
+  },
+  "u168": {
+   "none": {
+    "hyp": "我朋友用的五G A，我也想试试。",
+    "ms": 170.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的五 G A，我也想试试。",
+    "ms": 225.0,
+    "status": 200
+   }
+  },
+  "u169": {
+   "none": {
+    "hyp": "我要取消订单N Z T L O八A。",
+    "ms": 176.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 N Zentro 八 A。",
+    "ms": 218.3,
+    "status": 200
+   }
+  },
+  "u170": {
+   "none": {
+    "hyp": "昨天开始，A P N就不能用了。",
+    "ms": 149.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始，A P N 就不能用了。",
+    "ms": 210.0,
+    "status": 200
+   }
+  },
+  "u171": {
+   "none": {
+    "hyp": "麻烦核对一下S O一二二八四五这个单号。",
+    "ms": 203.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 SO 一二二八四五这个单号。",
+    "ms": 253.9,
+    "status": 200
+   }
+  },
+  "u172": {
+   "none": {
+    "hyp": "我朋友用的AX三千，我也想试试。",
+    "ms": 170.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 AX 三千，我也想试试。",
+    "ms": 232.9,
+    "status": 200
+   }
+  },
+  "u173": {
+   "none": {
+    "hyp": "我是Lumio的老用户了，想问个问题。",
+    "ms": 188.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我是 Lumio 的老用户了，想问个问题。",
+    "ms": 230.4,
+    "status": 200
+   }
+  },
+  "u174": {
+   "none": {
+    "hyp": "我这个 DNS 错误出问题。",
+    "ms": 151.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "哈哈，我这个 DNS 隧道是出问题。",
+    "ms": 226.1,
+    "status": 200
+   }
+  },
+  "u175": {
+   "none": {
+    "hyp": "麻烦核对一下 T K 二零三二八这个单号。",
+    "ms": 206.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 T K 二零三二八这个单号。",
+    "ms": 265.8,
+    "status": 200
+   }
+  },
+  "u176": {
+   "none": {
+    "hyp": "Nova Net Max 每个月多少钱？",
+    "ms": 182.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet Max 每个月多少钱？",
+    "ms": 223.3,
+    "status": 200
+   }
+  },
+  "u177": {
+   "none": {
+    "hyp": "维修单S O三九五七五六的师傅怎么还没来？",
+    "ms": 213.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 SO 三九五七五六的师傅怎么还没来？",
+    "ms": 263.7,
+    "status": 200
+   }
+  },
+  "u178": {
+   "none": {
+    "hyp": "我们的 Nova Net Home Pro 有什么优惠吗？",
+    "ms": 158.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我们的 NovaNet Home Pro 有什么优惠吗？",
+    "ms": 218.5,
+    "status": 200
+   }
+  },
+  "u179": {
+   "none": {
+    "hyp": "我想把现在的套餐换成Mesh路由器。",
+    "ms": 159.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 Mesh 路由器。",
+    "ms": 230.3,
+    "status": 200
+   }
+  },
+  "u180": {
+   "none": {
+    "hyp": "请问 Skyway 和别的运营商有什么区别？",
+    "ms": 163.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 SkyWave 和别的运营商有什么区别？",
+    "ms": 216.8,
+    "status": 200
+   }
+  },
+  "u181": {
+   "none": {
+    "hyp": "我想把现在的套餐换成WiFi六。",
+    "ms": 161.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 Wi-Fi 6。",
+    "ms": 228.6,
+    "status": 200
+   }
+  },
+  "u182": {
+   "none": {
+    "hyp": "家的 LTE 一直不行，你们能远程处理吗？",
+    "ms": 176.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 LTE 一直不行，你们能远程处理吗？",
+    "ms": 240.7,
+    "status": 200
+   }
+  },
+  "u183": {
+   "none": {
+    "hyp": "我家的Mesh路由器连不上Zentra的网络。",
+    "ms": 184.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 Mesh 路由器连不上 Zentra 的网络。",
+    "ms": 258.3,
+    "status": 200
+   }
+  },
+  "u184": {
+   "none": {
+    "hyp": "我想问一下，Novanet的营业厅在哪里？",
+    "ms": 169.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问一下 NovaNet 的营业厅在哪里？",
+    "ms": 218.2,
+    "status": 200
+   }
+  },
+  "u185": {
+   "none": {
+    "hyp": "请问Orbix和别的运营商有什么区别？",
+    "ms": 185.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Orbix 和别的运营商有什么区别？",
+    "ms": 219.8,
+    "status": 200
+   }
+  },
+  "u186": {
+   "none": {
+    "hyp": "帮我转接到 Zenza 的人工客服。",
+    "ms": 149.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 Zentra 的人工客服。",
+    "ms": 205.2,
+    "status": 200
+   }
+  },
+  "u187": {
+   "none": {
+    "hyp": "能不能帮我看看偏码怎么设置？",
+    "ms": 151.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看PIN码怎么设置？",
+    "ms": 198.3,
+    "status": 200
+   }
+  },
+  "u188": {
+   "none": {
+    "hyp": "我家的E4嘛，连不上Lumio的网络。",
+    "ms": 189.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我家的 eSIM 连不上 Lumio 的网络。",
+    "ms": 227.9,
+    "status": 200
+   }
+  },
+  "u189": {
+   "none": {
+    "hyp": "我这个 LTE 老是出问题。",
+    "ms": 167.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 LTE 老是出问题。",
+    "ms": 213.9,
+    "status": 200
+   }
+  },
+  "u190": {
+   "none": {
+    "hyp": "工单号TK五零一三七，什么时候能处理？",
+    "ms": 204.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 TK 五零一三七，什么时候能处理？",
+    "ms": 256.0,
+    "status": 200
+   }
+  },
+  "u191": {
+   "none": {
+    "hyp": "NV 二零二四零五一一这个订单的收货地址，我想改一下。",
+    "ms": 243.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "安徽二零二四零五一一，这个订单的收货地址我想改一下。",
+    "ms": 286.2,
+    "status": 200
+   }
+  },
+  "u192": {
+   "none": {
+    "hyp": "刚才你说的SSID我没听懂，再讲一遍。",
+    "ms": 183.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 SSID 我没听懂，再讲一遍。",
+    "ms": 252.9,
+    "status": 200
+   }
+  },
+  "u193": {
+   "none": {
+    "hyp": "请问Nova TV怎么开通？",
+    "ms": 129.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 NovaTV 怎么开通？",
+    "ms": 189.5,
+    "status": 200
+   }
+  },
+  "u194": {
+   "none": {
+    "hyp": "我要取消订单SO九八六七三七。",
+    "ms": 173.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单 SO 九八六七三七。",
+    "ms": 227.7,
+    "status": 200
+   }
+  },
+  "u195": {
+   "none": {
+    "hyp": "我的订单号是 T K 二零七七五，帮我查一下进度。",
+    "ms": 223.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 TK 二零七七五，帮我查一下进度。",
+    "ms": 262.9,
+    "status": 200
+   }
+  },
+  "u196": {
+   "none": {
+    "hyp": "五G尊享二百九十九，覆盖我们小区吗？",
+    "ms": 188.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "5G 尊享 299，覆盖我们小区吗？",
+    "ms": 247.7,
+    "status": 200
+   }
+  },
+  "u197": {
+   "none": {
+    "hyp": "Obex的客服电话是多少？",
+    "ms": 133.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Orbix 的客服电话是多少？",
+    "ms": 189.6,
+    "status": 200
+   }
+  },
+  "u198": {
+   "none": {
+    "hyp": "Reta的客服电话是多少？",
+    "ms": 136.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Veltra 的客服电话是多少？",
+    "ms": 182.7,
+    "status": 200
+   }
+  },
+  "u199": {
+   "none": {
+    "hyp": "你们是 Lumio 的客服吗？",
+    "ms": 139.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是 Lumio 的客服吗？",
+    "ms": 185.4,
+    "status": 200
+   }
+  },
+  "u200": {
+   "none": {
+    "hyp": "我朋友用的Mesh路由器，我也想试试。",
+    "ms": 174.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 Mesh 路由器，我也想试试。",
+    "ms": 250.1,
+    "status": 200
+   }
+  },
+  "u201": {
+   "none": {
+    "hyp": "请问WiFi六怎么开通？",
+    "ms": 129.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 WiFi 六怎么开通？",
+    "ms": 181.9,
+    "status": 200
+   }
+  },
+  "u202": {
+   "none": {
+    "hyp": "VPN是不是要重新弄一下？",
+    "ms": 149.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "VPN是不是要重新弄一下？",
+    "ms": 195.3,
+    "status": 200
+   }
+  },
+  "u203": {
+   "none": {
+    "hyp": "你们是 Arbyx 的客服吗？",
+    "ms": 145.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是 Orbix 的客服吗？",
+    "ms": 186.7,
+    "status": 200
+   }
+  },
+  "u204": {
+   "none": {
+    "hyp": "工单号S O一四一三七零，什么时候能处理？",
+    "ms": 218.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "工单号 SO一四一三七零，什么时候能处理？",
+    "ms": 260.6,
+    "status": 200
+   }
+  },
+  "u205": {
+   "none": {
+    "hyp": "你们是Viltra的客服吗？",
+    "ms": 159.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们是 Veltra 的客服吗？",
+    "ms": 190.1,
+    "status": 200
+   }
+  },
+  "u206": {
+   "none": {
+    "hyp": "我想办一个 Mesh 都游器的套餐。",
+    "ms": 169.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个 Mesh 路由器的套餐。",
+    "ms": 225.5,
+    "status": 200
+   }
+  },
+  "u207": {
+   "none": {
+    "hyp": "帮我转接到 Nova Net 的人工客服。",
+    "ms": 158.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 NovaNet 的人工客服。",
+    "ms": 199.2,
+    "status": 200
+   }
+  },
+  "u208": {
+   "none": {
+    "hyp": "昨天开始，OTA 升级就不能用了。",
+    "ms": 163.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "昨天开始 OTA 升级就不能用了。",
+    "ms": 198.9,
+    "status": 200
+   }
+  },
+  "u209": {
+   "none": {
+    "hyp": "我想办一个五G尊享二百九十九的套餐。",
+    "ms": 188.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想办一个五G尊享二百九十九的套餐。",
+    "ms": 232.2,
+    "status": 200
+   }
+  },
+  "u210": {
+   "none": {
+    "hyp": "你们的 Novonet Mac 有什么优惠吗？",
+    "ms": 171.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 NovaNet Max 有什么优惠吗？",
+    "ms": 203.9,
+    "status": 200
+   }
+  },
+  "u211": {
+   "none": {
+    "hyp": "我的订单号是SO九零九六五九，帮我查一下进度。",
+    "ms": 223.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我的订单号是 SO 九零九六五九，帮我查一下进度。",
+    "ms": 284.4,
+    "status": 200
+   }
+  },
+  "u212": {
+   "none": {
+    "hyp": "刚才你说的SIM卡，我没听懂，再讲一遍。",
+    "ms": 193.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "刚才你说的 SIM 卡，我没听懂，再讲一遍。",
+    "ms": 238.5,
+    "status": 200
+   }
+  },
+  "u213": {
+   "none": {
+    "hyp": "我想把现在的套餐换成Nova TV。",
+    "ms": 140.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想把现在的套餐换成 NovaTV。",
+    "ms": 190.1,
+    "status": 200
+   }
+  },
+  "u214": {
+   "none": {
+    "hyp": "维修单R M A E一零七的师傅怎么还没来？",
+    "ms": 196.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "维修单 RMAE 一零七的师傅怎么还没来？",
+    "ms": 244.4,
+    "status": 200
+   }
+  },
+  "u215": {
+   "none": {
+    "hyp": "Volte覆盖我们小区吗？",
+    "ms": 133.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "VoLTE 覆盖我们小区吗？",
+    "ms": 203.2,
+    "status": 200
+   }
+  },
+  "u216": {
+   "none": {
+    "hyp": "请问AX三千怎么开通？",
+    "ms": 140.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 AX 三千怎么开通？",
+    "ms": 188.2,
+    "status": 200
+   }
+  },
+  "u217": {
+   "none": {
+    "hyp": "我是单茶的老用户了，想问个问题。",
+    "ms": 178.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我是三叉的老用户了，想问个问题。",
+    "ms": 224.9,
+    "status": 200
+   }
+  },
+  "u218": {
+   "none": {
+    "hyp": "Nova Net是做什么的？",
+    "ms": 129.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet 是做什么的？",
+    "ms": 176.9,
+    "status": 200
+   }
+  },
+  "u219": {
+   "none": {
+    "hyp": "我朋友用的V R T，我也想试试。",
+    "ms": 175.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 VoLTE，我也想试试。",
+    "ms": 211.5,
+    "status": 200
+   }
+  },
+  "u220": {
+   "none": {
+    "hyp": "帮我转接到 Vetro 的人工客服。",
+    "ms": 162.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "帮我转接到 Veltra 的人工客服。",
+    "ms": 209.4,
+    "status": 200
+   }
+  },
+  "u221": {
+   "none": {
+    "hyp": "麻烦核对一下 NV 二零二四零九零二这个单号。",
+    "ms": 212.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 NV 二零二四零九零二这个单号。",
+    "ms": 264.5,
+    "status": 200
+   }
+  },
+  "u222": {
+   "none": {
+    "hyp": "Orbix是做什么的？",
+    "ms": 135.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Orbix 是做什么的？",
+    "ms": 181.6,
+    "status": 200
+   }
+  },
+  "u223": {
+   "none": {
+    "hyp": "能不能帮我看看 D N F 怎么设置？",
+    "ms": 159.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能不能帮我看看 DNF 怎么设置？",
+    "ms": 204.3,
+    "status": 200
+   }
+  },
+  "u224": {
+   "none": {
+    "hyp": "我要取消订单。S O 一九六二二四。",
+    "ms": 182.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我要取消订单，So 一九六二二四。",
+    "ms": 230.5,
+    "status": 200
+   }
+  },
+  "u225": {
+   "none": {
+    "hyp": "5G A 覆盖我们小区吗？",
+    "ms": 173.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "5G A 覆盖我们小区吗？",
+    "ms": 218.8,
+    "status": 200
+   }
+  },
+  "u226": {
+   "none": {
+    "hyp": "麻烦核对一下N N三六五七K这个单号。",
+    "ms": 196.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "麻烦核对一下 NN 三六五七 K 这个单号。",
+    "ms": 247.3,
+    "status": 200
+   }
+  },
+  "u227": {
+   "none": {
+    "hyp": "想把现在的套餐换成五G尊享，两百九十九。",
+    "ms": 195.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "想把现在的套餐换成 5G 尊享 299。",
+    "ms": 249.2,
+    "status": 200
+   }
+  },
+  "u228": {
+   "none": {
+    "hyp": "我这个PIN嘛，老是出问题。",
+    "ms": 152.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 PIN 嘛，老是出问题。",
+    "ms": 213.0,
+    "status": 200
+   }
+  },
+  "u229": {
+   "none": {
+    "hyp": "Nova Cloud 每个月多少钱？",
+    "ms": 141.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Nova Cloud 每个月多少钱？",
+    "ms": 190.2,
+    "status": 200
+   }
+  },
+  "u230": {
+   "none": {
+    "hyp": "A X三千，每个月多少钱？",
+    "ms": 135.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "AX 三千每个月多少钱？",
+    "ms": 175.2,
+    "status": 200
+   }
+  },
+  "u231": {
+   "none": {
+    "hyp": "VoLTE每个月多少钱？",
+    "ms": 122.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "VoLTE 每个月多少钱？",
+    "ms": 188.9,
+    "status": 200
+   }
+  },
+  "u232": {
+   "none": {
+    "hyp": "请问，Centra 和别的运营商有什么区别？",
+    "ms": 165.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Zentra 和别的运营商有什么区别？",
+    "ms": 214.0,
+    "status": 200
+   }
+  },
+  "u233": {
+   "none": {
+    "hyp": "我这个VIP老是出问题。",
+    "ms": 143.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我这个 VIP 老是出问题。",
+    "ms": 200.3,
+    "status": 200
+   }
+  },
+  "u234": {
+   "none": {
+    "hyp": "NV二零二四一零二二，这个订单的收货地址我想改一下。",
+    "ms": 241.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NVR 零二四一零二二，这个订单的收货地址我想改一下。",
+    "ms": 302.1,
+    "status": 200
+   }
+  },
+  "u235": {
+   "none": {
+    "hyp": "我是 SkyWave 的老用户了，想问个问题。",
+    "ms": 185.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我是 SkyWave 的老用户了，想问个问题。",
+    "ms": 234.4,
+    "status": 200
+   }
+  },
+  "u236": {
+   "none": {
+    "hyp": "我朋友用的 NoVA Net Home Pro，我也想试试。",
+    "ms": 189.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我朋友用的 NovaNet Home Pro，我也想试试。",
+    "ms": 224.4,
+    "status": 200
+   }
+  },
+  "u237": {
+   "none": {
+    "hyp": "我想问一下，Sky Wave的营业厅在哪里？",
+    "ms": 159.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我想问一下 SkyWave 的营业厅在哪里？",
+    "ms": 205.0,
+    "status": 200
+   }
+  },
+  "u238": {
+   "none": {
+    "hyp": "请问 Nova Cloud 怎么开通？",
+    "ms": 137.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "请问 Nova Cloud 怎么开通？",
+    "ms": 187.3,
+    "status": 200
+   }
+  },
+  "u239": {
+   "none": {
+    "hyp": "你们的WiFi机有什么优惠吗？",
+    "ms": 140.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你们的 Wi-Fi 七有什么优惠吗？",
+    "ms": 202.9,
+    "status": 200
+   }
+  },
+  "u240": {
+   "none": {
+    "hyp": "Novanet最近有什么优惠活动吗？",
+    "ms": 148.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "NovaNet 最近有什么优惠活动吗？",
+    "ms": 194.0,
+    "status": 200
+   }
+  },
+  "mix_001_clean": {
+   "none": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 118.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 156.7,
+    "status": 200
+   }
+  },
+  "mix_001_g711": {
+   "none": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 121.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 168.9,
+    "status": 200
+   }
+  },
+  "mix_002_clean": {
+   "none": {
+    "hyp": "三件套，Mac吗？",
+    "ms": 132.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "三件套 Mac 吗？",
+    "ms": 177.1,
+    "status": 200
+   }
+  },
+  "mix_002_g711": {
+   "none": {
+    "hyp": "三件套，Mac吗？",
+    "ms": 135.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "三件套 Mac 吗？",
+    "ms": 189.6,
+    "status": 200
+   }
+  },
+  "mix_003_clean": {
+   "none": {
+    "hyp": "A.I.最近这么火。",
+    "ms": 135.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "AI最近这么火。",
+    "ms": 160.9,
+    "status": 200
+   }
+  },
+  "mix_003_g711": {
+   "none": {
+    "hyp": "AI最近这么火。",
+    "ms": 121.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "AI最近这么火。",
+    "ms": 171.9,
+    "status": 200
+   }
+  },
+  "mix_004_clean": {
+   "none": {
+    "hyp": "然后一直在考虑budget的问题。",
+    "ms": 127.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后一直在考虑 budget 的问题。",
+    "ms": 172.6,
+    "status": 200
+   }
+  },
+  "mix_004_g711": {
+   "none": {
+    "hyp": "然后一直在考虑budget的问题。",
+    "ms": 127.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后一直在考虑 budget 的问题。",
+    "ms": 179.9,
+    "status": 200
+   }
+  },
+  "mix_005_clean": {
+   "none": {
+    "hyp": "也是那个哈维尔。",
+    "ms": 120.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也是那个哈维尔。",
+    "ms": 157.8,
+    "status": 200
+   }
+  },
+  "mix_005_g711": {
+   "none": {
+    "hyp": "也是那个哈维尔。",
+    "ms": 119.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也是那个华为。",
+    "ms": 167.0,
+    "status": 200
+   }
+  },
+  "mix_006_clean": {
+   "none": {
+    "hyp": "你觉得 Mac 跟 Windows 比哪个？",
+    "ms": 159.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你觉得 Mac 跟 Windows 比哪个？",
+    "ms": 211.7,
+    "status": 200
+   }
+  },
+  "mix_006_g711": {
+   "none": {
+    "hyp": "你觉得 Mac 和 Windows 比哪个？",
+    "ms": 150.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "你觉得 Mac 和 Windows 比哪个？",
+    "ms": 195.2,
+    "status": 200
+   }
+  },
+  "mix_007_clean": {
+   "none": {
+    "hyp": "也不是，也不完全是AI。",
+    "ms": 128.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也不是，也不完全是AI。",
+    "ms": 171.9,
+    "status": 200
+   }
+  },
+  "mix_007_g711": {
+   "none": {
+    "hyp": "也不是，也不完全是AI。",
+    "ms": 126.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也不是，也不完全是AI。",
+    "ms": 173.5,
+    "status": 200
+   }
+  },
+  "mix_008_clean": {
+   "none": {
+    "hyp": "It's too risky. We cannot.",
+    "ms": 138.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "It's too risky. We cannot.",
+    "ms": 186.5,
+    "status": 200
+   }
+  },
+  "mix_008_g711": {
+   "none": {
+    "hyp": "It's too risky. We cannot.",
+    "ms": 138.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "It's too risky. We cannot.",
+    "ms": 186.9,
+    "status": 200
+   }
+  },
+  "mix_009_clean": {
+   "none": {
+    "hyp": "就是 still a long way to go.",
+    "ms": 140.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就是 still a long way to go.",
+    "ms": 188.2,
+    "status": 200
+   }
+  },
+  "mix_009_g711": {
+   "none": {
+    "hyp": "It's still a long way to go.",
+    "ms": 149.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "It's still a long way to go.",
+    "ms": 193.2,
+    "status": 200
+   }
+  },
+  "mix_010_clean": {
+   "none": {
+    "hyp": "比如说，给一些data set，然后你。",
+    "ms": 151.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "比如说，给一些 data set，然后你。",
+    "ms": 197.6,
+    "status": 200
+   }
+  },
+  "mix_010_g711": {
+   "none": {
+    "hyp": "比如说，给一些data set，然后你。",
+    "ms": 153.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "比如说，给一些 data set，然后你。",
+    "ms": 200.5,
+    "status": 200
+   }
+  },
+  "mix_011_clean": {
+   "none": {
+    "hyp": "A.I.做出了一个错误的判断。",
+    "ms": 143.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "AI做出了一个错误的判断。",
+    "ms": 178.6,
+    "status": 200
+   }
+  },
+  "mix_011_g711": {
+   "none": {
+    "hyp": "AI做出了一个错误的判断。",
+    "ms": 132.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "AI做出了一个错误的判断。",
+    "ms": 182.0,
+    "status": 200
+   }
+  },
+  "mix_012_clean": {
+   "none": {
+    "hyp": "能就是帮人类做很多work。",
+    "ms": 139.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能就是帮人类做很多work。",
+    "ms": 185.4,
+    "status": 200
+   }
+  },
+  "mix_012_g711": {
+   "none": {
+    "hyp": "能就是帮人类做很多work。",
+    "ms": 141.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "能就是帮人类做很多work。",
+    "ms": 188.5,
+    "status": 200
+   }
+  },
+  "mix_013_clean": {
+   "none": {
+    "hyp": "呃，workshop学校应该也有统一的workshop。",
+    "ms": 164.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃，workshop学校应该也有统一的workshop。",
+    "ms": 211.7,
+    "status": 200
+   }
+  },
+  "mix_013_g711": {
+   "none": {
+    "hyp": "呃，workshop学校应该也有统一的workshop。",
+    "ms": 167.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃，workshop 学校应该也有统一的workshop。",
+    "ms": 226.6,
+    "status": 200
+   }
+  },
+  "mix_014_clean": {
+   "none": {
+    "hyp": "哦，那个是那个是wind，好像是做。",
+    "ms": 155.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "哦，那个是那个是 Wind，好像是做。",
+    "ms": 204.8,
+    "status": 200
+   }
+  },
+  "mix_014_g711": {
+   "none": {
+    "hyp": "哦，那个是那个是Windows，好像是做。",
+    "ms": 160.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "哦，那个是那个是 Winds，好像是做。",
+    "ms": 205.7,
+    "status": 200
+   }
+  },
+  "mix_015_clean": {
+   "none": {
+    "hyp": "那我们的department其实hardware跟software其实就是各半。",
+    "ms": 163.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "那我们的 department 其实 hardware 跟 software 其实就是各半。",
+    "ms": 250.7,
+    "status": 200
+   }
+  },
+  "mix_015_g711": {
+   "none": {
+    "hyp": "那我们的 department 其实 hardware 跟 software 其实就各半。",
+    "ms": 207.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "那么，我们的 department 其实 hardware 跟 software 其实就各半。",
+    "ms": 260.5,
+    "status": 200
+   }
+  },
+  "mix_016_clean": {
+   "none": {
+    "hyp": "我认为现在的AI，比如说在。",
+    "ms": 137.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我认为现在的AI，比如说在。",
+    "ms": 179.8,
+    "status": 200
+   }
+  },
+  "mix_016_g711": {
+   "none": {
+    "hyp": "我认为现在的AI，比如说在。",
+    "ms": 143.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我认为现在的AI，比如说在。",
+    "ms": 185.5,
+    "status": 200
+   }
+  },
+  "mix_017_clean": {
+   "none": {
+    "hyp": "self driving方面，自动驾驶方面。",
+    "ms": 133.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Self-driving方面，自动驾驶方面。",
+    "ms": 184.4,
+    "status": 200
+   }
+  },
+  "mix_017_g711": {
+   "none": {
+    "hyp": "self-driving方面，自动驾驶方面。",
+    "ms": 145.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "Self-driving方面，自动驾驶方面。",
+    "ms": 184.1,
+    "status": 200
+   }
+  },
+  "mix_018_clean": {
+   "none": {
+    "hyp": "就之前运用到的一些，都是一些现成的package。",
+    "ms": 177.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就之前运用到的一些，都是一些现成的 package。",
+    "ms": 226.0,
+    "status": 200
+   }
+  },
+  "mix_018_g711": {
+   "none": {
+    "hyp": "就之前运用到的一些，都是一些现成的package。",
+    "ms": 192.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就之前运用到的一些，都是一些现成的packet。",
+    "ms": 241.8,
+    "status": 200
+   }
+  },
+  "mix_019_clean": {
+   "none": {
+    "hyp": "然后再建一个model去optimization，这样。",
+    "ms": 156.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后再建一个 model 去 optimization，这样。",
+    "ms": 211.8,
+    "status": 200
+   }
+  },
+  "mix_019_g711": {
+   "none": {
+    "hyp": "然后再建一个model去optimization，这样。",
+    "ms": 165.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后再建一个 model 去 optimization，这样。",
+    "ms": 211.0,
+    "status": 200
+   }
+  },
+  "mix_020_clean": {
+   "none": {
+    "hyp": "对，反正我们就只能做一些这种比较Entry-level的东西。",
+    "ms": 167.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对，反正我们就只能做一些这种比较 entry level 的东西。",
+    "ms": 220.1,
+    "status": 200
+   }
+  },
+  "mix_020_g711": {
+   "none": {
+    "hyp": "对，反正我们就只能做一些这种比较严肃一点的东西。",
+    "ms": 173.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对，反正我们就只能做一些这种比较延迟依赖度的东西。",
+    "ms": 221.6,
+    "status": 200
+   }
+  },
+  "mix_021_clean": {
+   "none": {
+    "hyp": "我并不是要做NLP的，就我并不是要做natural language processing。",
+    "ms": 185.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我并不是要做 NLP 的，就我不并不是要做 natural language processing。",
+    "ms": 231.9,
+    "status": 200
+   }
+  },
+  "mix_021_g711": {
+   "none": {
+    "hyp": "我并不是要做 NLP 的，就我并不是要做 natural language processing。",
+    "ms": 194.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "我并不知道做 NLP 的，就我并不知道做 natural language processing。",
+    "ms": 247.3,
+    "status": 200
+   }
+  },
+  "mix_022_clean": {
+   "none": {
+    "hyp": "不过后来就是focus在先把GPA提高嘛。",
+    "ms": 169.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "不过后来就是focus在先把GPA提高嘛。",
+    "ms": 208.1,
+    "status": 200
+   }
+  },
+  "mix_022_g711": {
+   "none": {
+    "hyp": "不过后来就是focus在先把GPA提高嘛。",
+    "ms": 169.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "不过后来就是focus在先把GPA提高嘛。",
+    "ms": 215.6,
+    "status": 200
+   }
+  },
+  "mix_023_clean": {
+   "none": {
+    "hyp": "那图像识别，其实上学上个semester我们。",
+    "ms": 170.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "那图像识别，其实上学上个 semester 我们。",
+    "ms": 220.4,
+    "status": 200
+   }
+  },
+  "mix_023_g711": {
+   "none": {
+    "hyp": "那图像识别，其实上学上个semester我们。",
+    "ms": 172.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "那图像识别，其实上学上个 semester 我们。",
+    "ms": 228.5,
+    "status": 200
+   }
+  },
+  "mix_024_clean": {
+   "none": {
+    "hyp": "感觉还不错，Robotics就是Robotics mixed with language application.",
+    "ms": 184.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "感觉还不错，Robotics就是Robotics mixed with language application。",
+    "ms": 223.9,
+    "status": 200
+   }
+  },
+  "mix_024_g711": {
+   "none": {
+    "hyp": "感觉还不错，robotics就是robotics mixed with language application。",
+    "ms": 184.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "感觉还不错。Robotics就是robotics mixed with language application。",
+    "ms": 230.8,
+    "status": 200
+   }
+  },
+  "mix_025_clean": {
+   "none": {
+    "hyp": "呃，data analyst，或者是啊，对，就刚刚你刚刚说的那些东西。",
+    "ms": 219.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃, data analyst,或者是啊,对,就刚刚你刚刚说的那些东西。",
+    "ms": 281.5,
+    "status": 200
+   }
+  },
+  "mix_025_g711": {
+   "none": {
+    "hyp": "呃，data analyst，或者是啊，对，就看，看你刚刚说的那些东西。",
+    "ms": 243.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃, data analyst,或者是啊,对,就看看你刚刚说的那些东西。",
+    "ms": 289.6,
+    "status": 200
+   }
+  },
+  "mix_026_clean": {
+   "none": {
+    "hyp": "That's the reason. 我来就是最后决定做那个。",
+    "ms": 200.1,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "That's the reason I来就是最后决定做那个。",
+    "ms": 230.6,
+    "status": 200
+   }
+  },
+  "mix_026_g711": {
+   "none": {
+    "hyp": "That's the reason我来就是最后决定做那个。",
+    "ms": 189.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "That's the reason I来就是最后决定做那个。",
+    "ms": 243.2,
+    "status": 200
+   }
+  },
+  "mix_027_clean": {
+   "none": {
+    "hyp": "做optimization，然后再去做预测，主要还是做预测。",
+    "ms": 193.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "做 optimization，然后再去做预测。主要还是做预测。",
+    "ms": 233.4,
+    "status": 200
+   }
+  },
+  "mix_027_g711": {
+   "none": {
+    "hyp": "做 optimization，然后再去做预测，主要还是做预测。",
+    "ms": 188.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "做 optimization，然后再去做预测，主要还是做预测。",
+    "ms": 243.9,
+    "status": 200
+   }
+  },
+  "mix_028_clean": {
+   "none": {
+    "hyp": "然后，但是我当时读了很多相关的paper。",
+    "ms": 162.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后，但是我当时读了很多相关的paper。",
+    "ms": 215.1,
+    "status": 200
+   }
+  },
+  "mix_028_g711": {
+   "none": {
+    "hyp": "然后，但是我当时读了很多相关的paper。",
+    "ms": 169.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后，但是我当时读了很多相关的 paper。",
+    "ms": 218.2,
+    "status": 200
+   }
+  },
+  "mix_029_clean": {
+   "none": {
+    "hyp": "去全部赌在A，去全部压在AI身上。",
+    "ms": 187.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "去全部赌在A，去全部压在AI身上。",
+    "ms": 236.4,
+    "status": 200
+   }
+  },
+  "mix_029_g711": {
+   "none": {
+    "hyp": "去全部赌在A，去全部压在AI身上。",
+    "ms": 192.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "去全部赌在A，去全部压在AI身上。",
+    "ms": 243.5,
+    "status": 200
+   }
+  },
+  "mix_030_clean": {
+   "none": {
+    "hyp": "对，毕竟那边搜索的活动多一点，就有很多活动要参加。",
+    "ms": 211.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对，毕竟那边销售的活动多一点，就有很多活动要参加。",
+    "ms": 260.7,
+    "status": 200
+   }
+  },
+  "mix_030_g711": {
+   "none": {
+    "hyp": "对，第几年身边宿舍的活动多一点，就有很多活动要参加。",
+    "ms": 218.2,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对，这几年身边促销的活动多一点，就有很多活动要参加。",
+    "ms": 262.3,
+    "status": 200
+   }
+  },
+  "mix_031_clean": {
+   "none": {
+    "hyp": "就你要申请去交换，你并不需要去说哦，我要去哪一个department交换，是直接选school。",
+    "ms": 263.0,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就你要申请去交换，你并不需要去说哦，我要去哪一个 department 交换，是直接选 school。",
+    "ms": 327.2,
+    "status": 200
+   }
+  },
+  "mix_031_g711": {
+   "none": {
+    "hyp": "就你要申请去交换，你并不需要去说哦，我要去哪一个 department 交换，是直接选 school。",
+    "ms": 270.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就你要申请去交换，你并不需要去说哦，我要去哪一个 department 交换，是直接选 school。",
+    "ms": 317.7,
+    "status": 200
+   }
+  },
+  "mix_032_clean": {
+   "none": {
+    "hyp": "还有就是，比如说会，呃，我们上次就我上次做的一个project是。",
+    "ms": 226.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "还有就是，比如说会呃，我们上次就我上次做的一个 project 是。",
+    "ms": 269.8,
+    "status": 200
+   }
+  },
+  "mix_032_g711": {
+   "none": {
+    "hyp": "还有就是，比如说会呃，我们上次就我上次做的一个project是。",
+    "ms": 223.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "还有就是，比如说会呃，我们上次就我上次做的一个 project 是。",
+    "ms": 265.5,
+    "status": 200
+   }
+  },
+  "mix_033_clean": {
+   "none": {
+    "hyp": "呃，你觉得？那你为什么会？呃，你就是觉得国外更open mind，然后有更多。",
+    "ms": 241.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃，你觉得？那你为什么会？呃，你就是觉得国外更 open mind，然后有更多。",
+    "ms": 297.2,
+    "status": 200
+   }
+  },
+  "mix_033_g711": {
+   "none": {
+    "hyp": "呃，你觉得？那你为什么会？呃，你就是觉得国外更open minded，然后有更多。",
+    "ms": 254.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "呃，你觉得？那你为什么会？呃，你就是觉得国外更 open-minded，然后有更多。",
+    "ms": 296.6,
+    "status": 200
+   }
+  },
+  "mix_034_clean": {
+   "none": {
+    "hyp": "对啊，大家最近都是觉得 AI 有一天能够 replace 人类。",
+    "ms": 204.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对啊，大家最近都是觉得 AI 有一天能够 replace 人类。",
+    "ms": 258.0,
+    "status": 200
+   }
+  },
+  "mix_034_g711": {
+   "none": {
+    "hyp": "对啊，大家最近都是觉得AI有一天能够replace人类。",
+    "ms": 202.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对啊，大家最近都是觉得 AI 有一天能够 replace 人类。",
+    "ms": 255.8,
+    "status": 200
+   }
+  },
+  "mix_035_clean": {
+   "none": {
+    "hyp": "对，我的我undergraduate的时候学的major也是。",
+    "ms": 195.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对我的，我 undergraduate 的时候学的 major 也是。",
+    "ms": 240.6,
+    "status": 200
+   }
+  },
+  "mix_035_g711": {
+   "none": {
+    "hyp": "对，我的我undergraduate的时候学的major也是。",
+    "ms": 194.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "对我的，我 undergraduate 的时候学的 major 也是。",
+    "ms": 245.2,
+    "status": 200
+   }
+  },
+  "mix_036_clean": {
+   "none": {
+    "hyp": "然后在打算申请graduate school的时候，我考虑过挺多major的。",
+    "ms": 218.3,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后在打算申请 graduate school 的时候，我考虑过挺多 major 的。",
+    "ms": 261.1,
+    "status": 200
+   }
+  },
+  "mix_036_g711": {
+   "none": {
+    "hyp": "然后在打算申请graduate school的时候，我考虑过挺多major的。",
+    "ms": 215.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "然后在打算申请 graduate school 的时候，我考虑过挺多 major 的。",
+    "ms": 269.2,
+    "status": 200
+   }
+  },
+  "mix_037_clean": {
+   "none": {
+    "hyp": "所以你平时就现在大部分时间还是，tennis就打网球。",
+    "ms": 211.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "所以你平时就现在大部分时间还是 tennis 就打网球。",
+    "ms": 243.3,
+    "status": 200
+   }
+  },
+  "mix_037_g711": {
+   "none": {
+    "hyp": "所以你平时就现在大部分时间还是 tennis 就打网球。",
+    "ms": 203.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "所以你平时就现在大部分时间还是 tennis 就打网球。",
+    "ms": 249.1,
+    "status": 200
+   }
+  },
+  "mix_038_clean": {
+   "none": {
+    "hyp": "就是会有很多呃，比如说跟Luminize聚会啊，一起吃饭，然后要么就。",
+    "ms": 240.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就是会有很多呃，比如说跟Luminize聚会啊，一起吃饭，然后要么就。",
+    "ms": 275.9,
+    "status": 200
+   }
+  },
+  "mix_038_g711": {
+   "none": {
+    "hyp": "就是会有很多呃，比如说跟Luminize聚会啊，一起吃饭，然后要么就。",
+    "ms": 241.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "就是会有很多呃，比如说跟 Lumina 聚会啊，一起吃饭，然后要么就。",
+    "ms": 300.3,
+    "status": 200
+   }
+  },
+  "mix_039_clean": {
+   "none": {
+    "hyp": "当时其实有一个就是做communication的professor想招我进组。",
+    "ms": 213.5,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "当时其实有一个就是做 communication 的 professor 想招我进组。",
+    "ms": 262.3,
+    "status": 200
+   }
+  },
+  "mix_039_g711": {
+   "none": {
+    "hyp": "当时其实有一个就是做communication的professor想招我进组。",
+    "ms": 212.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "当时其实有一个就是做 communication 的 professor 想招我进入。",
+    "ms": 255.0,
+    "status": 200
+   }
+  },
+  "mix_040_clean": {
+   "none": {
+    "hyp": "大四上学期，好像是，反正好像是六月份的时候才开始准备Ielts。",
+    "ms": 233.4,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "大四上学期，好像是，反正好像是六月份的时候才开始准备IELTS。",
+    "ms": 278.1,
+    "status": 200
+   }
+  },
+  "mix_040_g711": {
+   "none": {
+    "hyp": "大四上学期，好像是，反正好像是六月份的时候才开始准备IELTS。",
+    "ms": 237.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "大四上学期，好像是，反正好像是六月份的时候才开始准备 IELTS。",
+    "ms": 285.2,
+    "status": 200
+   }
+  },
+  "mix_041_clean": {
+   "none": {
+    "hyp": "三文鱼 cheese 或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share 他的一些他们公司的一些东西。",
+    "ms": 315.8,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "三明治吃，或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share他的一些他们公司的一些东西。",
+    "ms": 349.6,
+    "status": 200
+   }
+  },
+  "mix_041_g711": {
+   "none": {
+    "hyp": "三明治，或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share他的一些他们公司的一些东西。",
+    "ms": 309.9,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "三明治，或者是其他的东西分给我们吃，然后我们就边吃边听他分享，share他的一些他们公司的一些东西。",
+    "ms": 345.9,
+    "status": 200
+   }
+  },
+  "mix_042_clean": {
+   "none": {
+    "hyp": "也就是我现在是个 adviser 呢，就跟我说，哎，那你过来跟我做，我就给你一些 robotics 相关的题目啊，这样子做，这样，那我就想说，哎，那其实。",
+    "ms": 413.6,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也就是我现在是个 adviser 呢，就跟我说，哎，那你过来跟我做，我就给你一些 robotics 相关的题目啊，这样子做，这样，那我就想说，哎，那其实。",
+    "ms": 458.8,
+    "status": 200
+   }
+  },
+  "mix_042_g711": {
+   "none": {
+    "hyp": "也就是我现在是个 adviser 呢，就跟我说，哎，那你过来跟我做，我就给你一些 robotics 相关的题目啊，这样子做，这样，那我就想说，哎，那其实。",
+    "ms": 427.7,
+    "status": 200
+   },
+   "context_noex": {
+    "hyp": "也就是我现在是个 adviser 呢，就跟我说，哎，那你过来跟我做，我就给你一些 robotics 相关的题目啊，这样子做，这样，那我就想说，哎，那其实。",
+    "ms": 470.9,
+    "status": 200
+   }
+  }
+ },
+ "summary": {
+  "by_mode": {
+   "none": {
+    "tts": {
+     "n": 240,
+     "terms": 252,
+     "hits": 173,
+     "hit_rate": 0.6865079365079365,
+     "cer": 0.056349000259672814,
+     "nt_cer": 0.009086975335352661,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 84,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.09208015267175572,
+     "nt_cer": 0.09208015267175572,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "context_noex": {
+    "tts": {
+     "n": 240,
+     "terms": 252,
+     "hits": 215,
+     "hit_rate": 0.8531746031746031,
+     "cer": 0.029083354972734354,
+     "nt_cer": 0.006057983556901774,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 84,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.09732824427480916,
+     "nt_cer": 0.09732824427480916,
+     "errors": 0
+    },
+    "errors": 0
+   }
+  },
+  "by_slice": {
+   "none": {
+    "category": {
+     "brand": {
+      "n": 60,
+      "terms": 60,
+      "hits": 33,
+      "hit_rate": 0.55,
+      "cer": 0.07264957264957266,
+      "nt_cer": 0.006944444444444444,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 60,
+      "terms": 72,
+      "hits": 49,
+      "hit_rate": 0.6805555555555556,
+      "cer": 0.06907216494845361,
+      "nt_cer": 0.009375,
+      "errors": 0
+     },
+     "order": {
+      "n": 50,
+      "terms": 50,
+      "hits": 46,
+      "hit_rate": 0.92,
+      "cer": 0.014054054054054054,
+      "nt_cer": 0.009345794392523364,
+      "errors": 0
+     },
+     "product": {
+      "n": 70,
+      "terms": 70,
+      "hits": 45,
+      "hit_rate": 0.6428571428571429,
+      "cer": 0.06764705882352941,
+      "nt_cer": 0.010714285714285714,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 48,
+      "terms": 49,
+      "hits": 30,
+      "hit_rate": 0.6122448979591837,
+      "cer": 0.058029689608636977,
+      "nt_cer": 0.0022172949002217295,
+      "errors": 0
+     },
+     "echo": {
+      "n": 48,
+      "terms": 50,
+      "hits": 37,
+      "hit_rate": 0.74,
+      "cer": 0.03968253968253968,
+      "nt_cer": 0.0021645021645021645,
+      "errors": 0
+     },
+     "g711": {
+      "n": 48,
+      "terms": 52,
+      "hits": 35,
+      "hit_rate": 0.6730769230769231,
+      "cer": 0.057971014492753624,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 48,
+      "terms": 51,
+      "hits": 35,
+      "hit_rate": 0.6862745098039216,
+      "cer": 0.05472636815920398,
+      "nt_cer": 0.01276595744680851,
+      "errors": 0
+     },
+     "onset": {
+      "n": 48,
+      "terms": 50,
+      "hits": 36,
+      "hit_rate": 0.72,
+      "cer": 0.07079646017699115,
+      "nt_cer": 0.02754237288135593,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "aiden": {
+      "n": 55,
+      "terms": 61,
+      "hits": 39,
+      "hit_rate": 0.639344262295082,
+      "cer": 0.05749718151071026,
+      "nt_cer": 0.01556420233463035,
+      "errors": 0
+     },
+     "serena": {
+      "n": 65,
+      "terms": 67,
+      "hits": 50,
+      "hit_rate": 0.746268656716418,
+      "cer": 0.045062320230105465,
+      "nt_cer": 0.011146496815286623,
+      "errors": 0
+     },
+     "uncle_fu": {
+      "n": 55,
+      "terms": 57,
+      "hits": 36,
+      "hit_rate": 0.631578947368421,
+      "cer": 0.0743801652892562,
+      "nt_cer": 0.005802707930367505,
+      "errors": 0
+     },
+     "vivian": {
+      "n": 65,
+      "terms": 67,
+      "hits": 48,
+      "hit_rate": 0.7164179104477612,
+      "cer": 0.0521415270018622,
+      "nt_cer": 0.004601226993865031,
+      "errors": 0
+     }
+    }
+   },
+   "context_noex": {
+    "category": {
+     "brand": {
+      "n": 60,
+      "terms": 60,
+      "hits": 53,
+      "hit_rate": 0.8833333333333333,
+      "cer": 0.024572649572649572,
+      "nt_cer": 0.006944444444444444,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 60,
+      "terms": 72,
+      "hits": 61,
+      "hit_rate": 0.8472222222222222,
+      "cer": 0.041237113402061855,
+      "nt_cer": 0.009375,
+      "errors": 0
+     },
+     "order": {
+      "n": 50,
+      "terms": 50,
+      "hits": 43,
+      "hit_rate": 0.86,
+      "cer": 0.015135135135135135,
+      "nt_cer": 0.001869158878504673,
+      "errors": 0
+     },
+     "product": {
+      "n": 70,
+      "terms": 70,
+      "hits": 58,
+      "hit_rate": 0.8285714285714286,
+      "cer": 0.03431372549019608,
+      "nt_cer": 0.005357142857142857,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 48,
+      "terms": 49,
+      "hits": 40,
+      "hit_rate": 0.8163265306122449,
+      "cer": 0.02564102564102564,
+      "nt_cer": 0.0022172949002217295,
+      "errors": 0
+     },
+     "echo": {
+      "n": 48,
+      "terms": 50,
+      "hits": 46,
+      "hit_rate": 0.92,
+      "cer": 0.015873015873015872,
+      "nt_cer": 0.0021645021645021645,
+      "errors": 0
+     },
+     "g711": {
+      "n": 48,
+      "terms": 52,
+      "hits": 45,
+      "hit_rate": 0.8653846153846154,
+      "cer": 0.02766798418972332,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 48,
+      "terms": 51,
+      "hits": 45,
+      "hit_rate": 0.8823529411764706,
+      "cer": 0.0236318407960199,
+      "nt_cer": 0.010638297872340425,
+      "errors": 0
+     },
+     "onset": {
+      "n": 48,
+      "terms": 50,
+      "hits": 39,
+      "hit_rate": 0.78,
+      "cer": 0.051833122629582805,
+      "nt_cer": 0.014830508474576272,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "aiden": {
+      "n": 55,
+      "terms": 61,
+      "hits": 52,
+      "hit_rate": 0.8524590163934426,
+      "cer": 0.03156708004509583,
+      "nt_cer": 0.007782101167315175,
+      "errors": 0
+     },
+     "serena": {
+      "n": 65,
+      "terms": 67,
+      "hits": 61,
+      "hit_rate": 0.9104477611940298,
+      "cer": 0.019175455417066157,
+      "nt_cer": 0.011146496815286623,
+      "errors": 0
+     },
+     "uncle_fu": {
+      "n": 55,
+      "terms": 57,
+      "hits": 48,
+      "hit_rate": 0.8421052631578947,
+      "cer": 0.03659976387249114,
+      "nt_cer": 0.0019342359767891683,
+      "errors": 0
+     },
+     "vivian": {
+      "n": 65,
+      "terms": 67,
+      "hits": 54,
+      "hit_rate": 0.8059701492537313,
+      "cer": 0.030726256983240222,
+      "nt_cer": 0.003067484662576687,
+      "errors": 0
+     }
+    }
+   }
+  },
+  "diff_vs_none": {
+   "context_noex": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.1667,
+      "ci95": [
+       0.1176,
+       0.2205
+      ]
+     },
+     "cer": {
+      "diff": -0.0273,
+      "ci95": [
+       -0.036,
+       -0.0189
+      ]
+     },
+     "nt_cer": {
+      "diff": -0.003,
+      "ci95": [
+       -0.0062,
+       -0.0004
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0052,
+      "ci95": [
+       0.0,
+       0.0115
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0052,
+      "ci95": [
+       0.0,
+       0.0115
+      ]
+     }
+    }
+   }
+  },
+  "errors": {},
+  "identical_to_none": {
+   "context_noex": "76/324"
+  }
+ }
+}

@@ -1,0 +1,49 @@
+{
+ "kind": "huge",
+ "label": "stock-0.6.1-sanity",
+ "base_url": "http://127.0.0.1:8132",
+ "context_field": "context",
+ "context_chars": 6420,
+ "context_bytes": 10192,
+ "requests": [
+  {
+   "id": "u001",
+   "text": "Zentra 最近有什么优惠活动吗？",
+   "none": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 149.8,
+    "status": 200
+   },
+   "huge10k": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 147.8,
+    "status": 200
+   }
+  },
+  {
+   "id": "u002",
+   "text": "我说，Orbix 是做什么的？",
+   "none": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 157.6,
+    "status": 200
+   },
+   "huge10k": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 156.9,
+    "status": 200
+   }
+  }
+ ],
+ "baseline_before": {
+  "hyp": "CENTRA 最近有什么优惠活动吗？",
+  "ms": 157.2,
+  "status": 200
+ },
+ "baseline_after": {
+  "hyp": "CENTRA 最近有什么优惠活动吗？",
+  "ms": 149.6,
+  "status": 200
+ },
+ "models_status_after": 200
+}

@@ -160,7 +160,8 @@ src/mlx_realtime/
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project; backends/llm runs
-                                   mlx_lm.server through mlxrt_llm (a lenient tool-call parser)
+                                   mlx_lm.server through mlxrt_llm (a lenient tool-call parser);
+                                   backends/audio runs the ASR through mlxrt_audio (the context field)
 vendor/speexdsp-aec                SpeexDSP 1.2.1's echo canceller (BSD C sources, unchanged, with
                                    their sha256 in speexdsp/SOURCE.json) and its CPython binding
 models/MANIFEST.json               the ONNX models: source, revision, license, sha256

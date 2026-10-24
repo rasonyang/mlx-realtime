@@ -1,11 +1,14 @@
 """``MlxAudioASR``: the ASR provider for ``mlx_audio.server`` (ARCHITECTURE §5.2, §5.3).
 
 ``POST /v1/audio/transcriptions``, multipart: the turn as a WAV file (16 kHz mono s16),
-``model``, ``language`` when the session sets one (omitted: auto-detect) and
-``response_format: verbose_json``. The answer is one JSON object, ``text`` plus ``language``
-(a list of names, as Qwen3-ASR reports them) and ``segments``; it is the provider's single
-item, bounded by the first-item deadline. The server loads a model on its first request, so
-the warmup transcribes a short clip.
+``model``, ``language`` when the session sets one (omitted: auto-detect), ``context`` when
+there is text to bias the model with, and ``response_format: verbose_json``. The context is the
+turn's ``transcription.prompt``, or else ``providers.asr.context``; with neither, the form has
+no ``context`` field. Stock ``mlx_audio.server`` drops it for Qwen3-ASR; the backend wrapper
+``mlxrt_audio.serve`` hands it to the model as its system prompt. The answer is one JSON
+object, ``text`` plus ``language`` (a list of names, as Qwen3-ASR reports them) and
+``segments``; it is the provider's single item, bounded by the first-item deadline. The server
+loads a model on its first request, so the warmup transcribes a short clip.
 """
 
 from __future__ import annotations
@@ -81,12 +84,16 @@ class MlxAudioASR:
         self._transport = transport
         self._http: httpx2.AsyncClient | None = None
 
-    async def transcribe(self, pcm16_16k: bytes, *, language: str | None = None) -> Transcript:
-        return await self._transcribe(pcm16_16k, language, self._deadlines)
+    async def transcribe(
+        self, pcm16_16k: bytes, *, language: str | None = None, context: str | None = None
+    ) -> Transcript:
+        return await self._transcribe(
+            pcm16_16k, language, context or self._config.context, self._deadlines
+        )
 
     async def warmup(self) -> None:
         """A one-second clip: the server loads the model on its first request."""
-        await self._transcribe(warmup_clip(), None, self._warmup_deadlines)
+        await self._transcribe(warmup_clip(), None, None, self._warmup_deadlines)
 
     async def ready(self) -> Readiness:
         """The server answers, and its list of loaded models holds ours."""
@@ -110,7 +117,7 @@ class MlxAudioASR:
             await self._http.aclose()
 
     async def _transcribe(
-        self, pcm: bytes, language: str | None, deadlines: Deadlines
+        self, pcm: bytes, language: str | None, context: str | None, deadlines: Deadlines
     ) -> Transcript:
         audio_ms = bytes_to_ms(len(pcm), CANONICAL_RATE)
         if not pcm:
@@ -118,6 +125,8 @@ class MlxAudioASR:
         form = {"model": self._config.model, "response_format": "verbose_json"}
         if language:
             form["language"] = LANGUAGE_NAMES.get(language.lower(), language)
+        if context:
+            form["context"] = context
         files = {"file": ("audio.wav", wav_file(pcm), "audio/wav")}
         async with self._slots.slot():
             clock = RequestClock(deadlines)

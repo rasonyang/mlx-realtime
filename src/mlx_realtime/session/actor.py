@@ -460,8 +460,10 @@ class SessionActor:
             timeline.mark(name, at_s)
         self._timelines[item_id] = timeline
         language = transcription.language if transcription is not None else None
+        # Both are read now: a later session.update never reaches a turn already committed.
+        context = transcription.prompt if transcription is not None else None
         with logs.bound(turn=timeline.turn_id, item=item_id):
-            self._spawn(self._transcribe(item_id, audio.pcm, language))
+            self._spawn(self._transcribe(item_id, audio.pcm, language, context))
         if create_response and self._response is None:
             self._start_response(ResponseParams(), turn_item_id=item_id, voice=self._settings.voice)
 
@@ -477,9 +479,11 @@ class SessionActor:
             self._turns.reset()
         self._feeder.configure(self._vad_epoch, self._gate_params())
 
-    async def _transcribe(self, item_id: str, pcm: bytes, language: str | None) -> None:
+    async def _transcribe(
+        self, item_id: str, pcm: bytes, language: str | None, context: str | None
+    ) -> None:
         try:
-            transcript = await self._deps.asr.transcribe(pcm, language=language)
+            transcript = await self._deps.asr.transcribe(pcm, language=language, context=context)
         except ProviderError as error:
             self._inbox.put_signal(TranscriptFailed(item_id, error))
         except Exception:

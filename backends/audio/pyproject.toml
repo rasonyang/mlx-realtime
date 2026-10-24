@@ -1,12 +1,45 @@
 [project]
 name = "mlxrt-backend-audio"
 version = "0.1.0"
-description = "mlx-realtime audio backend: runs mlx_audio.server for ASR and TTS (ARCHITECTURE §2, D10)"
+description = "mlx-realtime audio backend: mlx_audio.server for ASR and TTS, with the ASR context patch (ARCHITECTURE §2, D10)"
 requires-python = ">=3.12"
 dependencies = [
     "huggingface-hub>=2.2.0",
     "mlx-audio[server]==0.6.1",
 ]
 
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14.0"]
+build-backend = "uv_build"
+
 [tool.uv]
 required-version = ">=0.13.5"
+
+[tool.uv.build-backend]
+module-name = "mlxrt_audio"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+
+# `uv run --locked pyright -p backends/audio` from the repository root (pyright is a root dev tool).
+[tool.pyright]
+include = ["src", "tests"]
+exclude = ["**/.venv", "**/__pycache__"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+strict = ["src"]
+venvPath = "."
+venv = ".venv"
+
+# The root configuration, except that this backend is where mlx-audio belongs.
+[tool.ruff]
+extend = "../../pyproject.toml"
+
+[tool.ruff.lint.flake8-tidy-imports]
+banned-api = {}
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

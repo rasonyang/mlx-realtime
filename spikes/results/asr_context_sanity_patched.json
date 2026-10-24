@@ -1,0 +1,1409 @@
+{
+ "kind": "run",
+ "label": "patched-sanity",
+ "base_url": "http://127.0.0.1:8132",
+ "model": "mlx-community/Qwen3-ASR-1.7B-8bit",
+ "context_field": "context",
+ "language": null,
+ "modes": [
+  "none",
+  "context",
+  "terms",
+  "empty",
+  "en_prompt",
+  "long1k"
+ ],
+ "context_lengths": {
+  "none": null,
+  "context": 311,
+  "terms": 252,
+  "empty": 0,
+  "en_prompt": 143,
+  "long1k": 967
+ },
+ "wall_s": 13.6,
+ "rows": [
+  {
+   "id": "u001",
+   "text": "Zentra 最近有什么优惠活动吗？",
+   "terms": [
+    "Zentra"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u002",
+   "text": "我说，Orbix 是做什么的？",
+   "terms": [
+    "Orbix"
+   ],
+   "category": "brand",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u008",
+   "text": "工单号 NN8790X，什么时候能处理？",
+   "tts": "工单号 N N 八 七 九 零 X，什么时候能处理？",
+   "terms": [
+    "NN8790X"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  },
+  {
+   "id": "u010",
+   "text": "我的订单号是 NV20241018，帮我查一下进度。",
+   "tts": "我的订单号是 N V 二 零 二 四 一 零 一 八，帮我查一下进度。",
+   "terms": [
+    "NV20241018"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "onset"
+  },
+  {
+   "id": "u013",
+   "text": "维修单 NN9898K 的师傅怎么还没来？",
+   "tts": "维修单 N N 九 八 九 八 K 的师傅怎么还没来？",
+   "terms": [
+    "NN9898K"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "echo"
+  },
+  {
+   "id": "mix_001_clean",
+   "text": "就是感觉很fancy",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "clean",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_001",
+    "path_16k": "asr/16k/mix_001.wav"
+   }
+  },
+  {
+   "id": "mix_001_g711",
+   "text": "就是感觉很fancy",
+   "terms": [],
+   "category": "ascend",
+   "set": "ascend",
+   "voice": "human",
+   "degradation": "g711",
+   "source": {
+    "corpus": "ASCEND test (mixed)",
+    "id": "mix_001",
+    "path_16k": "asr/16k/mix_001.wav"
+   }
+  },
+  {
+   "id": "u003",
+   "text": "刚才你说的 IP 地址 我没听懂，再讲一遍。",
+   "terms": [
+    "IP 地址"
+   ],
+   "category": "codeswitch",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "clean"
+  },
+  {
+   "id": "u005",
+   "text": "我要取消订单 RMA-2399。",
+   "tts": "我要取消订单 R M A 二 三 九 九。",
+   "terms": [
+    "RMA-2399"
+   ],
+   "category": "order",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "g711"
+  },
+  {
+   "id": "u011",
+   "text": "我想办一个 NovaNet Home Pro 的套餐。",
+   "terms": [
+    "NovaNet Home Pro"
+   ],
+   "category": "product",
+   "set": "tts",
+   "voice": "vivian",
+   "degradation": "noise"
+  }
+ ],
+ "clips": {
+  "u001": {
+   "none": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 145.7,
+    "status": 200
+   },
+   "context": {
+    "hyp": "Centra 最近有什么优惠活动吗？",
+    "ms": 208.3,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "Centra 最近有什么优惠活动吗？",
+    "ms": 192.4,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "CENTRA 最近有什么优惠活动吗？",
+    "ms": 147.9,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "Century最近有什么优惠活动吗？",
+    "ms": 144.1,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "Centra 最近有什么优惠活动吗？",
+    "ms": 297.7,
+    "status": 200
+   }
+  },
+  "u002": {
+   "none": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 163.6,
+    "status": 200
+   },
+   "context": {
+    "hyp": "我说，Orbix 是做什么的？",
+    "ms": 213.2,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "我说，Orbix 是做什么的？",
+    "ms": 195.3,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 154.8,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "我说，Orbex是做什么的？",
+    "ms": 156.7,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "我说，Orbix 是做什么的？",
+    "ms": 302.5,
+    "status": 200
+   }
+  },
+  "u008": {
+   "none": {
+    "hyp": "工单号 NN 八七九零 X，什么时候能处理？",
+    "ms": 215.0,
+    "status": 200
+   },
+   "context": {
+    "hyp": "工单号 NN八七九零X 什么时候能处理？",
+    "ms": 255.6,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "工单号 NN 八七九零 X 什么时候能处理？",
+    "ms": 245.8,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "工单号 NN 八七九零 X，什么时候能处理？",
+    "ms": 207.8,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "工单号 NN八七九零X，什么时候能处理？",
+    "ms": 203.5,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "工单号 NN八七九零X，什么时候能处理？",
+    "ms": 348.1,
+    "status": 200
+   }
+  },
+  "u010": {
+   "none": {
+    "hyp": "我的订单号是NV二零二四一零一八，帮我查一下进度。",
+    "ms": 229.9,
+    "status": 200
+   },
+   "context": {
+    "hyp": "我的订单号是 NV20240101，帮我查一下进度。",
+    "ms": 286.2,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "我的订单号是 NV 二零二四一零一八，帮我查一下进度。",
+    "ms": 270.4,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "我的订单号是NV二零二四一零一八，帮我查一下进度。",
+    "ms": 224.3,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "我的订单号是 NV二零二四一零一八，帮我查一下进度。",
+    "ms": 233.3,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "我的订单号是 NV20240101，帮我查一下进度。",
+    "ms": 382.0,
+    "status": 200
+   }
+  },
+  "u013": {
+   "none": {
+    "hyp": "维修单N N九八九八K的师傅怎么还没来？",
+    "ms": 206.1,
+    "status": 200
+   },
+   "context": {
+    "hyp": "维修单 NN9898K 的师傅怎么还没来？",
+    "ms": 247.3,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "维修单 NN 九八九八 K 的师傅怎么还没来？",
+    "ms": 239.3,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "维修单N N九八九八K的师傅怎么还没来？",
+    "ms": 199.0,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "维修单 N N 九八九八 K 的师傅怎么还没来？",
+    "ms": 213.5,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "维修单 NN9898K 的师傅怎么还没来？",
+    "ms": 339.9,
+    "status": 200
+   }
+  },
+  "mix_001_clean": {
+   "none": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 126.5,
+    "status": 200
+   },
+   "context": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 172.9,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 155.4,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 119.7,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 118.3,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 261.3,
+    "status": 200
+   }
+  },
+  "mix_001_g711": {
+   "none": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 120.6,
+    "status": 200
+   },
+   "context": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 176.2,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 256.5,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 122.4,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 128.0,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "是不是感觉很 fancy？",
+    "ms": 266.0,
+    "status": 200
+   }
+  },
+  "u003": {
+   "none": {
+    "hyp": "刚才你说的IP地址我没听懂，再讲一遍。",
+    "ms": 189.6,
+    "status": 200
+   },
+   "context": {
+    "hyp": "刚才你说的 IP 地址我没听懂，再讲一遍。",
+    "ms": 252.0,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "刚才你说的 IP 地址我没听懂，再讲一遍。",
+    "ms": 240.0,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "刚才你说的IP地址我没听懂，再讲一遍。",
+    "ms": 191.7,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "刚才你说的IP地址我没听懂，再讲一遍。",
+    "ms": 195.3,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "刚才你说的 IP 地址我没听懂，再讲一遍。",
+    "ms": 344.1,
+    "status": 200
+   }
+  },
+  "u005": {
+   "none": {
+    "hyp": "我要取消订单RMA二三九九。",
+    "ms": 175.1,
+    "status": 200
+   },
+   "context": {
+    "hyp": "我要取消订单 RMA 二三九九。",
+    "ms": 229.1,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "我要取消订单 RMA 二三九九。",
+    "ms": 207.2,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "我要取消订单RMA二三九九。",
+    "ms": 162.4,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "我要取消订单 RMA 二三九九。",
+    "ms": 177.5,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "我要取消订单 RMA 二三九九。",
+    "ms": 317.2,
+    "status": 200
+   }
+  },
+  "u011": {
+   "none": {
+    "hyp": "我想办一个 Nova Net Home Pro 的套餐。",
+    "ms": 168.0,
+    "status": 200
+   },
+   "context": {
+    "hyp": "我想办一个 NovaNet Home Pro 的套餐。",
+    "ms": 218.3,
+    "status": 200
+   },
+   "terms": {
+    "hyp": "我想办一个 NovaNet Home Pro 的套餐。",
+    "ms": 206.0,
+    "status": 200
+   },
+   "empty": {
+    "hyp": "我想办一个 Nova Net Home Pro 的套餐。",
+    "ms": 165.9,
+    "status": 200
+   },
+   "en_prompt": {
+    "hyp": "我想办一个 Nova Net Home Pro 的套餐。",
+    "ms": 170.5,
+    "status": 200
+   },
+   "long1k": {
+    "hyp": "我想办一个 NovaNet Home Pro 的套餐。",
+    "ms": 310.1,
+    "status": 200
+   }
+  }
+ },
+ "summary": {
+  "by_mode": {
+   "none": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 6,
+     "hit_rate": 0.75,
+     "cer": 0.014492753623188406,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "context": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 6,
+     "hit_rate": 0.75,
+     "cer": 0.021739130434782608,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "terms": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 7,
+     "hit_rate": 0.875,
+     "cer": 0.007246376811594203,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "empty": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 6,
+     "hit_rate": 0.75,
+     "cer": 0.014492753623188406,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "en_prompt": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 6,
+     "hit_rate": 0.75,
+     "cer": 0.028985507246376812,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   },
+   "long1k": {
+    "tts": {
+     "n": 8,
+     "terms": 8,
+     "hits": 6,
+     "hit_rate": 0.75,
+     "cer": 0.021739130434782608,
+     "nt_cer": 0.0,
+     "errors": 0
+    },
+    "ascend": {
+     "n": 2,
+     "terms": 0,
+     "hits": 0,
+     "hit_rate": null,
+     "cer": 0.2,
+     "nt_cer": 0.2,
+     "errors": 0
+    },
+    "errors": 0
+   }
+  },
+  "by_slice": {
+   "none": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 0,
+      "hit_rate": 0.0,
+      "cer": 0.07142857142857142,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 4,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.030303030303030304,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.04,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 6,
+      "hit_rate": 0.75,
+      "cer": 0.014492753623188406,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   },
+   "context": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.03571428571428571,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 3,
+      "hit_rate": 0.75,
+      "cer": 0.028169014084507043,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.030303030303030304,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 0,
+      "hit_rate": 0.0,
+      "cer": 0.08695652173913043,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 6,
+      "hit_rate": 0.75,
+      "cer": 0.021739130434782608,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   },
+   "terms": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.03571428571428571,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 4,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.030303030303030304,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 7,
+      "hit_rate": 0.875,
+      "cer": 0.007246376811594203,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   },
+   "empty": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 0,
+      "hit_rate": 0.0,
+      "cer": 0.07142857142857142,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 4,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.030303030303030304,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.04,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 6,
+      "hit_rate": 0.75,
+      "cer": 0.014492753623188406,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   },
+   "en_prompt": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 0,
+      "hit_rate": 0.0,
+      "cer": 0.14285714285714285,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 4,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.09090909090909091,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.04,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 6,
+      "hit_rate": 0.75,
+      "cer": 0.028985507246376812,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   },
+   "long1k": {
+    "category": {
+     "brand": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.03571428571428571,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "codeswitch": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "order": {
+      "n": 4,
+      "terms": 4,
+      "hits": 3,
+      "hit_rate": 0.75,
+      "cer": 0.028169014084507043,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "product": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "degradation": {
+     "clean": {
+      "n": 2,
+      "terms": 2,
+      "hits": 1,
+      "hit_rate": 0.5,
+      "cer": 0.030303030303030304,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "echo": {
+      "n": 1,
+      "terms": 1,
+      "hits": 1,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "g711": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "noise": {
+      "n": 2,
+      "terms": 2,
+      "hits": 2,
+      "hit_rate": 1.0,
+      "cer": 0.0,
+      "nt_cer": 0.0,
+      "errors": 0
+     },
+     "onset": {
+      "n": 1,
+      "terms": 1,
+      "hits": 0,
+      "hit_rate": 0.0,
+      "cer": 0.08695652173913043,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    },
+    "voice": {
+     "vivian": {
+      "n": 8,
+      "terms": 8,
+      "hits": 6,
+      "hit_rate": 0.75,
+      "cer": 0.021739130434782608,
+      "nt_cer": 0.0,
+      "errors": 0
+     }
+    }
+   }
+  },
+  "diff_vs_none": {
+   "context": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.0,
+      "ci95": [
+       -0.375,
+       0.375
+      ]
+     },
+     "cer": {
+      "diff": 0.0072,
+      "ci95": [
+       -0.0238,
+       0.0387
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    }
+   },
+   "terms": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.125,
+      "ci95": [
+       0.0,
+       0.375
+      ]
+     },
+     "cer": {
+      "diff": -0.0072,
+      "ci95": [
+       -0.0254,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    }
+   },
+   "empty": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    }
+   },
+   "en_prompt": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "cer": {
+      "diff": 0.0145,
+      "ci95": [
+       0.0,
+       0.0476
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    }
+   },
+   "long1k": {
+    "tts": {
+     "hit_rate": {
+      "diff": 0.0,
+      "ci95": [
+       -0.375,
+       0.375
+      ]
+     },
+     "cer": {
+      "diff": 0.0072,
+      "ci95": [
+       -0.0238,
+       0.0387
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "ascend": {
+     "hit_rate": null,
+     "cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     },
+     "nt_cer": {
+      "diff": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ]
+     }
+    }
+   }
+  },
+  "errors": {},
+  "identical_to_none": {
+   "context": "2/10",
+   "terms": "2/10",
+   "empty": "10/10",
+   "en_prompt": "5/10",
+   "long1k": "2/10"
+  }
+ }
+}

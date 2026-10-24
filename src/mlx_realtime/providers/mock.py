@@ -288,12 +288,16 @@ class ScriptedASR(_MockBackend):
         self.result = AwaitPoint(delay_s)
         self.calls = StreamLog()
         self.requests: list[int] = []
+        self.contexts: list[str | None] = []  # the context of each request, in order
         self._script = list(transcripts)
         self._next = 0
 
-    async def transcribe(self, pcm16_16k: bytes, *, language: str | None = None) -> Transcript:
+    async def transcribe(
+        self, pcm16_16k: bytes, *, language: str | None = None, context: str | None = None
+    ) -> Transcript:
         audio_ms = bytes_to_ms(len(pcm16_16k), CANONICAL_RATE)
         self.requests.append(audio_ms)
+        self.contexts.append(context)
         self.calls.open()
         try:
             await self.result()

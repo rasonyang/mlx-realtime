@@ -25,7 +25,7 @@ from mlx_realtime.protocol.fields import (
     require,
     value_error,
 )
-from mlx_realtime.providers.base import ToolChoice, ToolDef
+from mlx_realtime.providers.base import MAX_ASR_CONTEXT_CHARS, ToolChoice, ToolDef
 from mlx_realtime.session.settings import (
     UNSET,
     Maybe,
@@ -264,7 +264,13 @@ def _decode_transcription(value: object, path: str) -> TranscriptionPatch | None
     if "language" in obj:
         language = expect_str(obj["language"], child(path, "language"))
     if "prompt" in obj:
-        prompt = expect_str(obj["prompt"], child(path, "prompt"))
+        param = child(path, "prompt")
+        prompt = expect_str(obj["prompt"], param)
+        if len(prompt) > MAX_ASR_CONTEXT_CHARS:
+            raise value_error(
+                param,
+                f"at most {MAX_ASR_CONTEXT_CHARS} characters are supported, but got {len(prompt)}.",
+            )
     return TranscriptionPatch(model=model, language=language, prompt=prompt)
 
 

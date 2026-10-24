@@ -174,6 +174,12 @@ providers:
     base_url: http://127.0.0.1:8102
     model: mlx-community/Qwen3-ASR-1.7B-8bit
     max_in_flight: 3             # one turn per call
+    # Words to expect (brand and product names, at most 1024 characters), sent as the ASR context
+    # of every turn whose session sets no transcription.prompt; a session prompt replaces it.
+    # Unset: turns carry no context. Example: "NovaNet, Wi-Fi 7, eSIM, 5G 畅享 199". Name terms,
+    # not example codes (the ASR copies them into transcripts); ~300 characters cost ~60 ms a
+    # turn at one call (spikes/asr_context).
+    # context: ...
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 2000, total_ms: 10000,
                warmup_ms: 300000}
@@ -232,7 +238,9 @@ backends:
            --prompt-cache-bytes, 8GB, --tools-checkpoint, --shared-prefix-checkpoint]
   asr:
     project: backends/audio
-    command: [mlx_audio.server]
+    # mlx_audio.server with the context form field handed to Qwen3-ASR as its system prompt
+    # (backends/audio); same CLI.
+    command: [python, -m, mlxrt_audio.serve]
     port: 8102
     fetch: [{repo: mlx-community/Qwen3-ASR-1.7B-8bit, revision: a8379a2e2f9e313c9292cdf1af4055ab56d50d55}]
     args: [--log-dir, /tmp/mlxrt-asr]
