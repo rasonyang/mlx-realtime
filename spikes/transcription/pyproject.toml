@@ -1,0 +1,17 @@
+[project]
+name = "spike-transcription"
+version = "0.1.0"
+description = "Transcription sessions (issue #2): AICC's two-leg tap through G.711, CER per leg, latency with 1, 2 and 4 sessions, failure paths"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "mlx-realtime",
+    "httpx2",
+]
+
+[tool.uv]
+required-version = ">=0.13.5"
+package = false
+build-constraint-dependencies = ["setuptools==84.0.0"]
+
+[tool.uv.sources]
+mlx-realtime = { path = "../../", editable = true }

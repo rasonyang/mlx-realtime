@@ -1,0 +1,37 @@
+{
+ "empty_commit": {
+  "expected": "no error; completed with an empty transcript; the session still transcribes",
+  "pass": true,
+  "detail": "first final conversation.item.input_audio_transcription.completed transcript=''; then '您好 Zentra，我是客服专员，请问您需要办理什么业务？'"
+ },
+ "double_commit": {
+  "expected": "first transcript, second empty, no error",
+  "pass": true,
+  "detail": "finals=['', '您好 Zentra，我是客服专员，请问您需要办理什么业务？'] errors=[]"
+ },
+ "response_create": {
+  "expected": "error naming response.create; the session stays open and transcribes",
+  "pass": true,
+  "detail": "error invalid_event: 'response.create' is not supported in a transcription session: it runs no model ; then '您好 Zentra，我是客服专员，请问您需要办理什么业务？'"
+ },
+ "malformed_base64": {
+  "expected": "an error event; the session stays open and transcribes",
+  "pass": true,
+  "detail": "error invalid_value/audio; then '您好 Zentra，我是客服专员，请问您需要办理什么业务？'"
+ },
+ "fifth_session": {
+  "expected": "error session_limit_reached at the handshake (4 open)",
+  "pass": true,
+  "detail": "error {'type': 'server_error', 'code': 'session_limit_reached', 'message': 'Too many sessions; try again later.', 'param': None, 'event_id': None} close=1013"
+ },
+ "disconnect_mid_utterance": {
+  "expected": "the slot is freed (4 sessions open right after)",
+  "pass": true,
+  "detail": "4 sessions opened right after the abort (slot freed)"
+ },
+ "gateway_log": {
+  "expected": "no ERROR/Traceback lines during the run",
+  "pass": true,
+  "detail": []
+ }
+}

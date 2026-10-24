@@ -34,3 +34,6 @@ htmlcov/
 vendor/*/build/
 vendor/**/*.so
 *.egg-info/
+
+# Per-leg partial results of resumable runs (spikes/transcription); the final JSON is committed
+spikes/results/*.partial.jsonl
