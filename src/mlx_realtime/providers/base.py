@@ -18,6 +18,10 @@ from collections.abc import AsyncGenerator, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal, Protocol, runtime_checkable
 
+MAX_ASR_CONTEXT_CHARS = 1024
+"""The longest context text (``transcription.prompt``, ``providers.asr.context``) an ASR request
+carries: a handful of terms, not a document. The protocol layer rejects a longer prompt."""
+
 Lang = Literal["zh", "en"]
 ToolChoice = Literal["auto", "none"]
 """``none`` sends no tools. ``required`` and forced functions are rejected by the protocol layer:
@@ -125,7 +129,12 @@ class ProviderTimeout(ProviderError):
 
 
 class ASRProvider(Protocol):
-    async def transcribe(self, pcm16_16k: bytes, *, language: str | None = None) -> Transcript: ...
+    """``context``: words to expect in this turn (``transcription.prompt``), to bias the model
+    toward; none or empty means the provider's own default, if it has one."""
+
+    async def transcribe(
+        self, pcm16_16k: bytes, *, language: str | None = None, context: str | None = None
+    ) -> Transcript: ...
 
 
 class LLMProvider(Protocol):

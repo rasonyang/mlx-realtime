@@ -26,6 +26,8 @@ from pydantic import (
     model_validator,
 )
 
+from mlx_realtime.providers.base import MAX_ASR_CONTEXT_CHARS
+
 ENV_PREFIX = "MLXRT__"
 
 
@@ -451,6 +453,9 @@ class MlxAudioAsrConfig(_Section):
     max_in_flight: int = Field(default=3, ge=1)  # one turn per call, 3 calls at most
     queue_timeout_ms: int = Field(default=1000, ge=0)
     timeouts: HttpTimeouts = HttpTimeouts(first_item_ms=5000, idle_ms=2000, total_ms=10_000)
+    # Words to expect, sent as the ASR context of every turn whose session sets no (or an
+    # empty) transcription.prompt; a session prompt replaces it. Unset: no context.
+    context: str | None = Field(default=None, max_length=MAX_ASR_CONTEXT_CHARS)
 
 
 _TTS_TIMEOUTS = HttpTimeouts(first_item_ms=1500, idle_ms=1000, total_ms=60_000, warmup_ms=300_000)

@@ -57,7 +57,7 @@ machines, persistence, server-side tool execution, full Realtime parity.
         ▼                              ▼                                 ▼
  ┌──────────────────┐        ┌────────────────────┐          ┌───────────────────────────┐
  │ asr   :8102      │        │ llm   :8101        │          │ tts   :8103               │
- │ mlx_audio.server │        │ mlxrt_llm.serve    │          │ mlx_audio.server          │
+ │ mlxrt_audio.serve│        │ mlxrt_llm.serve    │          │ mlx_audio.server          │
  │ Qwen3-ASR-1.7B   │        │ (mlx_lm.server)    │          │ Qwen3-TTS-0.6B 8-bit      │
  │ 8-bit            │        │ Qwen3.6-35B-A3B    │          │ + 4-bit fallback (D13)    │
  └──────────────────┘        └────────────────────┘          └───────────────────────────┘
@@ -69,7 +69,7 @@ machines, persistence, server-side tool execution, full Realtime parity.
 |---|---|---|---|---|
 | gateway | `python -m mlx_realtime serve` | protocol, sessions, echo cancellation, VAD and turn detection, segmentation, normalization, barge-in, metrics | root uv project; no `mlx*` packages | 127.0.0.1:8000, configurable (AICC runs on another host or in Docker) |
 | llm | `python -m mlxrt_llm.serve --model <pinned snapshot> --chat-template-args '{"enable_thinking":false}' --max-tokens 2048 --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0.0 --prompt-cache-size 64 --prompt-cache-bytes 8GB --tools-checkpoint --shared-prefix-checkpoint` | LLM weights, KV and prompt cache (64 cached prompts, ~100 MB each) | `backends/llm` uv project, package `mlxrt_llm`: `mlx_lm.server` with a lenient qwen3_coder tool-call parser and prompt-cache checkpoints, guarded to mlx-lm 0.32.2 (§5.3) | 127.0.0.1:8101 |
-| asr | `mlx_audio.server` (stock, G1) | Qwen3-ASR-1.7B-8bit | `backends/audio` uv project (mlx-audio 0.6.1) | 127.0.0.1:8102 |
+| asr | `python -m mlxrt_audio.serve` (`mlx_audio.server` with the `context` patch, §5.3) | Qwen3-ASR-1.7B-8bit | `backends/audio` uv project (mlx-audio 0.6.1) | 127.0.0.1:8102 |
 | tts | `mlx_audio.server` (stock, G1) | Qwen3-TTS-0.6B-CustomVoice 8-bit (primary) and 4-bit (fallback, D13) | `backends/audio` uv project | 127.0.0.1:8103 |
 
 `mlxrt dev` starts each backend as `uv run --locked --project <project> <command> --host <host>
@@ -192,7 +192,7 @@ mlx-realtime/
 ├── .python-version           # 3.12, written by `uv python pin`
 ├── config.yaml               # the single configuration file (§10)
 ├── config.mock.yaml          # every provider a mock (make dev-mock, AICC's harness without the GPU)
-├── Makefile                  # dev, dev-mock, test, test-e2e, test-backend, test-llm-backend, lint, fmt, typecheck,
+├── Makefile                  # dev, dev-mock, test, test-e2e, test-backend, test-llm-backend, test-audio-backend, lint, fmt, typecheck,
 │                             # models, models-mlx, aicc-probe, aicc-probe-mock, bench, bench-mock, fairness
 ├── README.md
 ├── docs/
@@ -224,7 +224,8 @@ mlx-realtime/
 │   │   ├── pyproject.toml
 │   │   ├── uv.lock
 │   │   └── .python-version
-│   └── audio/                # pins mlx-audio 0.6.1; runs stock mlx_audio.server for the ASR and TTS (G1)
+│   └── audio/                # pins mlx-audio 0.6.1; package mlxrt_audio (serve.py, context.py) + tests/;
+│       │                     # the ASR runs it, the TTS runs stock mlx_audio.server (G1)
 │       ├── pyproject.toml
 │       ├── uv.lock
 │       └── .python-version
@@ -445,7 +446,10 @@ class PCMChunk:
     sample_rate: int
 
 class ASRProvider(Protocol):
-    async def transcribe(self, pcm16_16k: bytes, *, language: str | None = None) -> Transcript: ...
+    # context: words to expect in this turn (transcription.prompt); none or empty means the
+    # provider's own default (providers.asr.context), if it has one. At most 1024 characters.
+    async def transcribe(self, pcm16_16k: bytes, *, language: str | None = None,
+                         context: str | None = None) -> Transcript: ...
 
 class LLMProvider(Protocol):
     def stream(self, messages: Sequence[Message], tools: Sequence[ToolDef], *,
@@ -561,8 +565,26 @@ hands-on in M0 and on the real stack.
 | Role | Request | Response | Readiness |
 |---|---|---|---|
 | LLM (`mlxrt_llm.serve`, i.e. `mlx_lm.server`) | `POST /v1/chat/completions`: `messages`, `stream: true`, `stream_options: {include_usage: true}` (sending `stream_options` without that key fails mid-stream), `max_completion_tokens`, `temperature`, `top_p`, `tools`, `chat_template_kwargs: {enable_thinking: false}`; no `model` (the server runs its pinned snapshot); no `seed` (it disables batching) | SSE `data:` chunks whose deltas carry `content`, `reasoning` or `tool_calls`. A usage chunk, with `cached_tokens`, precedes `[DONE]`. `: keepalive` comment lines arrive during prefill | `GET /health` (503 once the generation thread has died) |
-| ASR (`mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` lists the model, plus the warmup request |
+| ASR (`mlxrt_audio.serve`, i.e. `mlx_audio.server`) | `POST /v1/audio/transcriptions`, multipart: `file` (WAV, 16 kHz mono s16), `model`, `language` (omit for auto-detect), `context` (omit when there is none), `response_format: verbose_json` | JSON `text`, `language`, `segments`. No word timestamps | `GET /v1/models` lists the model, plus the warmup request |
 | TTS (`mlx_audio.server`) | `POST /v1/audio/speech`, JSON: `model`, `input`, `voice`, `lang_code` (`chinese` / `english` / `auto`), `response_format: "pcm"`, `stream: true`, `streaming_interval` (0.16), `max_tokens` (in proportion to the text, against runaways) | chunked body of raw s16le mono at 24 kHz, one chunk per `streaming_interval × 12.5` codec frames (80 ms each). Without `stream: true` nothing arrives until synthesis ends. A failure inside generation cuts the body (`bad_response`). One stream at a time: the gateway queues the rest (`max_in_flight` 1) | as ASR, for both models |
+
+**The audio backend** (`backends/audio`): the TTS runs stock `mlx_audio.server` (G1); the ASR runs
+`python -m mlxrt_audio.serve`, `mlx_audio.server`'s own CLI behind one patch that refuses to start on
+anything but mlx-audio 0.6.1's internals.
+
+- **ASR context.** The server accepts a `context` form field (and `prompt`) but passes a field on only
+  if the model's `generate` names it, and Qwen3-ASR's `generate` takes `system_prompt` and
+  `hotwords`, so both were dropped without a word. The patch wraps the loader the server's STT
+  adapter calls (`_load_model_for_inference`) so that a model with a `system_prompt` and no
+  `context` gets a `generate` that takes `context` and passes it on as `system_prompt`, unless the
+  call sets one. The wrapper keeps `generate`'s signature plus `context`, so the adapter's filter
+  keeps every other field. `system_prompt` is the text of Qwen3-ASR's `<|im_start|>system` block:
+  its context biasing. A model that already takes `context` is left alone. The gateway sends
+  `context` as the turn's `transcription.prompt`, else `providers.asr.context`, else nothing (the
+  form is then what it was before), and never in the warm-up. At most 1024 characters: the protocol
+  layer rejects a longer prompt, and the config rejects a longer default. The prompt is read when
+  the turn is committed, so a `session.update` applies from the next turn and never re-transcribes
+  one already committed. Tested in `backends/audio` (`make test-audio-backend`).
 
 **The LLM backend** (`backends/llm`, `python -m mlxrt_llm.serve`): `mlx_lm.server`'s own CLI with two
 patches, each refusing to start on anything but mlx-lm 0.32.2's internals.
@@ -1272,7 +1294,9 @@ providers:
     queue_timeout_ms: 1000
     timeouts: {connect_ms: 500, first_item_ms: 5000, idle_ms: 3000, total_ms: 60000, warmup_ms: 600000}
   asr: {type: mlx_audio_transcription, base_url: http://127.0.0.1:8102,
-        model: mlx-community/Qwen3-ASR-1.7B-8bit, max_in_flight: 3, queue_timeout_ms: 1000, timeouts: …}
+        model: mlx-community/Qwen3-ASR-1.7B-8bit, max_in_flight: 3, queue_timeout_ms: 1000,
+        context: null,                  # default ASR context (≤ 1024 chars); a session prompt replaces it
+        timeouts: …}
   tts:
     type: mlx_audio_speech
     base_url: http://127.0.0.1:8103
@@ -1291,7 +1315,7 @@ backends:                               # what `make dev` starts (§2)
         args: [--chat-template-args, '{"enable_thinking":false}', --max-tokens, "2048", --temp, "0.7",
                --top-p, "0.8", --top-k, "20", --min-p, "0.0", --prompt-cache-size, "64",
                --prompt-cache-bytes, 8GB, --tools-checkpoint, --shared-prefix-checkpoint]}
-  asr: {project: backends/audio, command: [mlx_audio.server], port: 8102, fetch: [Qwen3-ASR @a8379a2e…]}
+  asr: {project: backends/audio, command: [python, -m, mlxrt_audio.serve], port: 8102, fetch: [Qwen3-ASR @a8379a2e…]}
   tts: {project: backends/audio, command: [mlx_audio.server], port: 8103,
         fetch: [8-bit @049ef77f…, 4-bit @08c72cad…]}
 observability: {log_level: info, quantile_window_turns: 200, debug_endpoints: false,
@@ -1337,8 +1361,8 @@ trip on the mock providers, and `mlxrt dev` on `config.mock.yaml`.
 **Backend tests** (pytest marker `backend`, run against `make dev`). Every provider on its real
 backend, the TTS fallback, and the official SDK on the real stack: a Chinese spoken turn (PCM and
 G.711), a barge-in and a tool round trip, each within AICC's deadlines. With `AICC_REPO` set they
-also run AICC's harness. The LLM backend's own patches are tested in `backends/llm`
-(`make test-llm-backend`).
+also run AICC's harness. The backends' own patches are tested in `backends/llm` and
+`backends/audio` (`make test-llm-backend`, `make test-audio-backend`).
 
 **AICC acceptance.**
 

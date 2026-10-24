@@ -1,5 +1,5 @@
 # Every target runs in the locked uv environment: a stale uv.lock fails loudly (CLAUDE.md).
-.PHONY: fmt lint typecheck test test-e2e test-backend test-llm-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock bench bench-mock fairness
+.PHONY: fmt lint typecheck test test-e2e test-backend test-llm-backend test-audio-backend models models-mlx dev dev-mock aicc-probe aicc-probe-mock bench bench-mock fairness
 
 fmt:
 	uv sync --locked
@@ -35,6 +35,14 @@ test-llm-backend:
 	uv sync --locked --project backends/llm
 	uv run --locked --project backends/llm pytest backends/llm/tests
 	uv run --locked pyright -p backends/llm
+
+# The audio backend's own code (backends/audio: the ASR context patch) in its own environment;
+# no GPU, no model.
+test-audio-backend:
+	uv sync --locked
+	uv sync --locked --project backends/audio
+	uv run --locked --project backends/audio pytest backends/audio/tests
+	uv run --locked pyright -p backends/audio
 
 # The ONNX models (Silero VAD, Smart Turn) into models/, verified against models/MANIFEST.json.
 models:

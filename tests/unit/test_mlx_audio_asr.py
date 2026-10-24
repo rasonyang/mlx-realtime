@@ -27,10 +27,15 @@ async def fake() -> AsyncIterator[tuple[FakeMlxAudio, str]]:
         yield server, url
 
 
-def provider(base_url: str, **timeouts: int) -> MlxAudioASR:
+def provider(base_url: str, *, context: str | None = None, **timeouts: int) -> MlxAudioASR:
     values = {"connect_ms": 500, "first_item_ms": 2000, "idle_ms": 1000, "total_ms": 5000}
     config = MlxAudioAsrConfig.model_validate(
-        {"type": "mlx_audio_transcription", "base_url": base_url, "timeouts": values | timeouts}
+        {
+            "type": "mlx_audio_transcription",
+            "base_url": base_url,
+            "timeouts": values | timeouts,
+            "context": context,
+        }
     )
     return MlxAudioASR(config)
 
@@ -53,6 +58,45 @@ async def test_the_request_is_a_16k_mono_wav_with_the_form_fields(
     rate, channels, width, frames = with_language.audio()
     assert (rate, channels, width, frames) == (16000, 1, 2, SPEECH)
     assert (transcript.text, transcript.language, transcript.audio_ms) == ("你好。", "zh", 1000)
+
+
+async def test_a_context_is_sent_as_the_context_field_only_when_there_is_one(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    asr = provider(url)
+    await asr.transcribe(SPEECH, context="NovaNet, eSIM")
+    await asr.transcribe(SPEECH, context="")
+    await asr.transcribe(SPEECH, context=None)
+    await asr.aclose()
+    with_context, empty, none = server.uploads
+    assert with_context.fields["context"] == "NovaNet, eSIM"
+    # No context: the form is exactly what it was before the field existed.
+    assert empty.fields == none.fields == {"model": MODEL, "response_format": "verbose_json"}
+
+
+async def test_the_configured_context_is_the_default_and_a_turns_context_replaces_it(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    asr = provider(url, context="Wi-Fi 7")
+    await asr.transcribe(SPEECH)
+    await asr.transcribe(SPEECH, context="")  # empty is no context: the default applies
+    await asr.transcribe(SPEECH, context="NovaNet")  # replaces it, no merge
+    await asr.aclose()
+    assert [upload.fields.get("context") for upload in server.uploads] == [
+        "Wi-Fi 7",
+        "Wi-Fi 7",
+        "NovaNet",
+    ]
+
+
+async def test_the_warmup_sends_no_context(fake: tuple[FakeMlxAudio, str]) -> None:
+    server, url = fake
+    asr = provider(url, context="Wi-Fi 7")
+    await asr.warmup()
+    await asr.aclose()
+    assert "context" not in server.uploads[0].fields
 
 
 @pytest.mark.parametrize(

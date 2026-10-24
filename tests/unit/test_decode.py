@@ -270,6 +270,18 @@ REJECTIONS: list[tuple[str, object, str, str | None]] = [
         "session.audio.input.transcription.keywords",
     ),
     (
+        "transcription prompt type",
+        session_update({"audio": {"input": {"transcription": {"prompt": 5}}}}),
+        "invalid_value",
+        "session.audio.input.transcription.prompt",
+    ),
+    (
+        "transcription prompt length",
+        session_update({"audio": {"input": {"transcription": {"prompt": "术" * 1025}}}}),
+        "invalid_value",
+        "session.audio.input.transcription.prompt",
+    ),
+    (
         "transcription language",
         session_update({"audio": {"input": {"transcription": {"language": 5}}}}),
         "invalid_value",
@@ -821,6 +833,23 @@ def test_full_ga_session_update() -> None:
         ),
         "c1",
     )
+
+
+def test_a_prompt_of_exactly_the_limit_is_accepted() -> None:
+    prompt = "术" * 1024  # characters, not bytes
+    command = decode(session_update({"audio": {"input": {"transcription": {"prompt": prompt}}}}))
+    assert command == UpdateSession(
+        SessionPatch(transcription=TranscriptionPatch(prompt=prompt)), "c1"
+    )
+
+
+def test_a_prompt_over_the_limit_says_so() -> None:
+    command = decode(
+        session_update({"audio": {"input": {"transcription": {"prompt": "a" * 5000}}}})
+    )
+    assert isinstance(command, RejectEvent)
+    assert "at most 1024 characters" in command.error.message
+    assert "got 5000" in command.error.message
 
 
 def test_nulls_clear_and_absent_fields_stay_unset() -> None:
