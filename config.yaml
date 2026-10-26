@@ -118,6 +118,12 @@ aec:
   delay_guard: true
   min_residual_delay_ms: 5
   max_residual_delay_ms: 450
+  # Dev only (spikes/live_echo): capture_dir turns on a per-session recording of the echo path
+  # under that directory (input, both references, both cancellers' outputs, events, meta), at
+  # most capture_max_s of input per session. The files contain the caller's voice and
+  # transcripts: never in production, never committed. null: off.
+  capture_dir: null
+  capture_max_s: 900
 
 # D17's second line of defence while the client is modelled as playing our audio:
 # no barge-in from an onset in the first echo_guard_ms of a response's playback, speech must

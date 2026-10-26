@@ -780,6 +780,12 @@ under 0.3 dB. In the gateway, before the bypass, a caller over our speech with n
 - M0's double-talk ΔCER (C2): whether the ASR keeps the canceller's output (`aec.asr_input`).
 - Live echo on a real AICC call (deferred by D17): the echo path, ERL and bulk delay, AEC3's
   convergence and the bypass on real lines.
+- Echo reference vs AICC's code (review of `rtp.go`, `session.go` at edeaf13): a flush or truncate
+  now drops the whole modelled queue, as `ClearTx` does (B queued behind A's tail no longer leaves
+  A's tail as phantom reference), and `EchoReference` mirrors `audibleSince`/`audibleUntil`: our own
+  speech barge-in within AICC's 800 ms guard keeps the queued frames playing in the model, since
+  AICC ignores it. Unit tests cover both, the guard around underruns and keepalive silence, and the
+  stale-deadline restart of the playout model (`test_echo.py`, `test_playout.py`).
 
 ### Known gaps, by milestone
 

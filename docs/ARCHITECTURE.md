@@ -841,7 +841,14 @@ limits in all 8 cells (worst +1.8 zh / +1.6 en at −15 dB).
     queue was last empty, and re-buffers after more than 2 empty ticks;
   - it then plays continuously at real time, and the reference leads it by 60 ms
     (`reference_lead_ms`), so our audio precedes its echo;
-  - it stops at a barge-in flush. The played position is corrected by the client's
+  - a clear drops the whole queue, as AICC's `ClearTx` does: a barge-in, a cancel or a client
+    truncate removes every queued frame, a previous response's unplayed tail included, and marks
+    those items complete. AICC's barge guard is mirrored (`audibleSince`/`audibleUntil`, 800 ms,
+    kept on the send timeline like `queueFrame`; a frame sent to an idle queue more than 40 ms past
+    the queued audio's end restarts it, and so does a keepalive frame): a flush from our own speech
+    barge-in within the guard is one AICC ignores, so the queued frames keep playing in the model;
+    a cancel AICC initiates, and a truncate, always clear. Barge-in decisions are unchanged;
+  - the played position is corrected by the client's
     `conversation.item.truncate` (`audio_end_ms`): when the client's played frames differ from the
     model's by 2 or more, the model's arrivals shift by the difference (at most ±500 ms).
   - Exactly one reference frame is fed per capture frame (zeros when nothing plays). While a response
@@ -883,6 +890,12 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
 **Observability.** One `echo summary` log line per session (ERLE for both cancellers, re-alignments,
 re-anchorings, bypasses, the learned tick phase, barge-ins); on `/metrics`, the barge-ins whose turn
 turned out empty or echo, and the echo turns.
+With `aec.capture_dir` set (dev only), a session also writes its echo path to disk for offline
+analysis: the input, both references and both cancellers' outputs as sample-aligned 16 kHz WAVs, an
+event log in input-timeline ms (playout model, flushes, re-anchors, every GCC-PHAT window,
+re-alignments, bypass, speech and barge-in outcomes, transcripts) and `meta.json`. A writer thread
+does the I/O; an error stops the capture, never the session. The files hold the caller's voice
+(`spikes/live_echo`).
 
 **Test coverage.** Tests cover every phase, each with every trigger:
 

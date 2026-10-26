@@ -289,9 +289,16 @@ class AecConfig(_Section):
     # reference without any echo of it, the canceller gets a silent reference until echo shows
     # up again (null: never bypass).
     bypass_without_echo_ms: int | None = Field(default=1500, gt=0)
+    # Dev only (spikes/live_echo): write each session's input, both references and both
+    # cancellers' outputs, with the echo path's events, under this directory, for at most
+    # capture_max_s of input. The files hold the caller's voice; null: off.
+    capture_dir: str | None = Field(default=None, min_length=1)
+    capture_max_s: int = Field(default=900, gt=0)
 
     @model_validator(mode="after")
     def _keep_range(self) -> Self:
+        if self.capture_dir is not None and not self.enabled:
+            raise ValueError("capture_dir needs the canceller: set aec.enabled")
         if self.min_residual_delay_ms >= self.max_residual_delay_ms:
             raise ValueError("min_residual_delay_ms must be below max_residual_delay_ms")
         if not self.min_residual_delay_ms <= self.reference_lead_ms <= self.max_residual_delay_ms:

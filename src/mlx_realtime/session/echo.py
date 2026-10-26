@@ -80,6 +80,7 @@ from mlx_realtime.audio.playout import (
 from mlx_realtime.audio.resample import Quality
 from mlx_realtime.config import AecConfig, BargeInConfig, SpeexConfig
 from mlx_realtime.session.clock import Clock
+from mlx_realtime.session.echo_capture import EchoCapture
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +121,8 @@ class EchoParams:
     speex: bool = False  # the ASR path's linear canceller is aligned (aec.asr_input: speex)
     speex_target: int = 0  # where its reference puts the echo ...
     speex_keep: int = 0  # ... and how far behind it may drift before it is moved again
+    aicc_guard: int = 800 * RATE // 1000  # AICC ignores a speech barge-in this soon after audible
+    aicc_gap_slack: int = 40 * RATE // 1000  # a frame this far past the queue end is a new start
 
     @classmethod
     def of(cls, aec: AecConfig, barge_in: BargeInConfig) -> EchoParams:
@@ -189,6 +192,7 @@ class _ItemAudio:
         self.complete = False
         self.plays: list[int] = []  # play start of frame i (frames play in order)
         self.queued = 0  # frames waiting in the client model's queue
+        self.ended = False  # its playback end is in the capture's events
 
     @property
     def last_end(self) -> int | None:
@@ -341,6 +345,10 @@ class EchoReference:
         self._speex_shift: int | None = None  # the ASR path's reference: None until aligned
         self._speex_hold = 0  # input sample before which estimates may predate a re-anchoring
         self._anchor = 0  # added to send times (re-anchored by client truncates)
+        # AICC's audibleSince/audibleUntil (session.go queueFrame), on the send timeline: when the
+        # client started hearing us after the last silence, and when the audio sent so far ends.
+        self._audible_since: int | None = None
+        self._audible_until = 0
         self._pending: dict[int, int] = {}  # generation -> deltas queued, not sent or dropped
         self._ended: set[int] = set()  # generations whose response is over
         self._active = False  # a response is in progress
@@ -349,6 +357,62 @@ class EchoReference:
         self._resume: list[int] = []  # while bypassed: the lags of the agreeing run of windows
         self.stats = EchoStats()
         self.on_change: Callable[[], None] | None = None  # the feeder's wakeup
+        self.capture: EchoCapture | None = None  # aec.capture_dir: the events go there too
+
+    # Capture events (aec.capture_dir)
+
+    def note(self, kind: str, at: int | None = None, **fields: object) -> None:
+        """An event for the capture, at loop sample ``at`` (now): its time is the input position
+        the client's audio had reached then."""
+        capture = self.capture
+        if capture is None or not capture.active:
+            return
+        offset = self._capture.offset
+        when = self._now() if at is None else at
+        capture.event(None if offset is None else (when - offset) * 1000 / RATE, kind, **fields)
+
+    def note_input(self, kind: str, end: int, **fields: object) -> None:
+        """The same at input sample ``end``."""
+        if self.capture is not None and self.capture.active:
+            self.capture.event(end * 1000 / RATE, kind, **fields)
+
+    def close_capture(self, summary: dict[str, object]) -> None:
+        if self.capture is not None:
+            self.capture.close(summary)
+
+    def _note_play(self, item: _ItemAudio, entry: Played[_Frame]) -> None:
+        """The first frame of an item played (the model's time), where its reference sits."""
+        if self.capture is None or not self.capture.active:
+            return
+        tick = self.params.playout.tick
+        shift = self._shift
+        self.note(
+            "play_start",
+            entry.start,
+            item=item.item_id,
+            generation=item.generation,
+            ref_t=None
+            if self._capture.offset is None
+            else round(
+                (entry.start - self._capture.offset - self.params.lead + shift) * 1000 / RATE, 1
+            ),
+            shift_ms=shift * 1000 / RATE,
+            tick_ms=tick * 1000 / RATE,
+        )
+
+    def _note_end(self, item: _ItemAudio) -> None:
+        """An item that is complete and has played its queue out ended where its last frame did."""
+        if item.ended or not item.plays or not item.complete or item.queued > 0:
+            return
+        item.ended = True
+        tick = self.params.playout.tick
+        self.note(
+            "play_end",
+            item.plays[-1] + tick,
+            item=item.item_id,
+            generation=item.generation,
+            frames=len(item.plays),
+        )
 
     # Inputs
 
@@ -384,18 +448,43 @@ class EchoReference:
         """The writer discarded a delta of a cancelled response."""
         self._settle(generation)
 
-    def flush(self, generation: int) -> None:
-        """A barge-in or cancel: the client discards the frames of ``generation`` it has not
-        played (§6.5 step 4); nothing more of them will come."""
+    def flush(self, generation: int, *, speech: bool = False) -> None:
+        """A barge-in or cancel of ``generation``: the client's ClearTx empties its whole queue,
+        a previous response's unplayed tail included (§6.5 step 4); nothing more of this
+        generation will come.
+
+        ``speech``: our own speech barge-in. AICC ignores one within its guard of the audio
+        becoming audible (session.go ``bargeIn``) and then clears nothing, so the queued frames
+        play on in the model. A cancel AICC initiated (its interrupt, a keypress) always clears.
+        """
         self._advance(self._now())
-        for frame in self._model.drop(keep=lambda frame: frame.item.generation != generation):
-            frame.item.queued -= 1
+        kept = speech and self._guarded()
+        if not kept:
+            self._clear()
         for item in self._items.values():
             if item.generation == generation:
                 item.complete = True
         self._ended.add(generation)
         self._pending.pop(generation, None)
+        self.note("flush", generation=generation, speech=speech, kept=kept)
+        for item in self._items.values():
+            if item.generation == generation:
+                self._note_end(item)
         self._changed()
+
+    def _guarded(self) -> bool:
+        """AICC would ignore a speech barge-in now: the client started hearing us too recently."""
+        since = self._audible_since
+        return since is not None and self._now() - since < self.params.aicc_guard
+
+    def _clear(self) -> None:
+        """AICC's ClearTx: every queued frame goes, and its items are complete."""
+        for frame in self._model.drop():
+            frame.item.queued -= 1
+            if not frame.item.complete:
+                frame.item.complete = True
+                self._note_end(frame.item)
+        self._audible_since = None
 
     def truncated(self, item_id: str, audio_end_ms: int) -> None:
         """The client reports ``audio_end_ms`` of the item played (its played frames): it has
@@ -419,17 +508,25 @@ class EchoReference:
                     self._speex_hold = self._now() - (self._capture.offset or 0) + WINDOW_SAMPLES
                 self._anchor = anchor
                 self.stats.anchors += 1
+                self.note(
+                    "reanchor",
+                    item=item_id,
+                    frames_off=difference,
+                    anchor_ms=self.anchor_ms,
+                    speex_shift_ms=self.speex_shift_ms,
+                )
                 logger.info(
                     "echo reference re-anchored",
                     extra={"item": item_id, "frames_off": difference, "anchor_ms": self.anchor_ms},
                 )
-        for frame in self._model.drop(keep=lambda frame: frame.item is not item):
-            frame.item.queued -= 1
+        self._clear()  # the client emptied its whole queue, not only this item's frames
         for entry in [entry for entry in self._played if entry.handle.item is item]:
             if entry.handle.index >= heard:
                 self._played.remove(entry)  # never played: no reference for it
         del item.plays[heard:]
         item.complete = True
+        self.note("truncate", item=item_id, audio_end_ms=audio_end_ms, played_frames=heard)
+        self._note_end(item)
         self._changed()
 
     def delay_estimate(self, end: int, estimate: DelayEstimate) -> bool:
@@ -437,6 +534,17 @@ class EchoReference:
         ``end``. Returns whether the reference was re-aligned (the estimator must then start
         over)."""
         params = self.params
+        self.note_input(
+            "gcc",
+            end,
+            lag_ms=round(estimate.lag * 1000 / RATE, 2),
+            psr=round(estimate.psr, 1),
+            valid=estimate.valid,
+            confirmed=estimate.confirmed,
+            shift_ms=self._shift * 1000 / RATE,
+            speex_shift_ms=self.speex_shift_ms,
+            bypassed=self.echo_absent,
+        )
         if not estimate.valid:
             self._resume.clear()
             self._no_echo += HOP_SAMPLES
@@ -447,6 +555,7 @@ class EchoReference:
             ):
                 self.echo_absent = True
                 self.stats.bypasses += 1
+                self.note_input("bypass", end, on=True)
                 logger.info("no echo on the line: the echo canceller is bypassed")
             return False
         self.stats.estimates += 1
@@ -458,6 +567,7 @@ class EchoReference:
         if self.echo_absent:
             self.echo_absent = False
             self._resume.clear()
+            self.note_input("bypass", end, on=False)
             logger.info("echo on the line: the echo canceller is back on")
         self._learn(end, estimate)
         self._align_speex(end, estimate)
@@ -465,6 +575,13 @@ class EchoReference:
             return False
         self._shift += estimate.lag - params.lead
         self.stats.realignments += 1
+        self.note_input(
+            "realign",
+            end,
+            engine="aec3",
+            residual_ms=round(estimate.lag * 1000 / RATE, 2),
+            shift_ms=self._shift * 1000 / RATE,
+        )
         logger.info(
             "echo reference re-aligned",
             extra={
@@ -637,6 +754,14 @@ class EchoReference:
         ):
             return
         self._speex_shift = delay - params.speex_target
+        self.note_input(
+            "realign",
+            end,
+            engine="speex",
+            first=current is None,
+            residual_ms=None if current is None else round((delay - current) * 1000 / RATE, 2),
+            shift_ms=self._speex_shift * 1000 / RATE,
+        )
         stats = self.stats
         if current is None:
             stats.speex_aligned_at = end
@@ -675,6 +800,7 @@ class EchoReference:
             if item.generation == generation and not item.complete:
                 first = item.frames
                 self._arrive(item, first, item.finish())
+                self._note_end(item)
         self._ended.discard(generation)
         self._prune()
 
@@ -683,7 +809,19 @@ class EchoReference:
             return
         item.queued += count
         frames = [_Frame(item, index) for index in range(first, first + count)]
-        self._record(self._model.arrive(frames, self._now() + self._anchor))
+        now = self._now()
+        self._advance(now + self._anchor - 1)  # what arrive does first: the queue as it stands
+        self._audible(now, count, idle=self._model.queued == 0)
+        self._record(self._model.arrive(frames, now + self._anchor))
+
+    def _audible(self, now: int, count: int, *, idle: bool) -> None:
+        """AICC's queueFrame bookkeeping for ``count`` frames sent at ``now``."""
+        if idle and (
+            self._audible_since is None or now > self._audible_until + self.params.aicc_gap_slack
+        ):
+            self._audible_since = self._audible_until = now
+        if self._audible_since is not None:
+            self._audible_until += count * self.params.playout.tick
 
     def _advance(self, until: int) -> None:
         self._record(self._model.advance(until))
@@ -695,6 +833,9 @@ class EchoReference:
             frame.item.queued -= 1
             frame.item.plays.append(entry.start)
             self._played.append(entry)
+            if len(frame.item.plays) == 1:
+                self._note_play(frame.item, entry)
+            self._note_end(frame.item)
             run = next((run for run in reversed(self._runs) if run.start <= entry.start), None)
             if run is not None:
                 if entry.start > run.last_end:
@@ -842,6 +983,7 @@ class EchoStage:
             out.append(await self._process(whole))
         if force and self._pending:
             out.append(Processed(self._pending_start, bytes(self._pending)))
+            self._capture_passed(self._pending_start, bytes(self._pending))
             self._pending_start = self.pending_end
             self._pending.clear()
         return out
@@ -896,8 +1038,25 @@ class EchoStage:
             if end is not None and self._reference.delay_estimate(end, estimate):
                 self._restart = True
                 break  # later windows of this batch were measured against the old alignment
+        sink = self._reference.capture
+        if sink is not None and sink.active:
+            sink.audio(
+                start,
+                capture.reshape(-1),
+                reference,
+                batch.output,
+                None if asr_reference is None else asr_reference,
+                batch.asr,
+            )
         asr = None if batch.asr is None else batch.asr.tobytes()
         return Processed(start, batch.output.tobytes(), asr)
+
+    def _capture_passed(self, start: int, pcm: bytes) -> None:
+        """A partial frame let through as it is: no reference, no cancelling."""
+        sink = self._reference.capture
+        if sink is not None and sink.active:
+            samples = np.frombuffer(pcm, dtype="<i2")
+            sink.audio(start, samples, np.zeros_like(samples), samples)
 
     def _run(
         self,
@@ -999,29 +1158,29 @@ class EchoRuntime:
         self.executor.shutdown(wait=False, cancel_futures=True)
 
 
-def log_echo_stats(reference: EchoReference, counters: dict[str, int]) -> None:
-    """One line per session: the cancellers' work and the echo the barge-in rules met."""
+def log_echo_stats(reference: EchoReference, counters: dict[str, int]) -> dict[str, object]:
+    """One line per session: the cancellers' work and the echo the barge-in rules met. Returns
+    its fields (the capture's ``meta.json`` keeps them)."""
     stats = reference.stats
     aligned = stats.speex_aligned_at
-    logger.info(
-        "echo summary",
-        extra={
-            "aec_frames": stats.frames,
-            "aec_cpu_ms_per_audio_s": stats.cpu_ms_per_audio_s(),
-            "erle_db": stats.erle_db(),
-            "realignments": stats.realignments,
-            "anchors": stats.anchors,
-            "bypassed": stats.bypasses,
-            "echo_absent": reference.echo_absent,
-            "shift_ms": reference.shift_ms,
-            "anchor_ms": reference.anchor_ms,
-            "tick_phase_ms": round(reference.tick_phase_ms, 2),
-            "speex_cpu_ms_per_audio_s": stats.speex_cpu_ms_per_audio_s(),
-            "speex_erle_db": stats.speex_erle.median_db(),
-            "speex_aligned_at_ms": None if aligned is None else aligned * 1000 // RATE,
-            "speex_shift_ms": reference.speex_shift_ms,
-            "speex_realignments": stats.speex_realignments,
-            "speex_resets": stats.speex_resets,
-            **counters,
-        },
-    )
+    fields: dict[str, object] = {
+        "aec_frames": stats.frames,
+        "aec_cpu_ms_per_audio_s": stats.cpu_ms_per_audio_s(),
+        "erle_db": stats.erle_db(),
+        "realignments": stats.realignments,
+        "anchors": stats.anchors,
+        "bypassed": stats.bypasses,
+        "echo_absent": reference.echo_absent,
+        "shift_ms": reference.shift_ms,
+        "anchor_ms": reference.anchor_ms,
+        "tick_phase_ms": round(reference.tick_phase_ms, 2),
+        "speex_cpu_ms_per_audio_s": stats.speex_cpu_ms_per_audio_s(),
+        "speex_erle_db": stats.speex_erle.median_db(),
+        "speex_aligned_at_ms": None if aligned is None else aligned * 1000 // RATE,
+        "speex_shift_ms": reference.speex_shift_ms,
+        "speex_realignments": stats.speex_realignments,
+        "speex_resets": stats.speex_resets,
+        **counters,
+    }
+    logger.info("echo summary", extra=fields)
+    return fields

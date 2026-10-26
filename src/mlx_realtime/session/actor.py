@@ -73,8 +73,10 @@ from mlx_realtime.session.echo import (
     EchoReference,
     EchoRuntime,
     EchoStage,
+    PlayedSpan,
     log_echo_stats,
 )
+from mlx_realtime.session.echo_capture import EchoCapture
 from mlx_realtime.session.errors import ErrorInfo
 from mlx_realtime.session.facts import (
     AudioCleared,
@@ -290,6 +292,8 @@ class SessionActor:
         # D17: the client's modelled playout of our audio, for the cancellers' reference and
         # the barge-in rules; the cancellers themselves when enabled (G7 dual path: AEC3 for
         # detection, the ASR path's per aec.asr_input).
+        if self._echo is not None and self._echo.capture is not None:
+            self._echo.capture.close({})  # a session that changes type before any audio
         self._echo = None
         self._ledger.listener = None
         stage: EchoStage | None = None
@@ -303,6 +307,18 @@ class SessionActor:
             )
             self._ledger.listener = self._echo
             if deps.echo is not None:
+                if deps.aec.capture_dir is not None:
+                    self._echo.capture = EchoCapture(
+                        deps.aec.capture_dir,
+                        self._session_id,
+                        max_s=deps.aec.capture_max_s,
+                        meta={
+                            "input_format": settings.input_format.type,
+                            "output_format": settings.output_format.type,
+                            "aec": deps.aec.model_dump(mode="json"),
+                            "barge_in": deps.barge_in.model_dump(mode="json"),
+                        },
+                    )
                 stage = EchoStage(
                     deps.echo.engine(), self._echo, deps.echo.executor, deps.echo.asr_path()
                 )
@@ -326,7 +342,7 @@ class SessionActor:
                     self._handle(await self._inbox.get())
         finally:
             if self._echo is not None:
-                log_echo_stats(self._echo, self._echo_counts)
+                self._echo.close_capture(log_echo_stats(self._echo, self._echo_counts))
 
     def _handle(self, message: Command | Signal) -> None:
         match message:
@@ -422,6 +438,15 @@ class SessionActor:
                 self._turn_item_id = self._ids.item()
                 self._turn_start_ms = max(self._input.start_ms, onset_ms - vad.prefix_padding_ms)
                 self._emit(SpeechStarted(self._turn_item_id, self._turn_start_ms))
+                if self._echo is not None:
+                    self._echo.note(
+                        "speech_started",
+                        item=self._turn_item_id,
+                        onset_ms=onset_ms,
+                        audio_start_ms=self._turn_start_ms,
+                        responding=self._response is not None,
+                        barge_in=self._response is not None and vad.interrupt_response,
+                    )
                 if self._response is not None and vad.interrupt_response:
                     self._barge_ins.add(self._turn_item_id)
                     self._echo_counts["barge_ins"] += 1
@@ -432,6 +457,10 @@ class SessionActor:
                 self._spawn(self._evaluate_turn(self._vad_epoch, evaluation, audio))
             case TurnEnd(audio_end_ms=audio_end_ms):
                 self._emit(SpeechStopped(self._turn_item_id, audio_end_ms))
+                if self._echo is not None:
+                    self._echo.note(
+                        "speech_stopped", item=self._turn_item_id, audio_end_ms=audio_end_ms
+                    )
                 audio = self._input.commit_span(self._turn_start_ms, audio_end_ms)
                 marks = {"speech_stopped": self._speech_stopped_at, "turn_confirmed": self._now()}
                 if (speech_end := self._arrivals.time_of(audio_end_ms)) is not None:
@@ -632,8 +661,34 @@ class SessionActor:
             self._echo_counts["echo_turns"] += 1
             self._deps.observer.echo_turn()
             logger.info("a turn matched our own speech: treated as noise", extra={"item": item.id})
+        if self._echo is not None:
+            score, played, spans = (
+                self._echo_match(item, always=True)
+                if self._echo.capture is not None
+                else (None, "", [])
+            )
+            self._echo.note(
+                "transcript",
+                item=item.id,
+                text=item.transcript,
+                audio_start_ms=item.start_ms,
+                audio_end_ms=item.end_ms,
+                detected=detected,
+                echo=item.echo,
+                units=len(units(item.transcript or "")),
+                echo_score=score,
+                played_text=played,
+                played_spans=[[span.item_id, span.start_ms, span.end_ms] for span in spans],
+            )
+            if item.echo:
+                self._echo.note("echo_turn", item=item.id)
         if item.id in self._barge_ins:
             self._barge_ins.discard(item.id)
+            if self._echo is not None:
+                outcome = (
+                    "echo" if item.echo else "empty" if not item.transcript.strip() else "real"
+                )
+                self._echo.note("barge_in_outcome", item=item.id, outcome=outcome)
             if item.echo or not item.transcript.strip():
                 self._echo_counts["barge_ins_empty_or_echo"] += 1
                 self._deps.observer.barge_in_empty_or_echo()
@@ -658,14 +713,24 @@ class SessionActor:
     def _is_echo(self, item: AudioMessage) -> bool:
         """Echo-turn suppression (D17): the transcript closely matches assistant speech the
         client was playing around the turn."""
+        config = self._deps.barge_in
+        score, _, _ = self._echo_match(item)
+        return score is not None and score >= config.echo_match_threshold
+
+    def _echo_match(
+        self, item: AudioMessage, *, always: bool = False
+    ) -> tuple[float | None, str, list[PlayedSpan]]:
+        """How much of the transcript is assistant speech played around the turn: the overlap
+        score (None: no comparison made), the text compared and the audio spans it came from.
+        ``always``: for the capture, whatever the suppression setting and the turn's length."""
         echo, config = self._echo, self._deps.barge_in
         transcript = item.transcript or ""
-        if (
-            echo is None
-            or not config.echo_turn_suppression
-            or len(units(transcript)) < config.echo_match_min_units
+        if echo is None or not units(transcript):
+            return None, "", []
+        if not always and (
+            not config.echo_turn_suppression or len(units(transcript)) < config.echo_match_min_units
         ):
-            return False
+            return None, "", []
         spans = echo.played_spans(
             ms_to_samples(item.start_ms, CANONICAL_RATE),
             ms_to_samples(item.end_ms, CANONICAL_RATE),
@@ -682,7 +747,7 @@ class SessionActor:
                 if segment.start_ms < span.end_ms
                 and segment.start_ms + segment.audio_ms > span.start_ms
             )
-        return bool(played) and overlap(transcript, played) >= config.echo_match_threshold
+        return (overlap(transcript, played) if played else None), played, spans
 
     def _transcript_failed(self, signal: TranscriptFailed) -> None:
         self._detected.discard(signal.item_id)
@@ -1172,7 +1237,8 @@ class SessionActor:
             if details.type == "cancelled":
                 message.fallback_text = heard_text(message.segments, self._fallback_cut(message))
         if details.type == "cancelled" and self._echo is not None:
-            self._echo.flush(response.generation)  # the client drops what it has not played
+            # the client drops what it has not played; AICC may ignore our own speech barge-in
+            self._echo.flush(response.generation, speech=details.reason == "turn_detected")
         self._close_response(response, details.type, details)
 
     def _fallback_cut(self, message: AssistantMessage) -> int:
@@ -1198,6 +1264,20 @@ class SessionActor:
         if self._warm_pending:
             self._warm_prefix()  # the response ended before its LLM did (cancelled, failed)
         if self._echo is not None:
+            if message is not None and message.modality == "audio":
+                self._echo.note(  # what echo matching compares against, on the item's timeline
+                    "assistant_text",
+                    item=message.id,
+                    status=status,
+                    segments=[
+                        {
+                            "text": segment.text,
+                            "start_ms": segment.start_ms,
+                            "audio_ms": segment.audio_ms,
+                        }
+                        for segment in message.segments
+                    ],
+                )
             self._echo.response_finished(response.generation)
         self._emit(ResponseFinished(response))
         self._deps.observer.response_finished(status)
