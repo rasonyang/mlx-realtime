@@ -336,7 +336,10 @@ class BargeInConfig(_Section):
       ratio of ``confirm_echo_psr`` or more means the caller's line carries our own words: a
       check that would release the turn keeps holding instead. At the final decision a turn that
       would be released is dropped as echo from ``confirm_echo_drop_psr`` (null: never on the
-      correlation alone). null ``confirm_echo_psr`` switches the correlation off.
+      correlation alone). Below ``confirm_echo_psr`` on a complete-utterance check (pause or
+      final) the input is measured not to be a copy of our audio: a transcript that matches
+      ours (the echo-turn rule) then releases the turn, at the pause or at its end, instead of
+      dropping it. null ``confirm_echo_psr`` switches the correlation off.
     """
 
     echo_guard_ms: int = Field(default=2000, ge=0)

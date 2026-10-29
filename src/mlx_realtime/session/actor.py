@@ -818,6 +818,12 @@ class SessionActor:
             and config.confirm_echo_psr is not None
             and psr >= config.confirm_echo_psr
         )
+        measured_not_ours = (  # a complete utterance's correlation says it is no copy of our audio
+            kind != "partial"
+            and psr is not None
+            and config.confirm_echo_psr is not None
+            and psr < config.confirm_echo_psr
+        )
         hold.last_new = 0 if flagged else new  # the early release at the playback's end
         if kind == "partial":
             need = config.confirm_min_new_units if self._playing() else 1
@@ -827,7 +833,10 @@ class SessionActor:
             if count == 0:
                 verdict = "noise" if final else "hold"
             elif count >= config.echo_match_min_units:
-                verdict = ("echo" if final else "hold") if echo else "caller"
+                if echo and measured_not_ours:
+                    verdict = "echo_text_low_psr"  # the words are ours, the signal is not
+                else:
+                    verdict = ("echo" if final else "hold") if echo else "caller"
             elif new >= 1:
                 verdict = "caller"
             else:
@@ -858,6 +867,12 @@ class SessionActor:
             case "caller":
                 reason = {"partial": "caller", "utterance": "pause", "final": "turn_end"}[kind]
                 self._release(hold, reason, transcript if final else None)
+            case "echo_text_low_psr":
+                logger.info(
+                    "a held turn matched our words but not our signal: released",
+                    extra={"item": hold.item_id, "psr": round(psr or 0.0, 2), "check": kind},
+                )
+                self._release(hold, verdict, transcript if final else None)
             case "echo" | "noise":
                 self._drop(hold, verdict, text)
             case "echo_signal_drop":

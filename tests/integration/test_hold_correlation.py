@@ -24,9 +24,12 @@ import pytest
 from mlx_realtime.providers.base import Lang, PCMChunk, SpeechTiming
 from mlx_realtime.providers.mock import _MockBackend
 from mlx_realtime.server.gateway import Gateway
+from mlx_realtime.vad.base import TurnEndDetector
+from mlx_realtime.vad.scripted import ScriptedTurnEnd
 from tests.integration.test_echo_rules import drain, types
 from tests.integration.test_hold_while_playing import (
     CALLER,
+    ECHO,
     HeardASR,
     build,
     count,
@@ -108,6 +111,7 @@ async def call(
     rules: Mapping[str, object] | None = None,
     *,
     text: str = CALLER,
+    turn_end: TurnEndDetector | None = None,
 ) -> tuple[Client, Gateway, list[dict[str, Any]]]:
     clock, asr = ManualClock(), HeardASR(text)
     gateway = build(
@@ -117,6 +121,7 @@ async def call(
         rules,
         tts=NoiseTTS(),
         aec={"enabled": True, "capture_dir": str(tmp_path)},
+        turn_end=turn_end,
     )
     async with running(gateway) as address, Client.connect(address) as client:
         await start_answer(client, clock)
@@ -199,3 +204,61 @@ async def test_no_veto_when_it_is_switched_off(tmp_path: Path, why: str) -> None
     assert first["psr"] is None
     assert first["psr_why"] == why
     assert of_type(client, "input_audio_buffer.speech_started")  # the ASR's word, as before
+
+
+async def test_our_words_over_an_independent_input_are_a_caller_released_at_the_pause(
+    tmp_path: Path,
+) -> None:
+    """The live case: a caller reuses the bot's words (the transcript matches the played text),
+    and the canceller is bypassed, but the input is no copy of our audio."""
+    caller = independent(0.3, SPEECH[0] - 100, SPEECH[1])
+    client, gateway, events = await call(tmp_path, caller, text=ECHO)
+    final = checks(events)[-1]
+    assert final["check"] == "final"
+    assert final["psr"] is not None
+    assert final["psr"] < 15
+    assert final["verdict"] == "echo_text_low_psr"
+    assert not [event for event in events if event["kind"] == "hold_drop"]
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 0
+    (release,) = [event for event in events if event["kind"] == "hold_release"]
+    assert release["reason"] == "echo_text_low_psr"
+    assert of_type(client, "input_audio_buffer.speech_started")
+    assert "input_audio_buffer.speech_stopped" in types(client)
+    assert types(client).count("response.created") == 2  # the turn was answered
+
+
+async def test_our_words_over_a_delayed_copy_of_our_audio_are_still_dropped(
+    tmp_path: Path,
+) -> None:
+    leak = delayed(400, 0.3, SPEECH[0] - 100, SPEECH[1] + 200)
+    client, gateway, events = await call(tmp_path, leak, text=ECHO)
+    assert checks(events)[-1]["psr"] >= 15
+    assert not of_type(client, "input_audio_buffer.speech_started")
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
+    assert types(client).count("response.created") == 1
+
+
+async def test_our_words_are_dropped_by_the_transcript_rule_when_the_canceller_is_not_bypassed(
+    tmp_path: Path,
+) -> None:
+    echo = delayed(400, 0.3, 700, 9000)  # a steady echo all along: AEC3 finds it
+    caller = independent(0.3, SPEECH[0] - 100, SPEECH[1])
+    client, gateway, events = await call(tmp_path, echo + caller, text=ECHO)
+    assert checks(events)[-1]["psr_why"] == "no_bypass"
+    assert not of_type(client, "input_audio_buffer.speech_started")
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
+
+
+async def test_our_words_over_an_independent_input_are_released_at_the_pause(
+    tmp_path: Path,
+) -> None:
+    caller = independent(0.3, SPEECH[0] - 100, SPEECH[1])
+    _, gateway, events = await call(
+        tmp_path, caller, text=ECHO, turn_end=ScriptedTurnEnd(default=0.0)
+    )
+    (pause,) = [event for event in checks(events) if event["check"] == "utterance"]
+    assert pause["verdict"] == "echo_text_low_psr"
+    (release,) = [event for event in events if event["kind"] == "hold_release"]
+    assert release["reason"] == "echo_text_low_psr"
+    assert release["t"] < SPEECH[1] + 1500  # at the pause, not Smart Turn's fallback
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 0
