@@ -98,6 +98,10 @@ def test_counters_and_gauges_carry_bounded_labels() -> None:
     metrics.barge_in()
     metrics.barge_in_empty_or_echo()
     metrics.echo_turn()
+    metrics.hold_released()
+    metrics.hold_dropped("echo")
+    metrics.hold_dropped("noise")
+    metrics.hold_dropped("noise")
     metrics.provider_error("tts", "timeout")
     metrics.tts_fallback()
     metrics.set_readiness(
@@ -111,6 +115,9 @@ def test_counters_and_gauges_carry_bounded_labels() -> None:
     assert found[("mlxrt_barge_ins_total", ())] == 1
     assert found[("mlxrt_barge_ins_empty_or_echo_total", ())] == 1
     assert found[("mlxrt_echo_turns_total", ())] == 1
+    assert found[("mlxrt_held_turns_released_total", ())] == 1
+    assert found[("mlxrt_held_turns_dropped_total", (("reason", "echo"),))] == 1
+    assert found[("mlxrt_held_turns_dropped_total", (("reason", "noise"),))] == 2
     assert found[("mlxrt_provider_errors_total", (("backend", "tts"), ("kind", "timeout")))] == 1
     assert found[("mlxrt_tts_fallback_total", ())] == 1
     assert found[("mlxrt_backend_ready", (("backend", "llm"),))] == 1

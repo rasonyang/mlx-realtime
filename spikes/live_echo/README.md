@@ -33,7 +33,7 @@ no canceller and write nothing):
 | `aec3.wav` | AEC3's output (what Silero and Smart Turn hear) |
 | `ref_speex.wav` | the ASR path's reference at its own shift (zeros until Speex is aligned) |
 | `asr.wav` | the ASR path's output (the input where the ASR hears it as received) |
-| `events.jsonl` | `t` in input-timeline ms plus `kind`: `play_start` / `play_end` (modelled), `flush`, `truncate`, `reanchor`, `gcc` (every GCC-PHAT window: lag, PSR, valid, confirmed, the shift in force), `realign` (aec3 and speex), `bypass`, `speech_started` (with `audio_start_ms`, `barge_in`), `speech_stopped` (`audio_end_ms`), `barge_in_outcome` (real / empty / echo), `echo_turn`, `transcript` (text, `audio_start_ms` / `audio_end_ms`, `units`, `echo_score`, `played_text` and `played_spans`: what the echo matcher compared against), `assistant_text` (each response's segments: text, `start_ms` and `audio_ms` on the item's audio timeline; with the item's `play_start` it places them on the input timeline) |
+| `events.jsonl` | `t` in input-timeline ms plus `kind`: `play_start` / `play_end` (modelled), `flush`, `truncate`, `reanchor`, `gcc` (every GCC-PHAT window: lag, PSR, valid, confirmed, the shift in force), `realign` (aec3 and speex), `bypass`, `speech_started` (with `audio_start_ms`, `barge_in`, and `held_ms` when `barge_in.confirm_while_playing` held it back, so onset to `speech_started` includes the hold), `hold` (with `playing`: held because the client plays, else only to keep order) / `hold_end` / `hold_check` (`check` partial / utterance / final, text, units, unmatched, `psr` of the raw input against our audio or null with `psr_why` (disabled, no_canceller, no_bypass, too_short, silent_reference, error), verdict incl. `echo_signal` / `echo_signal_drop`, audio span) / `hold_release` (`reason`: caller, pause, turn_end, check_failed, playback_ended, order_only) / `hold_drop` (`reason` echo, noise or echo_signal) / `hold_cancel` (a turn held back while we play), `speech_stopped` (`audio_end_ms`), `barge_in_outcome` (real / empty / echo), `echo_turn`, `transcript` (text, `audio_start_ms` / `audio_end_ms`, `units`, `echo_score`, `played_text` and `played_spans`: what the echo matcher compared against), `assistant_text` (each response's segments: text, `start_ms` and `audio_ms` on the item's audio timeline; with the item's `play_start` it places them on the input timeline) |
 | `meta.json` | session id, wall-clock start (UTC, ms), first-audio time, formats, the `aec` and `barge_in` configuration, the final `echo summary` |
 
 All WAVs are mono int16, 16 kHz, sample-aligned to each other: sample i of every file is input
@@ -173,3 +173,25 @@ Per call collect:
 - Ours: the capture directory and the gateway log's `echo summary` line.
 
 Then `analyze.py <capture dir> --aicc-recording <the call's wav>` for each, and keep the reports.
+
+## 5. Measuring the hold (issue #5)
+
+`bursts.py` measures `barge_in.confirm_while_playing` against the baseline (the same gateway with it
+off) on the simulated AICC call, in real time, with the real Qwen3-ASR and Qwen3-TTS (never the
+LLM: answers are verbatim lines, `create_response` is off). Residual-echo bursts of what the client
+really played (316 / 506 ms late, -5 / -20 / -35 dB, 1.5-2.5 s, nonlinear: `hold_lib.py` documents the
+model), real barge-ins (FLEURS zh / en, ASCEND mixed) on lines with and without steady echo, short
+utterances and noise over playback, and the cost of the checks.
+
+```sh
+# from the repository root; about 95 min of real time; starts and stops the ASR and TTS backends
+uv run --locked python spikes/live_echo/bursts.py run          # --only A,Am,B,Be,E0,C,D   --smoke   (Am is the mild leak model)
+uv run --locked python spikes/live_echo/bursts.py report       # results/hold.md and hold.json
+```
+
+Raw rows and captures go to `captures/hold/` (git-ignored; finished jobs are skipped on a rerun, so
+an interrupted run resumes). The conditions alternate chunk by chunk, so drift hits both. The datasets
+come from `spikes/data` (git-ignored; the main checkout's when this is a worktree, or
+`MLXRT_SPIKES_DATA`). Results: `results/hold.md` (tables, setup, what-ifs; the findings on top come from `results/hold_findings.md`, written by hand) and `results/hold.json` (every trial's row with its capture events). `tests/phone.py` has a hook (`_injected`) for the bursts and sounds.
+
+The v3 re-run (`HOLD_DIR=hold_v3 uv run --locked python spikes/live_echo/bursts.py run --only F,A,Am,B,Be,C --conditions fix`, then `uv run --locked python spikes/live_echo/hold_report_v3.py`) writes `results/hold_v3.md` / `.json`; its baseline rows are the first run's. F (double talk with a leak) needs both conditions: run `--only F` without `--conditions`.

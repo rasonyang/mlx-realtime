@@ -21,6 +21,7 @@ removed); lags are in 16 kHz samples.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cache
 
 import numpy as np
 import numpy.typing as npt
@@ -41,6 +42,8 @@ PSR_MIN = 8.0
 PEAK_HALF_WIDTH = 16
 NFFT = 1 << 15  # >= the reference span (3.3 s): the lags read never wrap
 _BAND = (200.0, 3600.0)
+SPAN_PEAK_HALF_WIDTH = 2 * PEAK_HALF_WIDTH  # the same 2 ms at 16 kHz
+_SILENT = 10 ** (-60 / 20)  # a reference under -60 dBFS (rms) is silence
 _SPAN = WINDOW + LAG_MAX - LAG_MIN  # reference samples per evaluation
 _KEEP = _SPAN + HOP  # history kept
 
@@ -118,6 +121,53 @@ class DelayEstimator:
         confirmed = self._previous is not None and abs(lag - self._previous) <= AGREE
         self._previous = lag
         return DelayEstimate(end * 2, valid=True, lag=lag * 2, psr=psr, confirmed=confirmed)
+
+
+def span_psr(
+    capture: npt.NDArray[np.int16], reference: npt.NDArray[np.int16], lag_max: int
+) -> tuple[float, int] | None:
+    """The GCC-PHAT peak of ``capture`` against ``reference`` over lags 0 to ``lag_max``
+    (16 kHz samples): its peak-to-sidelobe ratio and lag, or None when the reference is silent.
+
+    ``reference`` holds ``lag_max`` samples before ``capture``'s first, then the same span:
+    its index ``k`` pairs with ``capture[0]`` at lag ``lag_max - k``. The definition is the
+    estimator's (200-3600 Hz PHAT; the PSR of the peak against the other lags, 2 ms around it
+    excluded) applied once to a span of any length at 16 kHz, as ``spikes/live_echo/hold_gcc.py``
+    measured it; the estimator itself is a stream of fixed 2 s windows at 8 kHz. Stateless and
+    thread-safe: it runs off the event loop."""
+    length = len(capture)
+    if length == 0 or len(reference) != lag_max + length:
+        raise ValueError("reference must be lag_max samples longer than the capture")
+    seg = _band_limit(capture.astype(np.float64) / 32768.0)
+    ref = _band_limit(reference.astype(np.float64) / 32768.0)
+    if np.sqrt(np.mean(ref**2)) < _SILENT:
+        return None
+    n = 1 << (len(ref) + length).bit_length()
+    cross = np.fft.rfft(ref, n) * np.conj(np.fft.rfft(seg, n))
+    band = _span_band(n)
+    weighted = np.where(band, cross / (np.abs(cross) + 1e-12), 0.0)
+    magnitude = np.abs(np.fft.irfft(weighted, n)[: lag_max + 1])
+    peak = int(np.argmax(magnitude))
+    sides = np.concatenate(
+        (
+            magnitude[: max(peak - SPAN_PEAK_HALF_WIDTH, 0)],
+            magnitude[peak + SPAN_PEAK_HALF_WIDTH + 1 :],
+        )
+    )
+    psr = float((magnitude[peak] - sides.mean()) / (sides.std() + 1e-12))
+    return psr, lag_max - peak
+
+
+@cache
+def _span_band(n: int) -> npt.NDArray[np.bool_]:
+    frequencies = np.fft.rfftfreq(n, 1 / SOURCE_RATE)
+    return (frequencies >= _BAND[0]) & (frequencies <= _BAND[1])
+
+
+def _band_limit(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+    n = 1 << (len(x) - 1).bit_length()
+    spectrum = np.fft.rfft(x, n) * _span_band(n)
+    return np.fft.irfft(spectrum, n)[: len(x)]
 
 
 class _History:

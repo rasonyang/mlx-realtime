@@ -107,11 +107,12 @@ async def aicc_session(
     silero: bool = False,
     provider: LLMBackend | None = None,
     codec: Codec = "pcm",
+    caller: str = "喂？",
 ) -> AsyncIterator[Session]:
     """``silero``: the real Silero VAD hears the caller (else a detector that never does).
     ``provider``: the LLM provider to use instead of the scripted mock (``Session.llm``).
     ``codec``: the session's audio format once the trace's update is applied; every response's
-    audio is checked to be in it."""
+    audio is checked to be in it. ``caller``: what the ASR hears."""
     llm, tts = EchoLLM(), FakeMlxAudio()
     async with serve_asgi(tts) as tts_url:
         speech = MlxAudioSpeechConfig.model_validate(
@@ -119,7 +120,7 @@ async def aicc_session(
         )
         providers = Providers(
             llm=provider or llm,
-            asr=ScriptedASR(["喂？"]),
+            asr=ScriptedASR([caller]),
             tts=build_speech(speech, VoiceBook(VoicesConfig())),
         )
         if silero:
@@ -537,7 +538,9 @@ async def test_speech_over_the_tail_of_a_finished_line(codec: Codec) -> None:
     flushes and truncates (accepted, and the client model stops playing it), and the caller's
     turn is answered."""
     update, *_ = frames("call_gateway", codec)
-    async with aicc_session(silero=True, codec=codec) as session:
+    # Over a playing answer the ASR must hear two words that are not ours before speech_started
+    # goes out (barge_in.confirm_while_playing): a lone "喂？" would wait for the turn's end.
+    async with aicc_session(silero=True, codec=codec, caller="我想查一下订单") as session:
         client = session.client
         await updated(client, update)
         session.tts.voice = to_wire(clip(EN))

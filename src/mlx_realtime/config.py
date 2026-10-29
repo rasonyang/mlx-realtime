@@ -320,6 +320,23 @@ class BargeInConfig(_Section):
       CJK characters and Latin words; transcripts of at least ``echo_match_min_units`` of them) is
       treated like noise (D7): its response completes with no output and no LLM call, and the
       LLM never sees the turn.
+    - ``confirm_while_playing``: while the client is modelled as playing our audio (the queued
+      tail of a finished answer included), ``speech_started`` is held back until the ASR hears
+      the caller: partial transcripts of the held turn (each ``confirm_step_ms`` of new audio,
+      over at most the last ``confirm_window_ms``) are compared with the assistant text played
+      around it, and the turn is released once at least ``confirm_min_new_units`` of its units
+      are not part of that text (1 once nothing plays). At a pause in the speech one check covers
+      the whole utterance (none runs through the silence): a short one with a unit that is not
+      ours is released. A held turn that ends as echo (``echo_match_min_units`` units or more) or
+      empty is dropped, with no event at all. The end of the playback alone releases nothing. An
+      ASR error or a check over ``confirm_timeout_ms`` releases the turn.
+    - ``confirm_echo_psr``, ``confirm_echo_drop_psr``: while AEC3 is in its no-echo bypass (the
+      phone's own canceller leaves no steady echo), each check also correlates the raw input
+      over the held speech with our played audio (GCC-PHAT, lags 0 to 1 s). A peak-to-sidelobe
+      ratio of ``confirm_echo_psr`` or more means the caller's line carries our own words: a
+      check that would release the turn keeps holding instead. At the final decision a turn that
+      would be released is dropped as echo from ``confirm_echo_drop_psr`` (null: never on the
+      correlation alone). null ``confirm_echo_psr`` switches the correlation off.
     """
 
     echo_guard_ms: int = Field(default=2000, ge=0)
@@ -329,12 +346,27 @@ class BargeInConfig(_Section):
     echo_match_min_units: int = Field(default=4, ge=1)
     # Assistant audio modelled as playing up to this long before the turn's audio still counts.
     echo_match_window_ms: int = Field(default=3000, ge=0)
+    confirm_while_playing: bool = True
+    confirm_min_new_units: int = Field(default=2, ge=1)
+    confirm_step_ms: int = Field(default=250, ge=20)
+    confirm_window_ms: int = Field(default=4000, ge=500)
+    confirm_timeout_ms: int = Field(default=2000, ge=100)
+    confirm_echo_psr: float | None = Field(default=15.0, gt=0.0)
+    confirm_echo_drop_psr: float | None = Field(default=15.0, gt=0.0)
+
+    @model_validator(mode="after")
+    def _drop_above_hold(self) -> Self:
+        psr, drop = self.confirm_echo_psr, self.confirm_echo_drop_psr
+        if psr is not None and drop is not None and drop < psr:
+            raise ValueError("confirm_echo_drop_psr must not be below confirm_echo_psr")
+        return self
 
     @property
     def active(self) -> bool:
         """Whether any rule needs the playout model."""
         return (
             self.echo_guard_ms > 0
+            or self.confirm_while_playing
             or self.min_speech_ms_while_playing is not None
             or self.echo_turn_suppression
         )

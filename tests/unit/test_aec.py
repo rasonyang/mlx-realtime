@@ -27,7 +27,7 @@ from mlx_realtime.audio.aec import (
     check_frame,
     make_engine,
 )
-from mlx_realtime.audio.delay import DelayEstimate, DelayEstimator
+from mlx_realtime.audio.delay import DelayEstimate, DelayEstimator, span_psr
 from mlx_realtime.audio.resample import Resampler
 from tests.speech import EN, ZH, clip
 
@@ -371,3 +371,55 @@ def test_the_vendored_speexdsp_sources_are_the_release_tarballs() -> None:
     assert "COPYING" in present  # the BSD license notice travels with the sources
     for name, digest in manifest["files"].items():
         assert hashlib.sha256((VENDORED / name).read_bytes()).hexdigest() == digest, name
+
+
+def _reference(seconds: float, seed: int = 3) -> npt.NDArray[np.int16]:
+    return np.random.default_rng(seed).normal(0.0, 3000.0, int(16_000 * seconds)).astype(np.int16)
+
+
+def test_a_delayed_filtered_clipped_copy_has_a_high_psr_at_its_lag() -> None:
+    lag, span = 6400, 11_200  # 400 ms late, 700 ms of input
+    reference = _reference(3.0)
+    start = 20_000
+    echo = np.zeros(len(reference))
+    echo[lag:] = reference[:-lag]
+    echo = np.convolve(echo, np.array([0.5, 0.3, -0.2, 0.1]), mode="same")  # a short filter
+    echo = np.clip(echo * 0.5, -1500, 1500)  # and a nonlinear clip
+    capture = echo[start : start + span].astype(np.int16)
+    # the reference holds the second before the capture, then the capture's span
+    window = reference[start - 16_000 : start + span]
+    found = span_psr(capture, window, 16_000)
+    assert found is not None
+    psr, found_lag = found
+    assert psr > 20
+    assert abs(found_lag - lag) <= 8
+
+
+def test_independent_noise_and_speech_have_a_low_psr() -> None:
+    reference = _reference(3.0)
+    start, span = 20_000, 11_200
+    window = reference[start - 16_000 : start + span]
+    noise = _reference(3.0, seed=4)[start : start + span]
+    found = span_psr(noise, window, 16_000)
+    assert found is not None
+    assert found[0] < 10
+    speech = np.frombuffer(clip(EN), dtype="<i2")[16_000 : 16_000 + span]
+    found = span_psr(speech, window, 16_000)
+    assert found is not None
+    assert found[0] < 10
+
+
+def test_a_silent_reference_has_no_psr() -> None:
+    assert span_psr(_reference(0.7), np.zeros(16_000 + 11_200, dtype=np.int16), 16_000) is None
+    with pytest.raises(ValueError, match="lag_max samples longer"):
+        span_psr(_reference(0.7), _reference(0.7), 16_000)
+
+
+def test_the_correlation_costs_a_few_milliseconds() -> None:
+    reference = _reference(3.0)
+    capture = _reference(3.0, seed=5)[16_000 : 16_000 + 28_800]  # the 1.8 s of a long check
+    window = reference[:44_800]
+    began = time.perf_counter()
+    for _ in range(5):
+        span_psr(capture, window, 16_000)
+    assert (time.perf_counter() - began) / 5 < 0.1

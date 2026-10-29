@@ -886,10 +886,58 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
 - **Echo-turn suppression.** A VAD-detected turn whose transcript matches the assistant audio played
   around it (at least 0.7 of its CJK characters and Latin words, in order) is noise under D7, so the
   bot never answers itself.
+- **Hold [issue #5].** A turn that starts while the client is modelled as playing (a response
+  active or not: AICC flushes its whole queue on any `speech_started`) is held: no
+  `speech_started`, no barge-in. A turn that starts behind a hold with nothing playing is held
+  only to keep the order of events (order-only): it is released when it reaches the front and
+  nothing plays. Checks are ASR requests on the turn's audio (the ASR path's track, only what the
+  cancellers have processed), never two at a time:
+  - *Partial*, while the caller speaks: the last `confirm_window_ms` (4000) at most, one at once,
+    then one per `confirm_step_ms` (250) of new audio. The turn is released at
+    `confirm_min_new_units` (2) units outside the longest in-order match with the played text
+    (1 once nothing plays); otherwise it stays held, so a false "echo" delays a real barge-in and
+    never drops it. A cut edge makes one unmatched unit weak evidence, hence 2.
+  - *Utterance*, when the gate ends the speech (`SpeechEnd`): partial checks stop (none runs
+    through the silence), and one check covers the whole speech so far. Speech that resumes in the
+    same turn goes back to partial checks.
+  - *Final*, when the turn ends: the utterance check, if it covers exactly the turn, else a new
+    one over the whole turn.
+  A complete utterance has no cut edge: empty is noise; `echo_match_min_units` (4) units or more
+  are echo when the echo-turn rule says so (else the caller's); fewer are the caller's at one unit
+  that is not ours. At a pause, noise, echo and a short all-ours utterance stay held; the final
+  check drops noise and echo with no event, item or response (its audio discarded), and releases
+  a short all-ours turn (the echo rule never drops short turns). The decision at the turn's end
+  is its transcript's, so a ≥4-unit echo with 2 misheard units is dropped.
+  *Correlation veto.* The ASR can mishear a leak as unrelated words (a harsh nonlinear leak was
+  released on its first check in most measured cases), so while AEC3 is in its no-echo bypass
+  (`echo_absent`: the line has no steady echo) each check also runs, on a thread beside the ASR
+  request, a GCC-PHAT of the raw input over the held speech (from the onset, at most
+  `confirm_window_ms`, at least 400 ms) against AEC3's reference for the same span and the second
+  before it (lags 0 to 1000 ms, 200-3600 Hz, the delay estimator's PSR at 16 kHz: about 1 ms for
+  0.7 s of speech, 6 ms for 4 s). From `confirm_echo_psr` (15) a release at a partial or
+  pause check becomes a hold (`echo_signal`); at the final decision a release from
+  `confirm_echo_drop_psr` (15) is dropped as echo (counted with the echo drops, reason
+  `echo_signal` in the capture and log), and below it released as before. With steady echo the raw
+  input correlates whoever speaks, so there is no veto then, nor without a canceller; null
+  `confirm_echo_psr` switches it off. The early release at the end of the playback does not fire
+  on a check the correlation flagged. Measured on simulated leaks (`results/hold_gcc.md`): PSR
+  of 10 or more on 80-91 % of the leaked bursts and on none of 52 real callers at 700 ms. On
+  the real stack (`results/hold_v3.md`) 15 holds every leak that 10 holds, and a caller who talks
+  over a loud leak 0.5 s less (P50).
+  Release sends `speech_started` with the onset's own `audio_start_ms`, then the barge-in rule
+  applies; a turn released at its end sends `speech_stopped` after it, and its transcript is the
+  commit's (no second ASR request). When the playback ends a playing hold is not released for
+  that: pure echo that outlasts the playback is still dropped at its end; it is released at once
+  only if its latest check had a unit that is not ours. A check that fails or takes over
+  `confirm_timeout_ms` (2000) releases the turn. A turn behind a hold waits behind it, so events
+  of turns never cross. Anything that restarts turn detection (clear, a `session.update` of turn
+  detection, a commit) drops the holds and their check. `confirm_while_playing: false` is the
+  previous behaviour.
 
 **Observability.** One `echo summary` log line per session (ERLE for both cancellers, re-alignments,
-re-anchorings, bypasses, the learned tick phase, barge-ins); on `/metrics`, the barge-ins whose turn
-turned out empty or echo, and the echo turns.
+re-anchorings, bypasses, the learned tick phase, barge-ins, held turns released and dropped); on
+`/metrics`, the barge-ins whose turn turned out empty or echo, the echo turns, and the held turns
+released (`mlxrt_held_turns_released`) and dropped (`mlxrt_held_turns_dropped{reason=echo|noise}`).
 With `aec.capture_dir` set (dev only), a session also writes its echo path to disk for offline
 analysis: the input, both references and both cancellers' outputs as sample-aligned 16 kHz WAVs, an
 event log in input-timeline ms (playout model, flushes, re-anchors, every GCC-PHAT window,
@@ -1289,7 +1337,10 @@ aec:                                    # D17, G7 dual path (§6.5)
   max_residual_delay_ms: 450
   # bypass_without_echo_ms: 1500 (the default; null never bypasses)
 barge_in:  {echo_guard_ms: 2000, min_speech_ms_while_playing: 400, echo_turn_suppression: true,
-            echo_match_threshold: 0.7, echo_match_min_units: 4, echo_match_window_ms: 3000}
+            echo_match_threshold: 0.7, echo_match_min_units: 4, echo_match_window_ms: 3000,
+            confirm_while_playing: true, confirm_min_new_units: 2, confirm_step_ms: 250,
+            confirm_window_ms: 4000, confirm_timeout_ms: 2000,
+            confirm_echo_psr: 15, confirm_echo_drop_psr: 15}
 text:
   segmenter:  {first_min_chars: 4, first_max_wait_ms: 400, min_chars: 8, max_chars: 80}
   normalizer: {enabled: true, phones: true, ids: true, emails: true, cardinals: true,

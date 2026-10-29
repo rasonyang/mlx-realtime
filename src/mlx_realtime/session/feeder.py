@@ -167,6 +167,7 @@ class VadFeeder:
                 processed_start=start if processed else 0,
                 processed=pcm if processed else b"",
                 processed_asr=(chunk.asr or b"") if processed else b"",
+                end_sample=start + len(pcm) // SAMPLE_WIDTH,
             )
         )
 

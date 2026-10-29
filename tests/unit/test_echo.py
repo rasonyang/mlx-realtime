@@ -27,7 +27,7 @@ from mlx_realtime.session.echo import (
     PlayedSpan,
     log_echo_stats,
 )
-from mlx_realtime.text.similarity import lcs_length, overlap, units
+from mlx_realtime.text.similarity import lcs_length, overlap, units, unmatched
 
 RATE = 16_000
 TICK = 320
@@ -676,6 +676,28 @@ def test_lcs_matches_dynamic_programming() -> None:
         first = [str(value) for value in rng.integers(0, 6, size=int(rng.integers(0, 40)))]
         second = [str(value) for value in rng.integers(0, 6, size=int(rng.integers(0, 60)))]
         assert lcs_length(first, second) == brute_lcs(first, second)
+
+
+@pytest.mark.parametrize(
+    ("transcript", "played", "new"),
+    [
+        ("鸟类还是有很多地方", "但鸟类还是有很多地方跟恐龙相似。", 0),  # all ours
+        ("鸟类 还是 我要", "但鸟类还是有很多地方跟恐龙相似。", 2),  # two words that are not
+        ("我想问价格", "但鸟类还是有很多地方跟恐龙相似。", 5),
+        (
+            "地方 鸟类",
+            "但鸟类还是有很多地方跟恐龙相似。",
+            2,
+        ),  # out of order: only one of them counts
+        ("hello there", "", 2),  # nothing played: all of it is new
+        ("", "但鸟类", 0),
+        ("Many people really think", "Many people think about dinosaurs", 1),
+    ],
+)
+def test_unmatched_units_are_those_outside_the_longest_in_order_match(
+    transcript: str, played: str, new: int
+) -> None:
+    assert unmatched(transcript, played) == new
 
 
 @pytest.mark.parametrize(

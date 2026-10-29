@@ -130,6 +130,23 @@ aec:
 # last min_speech_ms_while_playing (null: turn.vad.min_speech_ms) during playback, and a turn
 # whose transcript matches what we were playing is treated as noise (D7). Each rule can be
 # switched off (0, null, false).
+# confirm_while_playing (issue #5): speech_started that would go out while the client plays our
+# audio (the queued tail of a finished answer included) waits until the ASR hears the caller:
+# partial transcripts of the turn (a first one at once, then each confirm_step_ms of new audio,
+# over at most the last confirm_window_ms) are compared with the assistant text played around it,
+# and the turn is released once confirm_min_new_units of its words are not ours (1 once nothing
+# plays). When the speech pauses, one check covers the whole utterance (none runs through the
+# silence): a word that is not ours releases a short one, and an echo of 4 words or more
+# (echo_match_min_units) or nothing is dropped, with no event at all, when the turn ends. The end
+# of the playback alone releases nothing. An ASR error or a check over confirm_timeout_ms
+# releases the turn. While AEC3 is in its no-echo bypass, each check also correlates the raw input
+# over the held speech with our played audio (GCC-PHAT, lags 0-1 s): a peak-to-sidelobe ratio of
+# confirm_echo_psr or more keeps a would-be release held (the ASR can mishear a leak as other
+# words), and at the turn's end confirm_echo_drop_psr or more drops it as echo (null: never on the
+# correlation alone; confirm_echo_psr null: no correlation). On simulated leaks 15 holds every
+# leak 10 holds, and a caller who talks over a loud leak for less long; no real caller was
+# dropped at any drop threshold (spikes/live_echo/results/hold_gcc.md, hold_v3.md).
+# false: speech_started goes out at the onset, as before.
 barge_in:
   echo_guard_ms: 2000
   min_speech_ms_while_playing: 400
@@ -137,6 +154,13 @@ barge_in:
   echo_match_threshold: 0.7
   echo_match_min_units: 4
   echo_match_window_ms: 3000
+  confirm_while_playing: true
+  confirm_min_new_units: 2
+  confirm_step_ms: 250
+  confirm_window_ms: 4000
+  confirm_timeout_ms: 2000
+  confirm_echo_psr: 15
+  confirm_echo_drop_psr: 15
 
 # Transcription sessions (session.type "transcription", issue #2): no VAD, no echo cancellation,
 # no LLM, no TTS. The client sends audio continuously and commits after each utterance. While no

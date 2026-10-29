@@ -2664,3 +2664,79 @@ spikes/transcription/run.sh latency_report --tag holdmusic; spikes/transcription
 Results: `spikes/results/transcription_*.json`: `_cer_terms_gate` and `_cer_none_gate` are the final passes, `_latency_holdmusic_*` and `_cleangate_*` the final latency runs, `_nonspeech_gate` and `_nonspeech_caponly` the non-speech commits. The 100-vs-400 `voiced_rms` comparison and the no-prompt pass before the mitigations
 are `transcription_cer_terms100.json`, `transcription_cer_none100.json` (the wedge: 578 failed) and
 `transcription_cer_none100clean.json`, `transcription_cer_none400clean.json`.
+
+## Echo leaking past a phone's AEC: the held `speech_started` (issue #5, 2026-10-29)
+
+The fix for the S1 self-interruptions, built on `live-echo-verification` (the capture and
+`spikes/live_echo`), before the formal live calls C1–C6, which stay open. AICC flushes its whole TX
+queue on any `speech_started` while bot audio is queued, even after `response.done`
+(`internal/aicall/session.go` `bargeIn`), so the gateway must not send one for echo at all.
+
+- **Hold** (`session/actor.py`): a turn that starts while the client is modelled as playing gets no
+  `speech_started`; ASR checks of its audio decide. Partial checks (at once, then every
+  `confirm_step_ms` 250 of new speech, one in flight, the last `confirm_window_ms` 4000) release at
+  `confirm_min_new_units` 2 units outside the longest in-order match with the played text (1 once
+  nothing plays); at the gate's `SpeechEnd` one check over the whole utterance releases what the
+  echo-turn rule does not call echo (under 4 units: one unit not ours); at the turn's end echo and
+  empty turns are dropped with no event, and the final transcript is the commit's. The playback's
+  end alone releases nothing; an ASR error or a check over `confirm_timeout_ms` 2000 releases.
+  Turns held behind one another keep their order.
+- **Correlation veto** (`audio/delay.py` `span_psr`): while AEC3 is in its no-echo bypass, each
+  check also runs GCC-PHAT of the raw input over the held speech against AEC3's reference (lags
+  0–1 s, on a thread beside the ASR request, 1–6 ms of CPU): from `confirm_echo_psr` 15 a release
+  becomes a hold, from `confirm_echo_drop_psr` 15 a release at the turn's end becomes an echo drop.
+- **Observability**: `mlxrt_held_turns_released`, `mlxrt_held_turns_dropped{reason}`, the counts in
+  the `echo summary` line, and capture events `hold`, `hold_check` (check kind, transcript, units,
+  unmatched, verdict, PSR), `hold_release`, `hold_drop`, `hold_cancel`, `held_ms` on
+  `speech_started`.
+
+### Measurement (`spikes/live_echo/bursts.py`, results in `spikes/live_echo/results/`)
+
+The simulated AICC call (`tests/phone.py`) in real time, real Qwen3-ASR-1.7B-8bit and Qwen3-TTS
+(vivian), Silero and Smart Turn, the canceller as configured; bot answers are verbatim lines. A leak
+is the played audio 316 or 506 ms late at −5/−20/−35 dB, 1.5–2.5 s, band-limited, clipped and
+gain-modulated: a model chosen for this test ("default", and a "mild" one), not a measured phone.
+Three rounds: v1 (`hold.md`) found three design faults (release at the playback's end, checks
+through the silence, one-word turns waiting for the turn's end); v2 fixed them; the offline
+correlation analysis (`hold_gcc.md`) led to the veto; v3 (`hold_v3.md`) measured both.
+
+| | baseline | v1 | v3 |
+|---|---|---|---|
+| self-interruptions per leak, default model (36) | 67 % | 47 % | 8 % |
+| self-interruptions per leak, mild model (18) | 78 % | 33 % | 11 % |
+| real callers dropped (B 30, Be 10, C 22, F 24) | 0 | 0 | 0 |
+| real barge-in, onset → `speech_started` added, P50 / P95 (B) | — | +150 / +342 ms | +162 / +422 ms |
+| one-word "喂"/"好的"/"hello" over playback, onset → `speech_started` | ~0.45 s | 3.6–4.1 s | 1.2–1.6 s |
+| caller talking over a −5 dB leak, P50 (F) | 0.36–0.45 s | — | 1.3–1.9 s (veto at 10) |
+| ASR checks per held turn: real barge-in / leak / short utterance | — | 1.1 / 2.3 / 10.8 | 1.3 / 6.3 / 3.4 |
+
+The v3 run had `confirm_echo_psr` 10; the default is 15 from its replay (raising the threshold only
+releases earlier, at a recorded check): the same leaks held, callers over a leak 0.5 s sooner
+(P50). Noise (cup, keys, clicks) never fired the gate, with or without the hold. The Mac was in
+powermode 0 (Automatic); one trial spanned an idle sleep, which the harness's monotonic clock
+skipped.
+
+```
+uv run --locked python spikes/live_echo/bursts.py run          # v1: both conditions; --only A,Am,B,Be,C,D  --smoke
+uv run --locked python spikes/live_echo/bursts.py report       # results/hold.md, hold.json
+HOLD_DIR=hold_v3 uv run --locked python spikes/live_echo/bursts.py run --only F          # both conditions
+HOLD_DIR=hold_v3 uv run --locked python spikes/live_echo/bursts.py run --only A,Am,B,Be,C --conditions fix
+uv run --locked python spikes/live_echo/hold_report_v3.py      # results/hold_v3.md, hold_v3.json (baseline rows: v1's)
+uv run --locked python spikes/live_echo/hold_gcc.py            # the offline correlation analysis, results/hold_gcc.md
+```
+
+It starts and stops the ASR and TTS backends itself and reads the speech clips from the main
+checkout's `spikes/data` (or `MLXRT_SPIKES_DATA`). Captures go to `spikes/live_echo/captures/`
+(git-ignored).
+
+### Remaining risks and open points (owner)
+
+- The leak model is synthetic. S1's two real bursts transcribed word for word (overlap 1.0), closer
+  to the mild model; C6 (speakerphone, phone AEC on) on a live call is the real test, then C4.
+- The veto has no signal once the canceller has left its bypass (a leak that triggers three valid
+  GCC-PHAT windows turns AEC3 on): 7 of the 8 remaining harsh-model releases happened there.
+- The cost to the caller: every barge-in over our audio reaches AICC about 0.16 s later (P50), a
+  one-word interjection about 1 s later, a caller over a loud leak up to ~1–2 s later; none is
+  lost. `confirm_while_playing: false` restores the previous behaviour.
+- Open question 4 of the issue (the echo matcher's short-turn false positives) is unchanged: a held
+  turn under 4 units is never dropped as echo, so it does not get worse.

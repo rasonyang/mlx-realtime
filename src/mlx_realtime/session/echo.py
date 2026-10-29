@@ -89,7 +89,9 @@ _FRAME_BYTES = FRAME_SAMPLES * SAMPLE_WIDTH
 _CAPTURE_WINDOW = 10 * RATE  # the capture clock's sliding window
 _MAX_ANCHOR = RATE // 2  # re-anchoring moves the model by at most 500 ms
 _HISTORY = 60 * RATE  # how long played audio is remembered for echo-turn matching
-_RENDER_MARGIN = 2 * RATE  # played frames kept behind the reference already rendered
+# Played frames kept behind the reference already rendered: AEC3's references, and a held
+# turn's correlation check (up to its 4 s window and the 1 s lag range behind its end).
+_RENDER_MARGIN = 6 * RATE
 _ACTIVE_REFERENCE = 10 ** (-50 / 10) * 32768.0**2  # a reference frame above -50 dBFS
 _ERLE_WINDOW_FRAMES = 50  # 0.5 s of frames with an active reference
 HOP_SAMPLES = HOP * RATE // 8000  # the delay estimator's hop at 16 kHz

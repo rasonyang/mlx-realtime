@@ -223,10 +223,21 @@ def test_every_barge_in_rule_can_be_switched_off() -> None:
                 "echo_guard_ms": 0,
                 "min_speech_ms_while_playing": None,
                 "echo_turn_suppression": False,
+                "confirm_while_playing": False,
             }
         }
     )
     assert not config.barge_in.active
+
+
+def test_the_hold_is_on_by_default_and_tuned_by_its_knobs() -> None:
+    config = validate_config({}).barge_in
+    assert config.confirm_while_playing
+    assert (config.confirm_min_new_units, config.confirm_step_ms) == (2, 250)
+    assert (config.confirm_window_ms, config.confirm_timeout_ms) == (4000, 2000)
+    assert (config.confirm_echo_psr, config.confirm_echo_drop_psr) == (15.0, 15.0)
+    with pytest.raises(ConfigError):
+        validate_config({"barge_in": {"confirm_min_new_units": 0}})
 
 
 def test_empty_file_takes_every_default(tmp_path: Path) -> None:
