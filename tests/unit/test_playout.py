@@ -157,3 +157,27 @@ def test_an_outlier_does_not_move_the_phase() -> None:
     clean = learner.phase()
     learner.observe(int(rng.integers(0, 10_000_000)), int(rng.integers(0, 10_000_000)))
     assert learner.phase() == clean
+
+
+def test_a_stale_deadline_restarts_playback_at_once_after_an_underrun_stop() -> None:
+    """rtp.go: a stop by underrun leaves the prebuffer deadline of the previous idle spell in
+    the past, so one frame queued before the next tick starts playback without the prebuffer."""
+    playout, starts = model()
+    playout.arrive([0, 1, 2], at=10)
+    assert plays(playout, 960) == [(0, 320), (1, 640), (2, 960)]
+    assert plays(playout, 1920) == []  # three empty ticks (1280, 1600, 1920): playback stops
+    assert not playout.playing
+    playout.arrive([3], at=2000)
+    assert plays(playout, 2240) == [(3, 2240)]  # the very next tick
+    assert [start.by_count for start in starts] == [True, False]
+
+
+def test_with_one_empty_tick_first_the_prebuffer_wait_applies_again() -> None:
+    playout, _ = model()
+    playout.arrive([0, 1, 2], at=10)
+    plays(playout, 1920)
+    assert not playout.playing
+    plays(playout, 2240)  # an empty tick: the deadline is now 60 ms ahead
+    playout.arrive([3], at=2300)
+    assert plays(playout, 3199) == []  # ticks at 2560 and 2880: still within the 60 ms
+    assert plays(playout, 3200) == [(3, 3200)]

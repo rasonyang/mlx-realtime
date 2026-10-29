@@ -16,9 +16,12 @@ upsampler, 20 ms appends in real time), through the real canceller and Silero VA
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import wave
 from collections.abc import AsyncGenerator, AsyncIterator, Mapping
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import pytest
 
@@ -198,3 +201,42 @@ async def test_without_the_defences_the_echo_interrupts() -> None:
             await call.done.wait()
     done = next(event for _, event in call.events if event["type"] == "response.done")
     assert done["response"]["status_details"] == {"type": "cancelled", "reason": "turn_detected"}
+
+
+async def test_the_capture_records_the_echo_path_of_a_call(tmp_path: Path) -> None:
+    """aec.capture_dir: the call's tracks are sample-aligned and its events carry what an offline
+    replay of the barge-in rules needs (playout, GCC-PHAT windows, flush, speech, the turn's
+    echo-match score, the assistant text)."""
+    async with (
+        echo_session({"aec": {"capture_dir": str(tmp_path)}}) as client,
+        SimulatedCall(client, echo_db=10.0) as call,
+    ):
+        await asyncio.sleep(0.5)
+        await client.send({"type": "response.create", "response": {"instructions": SAY + LINE}})
+        await until_playing(call)
+        await asyncio.sleep(6.0)
+        call.say(clip(EN))
+        async with asyncio.timeout(3.0):
+            await call.done.wait()
+        call.done.clear()
+        async with asyncio.timeout(10.0):
+            await call.done.wait()
+    await asyncio.sleep(1.0)  # the writer thread closes the files after the session
+    (directory,) = list(tmp_path.glob("*"))  # noqa: ASYNC240
+    lengths = set()
+    for name in ("input", "ref_aec3", "aec3", "ref_speex", "asr"):
+        with wave.open(str(directory / f"{name}.wav")) as file:
+            lengths.add(file.getnframes())
+    assert len(lengths) == 1
+    events = [json.loads(line) for line in (directory / "events.jsonl").read_text().splitlines()]
+    kinds = {event["kind"] for event in events}
+    assert {"play_start", "gcc", "flush", "truncate", "speech_started", "transcript"} <= kinds
+    assert {"assistant_text", "barge_in_outcome", "speech_stopped"} <= kinds
+    (transcript,) = [event for event in events if event["kind"] == "transcript"]
+    assert transcript["text"] == CALLER
+    assert transcript["audio_end_ms"] > transcript["audio_start_ms"]
+    assert "echo_score" in transcript
+    assert "played_text" in transcript
+    meta = json.loads((directory / "meta.json").read_text())
+    assert meta["complete"]
+    assert meta["echo_summary"]["barge_ins"] == 1

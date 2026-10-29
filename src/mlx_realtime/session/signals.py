@@ -28,6 +28,7 @@ class VadUpdate:
     processed_start: int = 0  # input timeline sample
     processed: bytes = b""
     processed_asr: bytes = b""
+    end_sample: int = 0  # where the chunk ends on the input timeline (processed or not)
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +48,16 @@ class TranscriptReady:
 class TranscriptFailed:
     item_id: str
     error: ProviderError
+
+
+@dataclass(frozen=True, slots=True)
+class HeldCheck:
+    """The ASR's answer to a held turn's check (``None``: it failed or timed out)."""
+
+    seq: int
+    transcript: Transcript | None
+    psr: float | None = None  # the input's correlation with our audio, if it was computed
+    psr_why: str | None = None  # else, why not
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,4 +132,6 @@ type PipelineSignal = (
     | PipelineFailed
     | PipelineMark
 )
-type Signal = VadUpdate | TurnVerdict | TranscriptReady | TranscriptFailed | PipelineSignal
+type Signal = (
+    VadUpdate | TurnVerdict | TranscriptReady | TranscriptFailed | HeldCheck | PipelineSignal
+)

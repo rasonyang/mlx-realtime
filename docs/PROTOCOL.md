@@ -263,7 +263,7 @@ session).
 | `error` | `RealtimeErrorEvent` | **Supported** | §9 |
 | `input_audio_buffer.committed` | `InputAudioBufferCommittedEvent` | **Supported** | client commit, or the end of a detected speech turn |
 | `input_audio_buffer.cleared` | `InputAudioBufferClearedEvent` | **Supported** | after `input_audio_buffer.clear` |
-| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Supported** | `server_vad` only, once speech has lasted `turn.vad.min_speech_ms` (150), or `barge_in.min_speech_ms_while_playing` (400) while the client is modelled as playing our audio, and never for an onset in the first `barge_in.echo_guard_ms` (2000) of a response's playback (§11.13); `audio_start_ms` includes `prefix_padding_ms`; `item_id` of the item the commit will create. One per turn: speech that resumes while the turn is held continues it (§11.9) |
+| `input_audio_buffer.speech_started` | `InputAudioBufferSpeechStartedEvent` | **Supported** | `server_vad` only, once speech has lasted `turn.vad.min_speech_ms` (150), or `barge_in.min_speech_ms_while_playing` (400) while the client is modelled as playing our audio, and never for an onset in the first `barge_in.echo_guard_ms` (2000) of a response's playback (§11.13); while the client is modelled as playing our audio it comes only once the ASR has heard the caller, so later than the onset, at the pause or the turn end for a short utterance (§11.13); `audio_start_ms` includes `prefix_padding_ms` and is the onset's, not the event's time; `item_id` of the item the commit will create. One per turn: speech that resumes while the turn is held continues it (§11.9) |
 | `input_audio_buffer.speech_stopped` | `InputAudioBufferSpeechStoppedEvent` | **Supported** | `server_vad` only, when the turn ends (§11.9), immediately before `input_audio_buffer.committed`; `audio_end_ms` is the acoustic end of speech (§11.6) |
 | `conversation.item.added` | `ConversationItemAdded` | **Supported** | client items, committed audio, response output items |
 | `conversation.item.done` | `ConversationItemDone` | **Supported** | client items (at once), user audio (when the transcript is final), response items (when they close) |
@@ -632,8 +632,25 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       least 4 of them) is treated like noise (D7): its response completes at once with no output
       and no LLM call, and later LLM requests leave the turn out. One reply per speech turn still
       holds.
+    - **Held `speech_started`** (`barge_in.confirm_while_playing`). A turn that starts while the
+      client is modelled as playing, with or without a response active, gets no `speech_started`
+      at its onset: the ASR transcribes the turn so far and the event goes out once at least 2
+      of its words are not part of the assistant text played around it, so a client that
+      flushes its queue on any `speech_started` (AICC) is not cut by echo that passed its AEC.
+      The event carries the onset's `audio_start_ms` and the turn's item id, then the barge-in
+      rule applies. A single word is enough once the caller pauses (the transcript of the whole
+      utterance has one word that is not ours), so it comes at the pause, not at the turn end;
+      it also comes when the ASR fails. The end of the playback does not release a turn whose
+      checks match our words. On a line with no steady echo (AEC3 bypassed), a turn whose raw
+      input correlates strongly with our own audio (GCC-PHAT PSR of 15 or more,
+      `barge_in.confirm_echo_psr`) is not released on the ASR's word alone, and one that ends with a
+      PSR of 15 or more (`confirm_echo_drop_psr`) is dropped as echo even if the ASR heard a caller.
+      A turn that ends held and is our echo (4 words or more) or empty gets
+      no event at all (no `speech_started`, `speech_stopped`, commit, item or response); any
+      other is released at its end, `speech_started` then `speech_stopped`. One pair per turn, in
+      order, as ever.
     - Each rule can be switched off (`echo_guard_ms: 0`, `min_speech_ms_while_playing: null`,
-      `echo_turn_suppression: false`, `aec.enabled: false`).
+      `echo_turn_suppression: false`, `confirm_while_playing: false`, `aec.enabled: false`).
 14. **Tool calls in later LLM requests (M5), invisible on the wire.** The round trip is GA's:
     `conversation.item.create {type: function_call_output, call_id, output}` (any text; AICC's JSON
     with a `hint` reaches the model verbatim), answered by `conversation.item.added` → `.done`, then

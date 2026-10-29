@@ -122,6 +122,7 @@ ECHO_OFF: dict[str, dict[str, object]] = {
         "echo_guard_ms": 0,
         "min_speech_ms_while_playing": None,
         "echo_turn_suppression": False,
+        "confirm_while_playing": False,
     },
     # Tests send tones the scripted detector knows nothing about: no speech check, unless a test
     # asks for it (test_transcription_session.py).

@@ -205,6 +205,22 @@ class InputBuffer:
         self._drop_before(last)
         return audio
 
+    def raw_slice(self, start_ms: int, end_ms: int) -> bytes:
+        """The input as received over ``[start_ms, end_ms)``, left in the buffer."""
+        return self._slice_track(
+            self._pcm,
+            ms_to_samples(start_ms, CANONICAL_RATE),
+            ms_to_samples(end_ms, CANONICAL_RATE),
+        )
+
+    def asr_slice(self, start_ms: int, end_ms: int) -> bytes:
+        """What a commit of ``[start_ms, end_ms)`` would give the ASR, left in the buffer."""
+        return self._slice_track(
+            self._asr_track(),
+            ms_to_samples(start_ms, CANONICAL_RATE),
+            ms_to_samples(end_ms, CANONICAL_RATE),
+        )
+
     def clear(self) -> None:
         """Drop everything uncommitted, including audio still inside the resampler."""
         tail = self._decoder.flush()

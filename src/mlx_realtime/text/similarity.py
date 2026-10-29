@@ -44,6 +44,13 @@ def overlap(transcript: str, played: str) -> float:
     return lcs_length(needle, haystack) / len(needle)
 
 
+def unmatched(transcript: str, played: str) -> int:
+    """How many of ``transcript``'s units are not part of the longest in-order match with
+    ``played``."""
+    needle = units(transcript)
+    return len(needle) - lcs_length(needle, units(played))
+
+
 def lcs_length(first: Sequence[Hashable], second: Sequence[Hashable]) -> int:
     """The length of the longest common subsequence (Hyyrö's bit-parallel algorithm, with the
     positions of ``first`` as the bits of one integer: one pass over ``second``)."""

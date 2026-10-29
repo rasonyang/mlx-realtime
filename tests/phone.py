@@ -307,6 +307,10 @@ class SimulatedCall:
         self.log.played_frames[frame.item_id] = self.log.played_frames.get(frame.item_id, 0) + 1
         return frame.samples
 
+    def _injected(self, played: Floats) -> Floats:
+        """Extra line signal for this tick (subclasses: residual-echo bursts, noise); none here."""
+        return np.zeros(FRAME_8K)
+
     async def _uplink(self, played: Floats) -> None:
         echo = np.zeros(FRAME_8K)
         if self._echo is not None:
@@ -322,7 +326,7 @@ class SimulatedCall:
         for index in range(min(FRAME_8K, len(self._caller))):
             caller[index] = self._caller.popleft()
         noise = self._rng.standard_normal(FRAME_8K) * self._noise_rms
-        line = echo + caller + noise
+        line = echo + caller + noise + self._injected(played)
         if self._law is not None:  # the line's G.711 frame, as is
             samples = np.clip(np.rint(line), -32768, 32767).astype(np.int16)
             frame = g711.encode_samples(samples, self._law)

@@ -180,6 +180,17 @@ class Metrics:
             "Turns suppressed as the echo of our own speech (D17).",
             registry=registry,
         )
+        self._holds_released = Counter(
+            "mlxrt_held_turns_released",
+            "Turns held while the client played our audio, then released as the caller's.",
+            registry=registry,
+        )
+        self._holds_dropped = Counter(
+            "mlxrt_held_turns_dropped",
+            "Turns held while the client played our audio, then dropped unannounced, by reason.",
+            ["reason"],
+            registry=registry,
+        )
         self._transcription_skipped = Counter(
             "mlxrt_transcription_skipped",
             "Transcription-session commits answered empty with no ASR request: no speech in them.",
@@ -230,6 +241,12 @@ class Metrics:
 
     def echo_turn(self) -> None:
         self._echo_turns.inc()
+
+    def hold_released(self) -> None:
+        self._holds_released.inc()
+
+    def hold_dropped(self, reason: str) -> None:
+        self._holds_dropped.labels(reason).inc()
 
     def transcription_skipped(self) -> None:
         self._transcription_skipped.inc()

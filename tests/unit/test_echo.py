@@ -27,7 +27,7 @@ from mlx_realtime.session.echo import (
     PlayedSpan,
     log_echo_stats,
 )
-from mlx_realtime.text.similarity import lcs_length, overlap, units
+from mlx_realtime.text.similarity import lcs_length, overlap, units, unmatched
 
 RATE = 16_000
 TICK = 320
@@ -147,6 +147,126 @@ def test_a_flush_drops_what_the_client_never_played() -> None:
     cut = flushed_at - first_play  # the frame playing at the flush still plays out
     assert played[: cut - TICK].any()
     assert not played[cut + TICK :].any()
+
+
+def send(echo: EchoReference, item: str, generation: int, frames: int, *, seed: int = 0) -> None:
+    echo.audio_queued(generation)
+    echo.audio_sent(item, generation, wire(480 * frames, seed))  # 480 samples: 20 ms at 24 kHz
+
+
+def test_a_clear_drops_the_whole_queue_a_previous_responses_tail_included() -> None:
+    """AICC's ClearTx empties its TX queue: B, queued behind A's unplayed tail, goes with it."""
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.response_started()
+    send(echo, "item_a", 1, 100)  # 2 s
+    echo.response_finished(1)
+    end = stream(echo, clock, 1.0, start=end)  # half of A has played
+    echo.response_started()
+    send(echo, "item_b", 2, 50)
+    assert echo._model.queued > 50
+    echo.flush(2, speech=True)  # past the guard: AICC acts
+    assert echo._model.queued == 0
+    assert all(item.queued == 0 and item.complete for item in echo._items.values())
+    stream(echo, clock, 0.5, start=end)
+    (span_a,) = (s for s in echo.played_spans(0, 10**9, 0) if s.item_id == "item_a")
+    assert span_a.end_ms < 1200  # A's tail never played
+
+
+def test_a_truncate_of_a_queued_item_clears_the_tail_behind_which_it_waited() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 1.0)
+    echo.response_started()
+    send(echo, "item_a", 1, 100)
+    echo.response_finished(1)
+    end = stream(echo, clock, 1.0, start=end)
+    echo.response_started()
+    send(echo, "item_b", 2, 50)
+    echo.truncated("item_b", 0)  # AICC played none of B: it was behind A's tail
+    assert echo._model.queued == 0
+    assert all(item.queued == 0 and item.complete for item in echo._items.values())
+    stream(echo, clock, 0.5, start=end)
+    assert not [sp for sp in echo.played_spans(0, 10**9, 0) if sp.item_id == "item_b"]
+
+
+def resumed_after_an_underrun(clock: FakeClock, echo: EchoReference) -> int:
+    """5 frames play out and the client stops (an underrun), then 100 more arrive: returns the
+    input position."""
+    end = stream(echo, clock, 1.0)
+    echo.response_started()
+    send(echo, "item_1", 1, 5)
+    end = stream(echo, clock, 0.5, start=end)
+    echo._advance(round(clock.t * RATE))
+    assert not echo._model.playing
+    assert echo._model.queued == 0
+    send(echo, "item_1", 1, 100)
+    return end
+
+
+def test_a_speech_barge_in_within_the_guard_of_a_resume_leaves_the_queue_playing() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = resumed_after_an_underrun(clock, echo)
+    end = stream(echo, clock, 0.4, start=end)  # 400 ms after the resume: inside 800 ms
+    echo.flush(1, speech=True)  # AICC ignores the detection: no ClearTx
+    assert echo._model.queued > 50
+    stream(echo, clock, 0.2, start=end)
+    assert echo._model.queued > 30  # and the audio goes on playing
+    echo.truncated("item_1", 200)  # a truncate that comes anyway still applies
+    assert echo._model.queued == 0
+
+
+def test_a_speech_barge_in_past_the_guard_of_a_resume_clears_the_queue() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = resumed_after_an_underrun(clock, echo)
+    stream(echo, clock, 0.9, start=end)
+    echo.flush(1, speech=True)
+    assert echo._model.queued == 0
+
+
+def test_a_cancel_aicc_initiated_clears_whatever_the_guard() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = resumed_after_an_underrun(clock, echo)
+    stream(echo, clock, 0.1, start=end)
+    echo.flush(1)  # AICC's interrupt (a keypress, its own detection): ClearTx, then the cancel
+    assert echo._model.queued == 0
+
+
+def test_the_audible_clock_runs_on_through_a_fed_queue_and_restarts_after_a_gap() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 0.5)
+    echo.response_started()
+    send(echo, "item_1", 1, 10)
+    first = echo._audible_since
+    assert first == round(clock.t * RATE)
+    for _ in range(4):  # fed in real time, 200 ms, a frame at a time: never audibly idle
+        end = stream(echo, clock, 0.02, start=end)
+        send(echo, "item_1", 1, 1)
+    assert echo._audible_since == first
+    end = stream(echo, clock, 1.0, start=end)  # a gap well past the slack
+    send(echo, "item_1", 1, 1)
+    assert echo._audible_since == round(clock.t * RATE)
+
+
+def test_keepalive_silence_to_a_stopped_queue_starts_the_audible_clock() -> None:
+    clock = FakeClock()
+    echo = reference(clock)
+    end = stream(echo, clock, 0.5)
+    echo.response_started()
+    echo.audio_queued(1)
+    echo.audio_sent("keepalive", 1, bytes(480 * 2))  # one 20 ms frame of silence
+    assert echo._audible_since == round(clock.t * RATE)
+    end = stream(echo, clock, 0.3, start=end)  # played out; AICC stopped again
+    send(echo, "item_1", 1, 50)  # speech 300 ms later: a new start, 800 ms guard again
+    assert echo._audible_since == round(clock.t * RATE)
+    stream(echo, clock, 0.4, start=end)
+    echo.flush(1, speech=True)  # ignored: the silence's start did not extend the guard past it
+    assert echo._model.queued > 0
 
 
 def test_a_truncate_drops_the_rest_and_re_anchors_the_model() -> None:
@@ -556,6 +676,28 @@ def test_lcs_matches_dynamic_programming() -> None:
         first = [str(value) for value in rng.integers(0, 6, size=int(rng.integers(0, 40)))]
         second = [str(value) for value in rng.integers(0, 6, size=int(rng.integers(0, 60)))]
         assert lcs_length(first, second) == brute_lcs(first, second)
+
+
+@pytest.mark.parametrize(
+    ("transcript", "played", "new"),
+    [
+        ("鸟类还是有很多地方", "但鸟类还是有很多地方跟恐龙相似。", 0),  # all ours
+        ("鸟类 还是 我要", "但鸟类还是有很多地方跟恐龙相似。", 2),  # two words that are not
+        ("我想问价格", "但鸟类还是有很多地方跟恐龙相似。", 5),
+        (
+            "地方 鸟类",
+            "但鸟类还是有很多地方跟恐龙相似。",
+            2,
+        ),  # out of order: only one of them counts
+        ("hello there", "", 2),  # nothing played: all of it is new
+        ("", "但鸟类", 0),
+        ("Many people really think", "Many people think about dinosaurs", 1),
+    ],
+)
+def test_unmatched_units_are_those_outside_the_longest_in_order_match(
+    transcript: str, played: str, new: int
+) -> None:
+    assert unmatched(transcript, played) == new
 
 
 @pytest.mark.parametrize(
