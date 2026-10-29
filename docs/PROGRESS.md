@@ -2740,3 +2740,34 @@ checkout's `spikes/data` (or `MLXRT_SPIKES_DATA`). Captures go to `spikes/live_e
   lost. `confirm_while_playing: false` restores the previous behaviour.
 - Open question 4 of the issue (the echo matcher's short-turn false positives) is unchanged: a held
   turn under 4 units is never dropped as echo, so it does not get worse.
+
+### Live calls (2026-10-29, on main ab10422)
+
+The gateway ran `make dev` with `aec.capture_dir` (captures under `spikes/live_echo/captures/live/`,
+git-ignored: they hold the owner's voice), AICC on origin/main 647fc76, DID 95066. Not yet the C6
+of the plan: call 1 turned out to have Zoiper's AEC off, call 2 was on the handset.
+
+| | call 1 (sess_9sxh4merv8ojrnry) | call 2 (sess_t77351ifjdmbgfrb) |
+|---|---|---|
+| phone | Zoiper, speakerphone, Zoiper AEC off | Zoiper, handset, AEC on |
+| call / our input / switch recording | 206.3 / 182.1 / 182.3 s | 94.9 / 90.5 / 96.4 s |
+| echo (`analyze.py`) | weak: 3 of 22 windows, ERL ~34 dB | weak: ERL ~18 dB, leaks at the start of answers |
+| caller turns over our audio that reached us | 0 of 3 barge-ins (then "再见" and one late question) | 8: 7 released, 1 dropped |
+| held → released (gate to `speech_started`) | 2, 114–123 ms | 7: five 115–350 ms, "喂" 860 ms at its pause, one 2.0 s behind a leak |
+| real turns dropped | 0 | 1: a question reusing the bot's words, as echo (fixed below) |
+
+- Call 1's barge-ins never reached the line: our input holds only the noise floor (−50 to −72 dBFS)
+  over them, as does the switch recording. With speakerphone and Zoiper's AEC off the echo should
+  have been strong; it was weak, so the phone's own voice processing is the likely suppressor.
+- The uplink is short: FreeSWITCH drops the caller leg's CNG frames on the bridge
+  (`suppress_cng=true`, no CN negotiated) and AICC forwards each packet as it comes, with no clock,
+  so while the phone sends no RTP the gateway gets nothing, and a Wi-Fi burst arrives at once (call 1
+  was 18 s behind at 37 s, 31 s at 137 s). The playout model, the GCC-PHAT estimator, the bypass and
+  end-of-turn detection all assume a 20 ms append per 20 ms of call. AICC #393 (P0) adds a 20 ms
+  uplink clock with silence fill and per-call frame counts; the next calls check our input against
+  wall time (within 1 %) and that an echo takes the canceller out of its bypass.
+- The fix for the dropped question: callers reuse our words (picking an offered example), so on a
+  pause or final check whose correlation was computed (AEC3 in bypass) and is below
+  `confirm_echo_psr`, the transcript's echo match no longer holds or drops the turn; it is
+  released (`echo_text_low_psr`). Offline on the v3 captures (`results/hold_v4_replay.md`): 1 of
+  33 held leaks would now be released while playing (PSR 13.45), 0 of 72 caller turns change.

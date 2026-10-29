@@ -919,8 +919,17 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   `confirm_echo_drop_psr` (15) is dropped as echo (counted with the echo drops, reason
   `echo_signal` in the capture and log), and below it released as before. With steady echo the raw
   input correlates whoever speaks, so there is no veto then, nor without a canceller; null
-  `confirm_echo_psr` switches it off. The early release at the end of the playback does not fire
-  on a check the correlation flagged. Measured on simulated leaks (`results/hold_gcc.md`): PSR
+  `confirm_echo_psr` switches it off. The correlation also overrules the transcript: callers
+  reuse our words (picking an offered example, confirming), so on a complete-utterance check
+  (pause or final) whose correlation was computed and is below `confirm_echo_psr`, the input is
+  measured not to be a copy of our audio and an echo-turn match does not stand
+  (`echo_text_low_psr`): the turn is released at once at the pause, and at the final decision
+  released at its end as a caller turn (its final transcript is the commit's) instead of dropped.
+  Partial checks are unchanged (a low PSR on a short span is weak evidence, and synthetic leaks
+  at 400 ms often have a low one), as are empty transcripts and every check whose correlation
+  was not computed. No separate switch: `confirm_echo_psr` null turns it off with the rest. A
+  turn that was not held has no correlation, and `_is_echo` is unchanged. The early release at
+  the end of the playback does not fire on a check the correlation flagged. Measured on simulated leaks (`results/hold_gcc.md`): PSR
   of 10 or more on 80-91 % of the leaked bursts and on none of 52 real callers at 700 ms. On
   the real stack (`results/hold_v3.md`) 15 holds every leak that 10 holds, and a caller who talks
   over a loud leak 0.5 s less (P50).

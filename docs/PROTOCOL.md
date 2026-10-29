@@ -645,6 +645,9 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       input correlates strongly with our own audio (GCC-PHAT PSR of 15 or more,
       `barge_in.confirm_echo_psr`) is not released on the ASR's word alone, and one that ends with a
       PSR of 15 or more (`confirm_echo_drop_psr`) is dropped as echo even if the ASR heard a caller.
+      Conversely, a turn whose complete-utterance check measured a PSR below 15 is never dropped
+      for its words alone: a caller who repeats what we were saying (picking an offered example)
+      gets `speech_started` at the pause or the turn end and is answered.
       A turn that ends held and is our echo (4 words or more) or empty gets
       no event at all (no `speech_started`, `speech_stopped`, commit, item or response); any
       other is released at its end, `speech_started` then `speech_stopped`. One pair per turn, in
