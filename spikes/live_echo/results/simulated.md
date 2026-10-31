@@ -11,7 +11,7 @@ Pass: delay within 2.0 ms and ERL within 1.5 dB (echo lines), class `none` with 
 | erl10_d100 | ERL 10.0 dB (effective on this speech: 9.3 dB), delay 100 ms (dominant tap 101.54 ms) | ERL 9.7 dB (error 0.3), delay error up to 0.61 ms over answers 2-4 | PASS |
 | erl15_d180 | ERL 15.0 dB (effective on this speech: 15.7 dB), delay 180 ms (dominant tap 180.79 ms) | ERL 16.0 dB (error 0.3), delay error up to 0.27 ms over answers 2-4 | PASS |
 | g168_m4 | ERL 12.0 dB (effective on this speech: 10.1 dB), delay 120 ms (dominant tap 122.79 ms) | ERL 10.5 dB (error 0.4), delay error up to 0.71 ms over answers 2-4 | PASS |
-| no_echo | no echo, bypass engaged | class none, bypass 1x (first 2.48 s after the first answer starts), flapping False | PASS |
+| no_echo | no echo, bypass engaged, caller barge-in found, 0 self-interruptions | class none, bypass 1x (first 2.48 s after the first answer starts), flapping False, 0 self-interruptions, 1 caller barge-in(s) found | PASS |
 
 ## erl10_d100
 
@@ -67,7 +67,7 @@ G.168 model m4 (coefficients not committed), delay 120 ms before the path.
 
 - line class: none; bypass engaged 1x, first 2.48 s after the first answer starts (expected about 1.5 s plus the first estimator window); flapping: False
 - self-interruptions: 0
-- caller barge-ins: [(698, 698)] (latency, excess over the guard, ms)
+- caller barge-ins: [(458, 458)] (latency, excess over the guard, ms)
 
 ## Residual-echo burst detector on injected leaks
 

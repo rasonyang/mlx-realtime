@@ -1786,11 +1786,11 @@
       "barge_ins": [
         {
           "item": "item_mrdpnv42c348opff",
-          "caller_onset_ms": 43140.0,
+          "caller_onset_ms": 43380.0,
           "speech_started_ms": 43838.1,
-          "latency_ms": 698.0999999999985,
+          "latency_ms": 458.09999999999854,
           "guard_left_ms": 0.0,
-          "excess_ms": 698.0999999999985,
+          "excess_ms": 458.09999999999854,
           "during_playback": true,
           "outcome": "real"
         }
