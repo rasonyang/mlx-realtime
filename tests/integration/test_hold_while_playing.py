@@ -435,6 +435,54 @@ async def test_a_caller_who_reuses_our_words_in_short_fragments_is_released() ->
     assert of_type(client, "input_audio_buffer.speech_started")
 
 
+PREFIX = "请讲一个很长很长的故事越长越好一直讲下去不要停讲完一个再讲下一个"  # 31 units of LONG
+QUESTION = "我想问一下价格吧"
+
+
+async def merged_turn(final_text: str) -> tuple[Client, Gateway]:
+    """A held turn whose partial checks hear our words and whose final check hears
+    ``final_text``."""
+    clock = ManualClock()
+    probe = HeardASR(PREFIX)
+    gateway = build(probe, [(3500, 4300)], clock)
+    async with running(gateway) as address, Client.connect(address) as client:
+        await start_answer(client, clock)
+        await stream(client, clock, 4400)
+        await drain(client)
+    final = probe.requests[-1]
+    clock, asr = ManualClock(), HeardASR(PREFIX, by_length={final: final_text})
+    gateway = build(asr, [(3500, 4300)], clock)
+    async with running(gateway) as address, Client.connect(address) as client:
+        await start_answer(client, clock)
+        await stream(client, clock, 4400)
+        await drain(client)
+        await stream(client, clock, 2000)
+        await drain(client)
+    return client, gateway
+
+
+async def test_a_caller_who_spoke_into_a_held_echo_is_released_with_what_they_said() -> None:
+    """Issue #8: every partial check hears our words; the final one hears them and the caller's
+    question after them (31 of 39 units are ours: an echo turn as a whole). The turn is released
+    at the final decision, and the question is its transcript."""
+    client, gateway = await merged_turn(PREFIX + QUESTION)
+    assert count(gateway, "mlxrt_held_turns_released_total") == 1
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 0
+    assert of_type(client, "input_audio_buffer.speech_started")
+    (done,) = of_type(client, "conversation.item.input_audio_transcription.completed")
+    assert done["transcript"] == QUESTION
+    reply = of_type(client, "response.done")[-1]["response"]
+    assert reply["output"][0]["content"][0]["transcript"] == QUESTION
+
+
+async def test_a_held_echo_with_a_garbled_tail_is_still_dropped() -> None:
+    """The ASR garbles the last three units of the echo into words that are not ours: they come
+    after the prefix, but they are too few to be a caller (the same rule as two misheard units)."""
+    client, gateway = await merged_turn(PREFIX[:-3] + "货不出")
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
+    assert "input_audio_buffer.speech_started" not in types(client)
+
+
 async def test_a_turn_held_only_for_order_is_released_at_the_front_once_nothing_plays() -> None:
     clock, asr = ManualClock(), HeardASR(SHORT_ECHO)
     gateway = build(asr, [(3500, 4300), (8200, 9000)], clock)

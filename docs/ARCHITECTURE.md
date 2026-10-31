@@ -933,6 +933,23 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   complete-utterance checks and in `_is_echo`; the unmatched-unit count that releases a partial
   check is still the in-order match's. A turn that was not held has no correlation. The early
   release at the end of the playback does not fire on a check the correlation flagged.
+  *A caller inside the echo [issue #8].* A caller who starts while echo is on the line lands in
+  the echo's VAD turn, and the whole transcript, mostly ours, used to be dropped as echo (C6, input
+  130.18-137.31 s: 35 units, contiguity 0.74, "等一下，我想问问天气" after 26 units of the reprompt).
+  When the rule calls a turn echo, `text.similarity.after_echo` cuts the echo prefix off it: the
+  leading units covered by the runs `contiguity` counts, joined across gaps shorter than a run (an
+  ASR error inside the echo), ending after the last run before a gap of a run or more. It works
+  from the transcript and the played text alone, so unheld turns, which have no checks, get it too;
+  the hold's last partial check would give the same prefix only for a held turn. What is left is
+  the caller's when it has `echo_match_min_units` (4) units, its own contiguity is under
+  `echo_match_threshold`, and, held, `confirm_min_new_units` of its units are not ours. Fewer
+  units than that is how two words the ASR garbled at the end of an echo stay an echo. A held
+  turn is then released at its final decision, an unheld one committed, and the remainder replaces
+  the transcript before anything uses it: the transcription event, the item, the LLM history and
+  the capture (`transcript` carries the remainder and `heard` the full text; `hold_check` carries
+  `after_echo`). The audio and its span stay whole. Limits: echo that goes on after the caller's
+  words stays in the remainder (the bot stops once AICC takes the floor, so it is short), and an
+  echo whose end the ASR garbles over 4 units or more is a caller.
   Measured on simulated leaks (`results/hold_gcc.md`): PSR of 10 or more on 80-91 % of the leaked
   bursts and on none of 52 real callers at 700 ms. On the real stack (`results/hold_v3.md`) 15
   holds every leak that 10 holds, and a caller who talks over a loud leak 0.5 s less (P50). On

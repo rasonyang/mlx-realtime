@@ -632,6 +632,17 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       that follow each other in that audio's text; turns of at least 4 of them) is treated like noise (D7): its response completes at once with no output
       and no LLM call, and later LLM requests leave the turn out. One reply per speech turn still
       holds.
+    - **A caller who speaks into the echo** (issue #8) lands in the same turn as the echo, which
+      is the bulk of the transcript. The turn is judged without its echo prefix, the leading
+      stretch of the transcript that follows the assistant text in runs of 3 words or more. If
+      what comes after it has at least 4 words and is no echo itself (under 70 % in such runs), the
+      turn is the caller's, and the remainder is its transcript everywhere the client and the LLM
+      see it: `conversation.item.input_audio_transcription.completed` and the item's
+      `content[0].transcript` carry "等一下，我想问问天气", not the echo before it, and the LLM
+      request holds only that. The turn's audio, and its `audio_start_ms` and `audio_end_ms`,
+      still cover the echo. A held turn is released at the end this way (`speech_started` then
+      `speech_stopped`) if 2 of the remainder's words are also not ours. A remainder of fewer
+      than 4 words, or one that is ours, leaves the turn an echo turn.
     - **Held `speech_started`** (`barge_in.confirm_while_playing`). A turn that starts while the
       client is modelled as playing, with or without a response active, gets no `speech_started`
       at its onset: the ASR transcribes the turn so far and the event goes out once at least 2

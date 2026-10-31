@@ -27,7 +27,14 @@ from mlx_realtime.session.echo import (
     PlayedSpan,
     log_echo_stats,
 )
-from mlx_realtime.text.similarity import contiguity, lcs_length, overlap, units, unmatched
+from mlx_realtime.text.similarity import (
+    after_echo,
+    contiguity,
+    lcs_length,
+    overlap,
+    units,
+    unmatched,
+)
 
 RATE = 16_000
 TICK = 320
@@ -759,3 +766,48 @@ GREETING = (
 )
 def test_contiguity(transcript: str, played: str, low: float, high: float) -> None:
     assert low <= contiguity(transcript, played) <= high
+
+
+REPRISE = "其实呢，您可能只是暂时没想好问什么，那我先给您讲个关于日常生活的小故事。"
+
+
+@pytest.mark.parametrize(
+    ("transcript", "played", "expected"),
+    [
+        # Live line, C6 (issue #8): the caller spoke into the echo of the reprompt.
+        (
+            "您可能只是暂时没想好问什么，那我先给您讲个关于日常生活。等一下，我想问问天气。",
+            REPRISE,
+            "等一下，我想问问天气。",
+        ),
+        # ASR errors inside the echo (a substituted unit, two dropped) do not end the prefix.
+        (
+            "您可能只是暂时没相好问什么那我先给您讲关于日常生活等一下我想问问天气",
+            REPRISE,
+            "等一下我想问问天气",
+        ),
+        # An error at the very start of the echo.
+        ("您克能只是暂时没想好问什么，等一下，我想问问", REPRISE, "等一下，我想问问"),
+        # The whole transcript is echo, or none of it is.
+        ("您可能只是暂时没想好问什么，那我先给您讲个关于日常生活。", REPRISE, ""),
+        ("等一下，我想问问天气。", REPRISE, "等一下，我想问问天气。"),
+        # Latin words; punctuation after the echo is not part of the remainder.
+        (
+            "Many people think about dinosaurs. Wait, what is the weather?",
+            "Many people think about dinosaurs and birds",
+            "Wait, what is the weather?",
+        ),
+        ("等一下 我想问问", "", "等一下 我想问问"),
+        ("", REPRISE, ""),
+    ],
+)
+def test_after_echo(transcript: str, played: str, expected: str) -> None:
+    assert after_echo(transcript, played) == expected
+
+
+def test_after_echo_ends_at_the_callers_words_even_when_ours_come_after_them() -> None:
+    echo = "您可能只是暂时没想好问什么，那我先给您讲个"
+    assert (
+        after_echo(echo + "对不起等一下，" + "关于日常生活", REPRISE)
+        == "对不起等一下，关于日常生活"
+    )

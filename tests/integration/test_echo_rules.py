@@ -119,3 +119,49 @@ async def test_a_turn_that_is_our_own_speech_is_noise_and_another_is_answered() 
     history = [(message.role, message.content) for message in mocks.llm.requests[-1].messages]
     assert ("user", "鸟类还是有很多地方跟恐龙") not in history  # the echo turn never reaches it
     assert history[-1] == ("user", "我想问一下价格。")
+
+
+ANSWER = "但鸟类还是有很多地方跟恐龙相似。"  # 1.6 s at 100 ms/char
+
+
+async def merged_turn(heard: str) -> tuple[Client, list[str]]:
+    """One turn over our own answer (the client played it back), transcribed as ``heard``."""
+    clock = ManualClock()
+    config = {"barge_in": {"echo_turn_suppression": True}}
+    gateway, mocks = build_gateway(
+        config,
+        speech=[(700, 1500)],
+        transcripts=[heard],
+        ms_per_char=100,
+        chunk_ms=100,
+        clock=clock,
+    )
+    async with running(gateway) as address, Client.connect(address) as client:
+        await client.start()
+        await stream(client, clock, 200)
+        await client.say(ANSWER)
+        await client.send({"type": "response.create"})
+        await client.until("response.done")
+        await stream(client, clock, 2000)
+        await client.until("response.done")
+    return client, [message.content for message in mocks.llm.requests[-1].messages]
+
+
+async def test_a_caller_who_speaks_into_the_echo_is_answered_with_what_they_said() -> None:
+    """Issue #8: the echo prefix and the caller's words are one VAD turn (14 of 19 units are
+    ours, contiguity 0.74). The remainder is the turn's transcript for the LLM, the transcription
+    event and the item."""
+    client, history = await merged_turn("鸟类还是有很多地方跟恐龙相似我想问价格")
+    assert history[-1] == "我想问价格"
+    kinds = types(client)
+    at = kinds.index("conversation.item.input_audio_transcription.completed")
+    assert client.events[at]["transcript"] == "我想问价格"
+    assert kinds[at + 1] == "conversation.item.done"
+    assert client.events[at + 1]["item"]["content"][0]["transcript"] == "我想问价格"
+
+
+async def test_a_remainder_below_the_minimum_units_leaves_the_turn_an_echo_turn() -> None:
+    client, history = await merged_turn("鸟类还是有很多地方跟恐龙相似我想问")  # 3 units after
+    assert "我想问" not in history[-1]
+    reply = [e for e in client.events if e["type"] == "response.done"][-1]["response"]
+    assert reply["output"] == []

@@ -155,7 +155,7 @@ from mlx_realtime.session.turn import (
     TurnState,
 )
 from mlx_realtime.text.normalize import NormalizerOptions
-from mlx_realtime.text.similarity import contiguity, units, unmatched
+from mlx_realtime.text.similarity import after_echo, contiguity, units, unmatched
 from mlx_realtime.vad.base import FRAME_MS, FRAME_SAMPLES, SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
@@ -814,6 +814,7 @@ class SessionActor:
             and contiguity(text, played) >= config.echo_match_threshold
         )
         final = kind == "final"
+        caller = self._after_echo(text, played, held=True) if echo else None
         flagged = (
             psr is not None
             and config.confirm_echo_psr is not None
@@ -828,7 +829,10 @@ class SessionActor:
             if count == 0:
                 verdict = "noise" if final else "hold"
             elif count >= config.echo_match_min_units:
-                verdict = ("echo" if final else "hold") if echo else "caller"
+                if not echo or caller is not None:
+                    verdict = "caller"
+                else:
+                    verdict = "echo" if final else "hold"
             elif new >= 1:
                 verdict = "caller"
             else:
@@ -854,10 +858,13 @@ class SessionActor:
                 unmatched=new,
                 played_text=played,
                 played_spans=[[span.item_id, span.start_ms, span.end_ms] for span in spans],
+                after_echo=caller,
             )
         match verdict:
             case "caller":
                 reason = {"partial": "caller", "utterance": "pause", "final": "turn_end"}[kind]
+                if final and caller is not None:
+                    transcript = replace(transcript, text=caller)
                 self._release(hold, reason, transcript if final else None)
             case "echo" | "noise":
                 self._drop(hold, verdict, text)
@@ -865,6 +872,26 @@ class SessionActor:
                 self._drop(hold, "echo", text, "echo_signal")
             case _:
                 pass  # keep holding
+
+    def _after_echo(self, text: str, played: str, *, held: bool) -> str | None:
+        """What a caller said after the echo prefix of a turn the echo-turn rule calls echo: the
+        caller spoke into the echo within one VAD turn (issue #8). None: the turn is echo.
+
+        The remainder is the caller's when it has ``echo_match_min_units`` units, so that two
+        words the ASR garbled at the end of an echo are not (the rule that keeps a held echo
+        with two misheard units dropped), its own contiguity with our words is below
+        ``echo_match_threshold``, and, for a held turn, ``confirm_min_new_units`` of its units
+        are not ours (1 once nothing plays)."""
+        config = self._deps.barge_in
+        rest = after_echo(text, played)
+        if (
+            rest == text
+            or len(units(rest)) < config.echo_match_min_units
+            or contiguity(rest, played) >= config.echo_match_threshold
+        ):
+            return None
+        need = config.confirm_min_new_units if self._playing() else 1
+        return rest if not held or unmatched(rest, played) >= need else None
 
     def _release(self, hold: _Hold, reason: str, transcript: Transcript | None = None) -> None:
         """The caller is speaking over our audio: send the ``speech_started`` that was held
@@ -1109,7 +1136,14 @@ class SessionActor:
         item.language = signal.transcript.language if self._transcribing else None
         item.status = "completed"
         logger.debug("transcript", extra={"item": item.id, "transcript": item.transcript})
-        if detected and self._is_echo(item):
+        heard = item.transcript
+        echo = detected and self._is_echo(item)
+        if echo:
+            _, played, _ = self._echo_match(item)
+            caller = self._after_echo(heard, played, held=False)
+            if caller is not None:  # the client and the LLM get what the caller said
+                item.transcript, echo = caller, False
+        if echo:
             item.echo = True
             self._echo_counts["echo_turns"] += 1
             self._deps.observer.echo_turn()
@@ -1124,6 +1158,7 @@ class SessionActor:
                 "transcript",
                 item=item.id,
                 text=item.transcript,
+                heard=None if item.transcript == heard else heard,
                 audio_start_ms=item.start_ms,
                 audio_end_ms=item.end_ms,
                 detected=detected,
