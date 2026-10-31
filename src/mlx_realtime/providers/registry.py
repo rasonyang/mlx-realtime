@@ -85,7 +85,12 @@ def build_speech(config: MlxAudioSpeechConfig, voices: VoiceBook) -> TTSBackend:
 
     def model(model_config: TtsModelConfig, role: Role) -> MlxAudioTTS:
         return MlxAudioTTS(
-            server, model_config, voices, role=role, warmup_texts=config.warmup_texts
+            server,
+            model_config,
+            voices,
+            role=role,
+            warmup_texts=config.warmup_texts,
+            line_cache=config.line_cache,
         )
 
     primary = model(config.primary, "primary")

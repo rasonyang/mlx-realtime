@@ -107,7 +107,8 @@ class FallbackTTS:
                 )
                 timing.primary_error = error.kind
             else:
-                self.breaker.success()
+                if not timing.cached:  # a replay says nothing of the backend
+                    self.breaker.success()
                 return
         fallback = self.fallback.stream(text, voice, lang, speed=speed, timing=timing)
         async with aclosing(fallback):

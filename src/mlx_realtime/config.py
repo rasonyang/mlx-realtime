@@ -580,7 +580,13 @@ class MlxAudioSpeechConfig(_Section):
     response started, so it goes ahead of every session that still has audio); ``fifo`` serves
     in arrival order. ``first_segment_grace_ms`` places a first segment's deadline that long
     after its response started (0: before every session that still has audio). A request waits
-    at most ``queue_timeout_ms`` past its deadline (then ``backend_busy``)."""
+    at most ``queue_timeout_ms`` past its deadline (then ``backend_busy``).
+
+    ``line_cache``: how many verbatim segments (D16: AICC's fixed announce and tool wait lines)
+    the primary model keeps the audio of, least recently used out first, so a repeated line
+    skips the queue; 0 turns it off. The fallback never caches. The default holds the 70
+    segments of AICC's seed flows (both languages) and the wait line, with room for a second
+    voice's."""
 
     type: Literal["mlx_audio_speech"]
     base_url: str = "http://127.0.0.1:8103"
@@ -589,6 +595,7 @@ class MlxAudioSpeechConfig(_Section):
     queue_timeout_ms: int = Field(default=2000, ge=0)
     scheduling: Literal["edf", "fifo"] = "edf"
     first_segment_grace_ms: int = Field(default=0, ge=0, le=10_000)
+    line_cache: int = Field(default=128, ge=0)
     warmup_texts: dict[SegmentLang, str] = Field(
         default_factory=lambda: {
             "zh": "您好，请问有什么可以帮您？",

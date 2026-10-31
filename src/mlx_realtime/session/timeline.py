@@ -7,8 +7,9 @@
 Under manual commit, ``committed`` stands in for speech_stopped and turn_confirmed. A response
 that answers no user audio turn (a client ``response.create`` after text items, a verbatim
 line) gets a timeline of its own, from ``response_created``. Values logged next to the marks:
-``tts_queue_ms`` (the first segment's wait for a TTS slot), ``tts_model``, ``tts_fallback``,
-``verbatim``.
+``tts_queue_ms`` (the first segment's wait for a TTS slot; none when its audio was replayed),
+``tts_model``, ``tts_fallback``, ``tts_cache`` (the first segment's audio was replayed from the
+line cache), ``verbatim``.
 
 Stages (M6): each stage is named after the mark that ends it and measured from the mark before
 it in the chain below (``STAGES``); a stage whose marks were not both taken is left out.

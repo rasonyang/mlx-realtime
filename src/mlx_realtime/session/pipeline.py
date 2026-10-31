@@ -342,7 +342,9 @@ async def _synthesize(
                 else horizon.dry_at
             )
             slack_s = max(deadline - context.clock.now(), 0.0)
-            timing = SpeechTiming(deadline=deadline, slack_s=slack_s)
+            timing = SpeechTiming(
+                deadline=deadline, slack_s=slack_s, cacheable=request.verbatim is not None
+            )
             trimmer: SilenceTrimmer | None = None
             rate = 0
             stream = context.tts.stream(spoken.strip(), request.voice, lang, timing=timing)
@@ -409,10 +411,12 @@ def _trimmer(sample_rate: int, context: PipelineContext) -> SilenceTrimmer | Non
 def _first_chunk_mark(
     generation: int, timing: SpeechTiming, context: PipelineContext
 ) -> PipelineMark:
-    values: tuple[tuple[str, object], ...] = (
-        ("tts_queue_ms", round(timing.queued_s * 1000)),
-        ("tts_model", timing.model),
-    )
+    values: tuple[tuple[str, object], ...] = ()
+    if not timing.cached:  # a replay never waited for the backend
+        values += (("tts_queue_ms", round(timing.queued_s * 1000)),)
+    values += (("tts_model", timing.model),)
+    if timing.cached:
+        values += (("tts_cache", True),)
     if timing.fallback:
         values += (("tts_fallback", True),)
     return PipelineMark(generation, "tts_first_chunk", context.clock.now(), values)

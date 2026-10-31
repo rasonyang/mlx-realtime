@@ -446,6 +446,35 @@ async def test_tts_edges_are_trimmed_and_the_token_cap_leaves_speech_whole(
     await tts.aclose()
 
 
+async def test_a_take_that_hits_max_tokens_is_inferred_from_its_frames_and_not_cached(
+    config: Config,
+) -> None:
+    """The line cache skips a take that stopped at ``max_tokens``, which the server ends like any
+    other (no signal): it counts the 80 ms codec frames received. Force the cap on the real model
+    and check that a capped take is cut at the frame count, so the inference sees it, while the
+    same line under the configured cap is stored and replayed."""
+    text, cap = "您好，欢迎致电客服中心，请问有什么可以帮您？今天天气很好。", 20
+    capped = speech(config, token_cap=None, max_tokens=cap).primary
+    assert isinstance(capped, MlxAudioTTS)
+    for _ in range(2):
+        timing = SpeechTiming(cacheable=True)
+        _, _, audio = await timed(capped, text, "vivian", "zh", timing)
+        frames = round(len(audio) / 2 / WIRE_RATE / 0.08)
+        print(f"max_tokens {cap}: {frames} codec frames received")
+        assert frames >= cap  # the cut take reaches the cap, so it is not stored
+        assert not timing.cached
+    await capped.aclose()
+    tts = speech(config)
+    primary = tts.primary
+    assert isinstance(primary, MlxAudioTTS)
+    _, _, live = await timed(primary, text, "vivian", "zh", SpeechTiming(cacheable=True))
+    timing = SpeechTiming(cacheable=True)
+    _, _, replay = await timed(primary, text, "vivian", "zh", timing)
+    await tts.aclose()
+    assert timing.cached
+    assert replay == live
+
+
 async def test_tts_output_is_heard_right_by_the_asr(config: Config, asr: MlxAudioASR) -> None:
     tts = speech(config)
     _, _, audio = await timed(tts, "您好，欢迎致电客服中心。", "vivian", "zh", SpeechTiming())
