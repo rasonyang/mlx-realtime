@@ -637,7 +637,7 @@ async def test_a_mishearing_at_a_checks_cut_edge_does_not_release_a_held_echo() 
 
 
 async def test_units_that_are_not_ours_in_two_checks_release_a_held_echo() -> None:
-    """A caller who joins the echo: the units that are not ours come in the next check too, and
+    """Someone who joins the echo: the units that are not ours come in the next check too, and
     the hold is released then, one check interval later than a fresh hold would be."""
     lengths = await probe_checks([(3500, 5500)], 6000)
     clock, asr = (
@@ -653,23 +653,19 @@ async def test_units_that_are_not_ours_in_two_checks_release_a_held_echo() -> No
     gateway = build(asr, [(3500, 5500)], clock)
     async with running(gateway) as address, Client.connect(address) as client:
         await start_answer(client, clock)
-        # the check before the mishearing is answered; the mishearing is held
-        while len(asr.requests) <= EDGE_CHECK:
-            await stream(client, clock, 20)
-            await drain(client)
-        await stream(client, clock, 60)
+        # the check before the mishearing is answered (at 4200 ms of input); the mishearing is held
+        await stream(client, clock, 4060)
         await drain(client)
+        assert len(asr.requests) > EDGE_CHECK
         assert "input_audio_buffer.speech_started" not in types(client)
-        while len(asr.requests) <= EDGE_CHECK + 1:
-            await stream(client, clock, 20)
-            await drain(client)
-        await stream(client, clock, 60)
+        await stream(client, clock, 280)  # the next check is at 4480 ms
         await drain(client)
+        assert len(asr.requests) > EDGE_CHECK + 1
         assert of_type(client, "input_audio_buffer.speech_started")
         assert count(gateway, "mlxrt_held_turns_released_total") == 1
 
 
-async def test_a_caller_over_a_matched_hold_is_released_when_his_words_pass_the_cut_edge() -> None:
+async def test_a_caller_over_a_matched_hold_is_released_if_their_words_pass_the_cut_edge() -> None:
     """Two units not ours before the last one need no second check, matched hold or not."""
     lengths = await probe_checks([(3500, 5500)], 6000)
     said = ECHO[:-3] + "价格吧"  # 3 not ours, 2 before the last
@@ -677,11 +673,9 @@ async def test_a_caller_over_a_matched_hold_is_released_when_his_words_pass_the_
     gateway = build(asr, [(3500, 5500)], clock)
     async with running(gateway) as address, Client.connect(address) as client:
         await start_answer(client, clock)
-        while len(asr.requests) <= EDGE_CHECK:
-            await stream(client, clock, 20)
-            await drain(client)
-        await stream(client, clock, 60)
+        await stream(client, clock, 4060)  # the check is at 4200 ms of input
         await drain(client)
+        assert len(asr.requests) > EDGE_CHECK
         assert of_type(client, "input_audio_buffer.speech_started")
 
 
@@ -690,10 +684,7 @@ async def test_a_fresh_hold_is_released_at_its_first_check_as_before() -> None:
     gateway = build(asr, [(3500, 5500)], clock)
     async with running(gateway) as address, Client.connect(address) as client:
         await start_answer(client, clock)
-        while not asr.requests:
-            await stream(client, clock, 20)
-            await drain(client)
-        await stream(client, clock, 60)
+        await stream(client, clock, 3800)  # the first check is at 3940 ms of input
         await drain(client)
         assert of_type(client, "input_audio_buffer.speech_started")
     assert len(asr.requests) == 1
@@ -723,27 +714,25 @@ async def test_a_mishearing_at_a_slid_windows_first_unit_does_not_release_a_matc
     """Once the 4 s cap slides the window's start past the hold's, the first unit of a check is
     cut as the last one is: two units not ours at the start count as one. The same two units in a
     window that starts with the hold are released."""
-    lengths = await probe_checks([(3500, 9500)], 8800)
+    lengths = await probe_checks([(3500, 9500)], 7400)
     slid = lengths.index(4000)  # the first check whose window slid
     said = "价格" + ECHO[2:]  # 11 units, 2 not ours, at the start
 
-    async def run(index: int) -> tuple[Client, Gateway]:
+    async def run(index: int, check_ms: int) -> tuple[Client, Gateway]:
         clock, asr = ManualClock(), HeardASR(ECHO, by_index={index: said})
         gateway = build(asr, [(3500, 9500)], clock)
         async with running(gateway) as address, Client.connect(address) as client:
             await start_answer(client, clock)
-            while len(asr.requests) <= index:
-                await stream(client, clock, 20)
-                await drain(client)
-            await stream(client, clock, 60)
+            await stream(client, clock, check_ms - 200 + 60)
             await drain(client)
+            assert len(asr.requests) > index
             held = not of_type(client, "input_audio_buffer.speech_started")
             await stream(client, clock, 4500)
             await drain(client)
         assert held == (index == slid)
         return client, gateway
 
-    await run(2)  # a window that starts with the hold: released
-    client, gateway = await run(slid)
+    await run(2, 4480)  # a window that starts with the hold: released
+    client, gateway = await run(slid, 7240)
     assert "input_audio_buffer.speech_started" not in types(client)
     assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
