@@ -897,6 +897,17 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
     `confirm_min_new_units` (2) units outside the longest in-order match with the played text
     (1 once nothing plays); otherwise it stays held, so a false "echo" delays a real barge-in and
     never drops it. A cut edge makes one unmatched unit weak evidence, hence 2.
+    *A hold that matched [issue #10].* Once a check of the hold was all ours (`MIN_RUN`, 3 units
+    or more, none outside the in-order match: the live C6 call's first check heard "也不会" of
+    "…也不会反问你"), a partial check that reaches the count releases only if
+    `confirm_min_new_units` of those units lie inside the transcript, without its last unit and,
+    once the 4 s window slid past the hold's start, its first (the cut edges; a slid window cuts
+    its first syllable as the last), or if the previous partial check reached the count too and
+    was held. The next check of a mishearing at the edge (C6 heard "也不会否认" for "也不会反问你", released after 403 ms)
+    hears the word whole as the audio grows; a caller's words stay. Cost: one check interval
+    (about 250 ms) for a caller who joins ongoing echo, none for a fresh hold, which keeps the
+    rule above, nor for words that already pass the edge. A held check does not release at the
+    end of the playback either (below).
   - *Utterance*, when the gate ends the speech (`SpeechEnd`): partial checks stop (none runs
     through the silence), and one check covers the whole speech so far. Speech that resumes in the
     same turn goes back to partial checks.
@@ -933,6 +944,23 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   complete-utterance checks and in `_is_echo`; the unmatched-unit count that releases a partial
   check is still the in-order match's. A turn that was not held has no correlation. The early
   release at the end of the playback does not fire on a check the correlation flagged.
+  *A caller inside the echo [issue #8].* A caller who starts while echo is on the line lands in
+  the echo's VAD turn, and the whole transcript, mostly ours, used to be dropped as echo (C6, input
+  130.18-137.31 s: 35 units, contiguity 0.74, "等一下，我想问问天气" after 26 units of the reprompt).
+  When the rule calls a turn echo, `text.similarity.after_echo` cuts the echo prefix off it: the
+  leading units covered by the runs `contiguity` counts, joined across gaps shorter than a run (an
+  ASR error inside the echo), ending after the last run before a gap of a run or more. It works
+  from the transcript and the played text alone, so unheld turns, which have no checks, get it too;
+  the hold's last partial check would give the same prefix only for a held turn. What is left is
+  the caller's when it has `echo_match_min_units` (4) units, its own contiguity is under
+  `echo_match_threshold`, and, held, `confirm_min_new_units` of its units are not ours. Fewer
+  units than that is how two words the ASR garbled at the end of an echo stay an echo. A held
+  turn is then released at its final decision, an unheld one committed, and the remainder replaces
+  the transcript before anything uses it: the transcription event, the item, the LLM history and
+  the capture (`transcript` carries the remainder and `heard` the full text; `hold_check` carries
+  `after_echo`). The audio and its span stay whole. Limits: echo that goes on after the caller's
+  words stays in the remainder (the bot stops once AICC takes the floor, so it is short), and an
+  echo whose end the ASR garbles over 4 units or more is a caller.
   Measured on simulated leaks (`results/hold_gcc.md`): PSR of 10 or more on 80-91 % of the leaked
   bursts and on none of 52 real callers at 700 ms. On the real stack (`results/hold_v3.md`) 15
   holds every leak that 10 holds, and a caller who talks over a loud leak 0.5 s less (P50). On
@@ -942,7 +970,7 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   applies; a turn released at its end sends `speech_stopped` after it, and its transcript is the
   commit's (no second ASR request). When the playback ends a playing hold is not released for
   that: pure echo that outlasts the playback is still dropped at its end; it is released at once
-  only if its latest check had a unit that is not ours. A check that fails or takes over
+  only if its latest check had a unit that is not ours (a held check of a matched hold has none). A check that fails or takes over
   `confirm_timeout_ms` (2000) releases the turn. A turn behind a hold waits behind it, so events
   of turns never cross. Anything that restarts turn detection (clear, a `session.update` of turn
   detection, a commit) drops the holds and their check. `confirm_while_playing: false` is the

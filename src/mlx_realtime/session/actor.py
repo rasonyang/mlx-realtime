@@ -155,7 +155,14 @@ from mlx_realtime.session.turn import (
     TurnState,
 )
 from mlx_realtime.text.normalize import NormalizerOptions
-from mlx_realtime.text.similarity import contiguity, units, unmatched
+from mlx_realtime.text.similarity import (
+    MIN_RUN,
+    after_echo,
+    contiguity,
+    units,
+    unmatched,
+    unmatched_inside,
+)
 from mlx_realtime.vad.base import FRAME_MS, FRAME_SAMPLES, SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
@@ -192,6 +199,8 @@ class _Hold:
     # the latest complete-utterance check: span, transcript, and the correlation (psr, why not)
     utterance: tuple[int, int, Transcript, float | None, str | None] | None = None
     last_new: int | None = None  # unmatched units of the latest check's transcript
+    matched: bool = False  # a check was all ours, MIN_RUN units or more (issue #10)
+    suspect: bool = False  # the latest partial check reached the release count, and was held
     ended: bool = False  # the turn manager has ended the turn: only the decision is pending
     end_ms: int = 0  # the turn's acoustic end, once ended
     marks: dict[str, float] = field(default_factory=dict[str, float])  # for the timeline
@@ -791,7 +800,10 @@ class SessionActor:
 
         - Partial (the caller still speaks, an edge may be cut): release at
           ``confirm_min_new_units`` units that are not ours (1 once nothing plays); else keep
-          holding.
+          holding. Once a check of the hold was all ours (``MIN_RUN`` units or more) that release
+          also needs ``confirm_min_new_units`` such units inside the transcript, without its last
+          unit and, once the window slid past the hold's start, its first (the cut edges), or the
+          next partial check reaching the count too (issue #10).
         - Complete utterance (at a pause, or the turn's final check): empty is noise; at
           ``echo_match_min_units`` units or more the echo-turn rule decides (echo: the contiguity
           of the transcript with our words, ``echo_match_threshold``; else release);
@@ -814,25 +826,38 @@ class SessionActor:
             and contiguity(text, played) >= config.echo_match_threshold
         )
         final = kind == "final"
+        caller = self._after_echo(text, played, held=True) if echo else None
         flagged = (
             psr is not None
             and config.confirm_echo_psr is not None
             and psr >= config.confirm_echo_psr
         )
-        hold.last_new = 0 if flagged else new  # the early release at the playback's end
         if kind == "partial":
             need = config.confirm_min_new_units if self._playing() else 1
-            verdict = "caller" if new >= need else "hold"
+            # a hold that matched our words is released at once only for units that are not ours
+            # inside the cut edges (the last unit, the first of a slid window); else a second check
+            # has to have them too
+            inside = unmatched_inside(text, played, slid=start_ms > hold.start_ms)
+            firm = not hold.matched or inside >= config.confirm_min_new_units
+            verdict = "caller" if new >= need and (firm or hold.suspect) else "hold"
+            hold.suspect = new >= need and verdict == "hold"
+            # the early release at the playback's end agrees: a suspect check does not release
+            hold.last_new = 0 if flagged or hold.suspect or not firm else new
         else:
+            hold.last_new = 0 if flagged else new
             hold.utterance = (start_ms, end_ms, transcript, psr, psr_why)
             if count == 0:
                 verdict = "noise" if final else "hold"
             elif count >= config.echo_match_min_units:
-                verdict = ("echo" if final else "hold") if echo else "caller"
+                if not echo or caller is not None:
+                    verdict = "caller"
+                else:
+                    verdict = "echo" if final else "hold"
             elif new >= 1:
                 verdict = "caller"
             else:
                 verdict = "caller" if final else "hold"
+        hold.matched = hold.matched or (count >= MIN_RUN and new == 0)
         if verdict == "caller" and flagged:
             drop = config.confirm_echo_drop_psr
             if not final:
@@ -854,10 +879,13 @@ class SessionActor:
                 unmatched=new,
                 played_text=played,
                 played_spans=[[span.item_id, span.start_ms, span.end_ms] for span in spans],
+                after_echo=caller,
             )
         match verdict:
             case "caller":
                 reason = {"partial": "caller", "utterance": "pause", "final": "turn_end"}[kind]
+                if final and caller is not None:
+                    transcript = replace(transcript, text=caller)
                 self._release(hold, reason, transcript if final else None)
             case "echo" | "noise":
                 self._drop(hold, verdict, text)
@@ -865,6 +893,26 @@ class SessionActor:
                 self._drop(hold, "echo", text, "echo_signal")
             case _:
                 pass  # keep holding
+
+    def _after_echo(self, text: str, played: str, *, held: bool) -> str | None:
+        """What a caller said after the echo prefix of a turn the echo-turn rule calls echo: the
+        caller spoke into the echo within one VAD turn (issue #8). None: the turn is echo.
+
+        The remainder is the caller's when it has ``echo_match_min_units`` units, so that two
+        words the ASR garbled at the end of an echo are not (the rule that keeps a held echo
+        with two misheard units dropped), its own contiguity with our words is below
+        ``echo_match_threshold``, and, for a held turn, ``confirm_min_new_units`` of its units
+        are not ours (1 once nothing plays)."""
+        config = self._deps.barge_in
+        rest = after_echo(text, played)
+        if (
+            rest == text
+            or len(units(rest)) < config.echo_match_min_units
+            or contiguity(rest, played) >= config.echo_match_threshold
+        ):
+            return None
+        need = config.confirm_min_new_units if self._playing() else 1
+        return rest if not held or unmatched(rest, played) >= need else None
 
     def _release(self, hold: _Hold, reason: str, transcript: Transcript | None = None) -> None:
         """The caller is speaking over our audio: send the ``speech_started`` that was held
@@ -1109,7 +1157,14 @@ class SessionActor:
         item.language = signal.transcript.language if self._transcribing else None
         item.status = "completed"
         logger.debug("transcript", extra={"item": item.id, "transcript": item.transcript})
-        if detected and self._is_echo(item):
+        heard = item.transcript
+        echo = detected and self._is_echo(item)
+        if echo:
+            _, played, _ = self._echo_match(item)
+            caller = self._after_echo(heard, played, held=False)
+            if caller is not None:  # the client and the LLM get what the caller said
+                item.transcript, echo = caller, False
+        if echo:
             item.echo = True
             self._echo_counts["echo_turns"] += 1
             self._deps.observer.echo_turn()
@@ -1124,6 +1179,7 @@ class SessionActor:
                 "transcript",
                 item=item.id,
                 text=item.transcript,
+                heard=None if item.transcript == heard else heard,
                 audio_start_ms=item.start_ms,
                 audio_end_ms=item.end_ms,
                 detected=detected,
