@@ -33,11 +33,15 @@ def walk7(checks: list[dict[str, Any]]) -> tuple[str, int | None, str]:
     """(outcome, index of the deciding check, status): status is `recorded`, or `needs ASR` when
     v7 holds at the last recorded check, which the recording build released."""
     matched = suspect = False
+    hold_start = checks[0]["audio_start_ms"]  # a partial check's window starts here until it slides
     for index, check in enumerate(checks):
         text, played = check.get("text") or "", check.get("played_text") or ""
         if check["check"] == "partial" and check["verdict"] in ("hold", *REACHED):
             reached = check["verdict"] in REACHED
-            firm = not matched or unmatched_inside(text, played) >= CONFIG.confirm_min_new_units
+            slid = check["audio_start_ms"] > hold_start
+            firm = not matched or unmatched_inside(text, played, slid=slid) >= (
+                CONFIG.confirm_min_new_units
+            )
             v = "caller" if reached and (firm or suspect) else "hold"
             suspect = reached and v == "hold"
             if v == "caller" and check["psr"] is not None and check["psr"] >= PSR:
@@ -82,7 +86,11 @@ def main() -> None:
                     totals[group]["max delay ms"], round(float(delay))
                 )
             if new[2] == "needs ASR" or new[1] != old[1] or old[0] != new[0]:
-                inside = unmatched_inside(at["text"] or "", at["played_text"] or "")
+                inside = unmatched_inside(
+                    at["text"] or "",
+                    at["played_text"] or "",
+                    slid=at["audio_start_ms"] > checks[0]["audio_start_ms"],
+                )
                 cell = (
                     f"| {group} | {turn['item'][-4:]} | {turn['recorded']} | "
                     f"{old[0]} @{old[1]} | {new[0]}{'' if new[1] is None else f' @{new[1]}'} "
@@ -92,7 +100,7 @@ def main() -> None:
                 (needs if new[2] == "needs ASR" else rows).append(cell)
     head = (
         "| capture | item | recorded | v6 | v7 | delay ms | v6 deciding check | unmatched | "
-        "before the last unit |\n|---|---|---|---|---|---|---|---|---|"
+        "inside the cut edges |\n|---|---|---|---|---|---|---|---|---|"
     )
     print("## Holds v7 decides at another check, from the recorded checks\n")
     print(head)

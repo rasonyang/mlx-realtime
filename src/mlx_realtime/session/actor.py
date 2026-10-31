@@ -801,8 +801,9 @@ class SessionActor:
         - Partial (the caller still speaks, an edge may be cut): release at
           ``confirm_min_new_units`` units that are not ours (1 once nothing plays); else keep
           holding. Once a check of the hold was all ours (``MIN_RUN`` units or more) that release
-          also needs ``confirm_min_new_units`` such units before the transcript's last unit
-          (the cut edge), or the next partial check reaching the count too (issue #10).
+          also needs ``confirm_min_new_units`` such units inside the transcript, without its last
+          unit and, once the window slid past the hold's start, its first (the cut edges), or the
+          next partial check reaching the count too (issue #10).
         - Complete utterance (at a pause, or the turn's final check): empty is noise; at
           ``echo_match_min_units`` units or more the echo-turn rule decides (echo: the contiguity
           of the transcript with our words, ``echo_match_threshold``; else release);
@@ -834,8 +835,9 @@ class SessionActor:
         if kind == "partial":
             need = config.confirm_min_new_units if self._playing() else 1
             # a hold that matched our words is released at once only for units that are not ours
-            # beyond the cut edge (the last unit); else it takes a second check that has them too
-            inside = unmatched_inside(text, played)
+            # inside the cut edges (the last unit, the first of a slid window); else a second check
+            # has to have them too
+            inside = unmatched_inside(text, played, slid=start_ms > hold.start_ms)
             firm = not hold.matched or inside >= config.confirm_min_new_units
             verdict = "caller" if new >= need and (firm or hold.suspect) else "hold"
             hold.suspect = new >= need and verdict == "hold"

@@ -14,9 +14,11 @@ in-order match. (`echo_match_min_units`, 4, would not have caught C6: the first 
 On a matched hold a partial check that reaches the release count (`confirm_min_new_units` while
 the client plays, 1 after) releases only if
 
-- `confirm_min_new_units` of its units that are not ours lie before the transcript's last unit
-  (`text.similarity.unmatched_inside`: the cut edge is the unit a partial check's cut truncates
-  into another word), or
+- `confirm_min_new_units` of its units that are not ours lie inside the transcript
+  (`text.similarity.unmatched_inside`): without its last unit, and, once the 4 s cap slid the
+  window's start past the hold's start, without its first unit too, the units a partial check's
+  cut truncates into other words (the first version excluded the last unit only; the fresh checks
+  below showed the slid window's first unit mishearing the same way), or
 - the previous partial check also reached the count and was held (*persist*).
 
 Persist is the count, not the same words: a caller's words reappear as the ASR hears them, with
@@ -41,22 +43,22 @@ table at the end lists these as "needs ASR".
 
 | requirement | result |
 |---|---|
-| C6 04:00:49.79 (item 56h0, input 22.90-23.91 s) is not released | the check ("也不会否认。", 2 not ours, 1 before the last unit) is held, and the hold is matched (check 0: "也不会。"). It disappears if the next check does not reach the count: the next partial check was never recorded (the build released here); the turn's final transcript was the echo "也不会反问你。" (6 units, overlap 0.83). Fresh ASR check pending |
-| C6 04:02:40 (item ggyf, input 130.56-134.56 s) survives, delayed by at most one interval | the check ("...关于市场。", 2 not ours, 1 before the last unit) is held on a matched hold (check 0: 4 units, 0 not ours); the release is at the next check (about 250 ms) if it reaches the count too: it was never recorded. Fresh ASR check pending |
-| V1, V2, call 1, call 2 real barge-ins: delay at most one interval | 0 ms for all of them (the 19 holds of these four captures). Only call 2's first hold (zg04) was matched (check 0: "可以随便问。", all ours); its release ("可以随便问我一个简短的问题。等一下。", 3 not ours, 2 before the last unit) is firm, so it is at the same check. The others never had an all-ours check before the caller's words |
+| C6 04:00:49.79 (item 56h0, input 22.90-23.91 s) is not released | the check ("也不会否认。", 2 not ours, 1 inside the cut edges) is held, and the hold is matched (check 0: "也不会。"). It disappears if the next check does not reach the count: the next partial check was never recorded (the build released here); the turn's final transcript was the echo "也不会反问你。" (6 units, overlap 0.83). Fresh ASR check pending |
+| C6 04:02:40 (item ggyf, input 130.56-134.56 s) survives, delayed by at most one interval | the check ("...关于市场。", 2 not ours, 1 inside the cut edges) is held on a matched hold (check 0: 4 units, 0 not ours); the release is at the next check (about 250 ms) if it reaches the count too: it was never recorded. Fresh ASR check pending |
+| V1, V2, call 1, call 2 real barge-ins: delay at most one interval | 0 ms for all of them (the 19 holds of these four captures). Only call 2's first hold (zg04) was matched (check 0: "可以随便问。", all ours); its release ("可以随便问我一个简短的问题。等一下。", 3 not ours, 2 inside the cut edges) is firm, so it is at the same check. The others never had an all-ours check before the caller's words |
 | synthetic F (a caller over a leak) and B (callers) | 0 of 24 and 0 of 30 holds delayed or changed in the recorded sequences: none had a matched check before its release. The latency cost on a synthetic hold that matches first is not in these captures |
 
 ## v7 against v6
 
 ## Holds v7 decides at another check, from the recorded checks
 
-| capture | item | recorded | v6 | v7 | delay ms | v6 deciding check | unmatched | before the last unit |
+| capture | item | recorded | v6 | v7 | delay ms | v6 deciding check | unmatched | inside the cut edges |
 |---|---|---|---|---|---|---|---|---|
 | none | | | | | | | | |
 
 ## Holds whose release v7 defers to a check that was never recorded
 
-| capture | item | recorded | v6 | v7 | delay ms | v6 deciding check | unmatched | before the last unit |
+| capture | item | recorded | v6 | v7 | delay ms | v6 deciding check | unmatched | inside the cut edges |
 |---|---|---|---|---|---|---|---|---|
 | live:C6 (10-30) | 56h0 | released caller | released @1 | undecided (needs ASR) | - | 也不会否认。 | 2 | 1 |
 | live:C6 (10-30) | ggyf | released caller | released @15 | undecided (needs ASR) | - | 只是暂时没想好问什么，那我先给您讲个关于市场。 | 2 | 1 |
@@ -79,43 +81,49 @@ table at the end lists these as "needs ASR".
 
 ## Fresh ASR checks on C6 (`hold_next_check.py`)
 
-The recorded sequences of 56h0 and ggyf end at the recording build's release. `hold_next_check.py`
-re-slices the capture's `asr.wav` (the ASR path's track) as a check does, transcribes the last
-recorded check again, three further partial checks (`confirm_step_ms` 250 each) and the whole turn,
-and walks them through `walk7`. The played text of a fresh check is the recorded check's. Re-slicing
-reproduces both recorded transcripts exactly.
+The recorded sequences of 56h0 and ggyf end at the recording build's release.
+`hold_next_check.py` re-slices the capture's `asr.wav` (the ASR path's track) as a check does,
+transcribes the last recorded check again, five further partial checks (`confirm_step_ms` 250
+each) and the whole turn, and walks them through `walk7`. The played text of a fresh check is the
+recorded check's. Re-slicing reproduces both recorded transcripts exactly.
 
     uv run --locked python spikes/live_echo/hold_next_check.py \
-        spikes/live_echo/captures/live/20261030T040025725Z_sess_bnblfvhsgir6mt70 --items 56h0,ggyf
+        spikes/live_echo/captures/live/20261030T040025725Z_sess_bnblfvhsgir6mt70 --items 56h0,ggyf --next 5
 
 56h0 (recorded check interval 262 ms):
 
-| check | input ms | recorded | fresh | unmatched | before the last unit |
+| check | input ms | recorded | fresh | not ours | inside the cut edges |
 |---|---|---|---|---|---|
 | last recorded, again | 22900-23910 | 也不会否认。 | 也不会否认。 | 2 | 1 |
-| next 1 | 22900-24160 | - | 也不会访问您。 | 1 | 1 |
-| next 2 | 22900-24410 | - | 也不会访问您。 | 1 | 1 |
-| next 3 | 22900-24660 | - | 也不会访问您。 | 1 | 1 |
+| next 1-5 | 22900-24160...25160 | - | 也不会访问您。 (all five) | 1 | 1 |
 | final | 22900-24032 | - | 也不会反问你。 | 1 | |
 
-Pass. v7 holds at "也不会否认。", none of the next checks reaches the count (1 unit not ours), and
-the final check calls the turn echo: dropped as echo.
+Pass. v7 holds at "也不会否认。", none of the five next checks reaches the count, and the final
+check calls the turn echo: dropped as echo, no release.
 
 ggyf (recorded check interval 268 ms):
 
-| check | input ms | recorded | fresh | unmatched | before the last unit |
+| check | input ms | recorded | fresh | not ours | inside the cut edges |
 |---|---|---|---|---|---|
-| last recorded, again | 130560-134560 | 只是暂时没想好问什么，那我先给您讲个关于市场。 | 只是暂时没想好问什么，那我先给您讲个关于市场。 | 2 | 1 |
+| last recorded, again | 130560-134560 | 只是暂时没想好问什么，那我先给您讲个关于市场。 | same | 2 | 1 |
 | next 1 | 130810-134810 | - | 暂时没想好问什么，那我先给您讲个关于日常生活。 | 0 | 0 |
-| next 2 | 131060-135060 | - | 准备想好问什么？那我先给您讲个关于日常生活。 | 2 | 2 |
+| next 2 | 131060-135060 | - | 准备想好问什么？那我先给您讲个关于日常生活。 | 2 | 1 |
 | next 3 | 131310-135310 | - | 想好问什么？那我先给您讲个关于日常生活。等一。 | 2 | 1 |
+| next 4 | 131560-135560 | - | 问什么？那我先给您讲个关于日常生活。等一下。 | 3 | 2 |
+| next 5 | 131810-135810 | - | 干什么？那我先给您讲个关于日常生活。等一下。 | 4 | 2 |
 | final | 129876-137312 | - | 您可能只是暂时没想好问什么，那我先给您讲个关于日常生活。等一下，我想问问天气。 | 9 | |
 
-Fail against "at most one check interval later": v7 holds at "...关于市场。", the next check hears our
-words whole (0 not ours: the cut edge mishearing is gone, as intended), and the hold is released at
-next 2 (536 ms, two intervals) on a second mishearing ("准备" for "暂时", 2 not ours before the
-last unit), not on the caller. The caller's own words first show in next 3 ("等一", 2 not ours, 1
-before the last unit: held, suspect), so they would release at the check after it (next 4, not
-run). The recorded release at 04:02:40 was a mishearing that preceded the caller by about 1 s. A
-rule that released at next 1 would have to count the clean check as persistence, which is what
-the rule exists to refuse. The rule is unchanged.
+Pass. Every window here is slid (starts after 129.876 s), so the first unit is left out too. The
+mishearing of next 2 ("准备", 1 inside) is held and marks the hold suspect. The caller's own words
+first appear at next 3 (window end 135310 ms, "等一"); it is the check that persists, so the hold
+is released there: 0 ms after the words appear (804 ms after the recorded release, 3 intervals,
+which is when the caller spoke, not a delay). Without the suspect from next 2, next 3 would be
+held (1 inside) and next 4 (end 135560 ms, "等一下", 2 inside) would release: one interval
+(250 ms) after the words appear. The recorded 04:02:40 release was a mishearing about 1 s before
+the caller.
+
+## Slid window replay
+
+The recorded-data replay is unchanged by the leading-edge exclusion: no hold of any live or
+synthetic capture changes outcome or moves its release (the table above), and the V1, V2, call 1
+and call 2 barge-ins release at the same check. F and B do not change.

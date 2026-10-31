@@ -140,10 +140,11 @@ def unmatched(transcript: str, played: str) -> int:
     return len(needle) - lcs_length(needle, units(played))
 
 
-def unmatched_inside(transcript: str, played: str) -> int:
+def unmatched_inside(transcript: str, played: str, *, slid: bool = False) -> int:
     """``unmatched`` without the transcript's last unit, whose syllable a partial check's cut
-    may have truncated into another word (issue #10)."""
-    needle = units(transcript)[:-1]
+    may have truncated into another word, and, for a window that ``slid`` past the start of the
+    turn, without its first unit, cut the same way (issue #10)."""
+    needle = units(transcript)[1 if slid else 0 : -1]
     return len(needle) - lcs_length(needle, units(played))
 
 

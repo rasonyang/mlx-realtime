@@ -900,9 +900,10 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
     *A hold that matched [issue #10].* Once a check of the hold was all ours (`MIN_RUN`, 3 units
     or more, none outside the in-order match: the live C6 call's first check heard "也不会" of
     "…也不会反问你"), a partial check that reaches the count releases only if
-    `confirm_min_new_units` of those units lie before the transcript's last unit (the cut edge),
-    or if the previous partial check reached the count too and was held. The next check of a
-    mishearing at the edge (C6 heard "也不会否认" for "也不会反问你", released after 403 ms)
+    `confirm_min_new_units` of those units lie inside the transcript, without its last unit and,
+    once the 4 s window slid past the hold's start, its first (the cut edges; a slid window cuts
+    its first syllable as the last), or if the previous partial check reached the count too and
+    was held. The next check of a mishearing at the edge (C6 heard "也不会否认" for "也不会反问你", released after 403 ms)
     hears the word whole as the audio grows; a caller's words stay. Cost: one check interval
     (about 250 ms) for a caller who joins ongoing echo, none for a fresh hold, which keeps the
     rule above, nor for words that already pass the edge. A held check does not release at the

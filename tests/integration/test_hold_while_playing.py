@@ -45,9 +45,16 @@ class HeardASR(_MockBackend):
     """An ASR that answers ``text`` (or fails with ``error``) and records the length of each
     request. ``arm()`` makes the next request wait for ``open()`` before it answers."""
 
-    def __init__(self, text: str = ECHO, *, by_length: dict[int, str] | None = None) -> None:
+    def __init__(
+        self,
+        text: str = ECHO,
+        *,
+        by_length: dict[int, str] | None = None,
+        by_index: dict[int, str] | None = None,
+    ) -> None:
         super().__init__()
         self.text = text
+        self.by_index = by_index or {}  # the answer to the request that is the n-th (from 0)
         self.by_length = by_length or {}  # the answer to a request of exactly this many ms
         self.error: ProviderError | None = None
         self.fail_first = False
@@ -69,6 +76,7 @@ class HeardASR(_MockBackend):
     ) -> Transcript:
         audio_ms = bytes_to_ms(len(pcm16_16k), CANONICAL_RATE)
         first = not self.requests
+        index = len(self.requests)
         self.requests.append(audio_ms)
         if self._armed:
             self._armed = False
@@ -76,7 +84,7 @@ class HeardASR(_MockBackend):
             await self._gate.wait()
         if self.error is not None or (self.fail_first and first):
             raise self.error or ProviderError("unavailable", "down")
-        text = self.by_length.get(audio_ms, self.text)
+        text = self.by_index.get(index, self.by_length.get(audio_ms, self.text))
         return Transcript(text=text, language=language, audio_ms=audio_ms)
 
 
@@ -709,3 +717,33 @@ async def test_a_matched_hold_with_one_word_not_ours_is_released_after_the_playb
         await drain(client)
         assert of_type(client, "input_audio_buffer.speech_started")
         assert count(gateway, "mlxrt_held_turns_released_total") == 1
+
+
+async def test_a_mishearing_at_a_slid_windows_first_unit_does_not_release_a_matched_hold() -> None:
+    """Once the 4 s cap slides the window's start past the hold's, the first unit of a check is
+    cut as the last one is: two units not ours at the start count as one. The same two units in a
+    window that starts with the hold are released."""
+    lengths = await probe_checks([(3500, 9500)], 8800)
+    slid = lengths.index(4000)  # the first check whose window slid
+    said = "价格" + ECHO[2:]  # 11 units, 2 not ours, at the start
+
+    async def run(index: int) -> tuple[Client, Gateway]:
+        clock, asr = ManualClock(), HeardASR(ECHO, by_index={index: said})
+        gateway = build(asr, [(3500, 9500)], clock)
+        async with running(gateway) as address, Client.connect(address) as client:
+            await start_answer(client, clock)
+            while len(asr.requests) <= index:
+                await stream(client, clock, 20)
+                await drain(client)
+            await stream(client, clock, 60)
+            await drain(client)
+            held = not of_type(client, "input_audio_buffer.speech_started")
+            await stream(client, clock, 4500)
+            await drain(client)
+        assert held == (index == slid)
+        return client, gateway
+
+    await run(2)  # a window that starts with the hold: released
+    client, gateway = await run(slid)
+    assert "input_audio_buffer.speech_started" not in types(client)
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1

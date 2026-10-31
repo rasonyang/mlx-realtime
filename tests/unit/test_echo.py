@@ -826,3 +826,10 @@ def test_after_echo_ends_at_the_callers_words_even_when_ours_come_after_them() -
         after_echo(echo + "对不起等一下，" + "关于日常生活", REPRISE)
         == "对不起等一下，关于日常生活"
     )
+
+
+def test_unmatched_inside_leaves_out_the_first_unit_of_a_slid_window() -> None:
+    played = "你好，也不会反问你"
+    assert unmatched_inside("价格会反问你", played, slid=True) == 1
+    assert unmatched_inside("价格会反问你", played) == 2
+    assert unmatched_inside("价", played, slid=True) == 0

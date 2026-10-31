@@ -653,8 +653,8 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       utterance has one word that is not ours), so it comes at the pause, not at the turn end;
       it also comes when the ASR fails. The end of the playback does not release a turn whose
       checks match our words. Once a turn's checks have matched our words (3 words or more, none
-      outside them), 2 words that are not ours release it only if they come before the
-      transcript's last word, or if the next check has them too: a mishearing at the edge of
+      outside them), 2 words that are not ours release it only if they come inside the
+      transcript, not at its last word (nor its first, once the check's 4 s window slid), or if the next check has them too: a mishearing at the edge of
       a check does not release echo, and a caller who joins ongoing echo waits about 250 ms more. On a line with no steady echo (AEC3 bypassed), a turn whose raw
       input correlates strongly with our own audio (GCC-PHAT PSR of 15 or more,
       `barge_in.confirm_echo_psr`) is not released on the ASR's word alone, and one that ends with a

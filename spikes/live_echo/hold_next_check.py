@@ -64,16 +64,16 @@ async def main_async(args: argparse.Namespace) -> None:
         checks = list(turn["checks"])
         last = checks[-1]
         played = last["played_text"] or ""
-        start_ms = last["audio_start_ms"]
+        start_ms = checks[0]["audio_start_ms"]  # the hold's
         interval = (checks[-1]["t"] - checks[0]["t"]) / max(len(checks) - 1, 1)
         print(f"\n## {turn['item'][-4:]} (recorded: {turn['recorded']}, {len(checks)} checks)\n")
-        print("| check | input ms | recorded | fresh | unmatched | before the last unit |")
+        print("| check | input ms | recorded | fresh | unmatched | inside the cut edges |")
         print("|---|---|---|---|---|---|")
         again = await hear(last["audio_start_ms"], last["audio_end_ms"])
         print(
             f"| last recorded, again | {last['audio_start_ms']}-{last['audio_end_ms']} | "
             f"{last['text']} | {again} | {unmatched(again, played)} | "
-            f"{unmatched_inside(again, played)} |"
+            f"{unmatched_inside(again, played, slid=last['audio_start_ms'] > start_ms)} |"
         )
         end_ms, fresh = last["audio_end_ms"], []
         for n in range(1, args.next + 1):
@@ -97,7 +97,7 @@ async def main_async(args: argparse.Namespace) -> None:
             )
             print(
                 f"| next {n} | {begin}-{end_ms} | - | {text} | {new} | "
-                f"{unmatched_inside(text, played)} |"
+                f"{unmatched_inside(text, played, slid=begin > start_ms)} |"
             )
         if turn["item"] in spans:
             begin, end = spans[turn["item"]]
