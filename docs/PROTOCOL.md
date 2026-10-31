@@ -628,8 +628,8 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       end: a stretch that ends before then is discarded, never a turn. Speech that began before
       the playback, or continues after it, follows the usual rules.
     - **Echo turns.** A detected turn whose transcript matches the assistant audio the client was
-      playing around it (at least 70 % of its CJK characters and Latin words, in order; turns of at
-      least 4 of them) is treated like noise (D7): its response completes at once with no output
+      playing around it (at least 70 % of its CJK characters and Latin words lie in runs of 3 or more
+      that follow each other in that audio's text; turns of at least 4 of them) is treated like noise (D7): its response completes at once with no output
       and no LLM call, and later LLM requests leave the turn out. One reply per speech turn still
       holds.
     - **Held `speech_started`** (`barge_in.confirm_while_playing`). A turn that starts while the
@@ -645,9 +645,9 @@ function calls included, gets an `item_` id; GA example prefixes such as `fc_` a
       input correlates strongly with our own audio (GCC-PHAT PSR of 15 or more,
       `barge_in.confirm_echo_psr`) is not released on the ASR's word alone, and one that ends with a
       PSR of 15 or more (`confirm_echo_drop_psr`) is dropped as echo even if the ASR heard a caller.
-      Conversely, a turn whose complete-utterance check measured a PSR below 15 is never dropped
-      for its words alone: a caller who repeats what we were saying (picking an offered example)
-      gets `speech_started` at the pause or the turn end and is answered.
+      The correlation never releases a turn the words call echo: a live line's echo correlates as
+      weakly as callers. A caller who only paraphrases what we were saying, reusing short
+      fragments of it, is no echo and gets `speech_started` at the pause or the turn end.
       A turn that ends held and is our echo (4 words or more) or empty gets
       no event at all (no `speech_started`, `speech_stopped`, commit, item or response); any
       other is released at its end, `speech_started` then `speech_stopped`. One pair per turn, in

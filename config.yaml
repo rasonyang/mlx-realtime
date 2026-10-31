@@ -143,9 +143,10 @@ aec:
 # over the held speech with our played audio (GCC-PHAT, lags 0-1 s): a peak-to-sidelobe ratio of
 # confirm_echo_psr or more keeps a would-be release held (the ASR can mishear a leak as other
 # words), and at the turn's end confirm_echo_drop_psr or more drops it as echo (null: never on the
-# correlation alone; confirm_echo_psr null: no correlation). Below confirm_echo_psr on a pause or
-# final check the input is no copy of our audio, so an echo-turn match of the transcript releases
-# the turn (a caller reusing our words) instead of dropping it. On simulated leaks 15 holds every
+# correlation alone; confirm_echo_psr null: no correlation). On a live line an echo correlates as
+# weakly as a caller (issue #9), so a low correlation never releases a turn the transcript calls
+# echo; the echo-turn rule counts the transcript's words that lie in runs of 3 or more that follow
+# each other in the played text, so a caller's paraphrase is kept. On simulated leaks 15 holds every
 # leak 10 holds, and a caller who talks over a loud leak for less long; no real caller was
 # dropped at any drop threshold (spikes/live_echo/results/hold_gcc.md, hold_v3.md).
 # false: speech_started goes out at the onset, as before.
