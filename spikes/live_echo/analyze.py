@@ -21,7 +21,10 @@ Method in short (details in the README):
    holding 90 % of the filter's energy (noise floor removed); ERL over time in 5 s blocks.
 4. Near end: a frame is caller speech when what the filter does not explain (input - predicted
    echo) is ``NEAR_DB`` over the line's noise floor; 150 ms runs are speech, the onset is the
-   run's first frame, and the ASR track (Speex's output) must carry the speech too. The AEC3
+   run's first frame, and the ASR track (Speex's output) must carry the speech too. With no
+   filter fitted, or one that removes under ``RAW_ONSET_GAIN_DB``, the raw input is tested against
+   its noise floor instead. A ``speech_started`` is a self-interruption only if no caller run
+   precedes it and the gateway did not judge its turn a real barge-in. The AEC3
    and ASR tracks are never used to judge echo-only stretches (their residual is what is tested).
 5. ERLE per 0.5 s windows of echo-only frames whose predicted echo is ``ECHO_OVER_NOISE_DB``
    above the noise floor: input energy over output energy.
@@ -32,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import wave
+from difflib import SequenceMatcher
 from pathlib import Path
 
 import numpy as np
@@ -65,6 +69,10 @@ TAIL_ECHO_MS = 300.0  # and its echo this long after that
 STALL_SHIFT_MS = 15.0  # a bot-channel shift against the model that is not a model error
 STALL_ZERO_MS = 100.0
 SELF_INTERRUPT_LOOKBACK_S = 3.0
+RAW_ONSET_GAIN_DB = 3.0  # below this the echo filter explains too little to find the caller with
+RAW_FLOOR_MIN_DBFS = -66.0  # the raw-input noise floor is never taken below this
+ECHO_ONLY_CHARS = 2  # an echo transcript with no longer stretch of unplayed text is only our words
+CALLER_WORDS_CHARS = 4  # a stretch of unplayed text this long in a transcript is the caller's
 BURST_WINDOW_S, BURST_HOP_S = 0.5, 0.25
 BURST_LAGS_MS = (50.0, 700.0)
 BURST_SHUFFLES = 12
@@ -343,6 +351,22 @@ def near_end(inp: np.ndarray, pred: np.ndarray, floor: float) -> np.ndarray:
         if last - first >= NEAR_RUN_FRAMES:
             out[first:last] = True
     return out
+
+
+def caller_words(text: str, played: str) -> int:
+    """The longest stretch of ``text`` (letters only) that shares no 2 characters with what we
+    played: the words a caller added to, or spoke instead of, our own."""
+    kept = "".join(c for c in text if c.isalnum())
+    blocks = SequenceMatcher(None, kept, "".join(c for c in played if c.isalnum()), autojunk=False)
+    covered = np.zeros(len(kept), dtype=bool)
+    for block in blocks.get_matching_blocks():
+        if block.size >= 2:
+            covered[block.a : block.a + block.size] = True
+    longest = run = 0
+    for hit in covered:
+        run = 0 if hit else run + 1
+        longest = max(longest, run)
+    return longest
 
 
 def drop_tail_runs(caller: np.ndarray, tail: np.ndarray | None) -> np.ndarray:
@@ -626,8 +650,8 @@ def analyse_capture(directory: Path, recording: Path | None) -> dict:
         if len(own) >= 3:
             third = max(len(own) // 3, 1)
             head = float(np.median([r["vs_model_ms"] for r in own[:third]]))
-            tail = float(np.median([r["vs_model_ms"] for r in own[-third:]]))
-            entry.update(start_vs_model_ms=head, end_vs_model_ms=tail, drift_ms=tail - head,
+            last = float(np.median([r["vs_model_ms"] for r in own[-third:]]))
+            entry.update(start_vs_model_ms=head, end_vs_model_ms=last, drift_ms=last - head,
                          median_vs_model_ms=float(np.median([r["vs_model_ms"] for r in own])))
         per_response.append(entry)
     medians = [r["median_vs_model_ms"] for r in per_response if "median_vs_model_ms" in r]
@@ -699,6 +723,18 @@ def analyse_capture(directory: Path, recording: Path | None) -> dict:
     }
     # Caller speech, barge-ins, self-interruptions.
     caller = line["caller"]
+    # With no echo filter fitted, or one that removes under RAW_ONSET_GAIN_DB, the input less the
+    # filter's estimate is the input: the caller is found on the raw input against its noise
+    # floor too. A line classed "echo" keeps the filter alone, whatever its gain: its echo is
+    # real and the raw input would take it for the caller.
+    gain = line.get("fit_gain_db")
+    raw_onset = line["klass"] != "echo" and (gain is None or gain < RAW_ONSET_GAIN_DB)
+    if raw_onset:
+        # A gated line (AICC mutes its uplink between utterances) has a floor at digital silence,
+        # where any breath is 12 dB over it: the floor is never taken below RAW_FLOOR_MIN_DBFS.
+        floor = max(line["floor"], 32768.0**2 * 10 ** (RAW_FLOOR_MIN_DBFS / 10))
+        raw = drop_tail_runs(near_end(inp, np.zeros_like(inp), floor), tail)
+        caller = raw[: len(caller)]
     runs = []
     padded = np.concatenate(([False], caller, [False]))
     edges = np.flatnonzero(np.diff(padded.astype(int)))
@@ -712,10 +748,16 @@ def analyse_capture(directory: Path, recording: Path | None) -> dict:
     playing = [(r["start_ms"], (r["end_ms"] if r["end_ms"] is not None else r["start_ms"] + 3e4) + keep[1])
                for r in responses]
     outcomes = {e["item"]: e["outcome"] for e in events if e["kind"] == "barge_in_outcome"}
-    barge_rows, selfs = [], []
+    transcript_events = {e["item"]: e for e in events if e["kind"] == "transcript"}
+    transcripts = {item: e.get("text") for item, e in transcript_events.items()}
+    barge_rows, selfs, gateway_real = [], [], []
     for e in started:
         onset = e.get("onset_ms", e["t"])
         match = [r for r in runs if -300 <= e["t"] - r["onset_ms"] <= SELF_INTERRUPT_LOOKBACK_S * 1000]
+        said = transcript_events.get(e["item"])
+        words = None if said is None else caller_words(said.get("text") or "", said.get("played_text") or "")
+        if match and said is not None and said.get("echo") and words <= ECHO_ONLY_CHARS:
+            match = []  # the run is the echo itself: the turn's words are all ours
         was_playing = any(a <= e["t"] <= b for a, b in playing)
         in_tail = any(w["flush_ms"] < e["t"] <= w["until_ms"] for w in tail_windows)
         if in_tail and not match:
@@ -729,16 +771,26 @@ def analyse_capture(directory: Path, recording: Path | None) -> dict:
                                "latency_ms": latency, "guard_left_ms": guard_left,
                                "excess_ms": latency - guard_left, "during_playback": was_playing,
                                "outcome": outcomes.get(e["item"])})
+        elif outcomes.get(e["item"]) == "real" or (words or 0) >= CALLER_WORDS_CHARS:
+            # The gateway heard a real caller, or the transcript holds words that we never played,
+            # whatever the signal analysis found.
+            gateway_real.append({"item": e["item"], "t_ms": e["t"], "transcript": transcripts.get(e["item"])})
         elif was_playing or e.get("responding"):
-            selfs.append({"item": e["item"], "t_ms": e["t"], "onset_ms": onset, "outcome": outcomes.get(e["item"])})
+            selfs.append({"item": e["item"], "t_ms": e["t"], "onset_ms": onset,
+                          "outcome": outcomes.get(e["item"]), "transcript": transcripts.get(e["item"])})
     report["caller"] = {
         "method": (
             "a 20 ms frame is caller speech when the input less the least-squares echo estimate "
             f"is {NEAR_DB:.0f} dB over the noise floor, in runs of >= {NEAR_RUN_FRAMES * 20} ms "
             "(smoothed 3 of 5), is at least {NEAR_SHARE_DB:.0f} dB of the input's energy, and the ASR track (Speex's output) is 9 dB over its own floor "
             "in 30 % of the run; the onset is the run's first frame"
+            + (f"; the filter removes under {RAW_ONSET_GAIN_DB:.0f} dB, so runs are also found on "
+               "the raw input against its noise floor" if raw_onset else "")
+            + "; a speech_started whose turn the gateway judged a real barge-in is not a self-interruption"
         ),
+        "raw_onset": raw_onset,
         "runs": runs,
+        "real_by_gateway_without_run": gateway_real,
         "barge_ins": barge_rows,
         "self_interruptions": selfs,
         "echo_turns": sum(1 for e in events if e["kind"] == "echo_turn"),
@@ -1017,7 +1069,10 @@ def verdict(report: dict, keep, speex_keep, speex_filter) -> list[dict]:
         out.append({"criterion": name, "result": "N/A" if ok is None else ("PASS" if ok else "FAIL"), "detail": detail})
 
     selfs = report["caller"]["self_interruptions"]
-    add("zero self-interruptions in echo-only stretches", not selfs, f"{len(selfs)} speech_started with no caller speech before it; {report['caller']['echo_turns']} echo turn(s)")
+    heard = "; ".join(f"{s['t_ms'] / 1000:.2f} s {s.get('outcome')}: {s.get('transcript')}" for s in selfs)
+    add("zero self-interruptions in echo-only stretches", not selfs,
+        f"{len(selfs)} speech_started with no caller speech before it and no real barge-in outcome; {report['caller']['echo_turns']} echo turn(s)"
+        + (f"; {heard}" if selfs else ""))
     barge = [b for b in report["caller"]["barge_ins"] if b["during_playback"]]
     late = [b for b in barge if b["excess_ms"] > BARGE_IN_BUDGET_S * 1000]
     missed = report["caller"]["caller_runs_without_speech_started"]
@@ -1110,7 +1165,12 @@ def markdown(report: dict) -> str:
         out += [f"| {b['caller_onset_ms'] / 1000:.2f} | {b['speech_started_ms'] / 1000:.2f} | {b['latency_ms']:.0f} | {b['guard_left_ms']:.0f} | {b['excess_ms']:.0f} | {b['during_playback']} | {b['outcome']} |" for b in caller["barge_ins"]]
         out.append("")
     if caller["self_interruptions"]:
-        out += ["Self-interruptions: " + ", ".join(f"{s['t_ms'] / 1000:.2f} s" for s in caller["self_interruptions"]), ""]
+        out += ["| speech_started (s) | outcome | transcript |", "|---|---|---|"]
+        out += [f"| {s['t_ms'] / 1000:.2f} | {s['outcome']} | {s.get('transcript')} |" for s in caller["self_interruptions"]]
+        out.append("")
+    if caller["real_by_gateway_without_run"]:
+        out += ["Not self-interruptions: the gateway judged the turn a real barge-in although no caller run was found before it: "
+                + ", ".join(f"{s['t_ms'] / 1000:.2f} s ({s.get('transcript')})" for s in caller["real_by_gateway_without_run"]), ""]
     bursts = report["residual_echo_bursts"]
     out += ["## Residual-echo bursts while the canceller is bypassed", "", f"Method: {bursts['method']}.", ""]
     if bursts.get("note"):

@@ -81,7 +81,11 @@ Everything is band-limited to 300-3400 Hz and handled at 8 kHz; times are input-
   per-second echo estimate is 12 dB over the line's noise floor and at least -9 dB of the input's
   energy, in runs of at least 300 ms, with the ASR track (Speex's output) 9 dB over its own floor
   in 30 % of the run. The onset is the run's first frame (accuracy about a few hundred ms; early
-  rather than late). Echo-only = the reference played, nothing else.
+  rather than late). Echo-only = the reference played, nothing else. When no echo filter is fitted
+  or the fit removes under 3 dB (and the line is not classed `echo`), the filter explains nothing
+  and the same test runs on the raw input against its noise floor, which is never taken below
+  -66 dBFS (a gated line such as AICC's, muted between utterances, has a floor at digital silence
+  where any breath is 12 dB over it).
 - **ERLE.** Input energy over output energy per 0.5 s window of echo-only frames whose predicted
   echo is 6 dB over the noise floor, for AEC3 and Speex, in the 300-3400 Hz band. Convergence = the
   first three consecutive windows at 10 dB, counted from the first answer's modelled start. Speex's
@@ -90,9 +94,14 @@ Everything is band-limited to 300-3400 Hz and handled at 8 kHz; times are input-
   about 800 ms of our audio keeps playing (and echoing) after our `speech_started`. For 1.1 s after
   every `flush` the report treats AICC as still playing: no caller speech starts there and a
   `speech_started` there is not a self-interruption.
-- **Self-interruptions.** A `speech_started` with no caller speech in the 3 s before it (and not in
-  that window). Barge-in latency = `speech_started` less the caller's onset, less what is left of
-  the 2000 ms onset guard.
+- **Self-interruptions.** A `speech_started` with no caller speech in the 3 s before it, while we
+  were playing or responding. It is cleared when the gateway's own outcome for its turn is `real`
+  (`barge_in_outcome`), or when the turn's transcript holds 4 or more characters in a row that
+  share nothing with what we played (the caller's words, even beside echo). It is counted even
+  with a caller run before it when the transcript is judged echo and holds no more than 2 such
+  characters (a run found on echo, as on a line the filter cannot fit). The report lists each
+  flagged turn with its outcome and transcript. Barge-in latency = `speech_started` less the
+  caller's onset, less what is left of the 2000 ms onset guard.
 - **AICC recording.** Left is analysed against right as a line of its own: the switch-side echo
   delay, ERL and dispersion. Our end-to-end delay (after the model) is then split into that
   switch-side path plus the remainder (AICC's TX queue, the switch-to-AICC hop and the playout

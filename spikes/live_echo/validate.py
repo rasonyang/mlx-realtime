@@ -70,9 +70,17 @@ def validate(directory: Path) -> dict:
     }
     if truth["erl_db"] is None:
         bypass = report["bypass"]
+        # The scenario's fourth answer is cut by a caller: with no echo to subtract, the caller
+        # must still be found (on the raw input) and the barge-in is no self-interruption.
+        selfs = report["caller"]["self_interruptions"]
+        barge_ins = report["caller"]["barge_ins"]
         row.update(
             expected_class="none",
-            ok=report["class"] == "none" and bypass["engaged"] >= 1 and not bypass["flapping"],
+            ok=report["class"] == "none"
+            and bypass["engaged"] >= 1
+            and not bypass["flapping"]
+            and not selfs
+            and bool(barge_ins),
             bypass_engaged=bypass["engaged"],
             bypass_first_s=bypass["first_on_after_first_answer_s"],
             bypass_flapping=bypass["flapping"],
@@ -189,8 +197,9 @@ def markdown(rows: list[dict]) -> str:
         truth = row["truth"]
         if row["expected_class"] == "none":
             out.append(
-                f"| {row['scenario']} | no echo, bypass engaged | class {row['class']}, bypass {row['bypass_engaged']}x "
-                f"(first {f(row['bypass_first_s'], 2)} s after the first answer starts), flapping {row['bypass_flapping']} "
+                f"| {row['scenario']} | no echo, bypass engaged, caller barge-in found, 0 self-interruptions | class {row['class']}, bypass {row['bypass_engaged']}x "
+                f"(first {f(row['bypass_first_s'], 2)} s after the first answer starts), flapping {row['bypass_flapping']}, "
+                f"{row['self_interruptions']} self-interruptions, {len(row['barge_ins'])} caller barge-in(s) found "
                 f"| {'PASS' if row['ok'] else 'FAIL'} |"
             )
             continue
