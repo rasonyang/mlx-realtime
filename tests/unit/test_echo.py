@@ -34,6 +34,7 @@ from mlx_realtime.text.similarity import (
     overlap,
     units,
     unmatched,
+    unmatched_inside,
 )
 
 RATE = 16_000
@@ -705,6 +706,20 @@ def test_unmatched_units_are_those_outside_the_longest_in_order_match(
     transcript: str, played: str, new: int
 ) -> None:
     assert unmatched(transcript, played) == new
+
+
+@pytest.mark.parametrize(
+    ("transcript", "inside"),
+    [
+        ("也不会反问你", 0),  # all ours
+        ("也不会否认", 1),  # a mishearing of two: only the one before the last unit counts
+        ("也不会价格吧", 2),
+        ("价", 0),  # nothing before the last unit
+        ("", 0),
+    ],
+)
+def test_unmatched_inside_leaves_out_the_last_unit(transcript: str, inside: int) -> None:
+    assert unmatched_inside(transcript, "你好，也不会反问你") == inside
 
 
 @pytest.mark.parametrize(

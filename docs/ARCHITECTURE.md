@@ -897,6 +897,16 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
     `confirm_min_new_units` (2) units outside the longest in-order match with the played text
     (1 once nothing plays); otherwise it stays held, so a false "echo" delays a real barge-in and
     never drops it. A cut edge makes one unmatched unit weak evidence, hence 2.
+    *A hold that matched [issue #10].* Once a check of the hold was all ours (`MIN_RUN`, 3 units
+    or more, none outside the in-order match: the live C6 call's first check heard "也不会" of
+    "…也不会反问你"), a partial check that reaches the count releases only if
+    `confirm_min_new_units` of those units lie before the transcript's last unit (the cut edge),
+    or if the previous partial check reached the count too and was held. The next check of a
+    mishearing at the edge (C6 heard "也不会否认" for "也不会反问你", released after 403 ms)
+    hears the word whole as the audio grows; a caller's words stay. Cost: one check interval
+    (about 250 ms) for a caller who joins ongoing echo, none for a fresh hold, which keeps the
+    rule above, nor for words that already pass the edge. A held check does not release at the
+    end of the playback either (below).
   - *Utterance*, when the gate ends the speech (`SpeechEnd`): partial checks stop (none runs
     through the silence), and one check covers the whole speech so far. Speech that resumes in the
     same turn goes back to partial checks.
@@ -959,7 +969,7 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   applies; a turn released at its end sends `speech_stopped` after it, and its transcript is the
   commit's (no second ASR request). When the playback ends a playing hold is not released for
   that: pure echo that outlasts the playback is still dropped at its end; it is released at once
-  only if its latest check had a unit that is not ours. A check that fails or takes over
+  only if its latest check had a unit that is not ours (a held check of a matched hold has none). A check that fails or takes over
   `confirm_timeout_ms` (2000) releases the turn. A turn behind a hold waits behind it, so events
   of turns never cross. Anything that restarts turn detection (clear, a `session.update` of turn
   detection, a commit) drops the holds and their check. `confirm_while_playing: false` is the

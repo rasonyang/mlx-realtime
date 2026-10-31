@@ -140,6 +140,13 @@ def unmatched(transcript: str, played: str) -> int:
     return len(needle) - lcs_length(needle, units(played))
 
 
+def unmatched_inside(transcript: str, played: str) -> int:
+    """``unmatched`` without the transcript's last unit, whose syllable a partial check's cut
+    may have truncated into another word (issue #10)."""
+    needle = units(transcript)[:-1]
+    return len(needle) - lcs_length(needle, units(played))
+
+
 def lcs_length(first: Sequence[Hashable], second: Sequence[Hashable]) -> int:
     """The length of the longest common subsequence (Hyyrö's bit-parallel algorithm, with the
     positions of ``first`` as the bits of one integer: one pass over ``second``)."""
