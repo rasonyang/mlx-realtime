@@ -155,7 +155,7 @@ from mlx_realtime.session.turn import (
     TurnState,
 )
 from mlx_realtime.text.normalize import NormalizerOptions
-from mlx_realtime.text.similarity import overlap, units, unmatched
+from mlx_realtime.text.similarity import contiguity, units, unmatched
 from mlx_realtime.vad.base import FRAME_MS, FRAME_SAMPLES, SpeechDetector, TurnEndDetector
 from mlx_realtime.vad.gate import GateEvent, GateParams, LongSilence, SpeechEnd, SpeechStart
 
@@ -793,7 +793,8 @@ class SessionActor:
           ``confirm_min_new_units`` units that are not ours (1 once nothing plays); else keep
           holding.
         - Complete utterance (at a pause, or the turn's final check): empty is noise; at
-          ``echo_match_min_units`` units or more the echo-turn rule decides (echo, else release);
+          ``echo_match_min_units`` units or more the echo-turn rule decides (echo: the contiguity
+          of the transcript with our words, ``echo_match_threshold``; else release);
           fewer are released at one unit that is not ours. At a pause a turn that is noise, echo
           or all ours stays held; the final check drops the noise and the echo, and releases
           a short turn that is all ours (the echo rule never drops those).
@@ -810,19 +811,13 @@ class SessionActor:
             config.echo_turn_suppression
             and count >= config.echo_match_min_units
             and bool(played)
-            and overlap(text, played) >= config.echo_match_threshold
+            and contiguity(text, played) >= config.echo_match_threshold
         )
         final = kind == "final"
         flagged = (
             psr is not None
             and config.confirm_echo_psr is not None
             and psr >= config.confirm_echo_psr
-        )
-        measured_not_ours = (  # a complete utterance's correlation says it is no copy of our audio
-            kind != "partial"
-            and psr is not None
-            and config.confirm_echo_psr is not None
-            and psr < config.confirm_echo_psr
         )
         hold.last_new = 0 if flagged else new  # the early release at the playback's end
         if kind == "partial":
@@ -833,10 +828,7 @@ class SessionActor:
             if count == 0:
                 verdict = "noise" if final else "hold"
             elif count >= config.echo_match_min_units:
-                if echo and measured_not_ours:
-                    verdict = "echo_text_low_psr"  # the words are ours, the signal is not
-                else:
-                    verdict = ("echo" if final else "hold") if echo else "caller"
+                verdict = ("echo" if final else "hold") if echo else "caller"
             elif new >= 1:
                 verdict = "caller"
             else:
@@ -867,12 +859,6 @@ class SessionActor:
             case "caller":
                 reason = {"partial": "caller", "utterance": "pause", "final": "turn_end"}[kind]
                 self._release(hold, reason, transcript if final else None)
-            case "echo_text_low_psr":
-                logger.info(
-                    "a held turn matched our words but not our signal: released",
-                    extra={"item": hold.item_id, "psr": round(psr or 0.0, 2), "check": kind},
-                )
-                self._release(hold, verdict, transcript if final else None)
             case "echo" | "noise":
                 self._drop(hold, verdict, text)
             case "echo_signal_drop":
@@ -1187,8 +1173,9 @@ class SessionActor:
     def _echo_match(
         self, item: AudioMessage, *, always: bool = False
     ) -> tuple[float | None, str, list[PlayedSpan]]:
-        """How much of the transcript is assistant speech played around the turn: the overlap
-        score (None: no comparison made), the text compared and the audio spans it came from.
+        """How much of the transcript is assistant speech played around the turn: the
+        contiguity score, the share of its units in runs of ours (None: no comparison made), the
+        text compared and the audio spans it came from.
         ``always``: for the capture, whatever the suppression setting and the turn's length."""
         echo, config = self._echo, self._deps.barge_in
         transcript = item.transcript or ""
@@ -1199,7 +1186,7 @@ class SessionActor:
         ):
             return None, "", []
         played, spans = self._played_text(item.start_ms, item.end_ms)
-        return (overlap(transcript, played) if played else None), played, spans
+        return (contiguity(transcript, played) if played else None), played, spans
 
     def _played_text(self, start_ms: int, end_ms: int) -> tuple[str, list[PlayedSpan]]:
         """The assistant text the client was modelled to play around the input span, and the

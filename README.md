@@ -156,7 +156,7 @@ src/mlx_realtime/
   providers/   ASR, LLM and TTS interfaces, registry, the mlx_lm and mlx_audio HTTP providers,
                the TTS fallback, the voice map, mocks
   audio/       resampling, wire formats, the echo cancellers, the client playout model, GCC-PHAT
-  text/        segmenter, normalizer, language tag, the overlap of echo turns
+  text/        segmenter, normalizer, language tag, the overlap and contiguity of echo turns
   vad/         Silero VAD, Smart Turn, Whisper features (numpy), the speech gate, CPU executors
   cli.py · supervisor.py (mlxrt dev) · fetch.py (mlxrt models) · hub.py (the HF cache layout)
 backends/llm · backends/audio      the model processes, each its own uv project; backends/llm runs

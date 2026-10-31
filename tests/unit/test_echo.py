@@ -27,7 +27,7 @@ from mlx_realtime.session.echo import (
     PlayedSpan,
     log_echo_stats,
 )
-from mlx_realtime.text.similarity import lcs_length, overlap, units, unmatched
+from mlx_realtime.text.similarity import contiguity, lcs_length, overlap, units, unmatched
 
 RATE = 16_000
 TICK = 320
@@ -727,3 +727,35 @@ def test_unmatched_units_are_those_outside_the_longest_in_order_match(
 )
 def test_overlap(transcript: str, played: str, low: float, high: float) -> None:
     assert low <= overlap(transcript, played) <= high
+
+
+GREETING = (
+    "您好，欢迎来电。我是一位科普讲解员，您可以随便问我一个简短的问题，"
+    "比如天为什么是蓝色的，或者咖啡是怎么被发现的。"
+)
+
+
+@pytest.mark.parametrize(
+    ("transcript", "played", "low", "high"),
+    [
+        ("但鸟类还是有很多地方跟恐龙相似", "但鸟类还是有很多地方跟恐龙相似。它们很像。", 1.0, 1.0),
+        # Live line, call 2: the caller's question reuses only "为什么" in a row (3 of 7 units),
+        # though the in-order overlap counts 6 of 7.
+        ("为什么天是蓝的？", GREETING, 3 / 7, 3 / 7),
+        # Long echo with ASR errors (two substituted characters, one dropped): runs of 8, 6, 5.
+        (
+            "您好欢迎来电我是一位科普讲解员您可以随便问我一个简短的问题比如天为什么是兰色的或者咖啡是怎被发现的",
+            GREETING,
+            0.8,
+            1.0,
+        ),
+        ("Many people don't think about them", "Many people think about dinosaurs", 0.0, 0.0),
+        ("many PEOPLE think about", "Many people think about dinosaurs", 1.0, 1.0),
+        ("people think", "Many people think about dinosaurs", 0.0, 0.0),  # shorter than a run
+        ("地方 鸟类 相似", "但鸟类还是有很多地方跟恐龙相似。", 0.0, 0.0),  # scattered, out of order
+        ("hello there", "", 0.0, 0.0),
+        ("", GREETING, 0.0, 0.0),
+    ],
+)
+def test_contiguity(transcript: str, played: str, low: float, high: float) -> None:
+    assert low <= contiguity(transcript, played) <= high

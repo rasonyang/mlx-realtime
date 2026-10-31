@@ -408,6 +408,33 @@ async def test_an_echo_turn_with_two_misheard_units_is_dropped_at_the_final_deci
     assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
 
 
+async def test_an_echo_garbled_in_the_middle_is_still_dropped() -> None:
+    """One misheard unit splits the echo in two long runs: 10 of its 11 units are in one."""
+    clock, asr = ManualClock(), HeardASR("很长很长的故障越长越好")
+    gateway = build(asr, [(3500, 4300)], clock)
+    async with running(gateway) as address, Client.connect(address) as client:
+        await start_answer(client, clock)
+        await stream(client, clock, 4400)
+        await drain(client)
+    assert "input_audio_buffer.speech_started" not in types(client)
+    assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 1
+
+
+async def test_a_caller_who_reuses_our_words_in_short_fragments_is_released() -> None:
+    """Every unit is ours and in order, so the plain overlap would call it an echo, but no
+    three of them follow each other as we said them: a caller picking words from the answer."""
+    quoted = "很很的事越好"  # 6 units, no unit that is not ours, contiguity 0
+    clock, asr = ManualClock(), HeardASR(quoted)
+    gateway = build(asr, [(3500, 4300)], clock)
+    async with running(gateway) as address, Client.connect(address) as client:
+        await start_answer(client, clock)
+        await stream(client, clock, 4400)
+        await drain(client)
+        assert count(gateway, "mlxrt_held_turns_dropped_total", reason="echo") == 0
+        assert count(gateway, "mlxrt_held_turns_released_total") == 1
+    assert of_type(client, "input_audio_buffer.speech_started")
+
+
 async def test_a_turn_held_only_for_order_is_released_at_the_front_once_nothing_plays() -> None:
     clock, asr = ManualClock(), HeardASR(SHORT_ECHO)
     gateway = build(asr, [(3500, 4300), (8200, 9000)], clock)

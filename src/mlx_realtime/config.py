@@ -316,8 +316,10 @@ class BargeInConfig(_Section):
     - ``min_speech_ms_while_playing``: during playback, speech must last this long before
       ``speech_started`` (null: ``turn.vad.min_speech_ms`` applies throughout).
     - ``echo_turn_suppression``: a committed turn whose transcript closely matches assistant
-      text played around it (normalized overlap of at least ``echo_match_threshold``, counted in
-      CJK characters and Latin words; transcripts of at least ``echo_match_min_units`` of them) is
+      text played around it (contiguity of at least ``echo_match_threshold``: the share of the
+      transcript's units, CJK characters and Latin words, that lie in runs of 3 or more that
+      follow each other in the played text too, so a caller's paraphrase of our words is no
+      echo; transcripts of at least ``echo_match_min_units`` units) is
       treated like noise (D7): its response completes with no output and no LLM call, and the
       LLM never sees the turn.
     - ``confirm_while_playing``: while the client is modelled as playing our audio (the queued
@@ -336,10 +338,9 @@ class BargeInConfig(_Section):
       ratio of ``confirm_echo_psr`` or more means the caller's line carries our own words: a
       check that would release the turn keeps holding instead. At the final decision a turn that
       would be released is dropped as echo from ``confirm_echo_drop_psr`` (null: never on the
-      correlation alone). Below ``confirm_echo_psr`` on a complete-utterance check (pause or
-      final) the input is measured not to be a copy of our audio: a transcript that matches
-      ours (the echo-turn rule) then releases the turn, at the pause or at its end, instead of
-      dropping it. null ``confirm_echo_psr`` switches the correlation off.
+      correlation alone). On a live line an echo correlates as weakly as a caller, so a low
+      correlation never releases a turn the transcript calls echo. null ``confirm_echo_psr``
+      switches the correlation off.
     """
 
     echo_guard_ms: int = Field(default=2000, ge=0)

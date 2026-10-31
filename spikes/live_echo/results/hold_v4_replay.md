@@ -1,5 +1,8 @@
 # Hold v4 replay: the correlation overrules a transcript echo match
 
+Superseded (issue #9): on a live line echo correlated as weakly as callers, so this rule is removed.
+The transcript's contiguity replaces it: `hold_v5_replay.md`.
+
 Rule under test (v4): on a complete-utterance check (pause or final) whose GCC-PHAT correlation was
 computed (AEC3 in bypass, span long enough) and is below `confirm_echo_psr` (15), the echo-turn
 match of the transcript does not stand: the turn is released (at the pause, or at its end with the

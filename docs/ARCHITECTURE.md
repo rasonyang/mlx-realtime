@@ -884,8 +884,8 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   not trigger barge-in. For the rest of playback it needs `min_speech_ms_while_playing` (400) instead
   of `turn.vad.min_speech_ms` (150).
 - **Echo-turn suppression.** A VAD-detected turn whose transcript matches the assistant audio played
-  around it (at least 0.7 of its CJK characters and Latin words, in order) is noise under D7, so the
-  bot never answers itself.
+  around it (at least 0.7 of its CJK characters and Latin words lie in runs of 3 or more that follow
+  each other in that text) is noise under D7, so the bot never answers itself.
 - **Hold [issue #5].** A turn that starts while the client is modelled as playing (a response
   active or not: AICC flushes its whole queue on any `speech_started`) is held: no
   `speech_started`, no barge-in. A turn that starts behind a hold with nothing playing is held
@@ -919,20 +919,25 @@ first modelled frame to its last (or a flush), plus `max_residual_delay_ms` of e
   `confirm_echo_drop_psr` (15) is dropped as echo (counted with the echo drops, reason
   `echo_signal` in the capture and log), and below it released as before. With steady echo the raw
   input correlates whoever speaks, so there is no veto then, nor without a canceller; null
-  `confirm_echo_psr` switches it off. The correlation also overrules the transcript: callers
-  reuse our words (picking an offered example, confirming), so on a complete-utterance check
-  (pause or final) whose correlation was computed and is below `confirm_echo_psr`, the input is
-  measured not to be a copy of our audio and an echo-turn match does not stand
-  (`echo_text_low_psr`): the turn is released at once at the pause, and at the final decision
-  released at its end as a caller turn (its final transcript is the commit's) instead of dropped.
-  Partial checks are unchanged (a low PSR on a short span is weak evidence, and synthetic leaks
-  at 400 ms often have a low one), as are empty transcripts and every check whose correlation
-  was not computed. No separate switch: `confirm_echo_psr` null turns it off with the rest. A
-  turn that was not held has no correlation, and `_is_echo` is unchanged. The early release at
-  the end of the playback does not fire on a check the correlation flagged. Measured on simulated leaks (`results/hold_gcc.md`): PSR
-  of 10 or more on 80-91 % of the leaked bursts and on none of 52 real callers at 700 ms. On
-  the real stack (`results/hold_v3.md`) 15 holds every leak that 10 holds, and a caller who talks
-  over a loud leak 0.5 s less (P50).
+  `confirm_echo_psr` switches it off.
+  The correlation does not overrule the transcript. #7 released a transcript echo whose
+  correlation was below `confirm_echo_psr`, so that a caller reusing our words was heard. On a
+  live line (C6, speakerphone, phone AEC on) a real leak's PSR was 6-9 for its first 7 s, the
+  callers' range (5.7-9.7), so that rule could release a leak (#9, `results/hold_v5_replay.md`).
+  The transcript alone tells a caller who reuses our words from echo: the echo-turn rule scores
+  the share of the transcript's units that lie in runs of at least 3 units that also follow each
+  other in the played text (`text.similarity.contiguity`). Echo is our text in long runs, ASR
+  errors apart (C6 leaks 0.99-1.00, the lowest synthetic leak 0.91); a paraphrase reuses short
+  fragments ("为什么天是蓝的" over "比如天为什么是蓝色的": 3 of 7 units, 0.43, where the in-order
+  overlap is 0.86). The score is compared with `echo_match_threshold` (0.7) in the hold's
+  complete-utterance checks and in `_is_echo`; the unmatched-unit count that releases a partial
+  check is still the in-order match's. A turn that was not held has no correlation. The early
+  release at the end of the playback does not fire on a check the correlation flagged.
+  Measured on simulated leaks (`results/hold_gcc.md`): PSR of 10 or more on 80-91 % of the leaked
+  bursts and on none of 52 real callers at 700 ms. On the real stack (`results/hold_v3.md`) 15
+  holds every leak that 10 holds, and a caller who talks over a loud leak 0.5 s less (P50). On
+  the live calls it decided on 1 of 70 checks with a PSR and was wrong once
+  (`results/hold_v5_replay.md`).
   Release sends `speech_started` with the onset's own `audio_start_ms`, then the barge-in rule
   applies; a turn released at its end sends `speech_stopped` after it, and its transcript is the
   commit's (no second ASR request). When the playback ends a playing hold is not released for
