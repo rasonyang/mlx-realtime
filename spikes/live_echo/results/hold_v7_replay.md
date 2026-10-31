@@ -76,3 +76,46 @@ table at the end lists these as "needs ASR".
 | v3:B | 30 | 30 | 0 | 30 | 0 | 0 | 0 | 0 | 0 |
 | v3:Be | 10 | 10 | 0 | 10 | 0 | 0 | 0 | 0 | 0 |
 | v3:C | 8 | 8 | 0 | 8 | 0 | 0 | 0 | 0 | 0 |
+
+## Fresh ASR checks on C6 (`hold_next_check.py`)
+
+The recorded sequences of 56h0 and ggyf end at the recording build's release. `hold_next_check.py`
+re-slices the capture's `asr.wav` (the ASR path's track) as a check does, transcribes the last
+recorded check again, three further partial checks (`confirm_step_ms` 250 each) and the whole turn,
+and walks them through `walk7`. The played text of a fresh check is the recorded check's. Re-slicing
+reproduces both recorded transcripts exactly.
+
+    uv run --locked python spikes/live_echo/hold_next_check.py \
+        spikes/live_echo/captures/live/20261030T040025725Z_sess_bnblfvhsgir6mt70 --items 56h0,ggyf
+
+56h0 (recorded check interval 262 ms):
+
+| check | input ms | recorded | fresh | unmatched | before the last unit |
+|---|---|---|---|---|---|
+| last recorded, again | 22900-23910 | 也不会否认。 | 也不会否认。 | 2 | 1 |
+| next 1 | 22900-24160 | - | 也不会访问您。 | 1 | 1 |
+| next 2 | 22900-24410 | - | 也不会访问您。 | 1 | 1 |
+| next 3 | 22900-24660 | - | 也不会访问您。 | 1 | 1 |
+| final | 22900-24032 | - | 也不会反问你。 | 1 | |
+
+Pass. v7 holds at "也不会否认。", none of the next checks reaches the count (1 unit not ours), and
+the final check calls the turn echo: dropped as echo.
+
+ggyf (recorded check interval 268 ms):
+
+| check | input ms | recorded | fresh | unmatched | before the last unit |
+|---|---|---|---|---|---|
+| last recorded, again | 130560-134560 | 只是暂时没想好问什么，那我先给您讲个关于市场。 | 只是暂时没想好问什么，那我先给您讲个关于市场。 | 2 | 1 |
+| next 1 | 130810-134810 | - | 暂时没想好问什么，那我先给您讲个关于日常生活。 | 0 | 0 |
+| next 2 | 131060-135060 | - | 准备想好问什么？那我先给您讲个关于日常生活。 | 2 | 2 |
+| next 3 | 131310-135310 | - | 想好问什么？那我先给您讲个关于日常生活。等一。 | 2 | 1 |
+| final | 129876-137312 | - | 您可能只是暂时没想好问什么，那我先给您讲个关于日常生活。等一下，我想问问天气。 | 9 | |
+
+Fail against "at most one check interval later": v7 holds at "...关于市场。", the next check hears our
+words whole (0 not ours: the cut edge mishearing is gone, as intended), and the hold is released at
+next 2 (536 ms, two intervals) on a second mishearing ("准备" for "暂时", 2 not ours before the
+last unit), not on the caller. The caller's own words first show in next 3 ("等一", 2 not ours, 1
+before the last unit: held, suspect), so they would release at the check after it (next 4, not
+run). The recorded release at 04:02:40 was a mishearing that preceded the caller by about 1 s. A
+rule that released at next 1 would have to count the clean check as persistence, which is what
+the rule exists to refuse. The rule is unchanged.

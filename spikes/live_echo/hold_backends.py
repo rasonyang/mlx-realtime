@@ -31,14 +31,20 @@ def _listening(port: int) -> bool:
 
 
 @contextlib.contextmanager
-def backends_running(log_dir: Path, timeout_s: float = 300.0) -> Iterator[None]:
-    """ASR and TTS up (started here unless already listening); stopped on exit if started here."""
+def backends_running(
+    log_dir: Path, timeout_s: float = 300.0, only: set[str] | None = None
+) -> Iterator[None]:
+    """ASR and TTS up (started here unless already listening; ``only`` limits the backends);
+    stopped on exit if started here."""
     config = load_config(REPO / "config.yaml", os.environ)
     specs = backend_specs(
         config.backends.model_copy(update={"llm": None}), uv=os.environ.get("UV", "uv"),
         cache=hub_cache(os.environ),
     )
     ports = {name: b.port for name, b in config.backends.processes().items() if name != "llm"}
+    if only is not None:
+        specs = [spec for spec in specs if spec.name in only]
+        ports = {name: port for name, port in ports.items() if name in only}
     log_dir.mkdir(parents=True, exist_ok=True)
     started: list[subprocess.Popen[bytes]] = []
     try:
