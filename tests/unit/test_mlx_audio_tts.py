@@ -10,6 +10,7 @@ import json
 import socket
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import aclosing
+from typing import cast
 
 import httpx2
 import pytest
@@ -24,8 +25,11 @@ from mlx_realtime.providers.base import (
 )
 from mlx_realtime.providers.fallback import FallbackTTS
 from mlx_realtime.providers.mlx_audio_tts import MlxAudioTTS, Role, SpeechServer, token_cap
+from mlx_realtime.providers.mock import EchoLLM
 from mlx_realtime.providers.registry import build_speech
 from mlx_realtime.providers.voices import VoiceBook
+from mlx_realtime.session.pipeline import run_pipeline
+from mlx_realtime.session.signals import PipelineMark, PipelineSignal, SegmentAudio
 from tests.fakes.mlx_audio import (
     Chunks,
     Cut,
@@ -39,6 +43,7 @@ from tests.fakes.mlx_audio import (
     Start,
     serve_asgi,
 )
+from tests.unit.test_pipeline import StepClock, context, request
 
 QWEN = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit"
 QWEN_4BIT = "mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit"
@@ -81,6 +86,7 @@ def primary(
         VoiceBook(voices or VoicesConfig()),
         role=role,
         warmup_texts=config.warmup_texts,
+        line_cache=config.line_cache,
     )
 
 
@@ -522,3 +528,194 @@ def free_port() -> int:
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         return probe.getsockname()[1]
+
+
+async def say(
+    tts: MlxAudioTTS, text: str = TEXT, voice: str = "vivian", lang: Lang = "zh"
+) -> tuple[list[PCMChunk], SpeechTiming]:
+    """One verbatim line, as the pipeline asks for it (``cacheable``)."""
+    timing = SpeechTiming(cacheable=True)
+    return await collect(tts.stream(text, voice, lang, timing=timing)), timing
+
+
+async def test_a_repeated_line_is_replayed_and_skips_the_backend_slot(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    tts = primary(url, max_in_flight=1, queue_timeout_ms=5000)
+    live, first = await say(tts)
+    assert not first.cached
+    assert len(server.speeches) == 1
+    gate = Gate()
+    server.script_speech(Chunks(1), Hold(gate), Rest())
+    busy = tts.stream("请稍等，我查一下。", "vivian", "zh")
+    await anext(busy)  # another take holds the only slot
+    replay, second = await say(tts)
+    assert replay == live  # the raw chunks, in order
+    assert second.cached
+    assert (second.queued_s, second.model, second.fallback) == (0.0, QWEN, False)
+    assert len(server.speeches) == 2  # the hit did not reach the backend
+    gate.release()
+    await collect(busy)
+    await tts.aclose()
+
+
+async def test_a_take_that_is_not_a_verbatim_line_is_neither_stored_nor_replayed(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    tts = primary(url)
+    await collect(tts.stream(TEXT, "vivian", "zh"))
+    await collect(tts.stream(TEXT, "vivian", "zh"))
+    await say(tts)  # the takes above stored nothing
+    assert len(server.speeches) == 3
+    await tts.aclose()
+
+
+async def test_a_replay_yields_to_the_loop_between_chunks(fake: tuple[FakeMlxAudio, str]) -> None:
+    _, url = fake
+    tts = primary(url)
+    live, _ = await say(tts)
+    assert len(live) > 1
+    ticks = 0
+
+    async def spin() -> None:
+        nonlocal ticks
+        while True:
+            ticks += 1
+            await asyncio.sleep(0)
+
+    spinner = asyncio.create_task(spin())
+    await say(tts)
+    spinner.cancel()
+    assert ticks >= len(live) - 1
+    await tts.aclose()
+
+
+async def test_a_change_of_voice_or_language_is_a_different_line(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    tts = primary(url)
+    await say(tts)
+    await say(tts, voice="serena")
+    await say(tts, lang="en")
+    assert len(server.speeches) == 3
+    for voice, lang in (("vivian", "zh"), ("serena", "zh"), ("vivian", "en")):
+        _, timing = await say(tts, voice=voice, lang=cast(Lang, lang))
+        assert timing.cached
+    assert len(server.speeches) == 3
+    await tts.aclose()
+
+
+async def test_the_cache_keeps_the_most_recently_used_lines(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    server, url = fake
+    tts = primary(url, line_cache=2)
+    for text in ("第一句话。", "第二句话。", "第一句话。", "第三句话。"):
+        await say(tts, text)  # the third evicts the second, not the first
+    assert len(server.speeches) == 3
+    assert (await say(tts, "第一句话。"))[1].cached
+    assert not (await say(tts, "第二句话。"))[1].cached
+    await tts.aclose()
+
+
+async def test_a_cancelled_take_is_not_stored(fake: tuple[FakeMlxAudio, str]) -> None:
+    server, url = fake
+    gate = Gate()
+    server.script_speech(Chunks(1), Hold(gate), Rest())
+    tts = primary(url)
+
+    async def consume() -> None:
+        stream = tts.stream(TEXT, "vivian", "zh", timing=SpeechTiming(cacheable=True))
+        async with aclosing(stream):
+            async for _ in stream:
+                pass
+
+    task = asyncio.create_task(consume())
+    await gate.reached()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    await server.disconnected()
+    gate.release()
+    assert not (await say(tts))[1].cached
+    assert len(server.speeches) == 2
+    await tts.aclose()
+
+
+async def test_a_take_closed_early_is_not_stored(fake: tuple[FakeMlxAudio, str]) -> None:
+    server, url = fake
+    tts = primary(url)
+    stream = tts.stream(TEXT, "vivian", "zh", timing=SpeechTiming(cacheable=True))
+    async with aclosing(stream):
+        async for _ in stream:
+            break  # the pipeline closes a response at max_audio_ms like this
+    assert not (await say(tts))[1].cached
+    assert len(server.speeches) == 2
+    await tts.aclose()
+
+
+@pytest.mark.parametrize(("extra", "kept"), [(0, False), (5, True)], ids=["capped", "under-cap"])
+async def test_a_take_that_reached_max_tokens_is_not_stored(
+    fake: tuple[FakeMlxAudio, str], extra: int, kept: bool
+) -> None:
+    server, url = fake
+    frames = int(AUDIO / (24_000 * 2 * 0.08))  # the codec frames of the fake's answer to TEXT
+    model = {"model": QWEN, "timeouts": FAST, "streaming_interval": 0.32}
+    tts = primary(url, primary={**model, "max_tokens": frames + extra})
+    await say(tts)
+    assert (await say(tts))[1].cached is kept
+    assert len(server.speeches) == (1 if kept else 2)
+    await tts.aclose()
+
+
+async def test_the_fallback_never_stores_or_reads(fake: tuple[FakeMlxAudio, str]) -> None:
+    server, url = fake
+    tts = primary(url, role="fallback")
+    await say(tts)
+    assert not (await say(tts))[1].cached
+    assert len(server.speeches) == 2
+    await tts.aclose()
+
+
+async def test_a_line_cache_of_zero_is_off(fake: tuple[FakeMlxAudio, str]) -> None:
+    server, url = fake
+    tts = primary(url, line_cache=0)
+    await say(tts)
+    assert not (await say(tts))[1].cached
+    assert len(server.speeches) == 2
+    await tts.aclose()
+
+
+async def test_a_replayed_segment_goes_through_the_pipeline_like_a_live_one(
+    fake: tuple[FakeMlxAudio, str],
+) -> None:
+    """Trim, pacing, the audio limit and the segment map count the replay as a live take."""
+    server, url = fake
+    tts = primary(url)
+    runs: list[list[PipelineSignal]] = []
+    # cut at the limit and live (a take closed there is not stored), a whole one that fills the
+    # cache, then the same cut again, now replayed
+    for max_audio_ms in (500, 120_000, 500):
+        posted: list[PipelineSignal] = []
+        pipeline = context(EchoLLM(), tts, posted, StepClock(), max_audio_ms=max_audio_ms)
+        await run_pipeline(request(verbatim=TEXT), pipeline)
+        runs.append(posted)
+    assert len(server.speeches) == 3  # the segments of runs 1 and 2; the replay asked for none
+
+    def audio(posted: list[PipelineSignal]) -> list[tuple[int, bytes]]:
+        return [(s.index, s.pcm) for s in posted if isinstance(s, SegmentAudio)]
+
+    marks = [
+        dict(s.values)
+        for posted in runs
+        for s in posted
+        if isinstance(s, PipelineMark) and s.name == "tts_first_chunk"
+    ]
+    assert "tts_cache" not in marks[0]
+    assert marks[2] == {"tts_model": QWEN, "tts_cache": True}  # no tts_queue_ms
+    assert audio(runs[0]) == audio(runs[2])
+    assert 500 * 48 < sum(len(pcm) for _, pcm in audio(runs[2])) < AUDIO  # cut at the limit
+    await tts.aclose()

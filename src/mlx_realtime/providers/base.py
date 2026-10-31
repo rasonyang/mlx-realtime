@@ -90,6 +90,10 @@ class SpeechTiming:
     # longer before giving up.
     deadline: float | None = None
     slack_s: float = 0.0
+    # Set by the caller: the text is a verbatim line (D16), which repeats, so the provider may
+    # keep its audio. ``cached``: set by the provider, the audio was replayed, not synthesized.
+    cacheable: bool = False
+    cached: bool = False
 
 
 @dataclass(frozen=True, slots=True)

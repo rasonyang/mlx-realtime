@@ -5,11 +5,21 @@ while the sender paces (D6), the timeline marks, the audio cap and failures."""
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncGenerator
 
 import pytest
 
 from mlx_realtime.config import SegmenterConfig, SilenceTrimConfig
-from mlx_realtime.providers.base import LLMDone, ProviderError, TextDelta, Usage
+from mlx_realtime.providers.base import (
+    Lang,
+    LLMDone,
+    PCMChunk,
+    ProviderError,
+    SpeechTiming,
+    TextDelta,
+    TTSProvider,
+    Usage,
+)
 from mlx_realtime.providers.mock import EchoLLM, SineTTS
 from mlx_realtime.session.pipeline import PipelineContext, PipelineRequest, run_pipeline
 from mlx_realtime.session.signals import (
@@ -53,7 +63,7 @@ class StepClock:
 
 def context(
     llm: EchoLLM,
-    tts: SineTTS,
+    tts: TTSProvider,
     posted: list[PipelineSignal],
     clock: StepClock,
     *,
@@ -235,6 +245,45 @@ async def test_timeline_marks() -> None:
     values = dict(marks[2].values)
     assert values == {"tts_queue_ms": 0, "tts_model": "sine"}
     assert all(mark.generation == 7 for mark in marks)
+
+
+class TimedTTS(SineTTS):
+    """A ``SineTTS`` that keeps each request's ``SpeechTiming``; ``cached`` plays a cache hit."""
+
+    def __init__(self, *, cached: bool = False) -> None:
+        super().__init__(ms_per_char=20, chunk_ms=40)
+        self.timings: list[SpeechTiming] = []
+        self._cached = cached
+
+    def stream(  # type: ignore[override]
+        self,
+        text: str,
+        voice: str,
+        lang: Lang,
+        *,
+        speed: float = 1.0,
+        timing: SpeechTiming | None = None,
+    ) -> AsyncGenerator[PCMChunk]:
+        assert timing is not None
+        self.timings.append(timing)
+        timing.cached = self._cached
+        return super().stream(text, voice, lang, speed=speed, timing=timing)
+
+
+async def test_only_verbatim_lines_ask_for_a_cacheable_take() -> None:
+    llm, tts = EchoLLM(), TimedTTS()
+    await run_pipeline(request(verbatim="请稍等。"), context(llm, tts, [], StepClock()))
+    llm.script(TextDelta("你好。"), LLMDone("stop", None))
+    await run_pipeline(request(), context(llm, tts, [], StepClock()))
+    assert [timing.cacheable for timing in tts.timings] == [True, False]
+
+
+async def test_a_replayed_take_marks_the_cache_and_no_queue_wait() -> None:
+    llm, tts = EchoLLM(), TimedTTS(cached=True)
+    posted: list[PipelineSignal] = []
+    await run_pipeline(request(verbatim="请稍等。"), context(llm, tts, posted, StepClock()))
+    (mark,) = (s for s in posted if isinstance(s, PipelineMark) and s.name == "tts_first_chunk")
+    assert dict(mark.values) == {"tts_model": "sine", "tts_cache": True}
 
 
 async def test_synthesis_stops_once_the_response_passes_its_audio_limit() -> None:

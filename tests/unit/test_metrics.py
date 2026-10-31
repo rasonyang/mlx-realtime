@@ -51,6 +51,16 @@ def test_quantiles_interpolate_linearly_as_numpy_does(q: float) -> None:
         quantile([], q)
 
 
+def test_a_replayed_line_leaves_the_queue_wait_histogram_alone() -> None:
+    metrics = Metrics(ObservabilityConfig())
+    line = TurnTimeline("turn_1", "item_1")
+    line.mark("speech_end", 10.0)
+    line.mark("first_audio_sent", 11.0)
+    line.note("tts_cache", True)  # a line cache hit never waited for the backend: no queue note
+    metrics.turn_finished(TurnReport("sess_1", line, "resp_1"))
+    assert samples(metrics).get(("mlxrt_tts_queue_wait_seconds_count", ()), 0) == 0
+
+
 def test_the_window_keeps_the_last_n_turns() -> None:
     window = WindowedQuantiles(3)
     for value in (10.0, 1.0, 2.0, 3.0):

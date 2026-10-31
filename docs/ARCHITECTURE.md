@@ -1122,6 +1122,14 @@ server skips the LLM and speaks the rest of the text as written. The default pre
 "Say exactly this, word for word, and add nothing else:\n" and its Chinese equivalent.
 
 - The text becomes the assistant message.
+- A line's audio is kept: the pipeline marks its TTS requests `cacheable`, and the primary
+  `MlxAudioTTS` stores the raw chunks of a segment (key: the request body; `providers.tts.line_cache`
+  entries, LRU, 0 = off) and replays them on a repeat before taking the backend slot, so a fixed
+  line skips the shared TTS queue. Trim, pacing, echo reference and truncation run on the replay as
+  on a live take. A cancelled take, one closed at `max_audio_ms` and one that ran into `max_tokens`
+  (inferred from the codec frames received) are not stored; the fallback never stores or reads. A
+  hit adds `tts_cache` to `tts_first_chunk`, has no `tts_queue_ms`, and does not count for the
+  circuit breaker.
 - A line answers no user turn: it does not wait for a pending transcript and makes no tool call, so
   it works on an empty conversation, mid-call, and while a function call is unanswered.
 - This makes AICC's greetings, announces, wait lines and closing lines exact.
@@ -1257,7 +1265,7 @@ speech_end (acoustic, from the audio timeline) · speech_stopped (VAD fired)
 - Under manual commit, `committed` stands in for `speech_stopped` and `turn_confirmed`.
 - Every response has a timeline; one that answers a user audio turn extends that turn's. Only those
   are measured: a verbatim line's or a text turn's are not. Values logged with the marks:
-  `tts_queue_ms`, `tts_model`, `tts_fallback`, `verbatim`.
+  `tts_queue_ms`, `tts_model`, `tts_fallback`, `tts_cache`, `verbatim`.
 - One summary log line per turn carries every mark.
 
 **`/metrics`** (Prometheus text format; unauthenticated, like `/healthz`).
@@ -1386,6 +1394,7 @@ providers:
     max_in_flight: 1                    # the server runs one stream at a time
     scheduling: edf
     first_segment_grace_ms: 0
+    line_cache: 128                     # verbatim segments whose audio the primary keeps; 0: off
     queue_timeout_ms: 2000              # past the request's deadline; then backend_busy
     primary:  {model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit, streaming_interval: 0.16,
                token_cap: {base: 25, per_cjk: 6, per_other: 2}, timeouts: …}

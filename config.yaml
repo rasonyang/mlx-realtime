@@ -251,6 +251,9 @@ providers:
     scheduling: edf
     first_segment_grace_ms: 0
     queue_timeout_ms: 2000       # past the request's deadline; then backend_busy
+    # Verbatim lines (D16) whose audio the primary keeps (LRU, entries; 0: off): a repeat skips the
+    # queue. AICC's seed flows have 70 line segments (both languages) and the wait line 2.
+    line_cache: 128
     warmup_texts: {zh: "您好，请问有什么可以帮您？", en: "Hello, how can I help you?"}
     primary:
       model: mlx-community/Qwen3-TTS-12Hz-0.6B-CustomVoice-8bit

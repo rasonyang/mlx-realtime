@@ -24,6 +24,11 @@ The backend's behaviour (mlx-audio 0.6.1, checked in M0) shapes the provider:
 - The worker checks for cancellation once per chunk and sees a client disconnect at once, so
   closing the response is the cancel signal.
 
+A verbatim line (D16; ``SpeechTiming.cacheable``) repeats, so the primary keeps the raw chunks of
+a take that ended normally and was read to its end, keyed by the request body, and replays them
+before taking a slot (``line_cache`` entries, LRU; ``SpeechTiming.cached``). A take that ran into
+``max_tokens`` is not kept.
+
 There is one provider per model and role (primary, fallback), sharing one ``SpeechServer``
 (client and slots). Both models are builds of Qwen3-TTS-12Hz-0.6B-CustomVoice (D13: 8-bit and
 4-bit) with the same speakers, and both are asked the same way: ``voice`` is the session
@@ -38,6 +43,7 @@ import asyncio
 import json
 import logging
 import math
+from collections import OrderedDict
 from collections.abc import AsyncGenerator, Mapping
 from contextlib import aclosing
 from typing import Literal, cast
@@ -69,6 +75,7 @@ logger = logging.getLogger(__name__)
 SPEECH = "/v1/audio/speech"
 MODELS = "/v1/models"
 SERVER_MAX_TOKENS = 1200  # mlx_audio.server's default max_tokens (codec frames)
+CODEC_FRAME_S = 0.08  # Qwen3-TTS-12Hz: one codec frame, 12.5 per second
 
 LANG_CODES: dict[Lang, str] = {"zh": "chinese", "en": "english"}
 """Qwen3-TTS's lang_code for each segment language tag (``lang_codes`` overrides them)."""
@@ -129,6 +136,7 @@ class MlxAudioTTS:
         *,
         role: Role,
         warmup_texts: Mapping[Lang, str],
+        line_cache: int = 0,
     ) -> None:
         self._server = server
         self._config = config
@@ -138,6 +146,10 @@ class MlxAudioTTS:
         self._lang_codes = {**LANG_CODES, **config.lang_codes}
         self._deadlines = Deadlines.of(config.timeouts)
         self._warmup_deadlines = Deadlines.warmup(config.timeouts)
+        # Verbatim lines: request body -> the raw chunks of a finished take (LRU). Only the
+        # primary keeps one (D13: the fallback is the degraded path and never stores or reads).
+        self._line_cache = line_cache if role == "primary" else 0
+        self._lines = OrderedDict[bytes, tuple[PCMChunk, ...]]()
 
     @property
     def model(self) -> str:
@@ -220,6 +232,17 @@ class MlxAudioTTS:
         body = self.request_body(text, voice, lang)
         timing.model = self.model
         timing.fallback = self._role == "fallback"
+        content = json.dumps(body, ensure_ascii=False).encode()
+        keep: list[PCMChunk] | None = None
+        if timing.cacheable and self._line_cache:
+            if (line := self._lines.get(content)) is not None:
+                self._lines.move_to_end(content)
+                timing.cached = True
+                for chunk in line:
+                    yield chunk
+                    await asyncio.sleep(0)  # a live take yields to the loop between chunks
+                return
+            keep = []
         loop = asyncio.get_running_loop()
         queued_at = loop.time()
         async with self._server.slots.slot(deadline=timing.deadline, slack_s=timing.slack_s):
@@ -229,7 +252,7 @@ class MlxAudioTTS:
             request = client.build_request(
                 "POST",
                 SPEECH,
-                content=json.dumps(body, ensure_ascii=False).encode(),
+                content=content,
                 headers={"content-type": "application/json"},
                 timeout=httpx2.Timeout(None, connect=deadlines.connect_s),
             )
@@ -254,13 +277,30 @@ class MlxAudioTTS:
                         if whole:
                             received += whole
                             clock.item()
-                            yield PCMChunk(data[:whole], self._server.sample_rate)
+                            chunk = PCMChunk(data[:whole], self._server.sample_rate)
+                            if keep is not None:
+                                keep.append(chunk)
+                            yield chunk
                 if carry:
                     raise _bad("the stream ended inside a sample")
                 if not received:
                     raise _bad("the stream carried no audio")
+                if keep is not None and not self._capped(received, body):
+                    self._store(content, keep)
             finally:
                 await response.aclose()
+
+    def _capped(self, received: int, body: Json) -> bool:
+        """The take ran into ``max_tokens``: the server ends such a stream normally and says
+        nothing, so it is inferred from the codec frames received (80 ms each)."""
+        frames = received / SAMPLE_WIDTH / self._server.sample_rate / CODEC_FRAME_S
+        return round(frames) >= cast(int, body.get("max_tokens", SERVER_MAX_TOKENS))
+
+    def _store(self, key: bytes, chunks: list[PCMChunk]) -> None:
+        self._lines[key] = tuple(chunks)
+        self._lines.move_to_end(key)
+        while len(self._lines) > self._line_cache:
+            self._lines.popitem(last=False)
 
 
 def token_cap(text: str, cap: TokenCapConfig, limit: int | None) -> int:

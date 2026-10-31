@@ -232,6 +232,41 @@ VAD cut every spoken caller turn that had a comma pause into two (the first part
 cancelled within 0.3 s). Two R2s were lost to the script (it let the next caller turn start
 before R2 was created).
 
+**Line cache (issue #14).** The same flow (`zsh spikes/realstack/aiccflow.sh 10`: ten calls alone,
+then ten beside two bench sessions), twice on a freshly started stack: with
+`providers.tts.line_cache: 0` (the baseline, `MLXRT__PROVIDERS__TTS__LINE_CACHE=0`) and with the
+default 128. One run each; the cached stack's load phase followed its alone phase, so the announce
+was already stored in it. ms after `response.created`, P50 / P95 / max, n = 10 unless noted:
+
+| response | alone, no cache | alone, cache | with two more sessions, no cache | with two more sessions, cache |
+|---|---|---|---|---|
+| announce (verbatim line), first audio | 152 / 271 / 271 | **2 / 152 / 152** | 292 / 1272 / 1272 | **2 / 6 / 6** |
+| a caller's question, first audio | 657 / 721 / 721 | 678 / 773 / 773 | 1026 / 2224 / 2224 | 755 / 3399 / 3399 |
+| `repair_status`, tool-only, `response.done` | 836 / 915 / 915 | 824 / 920 / 920 | 1045 / 2003 / 2003 | 966 / 1651 / 1651 |
+| R2 (tool result + phase update), first audio | 489 / 1228 / 1228 | 490 / 1361 / 1361 (n=8) | 1412 / 2648 / 2648 | 1013 / 1653 / 1653 |
+| R3 `transfer_to_agent`, tool-only, `response.done` | 1566 / 1715 / 1715 | 1563 / 1993 / 1993 | 1953 / 3690 / 3690 | 1813 / 3486 / 3486 |
+
+- **Hit rate.** 19 of the 20 verbatim responses of the cached stack carry `tts_cache` on their
+  `tts_first_chunk` mark; the one miss is the first call after the start, which pays the live take
+  (its 152 ms is the alone P95). The baseline stack has none.
+- **The lines' share of the TTS.** The announce is two segments and 11.5 s of audio. Synthesizing
+  the responses of the baseline alone run's calls again on the idle TTS (RTF 0.28), the announce
+  takes 31.9 of 105.5 s (30 %); the question answers 34.3 s (33 %) and R2 39.3 s (37 %). This flow
+  has one verbatim line per call and no tool wait line (`aiccflow.py` does not send it), so the
+  wait line's share and first audio were not measured here.
+- **Replay.** A hit's first audio is the pipeline's own latency (2–6 ms); the whole line is queued
+  to the sender at once, so its `response.done` came after 31–54 ms where a live take's came after
+  2.9–4.3 s, the time the TTS took to synthesize it.
+- **The other responses.** Alone, the cache changes nothing beyond noise (every P50 within 25 ms
+  of the baseline). Under load the announce no longer holds the TTS for 3 s of each call, and the
+  P50s of the question, R2 and the tool results are lower (1026 → 755, 1412 → 1013, 1045 → 966
+  ms); the question's P95 is higher (2224 → 3399 ms, one call in ten, over AICC's 3 s window; its
+  first audio waited behind the bench sessions' segments, 10 calls per run cannot say more) and two
+  `transfer_to_agent` calls ended at 3.45 and 3.49 s against one at 3.69 s in the baseline. With n
+  = 10 these differences are within the run-to-run spread; the cache is not seen to hurt them.
+
+Rows: `spikes/results/realstack_aiccflow_linecache{0,128}_{alone,load}.jsonl`.
+
 ### 3.6 ASR accuracy
 
 Pooled error rates on the rows without numbers (all rows in brackets), each utterance's

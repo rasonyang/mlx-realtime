@@ -39,6 +39,7 @@ class ScriptedTTS:
     plans: deque[Plan] = field(default_factory=deque[Plan])
     calls: list[tuple[str, str, Lang]] = field(default_factory=list[tuple[str, str, Lang]])
     closed: int = 0
+    cached: bool = False  # the stream is a replay of a stored take
     warmed: int = 0
     readiness: Readiness = field(default_factory=lambda: Readiness(ready=True, detail="ok"))
     gate: asyncio.Event = field(default_factory=asyncio.Event)
@@ -57,6 +58,7 @@ class ScriptedTTS:
         plan = self.plans.popleft() if self.plans else Plan()
         if timing is not None:
             timing.model = self.name
+            timing.cached = self.cached
             timing.queued_s += 0.01
         try:
             for index in range(plan.chunks):
@@ -239,3 +241,18 @@ async def test_every_segment_goes_to_the_fallback_while_the_circuit_is_open() ->
     assert await collect_text(tts, "你好。") == [b"f\x00", b"f\x01"]
     assert await collect_text(tts, "Hello.", "en") == [b"f\x00", b"f\x01"]  # Latin letters too
     assert len(primary.calls) == 3
+
+
+async def test_a_replayed_take_is_not_a_backend_success_for_the_breaker() -> None:
+    primary = ScriptedTTS("p", deque([Plan(chunks=0, error=FAIL)] * 2))
+    tts = fallback_tts(primary, ScriptedTTS("f"))
+    await speak(tts)
+    await speak(tts)
+    primary.cached = True
+    timing = SpeechTiming()
+    assert await speak(tts, timing) == [b"p\x00", b"p\x01"]
+    assert timing.cached
+    primary.cached = False
+    primary.plans.append(Plan(chunks=0, error=FAIL))
+    await speak(tts)
+    assert tts.breaker.open  # three failures in a row: the replay did not reset the count
